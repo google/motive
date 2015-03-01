@@ -1,0 +1,39 @@
+# Binary
+libs/
+bin/
+obj/
+tests/*_test
+*.bin
+*.a
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+tests/Debug/
+tests/Release/
+tests/audio_engine_test.dir/
+
+# Gnumake
+Makefile
+
+# Visual Studio files
+build/
+*.sln
+*.user
+*.suo
+*.vcxproj
+*.vcxproj.filters
+Debug/
+Win32/
+
+# qt creator
+*.cbp
+
+# Misc generated files
+tags
+docs/html/
+docs/linklint_results/
+gen/
+
