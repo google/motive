@@ -22,7 +22,7 @@ using mathfu::vec4;
 using mathfu::mat4;
 using fpl::Angle;
 
-namespace impel {
+namespace motive {
 
 static inline bool IsRotation(MatrixOperationType type) {
   return type <= kRotateAboutZ;
@@ -38,19 +38,19 @@ class MatrixOperation {
     SetAnimationType(kInvalidAnimationType);
   }
 
-  MatrixOperation(const MatrixOperationInit& init, ImpelEngine* engine) {
+  MatrixOperation(const MatrixOperationInit& init, MotiveEngine* engine) {
     const AnimationType animation_type =
-        init.init == nullptr ? kConstValueAnimation : kImpellerAnimation;
+        init.init == nullptr ? kConstValueAnimation : kMotivatorAnimation;
     SetType(init.type);
     SetAnimationType(animation_type);
 
     switch (animation_type) {
-      case kImpellerAnimation: {
-        // Manually construct the impeller in the union, since the constructor
+      case kMotivatorAnimation: {
+        // Manually construct the motivator in the union, since the constructor
         // was never called on it. The union disables construction and we
         // must construct manually, like here.
-        Impeller1f* impeller = &value_.impeller;
-        new (impeller) Impeller1f(*init.init, engine);
+        Motivator1f* motivator = &value_.motivator;
+        new (motivator) Motivator1f(*init.init, engine);
 
         // Initialize the state if required.
         switch (init.union_type) {
@@ -58,16 +58,16 @@ class MatrixOperation {
             break;
 
           case MatrixOperationInit::kUnionInitialValue:
-            value_.impeller.SetTarget(Current1f(init.initial_value));
+            value_.motivator.SetTarget(Current1f(init.initial_value));
             break;
 
           case MatrixOperationInit::kUnionTarget:
-            value_.impeller.SetTarget(*init.target);
+            value_.motivator.SetTarget(*init.target);
             break;
 
           case MatrixOperationInit::kUnionWaypoints:
-            value_.impeller.SetWaypoints(*init.waypoints.spline,
-                                         init.waypoints.start_time);
+            value_.motivator.SetWaypoints(*init.waypoints.spline,
+                                          init.waypoints.start_time);
             break;
 
           default:
@@ -77,7 +77,7 @@ class MatrixOperation {
       }
 
       case kConstValueAnimation:
-        // If this value is not driven by an impeller, it must have a constant
+        // If this value is not driven by an motivator, it must have a constant
         // value.
         assert(init.union_type == MatrixOperationInit::kUnionInitialValue);
 
@@ -91,9 +91,9 @@ class MatrixOperation {
   }
 
   ~MatrixOperation() {
-    // Manually call the Impeller destructor, since the union hides it.
-    if (animation_type_ == kImpellerAnimation) {
-      value_.impeller.~Impeller1f();
+    // Manually call the Motivator destructor, since the union hides it.
+    if (animation_type_ == kMotivatorAnimation) {
+      value_.motivator.~Motivator1f();
     }
   }
 
@@ -104,22 +104,22 @@ class MatrixOperation {
 
   // Return the value we are animating.
   float Value() const {
-    return animation_type_ == kImpellerAnimation ? value_.impeller.Value()
-                                                 : value_.const_value;
+    return animation_type_ == kMotivatorAnimation ? value_.motivator.Value()
+                                                  : value_.const_value;
   }
 
-  // Return the child impeller if it is valid. Otherwise, return nullptr.
-  Impeller1f* ValueImpeller() {
-    return animation_type_ == kImpellerAnimation ? &value_.impeller : nullptr;
+  // Return the child motivator if it is valid. Otherwise, return nullptr.
+  Motivator1f* ValueMotivator() {
+    return animation_type_ == kMotivatorAnimation ? &value_.motivator : nullptr;
   }
 
-  const Impeller1f* ValueImpeller() const {
-    return animation_type_ == kImpellerAnimation ? &value_.impeller : nullptr;
+  const Motivator1f* ValueMotivator() const {
+    return animation_type_ == kMotivatorAnimation ? &value_.motivator : nullptr;
   }
 
-  void SetTarget1f(const ImpelTarget1f& t) {
-    assert(animation_type_ == kImpellerAnimation);
-    value_.impeller.SetTarget(t);
+  void SetTarget1f(const MotiveTarget1f& t) {
+    assert(animation_type_ == kMotivatorAnimation);
+    value_.motivator.SetTarget(t);
   }
 
   void SetValue1f(float value) {
@@ -131,17 +131,17 @@ class MatrixOperation {
  private:
   enum AnimationType {
     kInvalidAnimationType,
-    kImpellerAnimation,
+    kMotivatorAnimation,
     kConstValueAnimation
   };
 
   // Override the constructor and destructor and call manually, when required,
-  // on Impeller1f. We call manually since AnimatedValue is not always an
-  // 'impeller'--sometimes it's a simple 'const_value'.
+  // on Motivator1f. We call manually since AnimatedValue is not always an
+  // 'motivator'--sometimes it's a simple 'const_value'.
   union AnimatedValue {
     AnimatedValue() {}
     ~AnimatedValue() {}
-    Impeller1f impeller;
+    Motivator1f motivator;
     float const_value;
   };
 
@@ -185,10 +185,10 @@ static inline void RotateAboutAxis(const float angle, vec4* column0,
 // caused by pointer chasing. The 'ops_[]' array is actually of length
 // 'num_ops_'. Each item in 'ops_' is one matrix operation.
 //
-class MatrixImpelData {
-  MatrixImpelData() {}  // Use Create() to create this class.
+class MatrixData {
+  MatrixData() {}  // Use Create() to create this class.
  public:
-  ~MatrixImpelData() { Destroy(this); }
+  ~MatrixData() { Destroy(this); }
 
   // Execute the series of basic matrix operations in 'ops_'.
   // We break out the matrix into four column vectors to avoid matrix multiplies
@@ -282,14 +282,13 @@ class MatrixImpelData {
   const mat4& result_matrix() const { return result_matrix_; }
   int num_ops() const { return num_ops_; }
 
-  static MatrixImpelData* Create(const MatrixImpelInit& init,
-                                 ImpelEngine* engine) {
-    // Allocate a buffer that is big enough to hold MatrixImpelData.
-    const MatrixImpelInit::OpVector& ops = init.ops();
+  static MatrixData* Create(const MatrixInit& init, MotiveEngine* engine) {
+    // Allocate a buffer that is big enough to hold MatrixData.
+    const MatrixInit::OpVector& ops = init.ops();
     const int num_ops = static_cast<int>(ops.size());
     const size_t size = SizeOfClass(num_ops);
     uint8_t* buffer = new uint8_t[size];
-    MatrixImpelData* d = new (buffer) MatrixImpelData();
+    MatrixData* d = new (buffer) MatrixData();
 
     // Explicitly call constructors on members.
     d->result_matrix_ = mat4::Identity();
@@ -301,7 +300,7 @@ class MatrixImpelData {
     return d;
   }
 
-  static void Destroy(MatrixImpelData* d) {
+  static void Destroy(MatrixData* d) {
     // Explicity call destructors.
     d->result_matrix_.~mat4();
     for (int i = 0; i < d->num_ops_; ++i) {
@@ -315,7 +314,7 @@ class MatrixImpelData {
 
  private:
   static size_t SizeOfClass(int num_ops) {
-    return sizeof(MatrixImpelData) + sizeof(MatrixOperation) * (num_ops - 1);
+    return sizeof(MatrixData) + sizeof(MatrixOperation) * (num_ops - 1);
   }
 
   mat4 result_matrix_;
@@ -323,73 +322,73 @@ class MatrixImpelData {
   MatrixOperation ops_[1];
 };
 
-// See comments on MatrixImpelInit for details on this class.
-class MatrixImpelProcessor : public ImpelProcessorMatrix4f {
+// See comments on MatrixInit for details on this class.
+class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
  public:
-  virtual ~MatrixImpelProcessor() {}
+  virtual ~MatrixMotiveProcessor() {}
 
-  virtual void AdvanceFrame(ImpelTime /*delta_time*/) {
+  virtual void AdvanceFrame(MotiveTime /*delta_time*/) {
     Defragment();
 
     // Process the series of matrix operations for each index.
-    const ImpelIndex num_indices = NumIndices();
-    for (ImpelIndex index = 0; index < num_indices; ++index) {
-      MatrixImpelData& d = Data(index);
+    const MotiveIndex num_indices = NumIndices();
+    for (MotiveIndex index = 0; index < num_indices; ++index) {
+      MatrixData& d = Data(index);
       d.UpdateResultMatrix();
     }
   }
 
-  virtual ImpellerType Type() const { return MatrixImpelInit::kType; }
+  virtual MotivatorType Type() const { return MatrixInit::kType; }
   virtual int Priority() const { return 2; }
 
-  virtual const mat4& Value(ImpelIndex index) const {
+  virtual const mat4& Value(MotiveIndex index) const {
     return Data(index).result_matrix();
   }
 
-  virtual float ChildValue1f(ImpelIndex index,
-                             ImpelChildIndex child_index) const {
+  virtual float ChildValue1f(MotiveIndex index,
+                             MotiveChildIndex child_index) const {
     return Data(index).Op(child_index).Value();
   }
 
-  virtual void SetChildTarget1f(ImpelIndex index, ImpelChildIndex child_index,
-                                const ImpelTarget1f& t) {
+  virtual void SetChildTarget1f(MotiveIndex index, MotiveChildIndex child_index,
+                                const MotiveTarget1f& t) {
     Data(index).Op(child_index).SetTarget1f(t);
   }
 
-  virtual void SetChildValue1f(ImpelIndex index, ImpelChildIndex child_index,
+  virtual void SetChildValue1f(MotiveIndex index, MotiveChildIndex child_index,
                                float value) {
     Data(index).Op(child_index).SetValue1f(value);
   }
 
  protected:
-  ImpelIndex NumIndices() const {
-    return static_cast<ImpelIndex>(data_.size());
+  MotiveIndex NumIndices() const {
+    return static_cast<MotiveIndex>(data_.size());
   }
 
-  virtual void InitializeIndex(const ImpelInit& init, ImpelIndex index,
-                               ImpelEngine* engine) {
+  virtual void InitializeIndex(const MotivatorInit& init, MotiveIndex index,
+                               MotiveEngine* engine) {
     RemoveIndex(index);
-    auto init_params = static_cast<const MatrixImpelInit&>(init);
-    data_[index] = MatrixImpelData::Create(init_params, engine);
+    auto init_params = static_cast<const MatrixInit&>(init);
+    data_[index] = MatrixData::Create(init_params, engine);
   }
 
-  virtual void RemoveIndex(ImpelIndex index) {
+  virtual void RemoveIndex(MotiveIndex index) {
     if (data_[index] != nullptr) {
-      MatrixImpelData::Destroy(data_[index]);
+      MatrixData::Destroy(data_[index]);
       data_[index] = nullptr;
     }
   }
 
-  virtual void MoveIndex(ImpelIndex old_index, ImpelIndex new_index) {
+  virtual void MoveIndex(MotiveIndex old_index, MotiveIndex new_index) {
     data_[new_index] = data_[old_index];
     data_[old_index] = nullptr;
   }
 
-  virtual void SetNumIndices(ImpelIndex num_indices) {
-    const ImpelIndex old_num_indices = NumIndices();
+  virtual void SetNumIndices(MotiveIndex num_indices) {
+    const MotiveIndex old_num_indices = NumIndices();
 
     // Ensure old items are deleted.
-    for (ImpelIndex i = num_indices; i < old_num_indices; ++i) {
+    for (MotiveIndex i = num_indices; i < old_num_indices; ++i) {
       RemoveIndex(i);
     }
 
@@ -397,19 +396,19 @@ class MatrixImpelProcessor : public ImpelProcessorMatrix4f {
     data_.resize(num_indices, nullptr);
   }
 
-  const MatrixImpelData& Data(ImpelIndex index) const {
+  const MatrixData& Data(MotiveIndex index) const {
     assert(ValidIndex(index));
     return *data_[index];
   }
 
-  MatrixImpelData& Data(ImpelIndex index) {
+  MatrixData& Data(MotiveIndex index) {
     assert(ValidIndex(index));
     return *data_[index];
   }
 
-  std::vector<MatrixImpelData*> data_;
+  std::vector<MatrixData*> data_;
 };
 
-IMPEL_INSTANCE(MatrixImpelInit, MatrixImpelProcessor);
+MOTIVE_INSTANCE(MatrixInit, MatrixMotiveProcessor);
 
-}  // namespace impel
+}  // namespace motive

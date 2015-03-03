@@ -15,23 +15,23 @@
 #include "motive/engine.h"
 #include "motive/processor.h"
 
-namespace impel {
+namespace motive {
 
 // static
-ImpelEngine::FunctionMap ImpelEngine::function_map_;
+MotiveEngine::FunctionMap MotiveEngine::function_map_;
 
 // static
-void ImpelEngine::RegisterProcessorFactory(ImpellerType type,
-                                           const ImpelProcessorFunctions& fns) {
+void MotiveEngine::RegisterProcessorFactory(
+    MotivatorType type, const MotiveProcessorFunctions& fns) {
   function_map_.insert(FunctionPair(type, fns));
 }
 
-void ImpelEngine::Reset() {
+void MotiveEngine::Reset() {
   for (ProcessorMap::iterator it = mapped_processors_.begin();
        it != mapped_processors_.end(); ++it) {
     // Get the factory for each processor. Factory must exist since it is what
     // created the processor in the first place.
-    const ImpelProcessorFunctions& fns = function_map_.find(it->first)->second;
+    const MotiveProcessorFunctions& fns = function_map_.find(it->first)->second;
 
     // Destroy each processor in turn.
     fns.destroy(it->second);
@@ -42,7 +42,7 @@ void ImpelEngine::Reset() {
   mapped_processors_.clear();
 }
 
-ImpelProcessor* ImpelEngine::Processor(ImpellerType type) {
+MotiveProcessor* MotiveEngine::Processor(MotivatorType type) {
   // If processor already exists, return it.
   ProcessorMap::iterator it = mapped_processors_.find(type);
   if (it != mapped_processors_.end()) return it->second;
@@ -50,18 +50,18 @@ ImpelProcessor* ImpelEngine::Processor(ImpellerType type) {
   // Look up the processor-creation-function in the registry.
   const auto function_pair = function_map_.find(type);
   if (function_pair == function_map_.end()) return nullptr;
-  const ImpelProcessorFunctions& fns = function_pair->second;
+  const MotiveProcessorFunctions& fns = function_pair->second;
 
   // Remember processor for next time. We only want at most one processor per
   // type in an engine.
-  ImpelProcessor* processor = fns.create();
+  MotiveProcessor* processor = fns.create();
   mapped_processors_.insert(ProcessorPair(type, processor));
 
   sorted_processors_.insert(processor);
   return processor;
 }
 
-void ImpelEngine::AdvanceFrame(ImpelTime delta_time) {
+void MotiveEngine::AdvanceFrame(MotiveTime delta_time) {
   // Advance the simulation in each processor.
   // TODO: At some point, we'll want to do several passes. An item in
   // processor A might depend on the output of an item in processor B,
@@ -70,9 +70,9 @@ void ImpelEngine::AdvanceFrame(ImpelTime delta_time) {
   // assume that one pass is sufficient.
   for (ProcessorSet::iterator it = sorted_processors_.begin();
        it != sorted_processors_.end(); ++it) {
-    ImpelProcessor* processor = *it;
+    MotiveProcessor* processor = *it;
     processor->AdvanceFrame(delta_time);
   }
 }
 
-}  // namespace impel
+}  // namespace motive

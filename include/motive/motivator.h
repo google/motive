@@ -17,153 +17,156 @@
 
 #include "motive/processor.h"
 
-namespace impel {
+namespace motive {
 
-class ImpelEngine;
+class MotiveEngine;
 
-// Impeller
+// Motivator
 // ========
-// An Impeller drives a value towards a target.
+// An Motivator drives a value towards a target.
 //
 // The value can be one-dimensional (e.g. a float), or multi-dimensional
 // (e.g. a matrix). The dimension is determined by the sub-class:
-// Impeller1f drives a float, ImpellerMatrix4f drives a 4x4 float matrix.
-// The Impeller's current value can be queried with Value().
+// Motivator1f drives a float, MotivatorMatrix4f drives a 4x4 float matrix.
+// The Motivator's current value can be queried with Value().
 //
-// The way an Impeller's value moves towards its target is determined by the
-// **type** of an impeller. The type is specified in Impeller::Initialize().
+// The way an Motivator's value moves towards its target is determined by the
+// **type** of an motivator. The type is specified in Motivator::Initialize().
 //
-// Note that an Impeller does not store any data itself. It is a handle into
-// an ImpelProcessor. Each ImpelProcessor holds all data for impellers
-// of a given **type**. Only one Impeller can hold a handle to specific data.
-// Therefore, you can copy an Impeller, but the original impeller will become
+// Note that an Motivator does not store any data itself. It is a handle into
+// an MotiveProcessor. Each MotiveProcessor holds all data for motivators
+// of a given **type**. Only one Motivator can hold a handle to specific data.
+// Therefore, you can copy an Motivator, but the original motivator will become
 // invalid.
 //
-class Impeller {
+class Motivator {
  public:
-  Impeller() : processor_(nullptr), index_(kImpelIndexInvalid) {}
-  Impeller(const ImpelInit& init, ImpelEngine* engine)
-      : processor_(nullptr), index_(kImpelIndexInvalid) {
+  Motivator() : processor_(nullptr), index_(kMotiveIndexInvalid) {}
+  Motivator(const MotivatorInit& init, MotiveEngine* engine)
+      : processor_(nullptr), index_(kMotiveIndexInvalid) {
     Initialize(init, engine);
   }
 
-  // Allow Impellers to be copied so that they can be put into vectors.
-  // Transfer ownership of impeller to new impeller. Old impeller is reset and
+  // Allow Motivators to be copied so that they can be put into vectors.
+  // Transfer ownership of motivator to new motivator. Old motivator is reset
+  // and
   // can no longer be used.
-  Impeller(const Impeller& original) {
+  Motivator(const Motivator& original) {
     if (original.Valid()) {
-      original.processor_->TransferImpeller(original.index_, this);
+      original.processor_->TransferMotivator(original.index_, this);
     } else {
       processor_ = nullptr;
-      index_ = kImpelIndexInvalid;
+      index_ = kMotiveIndexInvalid;
     }
   }
-  Impeller& operator=(const Impeller& original) {
+  Motivator& operator=(const Motivator& original) {
     Invalidate();
-    original.processor_->TransferImpeller(original.index_, this);
+    original.processor_->TransferMotivator(original.index_, this);
     return *this;
   }
 
-  // Remove ourselves from the ImpelProcessor when we're deleted.
-  ~Impeller() { Invalidate(); }
+  // Remove ourselves from the MotiveProcessor when we're deleted.
+  ~Motivator() { Invalidate(); }
 
-  // Initialize this Impeller to the type specified in init.type.
-  void Initialize(const ImpelInit& init, ImpelEngine* engine);
+  // Initialize this Motivator to the type specified in init.type.
+  void Initialize(const MotivatorInit& init, MotiveEngine* engine);
 
-  // Detatch this Impeller from its ImpelProcessor. Functions other than
+  // Detatch this Motivator from its MotiveProcessor. Functions other than
   // Initialize can no longer be called after Invalidate has been called.
   void Invalidate() {
     if (processor_ != nullptr) {
-      processor_->RemoveImpeller(index_);
+      processor_->RemoveMotivator(index_);
     }
   }
 
-  // Return true if this Impeller is currently being driven by an
-  // ImpelProcessor. That is, it has been successfully initialized.
+  // Return true if this Motivator is currently being driven by an
+  // MotiveProcessor. That is, it has been successfully initialized.
   // Also check for a consistent internal state.
   bool Valid() const {
-    return processor_ != nullptr && processor_->ValidImpeller(index_, this);
+    return processor_ != nullptr && processor_->ValidMotivator(index_, this);
   }
 
-  // Return the type of Impeller we've been initilized to.
-  // An Impeller can take on any type.
-  ImpellerType Type() const { return processor_->Type(); }
+  // Return the type of Motivator we've been initilized to.
+  // An Motivator can take on any type.
+  MotivatorType Type() const { return processor_->Type(); }
 
-  // The number of floats (or doubles) that this Impeller is driving.
-  // For example, if this Impeller is driving a position in 3D space, then
+  // The number of floats (or doubles) that this Motivator is driving.
+  // For example, if this Motivator is driving a position in 3D space, then
   // we will return 3 here.
   int Dimensions() const { return processor_->Dimensions(); }
 
  protected:
-  // The ImpelProcessor uses the functions below. It does not modify data
+  // The MotiveProcessor uses the functions below. It does not modify data
   // directly.
-  friend ImpelProcessor;
+  friend MotiveProcessor;
 
-  // These should only be called by ImpelProcessor!
-  void Init(ImpelProcessor* processor, ImpelIndex index) {
+  // These should only be called by MotiveProcessor!
+  void Init(MotiveProcessor* processor, MotiveIndex index) {
     processor_ = processor;
     index_ = index;
   }
-  void Reset() { Init(nullptr, kImpelIndexInvalid); }
-  const ImpelProcessor* Processor() const { return processor_; }
+  void Reset() { Init(nullptr, kMotiveIndexInvalid); }
+  const MotiveProcessor* Processor() const { return processor_; }
 
-  // All calls to an Impeller are proxied to an ImpellerProcessor. Impeller
+  // All calls to an Motivator are proxied to an MotivatorProcessor. Motivator
   // data and processing is centralized to allow for scalable optimizations
   // (e.g. SIMD or parallelization).
-  ImpelProcessor* processor_;
+  MotiveProcessor* processor_;
 
-  // An ImpelProcessor processes one ImpellerType, and hosts every Impeller of
-  // that type. The id here uniquely identifies this Impeller to the
-  // ImpelProcessor.
-  ImpelIndex index_;
+  // An MotiveProcessor processes one MotivatorType, and hosts every Motivator
+  // of
+  // that type. The id here uniquely identifies this Motivator to the
+  // MotiveProcessor.
+  MotiveIndex index_;
 };
 
 // Drive a float value towards a target.
 //
 // The current and target values and velocities can be specified by SetTarget()
 // or SetWaypoints().
-class Impeller1f : public Impeller {
+class Motivator1f : public Motivator {
  public:
-  Impeller1f() {}
-  Impeller1f(const ImpelInit& init, ImpelEngine* engine)
-      : Impeller(init, engine) {}
-  Impeller1f(const ImpelInit& init, ImpelEngine* engine, const ImpelTarget1f& t)
-      : Impeller(init, engine) {
+  Motivator1f() {}
+  Motivator1f(const MotivatorInit& init, MotiveEngine* engine)
+      : Motivator(init, engine) {}
+  Motivator1f(const MotivatorInit& init, MotiveEngine* engine,
+              const MotiveTarget1f& t)
+      : Motivator(init, engine) {
     SetTarget(t);
   }
-  void InitializeWithTarget(const ImpelInit& init, ImpelEngine* engine,
-                            const ImpelTarget1f& t) {
+  void InitializeWithTarget(const MotivatorInit& init, MotiveEngine* engine,
+                            const MotiveTarget1f& t) {
     Initialize(init, engine);
     SetTarget(t);
   }
 
-  // Return current impeller values.
+  // Return current motivator values.
   float Value() const { return Processor().Value(index_); }
   float Velocity() const { return Processor().Velocity(index_); }
   float TargetValue() const { return Processor().TargetValue(index_); }
   float TargetVelocity() const { return Processor().TargetVelocity(index_); }
 
-  // Returns TargetValue() minus Value(). If we're impelling a
+  // Returns TargetValue() minus Value(). If we're driving a
   // modular type (e.g. an angle), this may not be the naive subtraction.
   float Difference() const { return Processor().Difference(index_); }
 
   // Returns time remaining until target is reached.
-  ImpelTime TargetTime() const { return Processor().TargetTime(index_); }
+  MotiveTime TargetTime() const { return Processor().TargetTime(index_); }
 
-  // Set current impeller values in the processor. Processors may choose to
+  // Set current motivator values in the processor. Processors may choose to
   // ignore whichever values make sense for them to ignore.
-  void SetTarget(const ImpelTarget1f& t) { Processor().SetTarget(index_, t); }
+  void SetTarget(const MotiveTarget1f& t) { Processor().SetTarget(index_, t); }
   void SetWaypoints(const fpl::CompactSpline& waypoints,
                     float start_time = 0.0f) {
     Processor().SetWaypoints(index_, waypoints, start_time);
   }
 
  private:
-  ImpelProcessor1f& Processor() {
-    return *static_cast<ImpelProcessor1f*>(processor_);
+  MotiveProcessor1f& Processor() {
+    return *static_cast<MotiveProcessor1f*>(processor_);
   }
-  const ImpelProcessor1f& Processor() const {
-    return *static_cast<const ImpelProcessor1f*>(processor_);
+  const MotiveProcessor1f& Processor() const {
+    return *static_cast<const MotiveProcessor1f*>(processor_);
   }
 };
 
@@ -176,17 +179,17 @@ class Impeller1f : public Impeller {
 // any matrix type to be specified via the Matrix4f template parameter.
 //
 template <class VectorConverter>
-class ImpellerMatrix4fTemplate : public Impeller {
+class MotivatorMatrix4fTemplate : public Motivator {
   typedef VectorConverter C;
   typedef typename VectorConverter::ExternalMatrix4 Mat4;
   typedef typename VectorConverter::ExternalVector3 Vec3;
 
  public:
-  ImpellerMatrix4fTemplate() {}
-  ImpellerMatrix4fTemplate(const ImpelInit& init, ImpelEngine* engine)
-      : Impeller(init, engine) {}
+  MotivatorMatrix4fTemplate() {}
+  MotivatorMatrix4fTemplate(const MotivatorInit& init, MotiveEngine* engine)
+      : Motivator(init, engine) {}
 
-  // Return the current value of the Impeller. The processor returns a
+  // Return the current value of the Motivator. The processor returns a
   // vector-aligned matrix, so the cast should be valid for any user-defined
   // matrix type.
   const Mat4& Value() const { return C::To(Processor().Value(index_)); }
@@ -194,41 +197,41 @@ class ImpellerMatrix4fTemplate : public Impeller {
     return C::To(Processor().Value(index_).TranslationVector3D());
   }
 
-  float ChildValue1f(ImpelChildIndex child_index) const {
+  float ChildValue1f(MotiveChildIndex child_index) const {
     return Processor().ChildValue1f(index_, child_index);
   }
-  Vec3 ChildValue3f(ImpelChildIndex child_index) const {
+  Vec3 ChildValue3f(MotiveChildIndex child_index) const {
     return C::To(Processor().ChildValue3f(index_, child_index));
   }
 
-  // Set the target for a child impeller. Each basic matrix transformations
-  // can be driven by a child impeller. This call lets us control each
+  // Set the target for a child motivator. Each basic matrix transformations
+  // can be driven by a child motivator. This call lets us control each
   // transformation.
-  void SetChildTarget1f(ImpelChildIndex child_index, const ImpelTarget1f& t) {
+  void SetChildTarget1f(MotiveChildIndex child_index, const MotiveTarget1f& t) {
     Processor().SetChildTarget1f(index_, child_index, t);
   }
 
   // Set the constant value of a child. Each basic matrix transformation
   // can be driven by a constant value. This call lets us set those constant
   // values.
-  void SetChildValue1f(ImpelChildIndex child_index, float value) {
+  void SetChildValue1f(MotiveChildIndex child_index, float value) {
     Processor().SetChildValue1f(index_, child_index, value);
   }
-  void SetChildValue3f(ImpelChildIndex child_index, const Vec3& value) {
+  void SetChildValue3f(MotiveChildIndex child_index, const Vec3& value) {
     Processor().SetChildValue3f(index_, child_index, C::From(value));
   }
 
  private:
-  ImpelProcessorMatrix4f& Processor() {
-    return *static_cast<ImpelProcessorMatrix4f*>(processor_);
+  MotiveProcessorMatrix4f& Processor() {
+    return *static_cast<MotiveProcessorMatrix4f*>(processor_);
   }
-  const ImpelProcessorMatrix4f& Processor() const {
-    return *static_cast<const ImpelProcessorMatrix4f*>(processor_);
+  const MotiveProcessorMatrix4f& Processor() const {
+    return *static_cast<const MotiveProcessorMatrix4f*>(processor_);
   }
 };
 
 // External types are also mathfu in this converter. Create your own converter
-// if you'd like to use your own vector types in ImpelMatrix's external API.
+// if you'd like to use your own vector types in MotivatorMatrix's external API.
 class PassThroughVectorConverter {
  public:
   typedef mathfu::mat4 ExternalMatrix4;
@@ -238,8 +241,8 @@ class PassThroughVectorConverter {
   static const mathfu::vec3& From(const ExternalVector3& v) { return v; }
 };
 
-typedef ImpellerMatrix4fTemplate<PassThroughVectorConverter> ImpellerMatrix4f;
+typedef MotivatorMatrix4fTemplate<PassThroughVectorConverter> MotivatorMatrix4f;
 
-}  // namespace impel
+}  // namespace motive
 
 #endif  // MOTIVE_MOTIVATOR_H

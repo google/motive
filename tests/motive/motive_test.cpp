@@ -29,49 +29,48 @@
 using fpl::kPi;
 using fpl::kHalfPi;
 using fpl::Range;
-using impel::ImpelEngine;
-using impel::Impeller1f;
-using impel::ImpellerMatrix4f;
-using impel::ImpelTime;
-using impel::ImpelInit;
-using impel::ImpelTarget1f;
-using impel::OvershootImpelInit;
-using impel::SmoothImpelInit;
-using impel::MatrixImpelInit;
-using impel::MatrixOperationInit;
-using impel::Settled1f;
-using impel::MatrixOperationType;
-using impel::kRotateAboutX;
-using impel::kRotateAboutY;
-using impel::kRotateAboutZ;
-using impel::kTranslateX;
-using impel::kTranslateY;
-using impel::kTranslateZ;
-using impel::kScaleX;
-using impel::kScaleY;
-using impel::kScaleZ;
-using impel::kScaleUniformly;
+using motive::MotiveEngine;
+using motive::Motivator1f;
+using motive::MotivatorMatrix4f;
+using motive::MotiveTime;
+using motive::MotivatorInit;
+using motive::MotiveTarget1f;
+using motive::OvershootInit;
+using motive::SmoothInit;
+using motive::MatrixInit;
+using motive::MatrixOperationInit;
+using motive::Settled1f;
+using motive::MatrixOperationType;
+using motive::kRotateAboutX;
+using motive::kRotateAboutY;
+using motive::kRotateAboutZ;
+using motive::kTranslateX;
+using motive::kTranslateY;
+using motive::kTranslateZ;
+using motive::kScaleX;
+using motive::kScaleY;
+using motive::kScaleZ;
+using motive::kScaleUniformly;
 using mathfu::mat4;
 using mathfu::vec3;
 
 typedef mathfu::Matrix<float, 3> mat3;
 
-static const ImpelTime kTimePerFrame = 10;
-static const ImpelTime kMaxTime = 10000;
+static const MotiveTime kTimePerFrame = 10;
+static const MotiveTime kMaxTime = 10000;
 static const float kMatrixEpsilon = 0.00001f;
 static const float kAngleEpsilon = 0.01f;
 
-
-class ImpelTests : public ::testing::Test {
+class MotiveTests : public ::testing::Test {
 protected:
   virtual void SetUp()
   {
     const Range angle_range(-3.14159265359f, 3.14159265359f);
-    impel::OvershootImpelInit::Register();
-    impel::SmoothImpelInit::Register();
-    impel::MatrixImpelInit::Register();
+    motive::OvershootInit::Register();
+    motive::SmoothInit::Register();
+    motive::MatrixInit::Register();
 
-    // Create an OvershootImpelInit with reasonable values.
+    // Create an OvershootInit with reasonable values.
     overshoot_angle_init_.set_modular(true);
     overshoot_angle_init_.set_range(angle_range);
     overshoot_angle_init_.set_max_velocity(0.021f);
@@ -82,7 +81,7 @@ protected:
     overshoot_angle_init_.set_wrong_direction_multiplier(4.0f);
     overshoot_angle_init_.set_max_delta_time(10);
 
-    // Create an OvershootImpelInit that represents a percent from 0 ~ 100.
+    // Create an OvershootInit that represents a percent from 0 ~ 100.
     // It does not wrap around.
     overshoot_percent_init_.set_modular(false);
     overshoot_percent_init_.set_range(Range(0.0f, 100.0f));
@@ -103,61 +102,61 @@ protected:
   virtual void TearDown() {}
 
 protected:
-  void InitImpeller(const ImpelInit& init, float start_value,
+ void InitMotivator(const MotivatorInit& init, float start_value,
                     float start_velocity, float target_value,
-                    Impeller1f* impeller) {
-    impeller->InitializeWithTarget(init, &engine_,
-        impel::CurrentToTarget1f(start_value, start_velocity, target_value,
-                                 0.0f, 1));
+                    Motivator1f* motivator) {
+   motivator->InitializeWithTarget(
+       init, &engine_, motive::CurrentToTarget1f(start_value, start_velocity,
+                                                 target_value, 0.0f, 1));
   }
 
-  void InitOvershootImpeller(Impeller1f* impeller) {
-    InitImpeller(overshoot_percent_init_, overshoot_percent_init_.Max(),
-                 overshoot_percent_init_.max_velocity(),
-                 overshoot_percent_init_.Max(), impeller);
+  void InitOvershootMotivator(Motivator1f* motivator) {
+    InitMotivator(overshoot_percent_init_, overshoot_percent_init_.Max(),
+                  overshoot_percent_init_.max_velocity(),
+                  overshoot_percent_init_.Max(), motivator);
   }
 
-  void InitOvershootImpellerArray(Impeller1f* impellers, int len) {
+  void InitOvershootMotivatorArray(Motivator1f* motivators, int len) {
     for (int i = 0; i < len; ++i) {
-      InitOvershootImpeller(&impellers[i]);
+      InitOvershootMotivator(&motivators[i]);
     }
   }
 
-  ImpelTime TimeToSettle(const Impeller1f& impeller, const Settled1f& settled) {
-    ImpelTime time = 0;
-    while (time < kMaxTime && !settled.Settled(impeller)) {
+  MotiveTime TimeToSettle(const Motivator1f& motivator,
+                          const Settled1f& settled) {
+    MotiveTime time = 0;
+    while (time < kMaxTime && !settled.Settled(motivator)) {
       engine_.AdvanceFrame(kTimePerFrame);
       time += kTimePerFrame;
     }
     return time;
   }
 
-  ImpelEngine engine_;
-  OvershootImpelInit overshoot_angle_init_;
-  OvershootImpelInit overshoot_percent_init_;
-  SmoothImpelInit smooth_angle_init_;
-  SmoothImpelInit smooth_scalar_init_;
+  MotiveEngine engine_;
+  OvershootInit overshoot_angle_init_;
+  OvershootInit overshoot_percent_init_;
+  SmoothInit smooth_angle_init_;
+  SmoothInit smooth_scalar_init_;
 };
 
 // Ensure we wrap around from pi to -pi.
-TEST_F(ImpelTests, ModularMovement) {
-  Impeller1f impeller;
-  InitImpeller(overshoot_angle_init_, kPi, 0.001f, -kPi + 1.0f, &impeller);
+TEST_F(MotiveTests, ModularMovement) {
+  Motivator1f motivator;
+  InitMotivator(overshoot_angle_init_, kPi, 0.001f, -kPi + 1.0f, &motivator);
   engine_.AdvanceFrame(1);
 
   // We expect the position to go up from +pi since it has positive velocity.
   // Since +pi is the max of the range, we expect the value to wrap down to -pi.
-  EXPECT_LE(impeller.Value(), 0.0f);
+  EXPECT_LE(motivator.Value(), 0.0f);
 }
 
 // Ensure the simulation settles on the target in a reasonable amount of time.
-TEST_F(ImpelTests, EventuallySettles) {
-  Impeller1f impeller;
-  InitImpeller(overshoot_angle_init_, 0.0f,
-               overshoot_angle_init_.max_velocity(),
-               -kPi + 1.0f, &impeller);
-  const ImpelTime time_to_settle = TimeToSettle(
-      impeller, overshoot_angle_init_.at_target());
+TEST_F(MotiveTests, EventuallySettles) {
+  Motivator1f motivator;
+  InitMotivator(overshoot_angle_init_, 0.0f,
+                overshoot_angle_init_.max_velocity(), -kPi + 1.0f, &motivator);
+  const MotiveTime time_to_settle =
+      TimeToSettle(motivator, overshoot_angle_init_.at_target());
 
   // The simulation should complete in about half a second (time is in ms).
   // Checke that it doesn't finish too quickly nor too slowly.
@@ -167,12 +166,12 @@ TEST_F(ImpelTests, EventuallySettles) {
 
 // Ensure the simulation settles when the target is the max bound in a modular
 // type. It will oscillate between the max and min bound a lot.
-TEST_F(ImpelTests, SettlesOnMax) {
-  Impeller1f impeller;
-  InitImpeller(overshoot_angle_init_, kPi, overshoot_angle_init_.max_velocity(),
-               kPi, &impeller);
-  const ImpelTime time_to_settle = TimeToSettle(
-      impeller, overshoot_angle_init_.at_target());
+TEST_F(MotiveTests, SettlesOnMax) {
+  Motivator1f motivator;
+  InitMotivator(overshoot_angle_init_, kPi,
+                overshoot_angle_init_.max_velocity(), kPi, &motivator);
+  const MotiveTime time_to_settle =
+      TimeToSettle(motivator, overshoot_angle_init_.at_target());
 
   // The simulation should complete in about half a second (time is in ms).
   // Checke that it doesn't finish too quickly nor too slowly.
@@ -182,113 +181,113 @@ TEST_F(ImpelTests, SettlesOnMax) {
 
 // Ensure the simulation does not exceed the max bound, on constrants that
 // do not wrap around.
-TEST_F(ImpelTests, StaysWithinBound) {
-  Impeller1f impeller;
-  InitOvershootImpeller(&impeller);
+TEST_F(MotiveTests, StaysWithinBound) {
+  Motivator1f motivator;
+  InitOvershootMotivator(&motivator);
   engine_.AdvanceFrame(1);
 
   // Even though we're at the bound and trying to travel beyond the bound,
   // the simulation should clamp our position to the bound.
-  EXPECT_EQ(impeller.Value(), overshoot_percent_init_.Max());
+  EXPECT_EQ(motivator.Value(), overshoot_percent_init_.Max());
 }
 
 // Open up a hole in the data and then call Defragment() to close it.
-TEST_F(ImpelTests, Defragment) {
-  Impeller1f impellers[4];
-  const int len = static_cast<int>(ARRAYSIZE(impellers));
+TEST_F(MotiveTests, Defragment) {
+  Motivator1f motivators[4];
+  const int len = static_cast<int>(ARRAYSIZE(motivators));
   for (int hole = 0; hole < len; ++hole) {
-    InitOvershootImpellerArray(impellers, len);
+    InitOvershootMotivatorArray(motivators, len);
 
-    // Invalidate impeller at index 'hole'.
-    impellers[hole].Invalidate();
-    EXPECT_FALSE(impellers[hole].Valid());
+    // Invalidate motivator at index 'hole'.
+    motivators[hole].Invalidate();
+    EXPECT_FALSE(motivators[hole].Valid());
 
     // Defragment() is called at the start of AdvanceFrame.
     engine_.AdvanceFrame(1);
-    EXPECT_FALSE(impellers[hole].Valid());
+    EXPECT_FALSE(motivators[hole].Valid());
 
-    // Compare the remaining impellers against each other.
+    // Compare the remaining motivators against each other.
     const int compare = hole == 0 ? 1 : 0;
-    EXPECT_TRUE(impellers[compare].Valid());
+    EXPECT_TRUE(motivators[compare].Valid());
     for (int i = 0; i < len; ++i) {
       if (i == hole || i == compare)
         continue;
 
-      // All the impellers should be valid and have the same values.
-      EXPECT_TRUE(impellers[i].Valid());
-      EXPECT_EQ(impellers[i].Value(), impellers[compare].Value());
-      EXPECT_EQ(impellers[i].Velocity(), impellers[compare].Velocity());
-      EXPECT_EQ(impellers[i].TargetValue(), impellers[compare].TargetValue());
+      // All the motivators should be valid and have the same values.
+      EXPECT_TRUE(motivators[i].Valid());
+      EXPECT_EQ(motivators[i].Value(), motivators[compare].Value());
+      EXPECT_EQ(motivators[i].Velocity(), motivators[compare].Velocity());
+      EXPECT_EQ(motivators[i].TargetValue(), motivators[compare].TargetValue());
     }
   }
 }
 
-// Copy a valid impeller. Ensure original impeller gets invalidated.
-TEST_F(ImpelTests, CopyConstructor) {
-  Impeller1f orig_impeller;
-  InitOvershootImpeller(&orig_impeller);
-  EXPECT_TRUE(orig_impeller.Valid());
-  const float value = orig_impeller.Value();
+// Copy a valid motivator. Ensure original motivator gets invalidated.
+TEST_F(MotiveTests, CopyConstructor) {
+  Motivator1f orig_motivator;
+  InitOvershootMotivator(&orig_motivator);
+  EXPECT_TRUE(orig_motivator.Valid());
+  const float value = orig_motivator.Value();
 
-  Impeller1f new_impeller(orig_impeller);
-  EXPECT_FALSE(orig_impeller.Valid());
-  EXPECT_TRUE(new_impeller.Valid());
-  EXPECT_EQ(new_impeller.Value(), value);
+  Motivator1f new_motivator(orig_motivator);
+  EXPECT_FALSE(orig_motivator.Valid());
+  EXPECT_TRUE(new_motivator.Valid());
+  EXPECT_EQ(new_motivator.Value(), value);
 }
 
-// Copy an invalid impeller.
-TEST_F(ImpelTests, CopyConstructorInvalid) {
-  Impeller1f invalid_impeller;
-  EXPECT_FALSE(invalid_impeller.Valid());
+// Copy an invalid motivator.
+TEST_F(MotiveTests, CopyConstructorInvalid) {
+  Motivator1f invalid_motivator;
+  EXPECT_FALSE(invalid_motivator.Valid());
 
-  Impeller1f copy_of_invalid(invalid_impeller);
+  Motivator1f copy_of_invalid(invalid_motivator);
   EXPECT_FALSE(copy_of_invalid.Valid());
 }
 
-TEST_F(ImpelTests, AssignmentOperator) {
-  Impeller1f orig_impeller;
-  InitOvershootImpeller(&orig_impeller);
-  EXPECT_TRUE(orig_impeller.Valid());
-  const float value = orig_impeller.Value();
+TEST_F(MotiveTests, AssignmentOperator) {
+  Motivator1f orig_motivator;
+  InitOvershootMotivator(&orig_motivator);
+  EXPECT_TRUE(orig_motivator.Valid());
+  const float value = orig_motivator.Value();
 
-  Impeller1f new_impeller;
-  new_impeller = orig_impeller;
-  EXPECT_FALSE(orig_impeller.Valid());
-  EXPECT_TRUE(new_impeller.Valid());
-  EXPECT_EQ(new_impeller.Value(), value);
+  Motivator1f new_motivator;
+  new_motivator = orig_motivator;
+  EXPECT_FALSE(orig_motivator.Valid());
+  EXPECT_TRUE(new_motivator.Valid());
+  EXPECT_EQ(new_motivator.Value(), value);
 }
 
-TEST_F(ImpelTests, VectorResize) {
+TEST_F(MotiveTests, VectorResize) {
   static const int kStartSize = 4;
-  std::vector<Impeller1f> impellers(kStartSize);
+  std::vector<Motivator1f> motivators(kStartSize);
 
-  // Create the impellers and ensure that they're valid.
+  // Create the motivators and ensure that they're valid.
   for (int i = 0; i < kStartSize; ++i) {
-    InitOvershootImpeller(&impellers[i]);
-    EXPECT_TRUE(impellers[i].Valid());
+    InitOvershootMotivator(&motivators[i]);
+    EXPECT_TRUE(motivators[i].Valid());
   }
 
-  // Expand the size of 'impellers'. This should force the array to be
-  // reallocated and all impellers in the array to be moved.
-  const Impeller1f* orig_address = &impellers[0];
-  impellers.resize(kStartSize + 1);
-  const Impeller1f* new_address = &impellers[0];
+  // Expand the size of 'motivators'. This should force the array to be
+  // reallocated and all motivators in the array to be moved.
+  const Motivator1f* orig_address = &motivators[0];
+  motivators.resize(kStartSize + 1);
+  const Motivator1f* new_address = &motivators[0];
   EXPECT_NE(orig_address, new_address);
 
-  // All the move impellers should still be valid.
+  // All the move motivators should still be valid.
   for (int i = 0; i < kStartSize; ++i) {
-    InitOvershootImpeller(&impellers[i]);
-    EXPECT_TRUE(impellers[i].Valid());
+    InitOvershootMotivator(&motivators[i]);
+    EXPECT_TRUE(motivators[i].Valid());
   }
 }
 
-TEST_F(ImpelTests, SmoothModular) {
+TEST_F(MotiveTests, SmoothModular) {
   static const float kMargin = 0.1f;
-  static const ImpelTime kTime = 10;
+  static const MotiveTime kTime = 10;
   static const float kStart = kPi - kMargin;
   static const float kEnd = -kPi + kMargin;
-  Impeller1f angle(smooth_angle_init_, &engine_,
-                   impel::CurrentToTarget1f(kStart, 0.0f, kEnd, 0.0f, kTime));
+  Motivator1f angle(smooth_angle_init_, &engine_,
+                    motive::CurrentToTarget1f(kStart, 0.0f, kEnd, 0.0f, kTime));
 
   // The difference should be the short way around, across kPi.
   EXPECT_NEAR(angle.Value(), kStart, kAngleEpsilon);
@@ -296,7 +295,7 @@ TEST_F(ImpelTests, SmoothModular) {
 
   // Ensure that we're always near kPi, never near 0. We want to go the
   // short way around.
-  for (ImpelTime t = 0; t < kTime; ++t) {
+  for (MotiveTime t = 0; t < kTime; ++t) {
     EXPECT_TRUE(kStart - kAngleEpsilon <= angle.Value() ||
                 angle.Value() <= kEnd + kAngleEpsilon);
     engine_.AdvanceFrame(1);
@@ -336,8 +335,8 @@ static mat4 CreateMatrixFromOp(const MatrixOperationInit& op_init) {
 }
 
 // Return the product of the matrices for each operation in 'matrix_init'.
-static mat4 CreateMatrixFromOps(const MatrixImpelInit& matrix_init) {
-  const MatrixImpelInit::OpVector& ops = matrix_init.ops();
+static mat4 CreateMatrixFromOps(const MatrixInit& matrix_init) {
+  const MatrixInit::OpVector& ops = matrix_init.ops();
 
   mat4 m = mat4::Identity();
   for (size_t i = 0; i < ops.size(); ++i) {
@@ -354,130 +353,131 @@ static void ExpectMatricesEqual(const mat4& a, const mat4&b, float epsilon) {
   }
 }
 
-static void TestMatrixImpeller(const MatrixImpelInit& matrix_init,
-                               ImpelEngine* engine) {
-  ImpellerMatrix4f matrix_impeller(matrix_init, engine);
+static void TestMatrixMotivator(const MatrixInit& matrix_init,
+                                MotiveEngine* engine) {
+  MotivatorMatrix4f matrix_motivator(matrix_init, engine);
   engine->AdvanceFrame(kTimePerFrame);
   const mat4 check_matrix = CreateMatrixFromOps(matrix_init);
-  const mat4 impel_matrix = matrix_impeller.Value();
-  ExpectMatricesEqual(impel_matrix, check_matrix, kMatrixEpsilon);
+  const mat4 motive_matrix = matrix_motivator.Value();
+  ExpectMatricesEqual(motive_matrix, check_matrix, kMatrixEpsilon);
 
   // Output matrices for debugging.
-  PrintMatrix("impeller", impel_matrix);
+  PrintMatrix("motivator", motive_matrix);
   PrintMatrix("check", check_matrix);
 }
 
 // Test the matrix operation kTranslateX.
-TEST_F(ImpelTests, MatrixTranslateX) {
-  MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kTranslateX, smooth_scalar_init_, 2.0f);
-  TestMatrixImpeller(matrix_init, &engine_);
+TEST_F(MotiveTests, MatrixTranslateX) {
+  MatrixInit matrix_init;
+  matrix_init.AddOp(motive::kTranslateX, smooth_scalar_init_, 2.0f);
+  TestMatrixMotivator(matrix_init, &engine_);
 }
 
-// Don't use an impeller to drive the animation. Use a constant value.
-TEST_F(ImpelTests, MatrixTranslateXConstValue) {
-  MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kTranslateX, 2.0f);
-  TestMatrixImpeller(matrix_init, &engine_);
+// Don't use an motivator to drive the animation. Use a constant value.
+TEST_F(MotiveTests, MatrixTranslateXConstValue) {
+  MatrixInit matrix_init;
+  matrix_init.AddOp(motive::kTranslateX, 2.0f);
+  TestMatrixMotivator(matrix_init, &engine_);
 }
 
 // Test the matrix operation kRotateAboutX.
-TEST_F(ImpelTests, MatrixRotateAboutX) {
-  MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kRotateAboutX, smooth_angle_init_, kHalfPi);
-  TestMatrixImpeller(matrix_init, &engine_);
+TEST_F(MotiveTests, MatrixRotateAboutX) {
+  MatrixInit matrix_init;
+  matrix_init.AddOp(motive::kRotateAboutX, smooth_angle_init_, kHalfPi);
+  TestMatrixMotivator(matrix_init, &engine_);
 }
 
 // Test the matrix operation kRotateAboutY.
-TEST_F(ImpelTests, MatrixRotateAboutY) {
-  MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kRotateAboutY, smooth_angle_init_, kHalfPi / 3.0f);
-  TestMatrixImpeller(matrix_init, &engine_);
+TEST_F(MotiveTests, MatrixRotateAboutY) {
+  MatrixInit matrix_init;
+  matrix_init.AddOp(motive::kRotateAboutY, smooth_angle_init_, kHalfPi / 3.0f);
+  TestMatrixMotivator(matrix_init, &engine_);
 }
 
 // Test the matrix operation kRotateAboutZ.
-TEST_F(ImpelTests, MatrixRotateAboutZ) {
-  MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kRotateAboutZ, smooth_angle_init_, -kHalfPi / 1.2f);
-  TestMatrixImpeller(matrix_init, &engine_);
+TEST_F(MotiveTests, MatrixRotateAboutZ) {
+  MatrixInit matrix_init;
+  matrix_init.AddOp(motive::kRotateAboutZ, smooth_angle_init_, -kHalfPi / 1.2f);
+  TestMatrixMotivator(matrix_init, &engine_);
 }
 
 // Test the matrix operation kScaleX.
-TEST_F(ImpelTests, MatrixScaleX) {
-  MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kScaleX, smooth_scalar_init_, -3.0f);
-  TestMatrixImpeller(matrix_init, &engine_);
+TEST_F(MotiveTests, MatrixScaleX) {
+  MatrixInit matrix_init;
+  matrix_init.AddOp(motive::kScaleX, smooth_scalar_init_, -3.0f);
+  TestMatrixMotivator(matrix_init, &engine_);
 }
 
 // Test the series of matrix operations for translating XYZ.
-TEST_F(ImpelTests, MatrixTranslateXYZ) {
-  MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kTranslateX, smooth_scalar_init_, 2.0f);
-  matrix_init.AddOp(impel::kTranslateY, smooth_scalar_init_, -3.0f);
-  matrix_init.AddOp(impel::kTranslateZ, smooth_scalar_init_, 0.5f);
-  TestMatrixImpeller(matrix_init, &engine_);
+TEST_F(MotiveTests, MatrixTranslateXYZ) {
+  MatrixInit matrix_init;
+  matrix_init.AddOp(motive::kTranslateX, smooth_scalar_init_, 2.0f);
+  matrix_init.AddOp(motive::kTranslateY, smooth_scalar_init_, -3.0f);
+  matrix_init.AddOp(motive::kTranslateZ, smooth_scalar_init_, 0.5f);
+  TestMatrixMotivator(matrix_init, &engine_);
 }
 
 // Test the series of matrix operations for rotating about X, Y, and Z,
 // in turn.
-TEST_F(ImpelTests, MatrixRotateAboutXYZ) {
-  MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kRotateAboutX, smooth_angle_init_, -kHalfPi / 2.0f);
-  matrix_init.AddOp(impel::kRotateAboutY, smooth_angle_init_, kHalfPi / 3.0f);
-  matrix_init.AddOp(impel::kRotateAboutZ, smooth_angle_init_, kHalfPi / 5.0f);
-  TestMatrixImpeller(matrix_init, &engine_);
+TEST_F(MotiveTests, MatrixRotateAboutXYZ) {
+  MatrixInit matrix_init;
+  matrix_init.AddOp(motive::kRotateAboutX, smooth_angle_init_, -kHalfPi / 2.0f);
+  matrix_init.AddOp(motive::kRotateAboutY, smooth_angle_init_, kHalfPi / 3.0f);
+  matrix_init.AddOp(motive::kRotateAboutZ, smooth_angle_init_, kHalfPi / 5.0f);
+  TestMatrixMotivator(matrix_init, &engine_);
 }
 
 // Test the series of matrix operations for scaling XYZ non-uniformly.
-TEST_F(ImpelTests, MatrixScaleXYZ) {
-  MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kScaleX, smooth_scalar_init_, -3.0f);
-  matrix_init.AddOp(impel::kScaleY, smooth_scalar_init_, 2.2f);
-  matrix_init.AddOp(impel::kScaleZ, smooth_scalar_init_, 1.01f);
-  TestMatrixImpeller(matrix_init, &engine_);
+TEST_F(MotiveTests, MatrixScaleXYZ) {
+  MatrixInit matrix_init;
+  matrix_init.AddOp(motive::kScaleX, smooth_scalar_init_, -3.0f);
+  matrix_init.AddOp(motive::kScaleY, smooth_scalar_init_, 2.2f);
+  matrix_init.AddOp(motive::kScaleZ, smooth_scalar_init_, 1.01f);
+  TestMatrixMotivator(matrix_init, &engine_);
 }
 
 // Test the matrix operation kScaleUniformly.
-TEST_F(ImpelTests, MatrixScaleUniformly) {
-  MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kScaleUniformly, smooth_scalar_init_, 10.1f);
-  TestMatrixImpeller(matrix_init, &engine_);
+TEST_F(MotiveTests, MatrixScaleUniformly) {
+  MatrixInit matrix_init;
+  matrix_init.AddOp(motive::kScaleUniformly, smooth_scalar_init_, 10.1f);
+  TestMatrixMotivator(matrix_init, &engine_);
 }
 
 // Test the series of matrix operations for translating and rotating.
-TEST_F(ImpelTests, MatrixTranslateRotateTranslateBack) {
-  MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kTranslateY, smooth_scalar_init_, 1.0f);
-  matrix_init.AddOp(impel::kRotateAboutX, smooth_angle_init_, kHalfPi);
-  matrix_init.AddOp(impel::kTranslateY, smooth_scalar_init_, -1.0f);
-  TestMatrixImpeller(matrix_init, &engine_);
+TEST_F(MotiveTests, MatrixTranslateRotateTranslateBack) {
+  MatrixInit matrix_init;
+  matrix_init.AddOp(motive::kTranslateY, smooth_scalar_init_, 1.0f);
+  matrix_init.AddOp(motive::kRotateAboutX, smooth_angle_init_, kHalfPi);
+  matrix_init.AddOp(motive::kTranslateY, smooth_scalar_init_, -1.0f);
+  TestMatrixMotivator(matrix_init, &engine_);
 }
 
 // Test the series of matrix operations for translating, rotating, and scaling.
-TEST_F(ImpelTests, MatrixTranslateRotateScale) {
-  MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kTranslateY, smooth_scalar_init_, 1.0f);
-  matrix_init.AddOp(impel::kRotateAboutX, smooth_angle_init_, kHalfPi);
-  matrix_init.AddOp(impel::kScaleZ, smooth_scalar_init_, -1.4f);
-  TestMatrixImpeller(matrix_init, &engine_);
+TEST_F(MotiveTests, MatrixTranslateRotateScale) {
+  MatrixInit matrix_init;
+  matrix_init.AddOp(motive::kTranslateY, smooth_scalar_init_, 1.0f);
+  matrix_init.AddOp(motive::kRotateAboutX, smooth_angle_init_, kHalfPi);
+  matrix_init.AddOp(motive::kScaleZ, smooth_scalar_init_, -1.4f);
+  TestMatrixMotivator(matrix_init, &engine_);
 }
 
 // Test a complex the series of matrix operations.
-TEST_F(ImpelTests, MatrixTranslateRotateScaleGoneWild) {
-  MatrixImpelInit matrix_init;
-  matrix_init.AddOp(impel::kTranslateY, smooth_scalar_init_, 1.0f);
-  matrix_init.AddOp(impel::kTranslateX, smooth_scalar_init_, -1.6f);
-  matrix_init.AddOp(impel::kRotateAboutX, smooth_angle_init_, kHalfPi * 0.1f);
-  matrix_init.AddOp(impel::kRotateAboutY, smooth_angle_init_, kHalfPi * 0.33f);
-  matrix_init.AddOp(impel::kScaleZ, smooth_scalar_init_, -1.4f);
-  matrix_init.AddOp(impel::kRotateAboutY, smooth_angle_init_, -kHalfPi * 0.33f);
-  matrix_init.AddOp(impel::kTranslateX, smooth_scalar_init_, -1.2f);
-  matrix_init.AddOp(impel::kTranslateY, smooth_scalar_init_, -1.5f);
-  matrix_init.AddOp(impel::kTranslateZ, smooth_scalar_init_, -2.2f);
-  matrix_init.AddOp(impel::kRotateAboutZ, smooth_angle_init_, -kHalfPi * 0.5f);
-  matrix_init.AddOp(impel::kScaleX, smooth_scalar_init_, 2.0f);
-  matrix_init.AddOp(impel::kScaleY, smooth_scalar_init_, 4.1f);
-  TestMatrixImpeller(matrix_init, &engine_);
+TEST_F(MotiveTests, MatrixTranslateRotateScaleGoneWild) {
+  MatrixInit matrix_init;
+  matrix_init.AddOp(motive::kTranslateY, smooth_scalar_init_, 1.0f);
+  matrix_init.AddOp(motive::kTranslateX, smooth_scalar_init_, -1.6f);
+  matrix_init.AddOp(motive::kRotateAboutX, smooth_angle_init_, kHalfPi * 0.1f);
+  matrix_init.AddOp(motive::kRotateAboutY, smooth_angle_init_, kHalfPi * 0.33f);
+  matrix_init.AddOp(motive::kScaleZ, smooth_scalar_init_, -1.4f);
+  matrix_init.AddOp(motive::kRotateAboutY, smooth_angle_init_,
+                    -kHalfPi * 0.33f);
+  matrix_init.AddOp(motive::kTranslateX, smooth_scalar_init_, -1.2f);
+  matrix_init.AddOp(motive::kTranslateY, smooth_scalar_init_, -1.5f);
+  matrix_init.AddOp(motive::kTranslateZ, smooth_scalar_init_, -2.2f);
+  matrix_init.AddOp(motive::kRotateAboutZ, smooth_angle_init_, -kHalfPi * 0.5f);
+  matrix_init.AddOp(motive::kScaleX, smooth_scalar_init_, 2.0f);
+  matrix_init.AddOp(motive::kScaleY, smooth_scalar_init_, 4.1f);
+  TestMatrixMotivator(matrix_init, &engine_);
 }
 
 

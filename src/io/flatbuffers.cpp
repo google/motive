@@ -15,16 +15,16 @@
 #include "motive_generated.h"
 #include "motive/init.h"
 
-namespace impel {
+namespace motive {
 
 static void ModularInitFromFlatBuffers(const ModularParameters& params,
-                                       ModularImpelInit* init) {
+                                       ModularInit* init) {
   init->set_modular(params.modular() != 0);
   init->set_range(fpl::Range(params.min(), params.max()));
 }
 
 void OvershootInitFromFlatBuffers(const OvershootParameters& params,
-                                  OvershootImpelInit* init) {
+                                  OvershootInit* init) {
   ModularInitFromFlatBuffers(*params.base(), init);
   init->set_max_velocity(params.max_velocity());
   init->set_max_delta(params.max_delta());
@@ -36,7 +36,7 @@ void OvershootInitFromFlatBuffers(const OvershootParameters& params,
 }
 
 void SmoothInitFromFlatBuffers(const SmoothParameters& params,
-                               SmoothImpelInit* init) {
+                               SmoothInit* init) {
   ModularInitFromFlatBuffers(*params.base(), init);
 }
 
@@ -46,4 +46,4 @@ void Settled1fFromFlatBuffers(const Settled1fParameters& params,
   settled->max_difference = params.max_difference();
 }
 
-}  // namespace impel
+}  // namespace motive

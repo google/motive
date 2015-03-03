@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace impel;
+namespace motive;
 
 // Set of thresholds to determine if the current state is stopped at-target.
 table Settled1fParameters {
@@ -31,38 +31,38 @@ table ModularParameters {
   // that arithmetic wraps around instead of clamping to min/max.
   modular:bool;
 
-  // Minimum value for Impeller::Value(). Clamped or wrapped-around when we
+  // Minimum value for Motivator::Value(). Clamped or wrapped-around when we
   // reach this boundary.
   min:float;
 
-  // Maximum value for Impeller::Value(). Clamped or wrapped-around when we
+  // Maximum value for Motivator::Value(). Clamped or wrapped-around when we
   // reach this boundary.
   max:float;
 }
 
-// Characterize the movement of an overshoot Impeller. Please see
-// impel_processor_overshoot.cpp for the actual algorithm.
+// Characterize the movement of an overshoot Motivator. Please see
+// overshoot_processor.cpp for the actual algorithm.
 //
 // e.g. An angle will set 'modular' to true, with 'min' of -pi and 'max' of +pi.
 // The 'max_delta' and 'max_velocity' for an angle will depend on the thing that
 // is turning--a face angle might move more slowly than a robot arm, for
 // example.
 table OvershootParameters {
-  // Common properties for everything based on ImpelInitWithVelocity.
+  // Common properties for everything based on InitWithVelocity.
   base:ModularParameters;
 
 
   // Maximum speed at which the value can change. That is, maximum value for
-  // the Impeller::Velocity(). In units/tick.
+  // the Motivator::Velocity(). In units/tick.
   // For example, if the value is an angle, then this is the max angular
   // velocity, and the units are radians/tick.
   max_velocity:float;
 
-  // Maximum that Impeller::Value() can be altered on a single call to
-  // ImpelEngine::AdvanceFrame(), regardless of velocity or delta_time.
+  // Maximum that Motivator::Value() can be altered on a single call to
+  // MotiveEngine::AdvanceFrame(), regardless of velocity or delta_time.
   max_delta:float;
 
-  // Cutoff to determine if the Impeller's current state has settled on the
+  // Cutoff to determine if the Motivator's current state has settled on the
   // target. Once it has settled, Value() is set to TargetValue() and Velocity()
   // is set to zero.
   at_target:Settled1fParameters;
@@ -82,12 +82,12 @@ table OvershootParameters {
 }
 
 table SmoothParameters {
-  // Common properties for everything based on ImpelInitWithVelocity.
+  // Common properties for everything based on InitWithVelocity.
   base:ModularParameters;
 }
 
 table TwitchParameters {
-  // When a twitch happens, Impeller::Velocity() is set to this value.
+  // When a twitch happens, Motivator::Velocity() is set to this value.
   // A twitch happens when 'twitch_settled' is true and a twich is requested. velocity:float;
 
   // Cutoff to determine if twitch can be applied. Twitch is only applied when

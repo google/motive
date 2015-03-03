@@ -15,106 +15,109 @@
 #include "motive/processor.h"
 #include "motive/motivator.h"
 
-namespace impel {
+namespace motive {
 
-ImpelProcessor::~ImpelProcessor() {
-  // Reset all of the Impellers that we're currently driving.
+MotiveProcessor::~MotiveProcessor() {
+  // Reset all of the Motivators that we're currently driving.
   // We don't want any of them to reference us after we've been destroyed.
-  for (ImpelIndex index = 0; index < index_allocator_.num_indices(); ++index) {
-    if (impellers_[index] != nullptr) {
-      RemoveImpeller(index);
+  for (MotiveIndex index = 0; index < index_allocator_.num_indices(); ++index) {
+    if (motivators_[index] != nullptr) {
+      RemoveMotivator(index);
     }
   }
 
-  // Sanity-check: Ensure that we have no more active Impellers.
+  // Sanity-check: Ensure that we have no more active Motivators.
   assert(index_allocator_.Empty());
 }
 
-void ImpelProcessor::InitializeImpeller(const ImpelInit& init,
-                                        ImpelEngine* engine,
-                                        Impeller* impeller) {
-  // Assign an 'index' to reference the new Impeller. All interactions between
-  // the Impeller and ImpelProcessor use this 'index' to identify the data.
-  const ImpelIndex index = index_allocator_.Alloc();
+void MotiveProcessor::InitializeMotivator(const MotivatorInit& init,
+                                          MotiveEngine* engine,
+                                          Motivator* motivator) {
+  // Assign an 'index' to reference the new Motivator. All interactions between
+  // the Motivator and MotiveProcessor use this 'index' to identify the data.
+  const MotiveIndex index = index_allocator_.Alloc();
 
-  // Keep a pointer to the Impeller around. We may Defragment() the indices and
-  // move the data around. We also need remove the Impeller when we're
+  // Keep a pointer to the Motivator around. We may Defragment() the indices and
+  // move the data around. We also need remove the Motivator when we're
   // destroyed.
-  impellers_[index] = impeller;
+  motivators_[index] = motivator;
 
-  // Initialize the impeller to point at our ImpelProcessor.
-  impeller->Init(this, index);
+  // Initialize the motivator to point at our MotiveProcessor.
+  motivator->Init(this, index);
 
-  // Call the ImpelProcessor-specific initialization routine.
+  // Call the MotiveProcessor-specific initialization routine.
   InitializeIndex(init, index, engine);
 }
 
-void ImpelProcessor::RemoveImpeller(ImpelIndex index) {
+void MotiveProcessor::RemoveMotivator(MotiveIndex index) {
   assert(ValidIndex(index));
 
-  // Call the ImpelProcessor-specific remove routine.
+  // Call the MotiveProcessor-specific remove routine.
   RemoveIndex(index);
 
-  // Ensure the Impeller no longer references us.
-  impellers_[index]->Reset();
+  // Ensure the Motivator no longer references us.
+  motivators_[index]->Reset();
 
-  // Ensure we no longer reference the Impeller.
-  impellers_[index] = nullptr;
+  // Ensure we no longer reference the Motivator.
+  motivators_[index] = nullptr;
 
   // Recycle 'index'. It will be used in the next allocation, or back-filled in
   // the next call to Defragment().
   index_allocator_.Free(index);
 }
 
-void ImpelProcessor::TransferImpeller(ImpelIndex index,
-                                      Impeller* new_impeller) {
+void MotiveProcessor::TransferMotivator(MotiveIndex index,
+                                        Motivator* new_motivator) {
   assert(ValidIndex(index));
 
-  // Ensure old Impeller does not reference us anymore. Only one Impeller is
+  // Ensure old Motivator does not reference us anymore. Only one Motivator is
   // allowed to reference 'index'.
-  Impeller* old_impeller = impellers_[index];
-  old_impeller->Reset();
+  Motivator* old_motivator = motivators_[index];
+  old_motivator->Reset();
 
-  // Set up new_impeller to reference 'index'.
-  new_impeller->Init(this, index);
+  // Set up new_motivator to reference 'index'.
+  new_motivator->Init(this, index);
 
-  // Update our reference to the unique Impeller that references 'index'.
-  impellers_[index] = new_impeller;
+  // Update our reference to the unique Motivator that references 'index'.
+  motivators_[index] = new_motivator;
 }
 
-bool ImpelProcessor::ValidIndex(ImpelIndex index) const {
+bool MotiveProcessor::ValidIndex(MotiveIndex index) const {
   return index < index_allocator_.num_indices() &&
-         impellers_[index] != nullptr && impellers_[index]->Processor() == this;
+         motivators_[index] != nullptr &&
+         motivators_[index]->Processor() == this;
 }
 
-void ImpelProcessor::SetNumIndicesBase(ImpelIndex num_indices) {
+void MotiveProcessor::SetNumIndicesBase(MotiveIndex num_indices) {
   // When the size decreases, we don't bother reallocating the size of the
-  // 'impellers_' vector. We want to avoid reallocating as much as possible,
+  // 'motivators_' vector. We want to avoid reallocating as much as possible,
   // so we let it grow to its high-water mark.
   //
   // TODO: Ideally, we should reserve approximately the right amount of storage
-  // for impellers_. That would require adding a user-defined initialization
+  // for motivators_. That would require adding a user-defined initialization
   // parameter.
-  impellers_.resize(num_indices);
+  motivators_.resize(num_indices);
 
   // Call derived class.
   SetNumIndices(num_indices);
 }
 
-void ImpelProcessor::MoveIndexBase(ImpelIndex old_index, ImpelIndex new_index) {
+void MotiveProcessor::MoveIndexBase(MotiveIndex old_index,
+                                    MotiveIndex new_index) {
   // Assert we're moving something valid onto something invalid.
-  assert(impellers_[new_index] == nullptr && impellers_[old_index] != nullptr);
+  assert(motivators_[new_index] == nullptr &&
+         motivators_[old_index] != nullptr);
 
-  // Reinitialize the impeller to point to the new index.
-  Impeller* impeller = impellers_[old_index];
-  impeller->Init(this, new_index);
+  // Reinitialize the motivator to point to the new index.
+  Motivator* motivator = motivators_[old_index];
+  motivator->Init(this, new_index);
 
   // Swap the pointer values stored at indices.
-  impellers_[new_index] = impeller;
-  impellers_[old_index] = nullptr;
+  motivators_[new_index] = motivator;
+  motivators_[old_index] = nullptr;
 
   // Call derived class so the derived class can perform similar data movement.
   MoveIndex(old_index, new_index);
 }
 
-}  // namespace impel
+}  // namespace motive

@@ -15,24 +15,24 @@
 #ifndef MOTIVE_IO_FLATBUFFERS_H_
 #define MOTIVE_IO_FLATBUFFERS_H_
 
-namespace impel {
+namespace motive {
 
-class OvershootImpelInit;
+class OvershootInit;
 struct OvershootParameters;
-class SmoothImpelInit;
+class SmoothInit;
 struct SmoothParameters;
 struct Settled1f;
 struct Settled1fParameters;
 
 void OvershootInitFromFlatBuffers(const OvershootParameters& params,
-                                  OvershootImpelInit* init);
+                                  OvershootInit* init);
 
 void SmoothInitFromFlatBuffers(const SmoothParameters& params,
-                               SmoothImpelInit* init);
+                               SmoothInit* init);
 
 void Settled1fFromFlatBuffers(const Settled1fParameters& params,
                               Settled1f* settled);
 
-}  // namespace impel
+}  // namespace motive
 
 #endif  // MOTIVE_IO_FLATBUFFERS_H_

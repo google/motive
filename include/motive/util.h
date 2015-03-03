@@ -18,7 +18,7 @@
 #include "motive/motivator.h"
 #include "motive/target.h"
 
-namespace impel {
+namespace motive {
 
 enum TwitchDirection {
   kTwitchDirectionNone,      // Do nothing.
@@ -41,20 +41,20 @@ struct Settled1f {
     return fabs(dist) <= max_difference && fabs(velocity) <= max_velocity;
   }
 
-  bool Settled(const Impeller1f& impeller) const {
-    return Settled(impeller.Difference(), impeller.Velocity());
+  bool Settled(const Motivator1f& motivator) const {
+    return Settled(motivator.Difference(), motivator.Velocity());
   }
 };
 
 inline void Twitch(TwitchDirection direction, float velocity,
-                   const Settled1f& settled, Impeller1f* impeller) {
-  if (direction != kTwitchDirectionNone && settled.Settled(*impeller)) {
-    impeller->SetTarget(Current1f(
-        impeller->Value(),
+                   const Settled1f& settled, Motivator1f* motivator) {
+  if (direction != kTwitchDirectionNone && settled.Settled(*motivator)) {
+    motivator->SetTarget(Current1f(
+        motivator->Value(),
         direction == kTwitchDirectionPositive ? velocity : -velocity));
   }
 }
 
-}  // namespace impel
+}  // namespace motive
 
 #endif  // MOTIVE_UTIL_H_

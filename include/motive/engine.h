@@ -21,50 +21,50 @@
 #include "motive/common.h"
 #include "motive/processor.h"
 
-namespace impel {
+namespace motive {
 
-struct ImpelProcessorFunctions;
+struct MotiveProcessorFunctions;
 
 // The engine holds all of the processors, and updates them all when
 // AdvanceFrame() is called. The processing is kept central, in this manner,
 // for scalability. The engine is not a singleton, but you should try to
-// minimize the number of engines in your game. As more Impellers are added to
+// minimize the number of engines in your game. As more Motivators are added to
 // the processors, you start to get economies of scale.
-class ImpelEngine {
+class MotiveEngine {
   struct ComparePriority {
-    bool operator()(const ImpelProcessor* lhs, const ImpelProcessor* rhs) {
+    bool operator()(const MotiveProcessor* lhs, const MotiveProcessor* rhs) {
       return lhs->Priority() < rhs->Priority();
     }
   };
-  typedef std::map<ImpellerType, ImpelProcessor*> ProcessorMap;
-  typedef std::pair<ImpellerType, ImpelProcessor*> ProcessorPair;
-  typedef std::multiset<ImpelProcessor*, ComparePriority> ProcessorSet;
-  typedef std::map<ImpellerType, ImpelProcessorFunctions> FunctionMap;
-  typedef std::pair<ImpellerType, ImpelProcessorFunctions> FunctionPair;
+  typedef std::map<MotivatorType, MotiveProcessor*> ProcessorMap;
+  typedef std::pair<MotivatorType, MotiveProcessor*> ProcessorPair;
+  typedef std::multiset<MotiveProcessor*, ComparePriority> ProcessorSet;
+  typedef std::map<MotivatorType, MotiveProcessorFunctions> FunctionMap;
+  typedef std::pair<MotivatorType, MotiveProcessorFunctions> FunctionPair;
 
  public:
   void Reset();
-  ImpelProcessor* Processor(ImpellerType type);
-  void AdvanceFrame(ImpelTime delta_time);
+  MotiveProcessor* Processor(MotivatorType type);
+  void AdvanceFrame(MotiveTime delta_time);
 
-  static void RegisterProcessorFactory(ImpellerType type,
-                                       const ImpelProcessorFunctions& fns);
+  static void RegisterProcessorFactory(MotivatorType type,
+                                       const MotiveProcessorFunctions& fns);
 
  private:
-  // Map from the ImpellerType to the ImpelProcessor. Only one ImpelProcessor
+  // Map from the MotivatorType to the MotiveProcessor. Only one MotiveProcessor
   // per type per engine. This is to maximize centralization of data.
   ProcessorMap mapped_processors_;
 
-  // Sort the ImpelProcessors by priority. Low numbered priorities run first.
-  // This allows high number priorities to have child impellers, as long as
-  // the child impellers have lower priority.
+  // Sort the MotiveProcessors by priority. Low numbered priorities run first.
+  // This allows high number priorities to have child motivators, as long as
+  // the child motivators have lower priority.
   ProcessorSet sorted_processors_;
 
-  // ProcessorMap from the ImpellerType to the factory that creates the
-  // ImpelProcessor. We only create an ImpelProcessor when one is needed.
+  // ProcessorMap from the MotivatorType to the factory that creates the
+  // MotiveProcessor. We only create an MotiveProcessor when one is needed.
   static FunctionMap function_map_;
 };
 
-}  // namespace impel
+}  // namespace motive
 
 #endif  // MOTIVE_ENGINE_H_

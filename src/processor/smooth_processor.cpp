@@ -16,7 +16,7 @@
 #include "motive/init.h"
 #include "motive/math/bulk_spline_evaluator.h"
 
-namespace impel {
+namespace motive {
 
 using fpl::CompactSpline;
 using fpl::BulkSplineEvaluator;
@@ -28,56 +28,58 @@ static const float kYRangeBufferPercent = 1.2f;
 
 // An intermediate node might be inserted to make the cubic curve well
 // behaved, so reserve 3 nodes in the spline.
-static const int kMaxNodesInLocalSpline = 2 * ImpelTarget1f::kMaxNodes + 1;
+static const int kMaxNodesInLocalSpline = 2 * MotiveTarget1f::kMaxNodes + 1;
 
-struct SmoothImpelData {
-  SmoothImpelData() : local_spline(nullptr) {}
+struct SmoothData {
+  SmoothData() : local_spline(nullptr) {}
 
   // If we own the spline, recycle it in the spline pool.
   CompactSpline* local_spline;
 };
 
-class SmoothImpelProcessor : public ImpelProcessor1f {
+class SmoothMotiveProcessor : public MotiveProcessor1f {
  public:
-  virtual ~SmoothImpelProcessor() {
+  virtual ~SmoothMotiveProcessor() {
     for (auto it = spline_pool_.begin(); it != spline_pool_.end(); ++it) {
       delete *(it);
     }
   }
 
-  virtual void AdvanceFrame(ImpelTime delta_time) {
+  virtual void AdvanceFrame(MotiveTime delta_time) {
     Defragment();
     interpolator_.AdvanceFrame(delta_time);
   }
 
-  virtual ImpellerType Type() const { return SmoothImpelInit::kType; }
+  virtual MotivatorType Type() const { return SmoothInit::kType; }
   virtual int Priority() const { return 0; }
 
   // Accessors to allow the user to get and set simluation values.
-  virtual float Value(ImpelIndex index) const { return interpolator_.Y(index); }
-  virtual float Velocity(ImpelIndex index) const {
+  virtual float Value(MotiveIndex index) const {
+    return interpolator_.Y(index);
+  }
+  virtual float Velocity(MotiveIndex index) const {
     return interpolator_.Derivative(index);
   }
-  virtual float TargetValue(ImpelIndex index) const {
+  virtual float TargetValue(MotiveIndex index) const {
     return interpolator_.EndY(index);
   }
-  virtual float TargetVelocity(ImpelIndex index) const {
+  virtual float TargetVelocity(MotiveIndex index) const {
     return interpolator_.EndDerivative(index);
   }
-  virtual float Difference(ImpelIndex index) const {
+  virtual float Difference(MotiveIndex index) const {
     return interpolator_.YDifferenceToEnd(index);
   }
-  virtual ImpelTime TargetTime(ImpelIndex index) const {
-    return static_cast<ImpelTime>(interpolator_.EndX(index) -
-                                  interpolator_.X(index));
+  virtual MotiveTime TargetTime(MotiveIndex index) const {
+    return static_cast<MotiveTime>(interpolator_.EndX(index) -
+                                   interpolator_.X(index));
   }
 
-  virtual void SetTarget(ImpelIndex index, const ImpelTarget1f& t) {
-    SmoothImpelData& d = Data(index);
+  virtual void SetTarget(MotiveIndex index, const MotiveTarget1f& t) {
+    SmoothData& d = Data(index);
 
     // If the first node specifies time=0, that means we want to override the
     // current values with the values specified in the first node.
-    const ImpelNode1f& node0 = t.Node(0);
+    const MotiveNode1f& node0 = t.Node(0);
     const bool override_current = node0.time == 0;
     const float start_y = override_current ? node0.value : Value(index);
     const float start_derivative =
@@ -102,7 +104,7 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
     // request when using modular arithmetic.
     float prev_y = start_y;
     for (int i = start_node_index; i < t.num_nodes(); ++i) {
-      const ImpelNode1f& n = t.Node(i);
+      const MotiveNode1f& n = t.Node(i);
       const float y = interpolator_.NextY(index, prev_y, n.value, n.direction);
       d.local_spline->AddNode(static_cast<float>(n.time), y, n.velocity);
       prev_y = y;
@@ -113,10 +115,10 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
     interpolator_.SetSpline(index, *d.local_spline);
   }
 
-  virtual void SetWaypoints(ImpelIndex index,
+  virtual void SetWaypoints(MotiveIndex index,
                             const fpl::CompactSpline& waypoints,
                             float start_time) {
-    SmoothImpelData& d = Data(index);
+    SmoothData& d = Data(index);
 
     // Return the local spline to the spline pool. We use external splines now.
     FreeSpline(d.local_spline);
@@ -128,36 +130,36 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
   }
 
  protected:
-  virtual void InitializeIndex(const ImpelInit& init, ImpelIndex index,
-                               ImpelEngine* engine) {
+  virtual void InitializeIndex(const MotivatorInit& init, MotiveIndex index,
+                               MotiveEngine* engine) {
     (void)engine;
-    auto smooth = static_cast<const SmoothImpelInit&>(init);
+    auto smooth = static_cast<const SmoothInit&>(init);
     interpolator_.SetYRange(index, smooth.range(), smooth.modular());
   }
 
-  virtual void RemoveIndex(ImpelIndex index) {
+  virtual void RemoveIndex(MotiveIndex index) {
     // Return the spline to the pool of splines.
-    SmoothImpelData& d = Data(index);
+    SmoothData& d = Data(index);
     FreeSpline(d.local_spline);
     d.local_spline = nullptr;
   }
 
-  virtual void MoveIndex(ImpelIndex old_index, ImpelIndex new_index) {
+  virtual void MoveIndex(MotiveIndex old_index, MotiveIndex new_index) {
     data_[new_index] = data_[old_index];
     interpolator_.MoveIndex(old_index, new_index);
   }
 
-  virtual void SetNumIndices(ImpelIndex num_indices) {
+  virtual void SetNumIndices(MotiveIndex num_indices) {
     data_.resize(num_indices);
     interpolator_.SetNumIndices(num_indices);
   }
 
-  const SmoothImpelData& Data(ImpelIndex index) const {
+  const SmoothData& Data(MotiveIndex index) const {
     assert(ValidIndex(index));
     return data_[index];
   }
 
-  SmoothImpelData& Data(ImpelIndex index) {
+  SmoothData& Data(MotiveIndex index) {
     assert(ValidIndex(index));
     return data_[index];
   }
@@ -181,7 +183,7 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
 
   // Hold index-specific data, for example a pointer to the spline allocated
   // from 'spline_pool_'.
-  std::vector<SmoothImpelData> data_;
+  std::vector<SmoothData> data_;
 
   // Holds unused splines. When we need another local spline (because we're
   // supplied with target values but not the actual curve to get there),
@@ -189,10 +191,10 @@ class SmoothImpelProcessor : public ImpelProcessor1f {
   std::vector<CompactSpline*> spline_pool_;
 
   // Perform the spline evaluation, over time. Indices in 'interpolator_'
-  // are the same as the ImpelIndex values in this class.
+  // are the same as the MotiveIndex values in this class.
   BulkSplineEvaluator interpolator_;
 };
 
-IMPEL_INSTANCE(SmoothImpelInit, SmoothImpelProcessor);
+MOTIVE_INSTANCE(SmoothInit, SmoothMotiveProcessor);
 
-}  // namespace impel
+}  // namespace motive

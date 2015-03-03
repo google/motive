@@ -15,18 +15,18 @@
 #include "motive/motivator.h"
 #include "motive/engine.h"
 
-namespace impel {
+namespace motive {
 
-void Impeller::Initialize(const ImpelInit& init, ImpelEngine* engine) {
-  // Unregister ourselves with our existing ImpelProcessor.
+void Motivator::Initialize(const MotivatorInit& init, MotiveEngine* engine) {
+  // Unregister ourselves with our existing MotiveProcessor.
   Invalidate();
 
-  // The ImpelProcessors are held centrally in the ImpelEngine. There is only
+  // The MotiveProcessors are held centrally in the MotiveEngine. There is only
   // one processor per type. Get that processor.
-  ImpelProcessor* processor = engine->Processor(init.type());
+  MotiveProcessor* processor = engine->Processor(init.type());
 
-  // Register and initialize ourselves with the ImpelProcessor.
-  processor->InitializeImpeller(init, engine, this);
+  // Register and initialize ourselves with the MotiveProcessor.
+  processor->InitializeMotivator(init, engine, this);
 }
 
-}  // namespace impel
+}  // namespace motive

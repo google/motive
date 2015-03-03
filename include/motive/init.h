@@ -18,7 +18,7 @@
 #include "motive/util.h"
 #include "motive/math/range.h"
 
-namespace impel {
+namespace motive {
 
 enum MatrixOperationType {
   kInvalidMatrixOperation,
@@ -34,18 +34,17 @@ enum MatrixOperationType {
   kScaleUniformly,
 };
 
-// ImpelProcessors that derive from ImpelProcessorWithVelocity should have an
-// ImpelInit that derives from this struct (ImpelInitWithVelocity).
-class ModularImpelInit : public ImpelInit {
+class ModularInit : public MotivatorInit {
  public:
-  // The derived type must call this constructor with it's ImpelType identifier.
-  explicit ModularImpelInit(ImpellerType type)
-      : ImpelInit(type),
+  // The derived type must call this constructor with it's MotivatorType
+  // identifier.
+  explicit ModularInit(MotivatorType type)
+      : MotivatorInit(type),
         range_(-std::numeric_limits<float>::infinity(),
                std::numeric_limits<float>::infinity()),
         modular_(false) {}
-  ModularImpelInit(ImpellerType type, const fpl::Range& range, bool modular)
-      : ImpelInit(type), range_(range), modular_(modular) {}
+  ModularInit(MotivatorType type, const fpl::Range& range, bool modular)
+      : MotivatorInit(type), range_(range), modular_(modular) {}
 
   // Ensure position 'x' is within the valid constraint range.
   // 'x' must be within (max_ - min_) of the range. This is a reasonable
@@ -58,7 +57,7 @@ class ModularImpelInit : public ImpelInit {
     return modular_ ? range_.NormalizeWildValue(x) : x;
   }
 
-  // Ensure the impeller value is within the specified range.
+  // Ensure the motivator value is within the specified range.
   float ClampValue(float x) const { return range_.Clamp(x); }
   float Min() const { return range_.start(); }
   float Max() const { return range_.end(); }
@@ -70,7 +69,7 @@ class ModularImpelInit : public ImpelInit {
   void set_modular(bool modular) { modular_ = modular; }
 
  private:
-  // Minimum and maximum values for Impeller::Value().
+  // Minimum and maximum values for Motivator::Value().
   // Clamp (if modular_ is false) or wrap-around (if modular_ is true) when
   // we reach these boundaries.
   fpl::Range range_;
@@ -81,12 +80,12 @@ class ModularImpelInit : public ImpelInit {
   bool modular_;
 };
 
-class OvershootImpelInit : public ModularImpelInit {
+class OvershootInit : public ModularInit {
  public:
-  IMPEL_INTERFACE();
+  MOTIVE_INTERFACE();
 
-  OvershootImpelInit()
-      : ModularImpelInit(kType),
+  OvershootInit()
+      : ModularInit(kType),
         max_velocity_(0.0f),
         accel_per_difference_(0.0f),
         wrong_direction_multiplier_(0.0f),
@@ -97,7 +96,7 @@ class OvershootImpelInit : public ModularImpelInit {
     return mathfu::Clamp(velocity, -max_velocity_, max_velocity_);
   }
 
-  // Ensure the Impeller's 'value' doesn't increment by more than 'max_delta'.
+  // Ensure the Motivator's 'value' doesn't increment by more than 'max_delta'.
   // This is different from ClampVelocity because it is independent of time.
   // No matter how big the timestep, the delta will not be too great.
   float ClampDelta(float delta) const {
@@ -119,7 +118,7 @@ class OvershootImpelInit : public ModularImpelInit {
   float wrong_direction_multiplier() const {
     return wrong_direction_multiplier_;
   }
-  ImpelTime max_delta_time() const { return max_delta_time_; }
+  MotiveTime max_delta_time() const { return max_delta_time_; }
 
   void set_max_velocity(float max_velocity) { max_velocity_ = max_velocity; }
   void set_max_delta(float max_delta) { max_delta_ = max_delta; }
@@ -130,22 +129,22 @@ class OvershootImpelInit : public ModularImpelInit {
   void set_wrong_direction_multiplier(float wrong_direction_multiplier) {
     wrong_direction_multiplier_ = wrong_direction_multiplier;
   }
-  void set_max_delta_time(ImpelTime max_delta_time) {
+  void set_max_delta_time(MotiveTime max_delta_time) {
     max_delta_time_ = max_delta_time;
   }
 
  private:
   // Maximum speed at which the value can change. That is, maximum value for
-  // the Impeller::Velocity(). In units/tick.
+  // the Motivator::Velocity(). In units/tick.
   // For example, if the value is an angle, then this is the max angular
   // velocity, and the units are radians/tick.
   float max_velocity_;
 
-  // Maximum that Impeller::Value() can be altered on a single call to
-  // ImpelEngine::AdvanceFrame(), regardless of velocity or delta_time.
+  // Maximum that Motivator::Value() can be altered on a single call to
+  // MotiveEngine::AdvanceFrame(), regardless of velocity or delta_time.
   float max_delta_;
 
-  // Cutoff to determine if the Impeller's current state has settled on the
+  // Cutoff to determine if the Motivator's current state has settled on the
   // target. Once it has settled, Value() is set to TargetValue() and Velocity()
   // is set to zero.
   Settled1f at_target_;
@@ -161,16 +160,16 @@ class OvershootImpelInit : public ModularImpelInit {
 
   // The algorithm is iterative. When the iteration step gets too big, the
   // behavior becomes erratic. This value clamps the iteration step.
-  ImpelTime max_delta_time_;
+  MotiveTime max_delta_time_;
 };
 
-class SmoothImpelInit : public ModularImpelInit {
+class SmoothInit : public ModularInit {
  public:
-  IMPEL_INTERFACE();
+  MOTIVE_INTERFACE();
 
-  SmoothImpelInit() : ModularImpelInit(kType) {}
-  SmoothImpelInit(const fpl::Range& range, bool modular)
-      : ModularImpelInit(kType, range, modular) {}
+  SmoothInit() : ModularInit(kType) {}
+  SmoothInit(const fpl::Range& range, bool modular)
+      : ModularInit(kType, range, modular) {}
 };
 
 struct MatrixOperationInit {
@@ -188,24 +187,24 @@ struct MatrixOperationInit {
         union_type(kUnionInitialValue),
         initial_value(const_value) {}
 
-  // Matrix operation is driven by Impeller defined by 'init'.
-  MatrixOperationInit(MatrixOperationType type, const ImpelInit& init)
+  // Matrix operation is driven by Motivator defined by 'init'.
+  MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init)
       : init(&init), type(type), union_type(kUnionEmpty) {}
 
-  // Matrix operation is driven by Impeller defined by 'init'. Specify initial
+  // Matrix operation is driven by Motivator defined by 'init'. Specify initial
   // value as well.
-  MatrixOperationInit(MatrixOperationType type, const ImpelInit& init,
+  MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init,
                       float initial_value)
       : init(&init),
         type(type),
         union_type(kUnionInitialValue),
         initial_value(initial_value) {}
 
-  MatrixOperationInit(MatrixOperationType type, const ImpelInit& init,
-                      const ImpelTarget1f& target)
+  MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init,
+                      const MotiveTarget1f& target)
       : init(&init), type(type), union_type(kUnionTarget), target(&target) {}
 
-  MatrixOperationInit(MatrixOperationType type, const ImpelInit& init,
+  MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init,
                       const fpl::CompactSpline& spline, float start_time)
       : init(&init), type(type), union_type(kUnionWaypoints) {
     waypoints.spline = &spline;
@@ -217,20 +216,20 @@ struct MatrixOperationInit {
     float start_time;
   };
 
-  const ImpelInit* init;
+  const MotivatorInit* init;
   MatrixOperationType type;
   UnionType union_type;
   union {
     float initial_value;
-    const ImpelTarget1f* target;
+    const MotiveTarget1f* target;
     Waypoints waypoints;
   };
 };
 
-// Initialize an ImpellerMatrix4f with these initialization parameters to
-// create an impeller that generates a 4x4 matrix from a series of basic
+// Initialize an MotivatorMatrix4f with these initialization parameters to
+// create an motivator that generates a 4x4 matrix from a series of basic
 // matrix operations. The basic matrix operations are driven by 1 dimensional
-// impellers.
+// motivators.
 //
 // The series of operations can transform an object from the coordinate space
 // in which it was authored, to world (or local) space. For example, if you
@@ -241,15 +240,15 @@ struct MatrixOperationInit {
 //      kRotateAboutY --> to make penguin face the correct direction
 //      kTranslateX } --> to move penguin along to ground to target position
 //      kTranslateZ }
-class MatrixImpelInit : public ImpelInit {
+class MatrixInit : public MotivatorInit {
  public:
-  IMPEL_INTERFACE();
+  MOTIVE_INTERFACE();
   typedef typename std::vector<MatrixOperationInit> OpVector;
 
   // By default expect a relatively high number of ops. Cost for allocating
   // a bit too much temporary memory is small compared to cost of reallocating
   // that memory.
-  explicit MatrixImpelInit(int expected_num_ops = 8) : ImpelInit(kType) {
+  explicit MatrixInit(int expected_num_ops = 8) : MotivatorInit(kType) {
     ops_.reserve(expected_num_ops);
   }
 
@@ -261,26 +260,26 @@ class MatrixImpelInit : public ImpelInit {
     ops_.push_back(MatrixOperationInit(type, const_value));
   }
 
-  // Operation is driven by a 1-dimensional impeller. For example, you can
+  // Operation is driven by a 1-dimensional motivator. For example, you can
   // control the face angle of a standing object with 'type' = kRotateAboutY
-  // and 'init' a curve specified by SmoothImpelInit.
-  void AddOp(MatrixOperationType type, const ImpelInit& init) {
+  // and 'init' a curve specified by SmoothInit.
+  void AddOp(MatrixOperationType type, const MotivatorInit& init) {
     ops_.push_back(MatrixOperationInit(type, init));
   }
 
-  // Operation is driven by a 1-dimensional impeller, and initial value
+  // Operation is driven by a 1-dimensional motivator, and initial value
   // is specified.
-  void AddOp(MatrixOperationType type, const ImpelInit& init,
+  void AddOp(MatrixOperationType type, const MotivatorInit& init,
              float initial_value) {
     ops_.push_back(MatrixOperationInit(type, init, initial_value));
   }
 
-  void AddOp(MatrixOperationType type, const ImpelInit& init,
-             const ImpelTarget1f& target) {
+  void AddOp(MatrixOperationType type, const MotivatorInit& init,
+             const MotiveTarget1f& target) {
     ops_.push_back(MatrixOperationInit(type, init, target));
   }
 
-  void AddOp(MatrixOperationType type, const ImpelInit& init,
+  void AddOp(MatrixOperationType type, const MotivatorInit& init,
              const fpl::CompactSpline& spline, float start_time = 0.0f) {
     ops_.push_back(MatrixOperationInit(type, init, spline, start_time));
   }
@@ -291,6 +290,6 @@ class MatrixImpelInit : public ImpelInit {
   OpVector ops_;
 };
 
-}  // namespace impel
+}  // namespace motive
 
 #endif  // MOTIVE_INIT_H_

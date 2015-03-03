@@ -15,43 +15,43 @@
 #include "motive/engine.h"
 #include "motive/init.h"
 
-namespace impel {
+namespace motive {
 
-struct OvershootImpelData {
-  void Initialize(const OvershootImpelInit& init_param) {
+struct OvershootData {
+  void Initialize(const OvershootInit& init_param) {
     value = 0.0f;
     velocity = 0.0f;
     target_value = 0.0f;
     init = init_param;
   }
 
-  // What we are animating. Returned when Impeller::Value() called.
+  // What we are animating. Returned when Motivator::Value() called.
   float value;
 
-  // The rate of change of value. Returned when Impeller::Velocity() called.
+  // The rate of change of value. Returned when Motivator::Velocity() called.
   float velocity;
 
-  // What we are striving to hit. Returned when Impeller::TargetValue() called.
+  // What we are striving to hit. Returned when Motivator::TargetValue() called.
   float target_value;
 
   // Keep a local copy of the init params.
-  OvershootImpelInit init;
+  OvershootInit init;
 };
 
-class OvershootImpelProcessor : public ImpelProcessor1f {
+class OvershootMotiveProcessor : public MotiveProcessor1f {
  public:
-  virtual ~OvershootImpelProcessor() {}
+  virtual ~OvershootMotiveProcessor() {}
 
-  virtual void AdvanceFrame(ImpelTime delta_time) {
+  virtual void AdvanceFrame(MotiveTime delta_time) {
     Defragment();
 
-    // Loop through every impeller one at a time.
+    // Loop through every motivator one at a time.
     // TODO: change this to a closed-form equation.
     // TODO OPT: reorder data and then optimize with SIMD to process in groups
     // of 4 floating-point or 8 fixed-point values.
     for (auto d = data_.begin(); d < data_.end(); ++d) {
-      for (ImpelTime time_remaining = delta_time; time_remaining > 0;) {
-        ImpelTime dt = std::min(time_remaining, d->init.max_delta_time());
+      for (MotiveTime time_remaining = delta_time; time_remaining > 0;) {
+        MotiveTime dt = std::min(time_remaining, d->init.max_delta_time());
 
         d->velocity = CalculateVelocity(dt, *d);
         d->value = CalculateValue(dt, *d);
@@ -61,32 +61,32 @@ class OvershootImpelProcessor : public ImpelProcessor1f {
     }
   }
 
-  virtual ImpellerType Type() const { return OvershootImpelInit::kType; }
+  virtual MotivatorType Type() const { return OvershootInit::kType; }
   virtual int Priority() const { return 1; }
 
   // Accessors to allow the user to get and set simluation values.
-  virtual float Value(ImpelIndex index) const { return Data(index).value; }
-  virtual float Velocity(ImpelIndex index) const {
+  virtual float Value(MotiveIndex index) const { return Data(index).value; }
+  virtual float Velocity(MotiveIndex index) const {
     return Data(index).velocity;
   }
-  virtual float TargetValue(ImpelIndex index) const {
+  virtual float TargetValue(MotiveIndex index) const {
     return Data(index).target_value;
   }
-  virtual float TargetVelocity(ImpelIndex /*index*/) const { return 0.0f; }
-  virtual float Difference(ImpelIndex index) const {
-    const OvershootImpelData& d = Data(index);
+  virtual float TargetVelocity(MotiveIndex /*index*/) const { return 0.0f; }
+  virtual float Difference(MotiveIndex index) const {
+    const OvershootData& d = Data(index);
     return d.init.Normalize(d.target_value - d.value);
   }
   // TODO: Implement this after converting Overshoot to use splines.
-  virtual ImpelTime TargetTime(ImpelIndex /*index*/) const {
+  virtual MotiveTime TargetTime(MotiveIndex /*index*/) const {
     assert(false);
     return -1;
   }
-  virtual void SetTarget(ImpelIndex index, const ImpelTarget1f& t) {
-    OvershootImpelData& d = Data(index);
+  virtual void SetTarget(MotiveIndex index, const MotiveTarget1f& t) {
+    OvershootData& d = Data(index);
 
     // A 'time' of 0 means that we're setting the current values.
-    const ImpelNode1f& current = t.Node(0);
+    const MotiveNode1f& current = t.Node(0);
     if (current.time == 0) {
       d.value = current.value;
       d.velocity = current.velocity;
@@ -94,45 +94,44 @@ class OvershootImpelProcessor : public ImpelProcessor1f {
 
     // A 'time' > 0 means that we're setting the target values.
     // We can also use the second node to set target values, if it exists.
-    const ImpelNode1f* target = current.time == 0
-                                    ? (t.num_nodes() > 1 ? &t.Node(1) : nullptr)
-                                    : &t.Node(0);
+    const MotiveNode1f* target =
+        current.time == 0 ? (t.num_nodes() > 1 ? &t.Node(1) : nullptr)
+                          : &t.Node(0);
     if (target != nullptr) {
       d.target_value = target->value;
     }
   }
 
  protected:
-  virtual void InitializeIndex(const ImpelInit& init, ImpelIndex index,
-                               ImpelEngine* engine) {
+  virtual void InitializeIndex(const MotivatorInit& init, MotiveIndex index,
+                               MotiveEngine* engine) {
     (void)engine;
-    Data(index).Initialize(static_cast<const OvershootImpelInit&>(init));
+    Data(index).Initialize(static_cast<const OvershootInit&>(init));
   }
 
-  virtual void RemoveIndex(ImpelIndex index) {
-    Data(index).Initialize(OvershootImpelInit());
+  virtual void RemoveIndex(MotiveIndex index) {
+    Data(index).Initialize(OvershootInit());
   }
 
-  virtual void MoveIndex(ImpelIndex old_index, ImpelIndex new_index) {
+  virtual void MoveIndex(MotiveIndex old_index, MotiveIndex new_index) {
     data_[new_index] = data_[old_index];
   }
 
-  virtual void SetNumIndices(ImpelIndex num_indices) {
+  virtual void SetNumIndices(MotiveIndex num_indices) {
     data_.resize(num_indices);
   }
 
-  const OvershootImpelData& Data(ImpelIndex index) const {
+  const OvershootData& Data(MotiveIndex index) const {
     assert(ValidIndex(index));
     return data_[index];
   }
 
-  OvershootImpelData& Data(ImpelIndex index) {
+  OvershootData& Data(MotiveIndex index) {
     assert(ValidIndex(index));
     return data_[index];
   }
 
-  float CalculateVelocity(ImpelTime delta_time,
-                          const OvershootImpelData& d) const {
+  float CalculateVelocity(MotiveTime delta_time, const OvershootData& d) const {
     // Increment our current face angle velocity.
     // If we're moving in the wrong direction (i.e. away from the target),
     // increase the acceleration. This results in us moving towards the target
@@ -157,8 +156,7 @@ class OvershootImpelProcessor : public ImpelProcessor1f {
     return velocity;
   }
 
-  float CalculateValue(ImpelTime delta_time,
-                       const OvershootImpelData& d) const {
+  float CalculateValue(MotiveTime delta_time, const OvershootData& d) const {
     // Snap to the target value when we've stopped moving.
     if (d.velocity == 0.0f) return d.target_value;
 
@@ -168,9 +166,9 @@ class OvershootImpelProcessor : public ImpelProcessor1f {
     return value;
   }
 
-  std::vector<OvershootImpelData> data_;
+  std::vector<OvershootData> data_;
 };
 
-IMPEL_INSTANCE(OvershootImpelInit, OvershootImpelProcessor);
+MOTIVE_INSTANCE(OvershootInit, OvershootMotiveProcessor);
 
-}  // namespace impel
+}  // namespace motive
