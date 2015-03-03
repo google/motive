@@ -126,6 +126,7 @@ set(motive_SRCS
     include/motive/processor.h
     include/motive/target.h
     include/motive/util.h
+    include/motive/version.h
     src/engine.cpp
     src/motivator.cpp
     src/io/flatbuffers.cpp
@@ -136,7 +137,8 @@ set(motive_SRCS
     src/processor.cpp
     src/processor/matrix_processor.cpp
     src/processor/overshoot_processor.cpp
-    src/processor/smooth_processor.cpp)
+    src/processor/smooth_processor.cpp
+    src/version.cpp)
 
 # Includes for this project.
 include_directories(src include)

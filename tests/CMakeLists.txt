@@ -88,7 +88,8 @@ test_executable(motive ../src/math/curve.cpp
                 ../src/processor.cpp
                 ../src/processor/matrix_processor.cpp
                 ../src/processor/overshoot_processor.cpp
-                ../src/processor/smooth_processor.cpp)
+                ../src/processor/smooth_processor.cpp
+                ../src/version.cpp)
 test_executable(range ../include/motive/math/range.h)
 test_executable(curve ../src/math/curve.cpp)
 test_executable(spline ../src/math/bulk_spline_evaluator.cpp

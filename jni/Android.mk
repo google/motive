@@ -52,7 +52,8 @@ LOCAL_SRC_FILES := \
   $(MOTIVE_RELATIVE_DIR)/src/processor/matrix_processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/processor/overshoot_processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/processor/smooth_processor.cpp \
-  $(MOTIVE_RELATIVE_DIR)/src/processor.cpp
+  $(MOTIVE_RELATIVE_DIR)/src/processor.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/version.cpp
 
 MOTIVE_SCHEMA_DIR := $(MOTIVE_DIR)/schemas
 MOTIVE_SCHEMA_INCLUDE_DIRS :=

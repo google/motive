@@ -43,6 +43,7 @@ class MotiveEngine {
   typedef std::pair<MotivatorType, MotiveProcessorFunctions> FunctionPair;
 
  public:
+  MotiveEngine();
   void Reset();
   MotiveProcessor* Processor(MotivatorType type);
   void AdvanceFrame(MotiveTime delta_time);
@@ -59,6 +60,9 @@ class MotiveEngine {
   // This allows high number priorities to have child motivators, as long as
   // the child motivators have lower priority.
   ProcessorSet sorted_processors_;
+
+  // Current version of the Motive Animation System.
+  const MotiveVersion* version_;
 
   // ProcessorMap from the MotivatorType to the factory that creates the
   // MotiveProcessor. We only create an MotiveProcessor when one is needed.

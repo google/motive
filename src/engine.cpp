@@ -14,6 +14,7 @@
 
 #include "motive/engine.h"
 #include "motive/processor.h"
+#include "motive/version.h"
 
 namespace motive {
 
@@ -25,6 +26,10 @@ void MotiveEngine::RegisterProcessorFactory(
     MotivatorType type, const MotiveProcessorFunctions& fns) {
   function_map_.insert(FunctionPair(type, fns));
 }
+
+// Prevent the version string from being stripped from the binary by keeping
+// a reference to it here.
+MotiveEngine::MotiveEngine() : version_(&Version()) {}
 
 void MotiveEngine::Reset() {
   for (ProcessorMap::iterator it = mapped_processors_.begin();
