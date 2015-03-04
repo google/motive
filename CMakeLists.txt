@@ -54,6 +54,7 @@ set(dependencies_sdl_dir "${third_party_root}/sdl"
 
 # Option to enable / disable the test build.
 option(motive_build_tests "Build tests for this project." ON)
+option(motive_build_samples "Build samples for this project." ON)
 
 # Option to only build flatc
 option(motive_only_flatc "Only build FlatBuffers compiler." OFF)
@@ -195,7 +196,7 @@ endif()
 add_library(motive ${motive_SRCS})
 
 # Dependencies for the executable target.
-add_dependencies(motive motive_generated_includes assets)
+add_dependencies(motive motive_generated_includes)
 
 # Additional flags for the target.
 mathfu_configure_flags(motive)
@@ -203,4 +204,9 @@ mathfu_configure_flags(motive)
 # Tests.
 if(motive_build_tests)
   add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
+endif()
+
+# Samples.
+if(motive_build_samples)
+  add_subdirectory(${CMAKE_SOURCE_DIR}/docs/samples)
 endif()

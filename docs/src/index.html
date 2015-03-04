@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+<meta content="Animation Library for game developers." name="description">
+<title>MathFu</title>
+<link href="Programmers-Guide/html/doxygen.css"
+      rel="stylesheet" type="text/css" />
+<script language="javascript">function totop() { scroll(0,0); }</script>
+</head>
+<body>
+<div class="header"><div class="headertitle">
+
+  <h2 class="title"></h1></div></div>
+
+<div class="contents">
+<div class="toc">
+  <ul>
+    <li><a href="#Overview">Overview</a></li>
+    <li><a href="#Documentation">Documentation</a></li>
+    </li>
+  </ul>
+</div>
+<div class="textblock">
+<a name="Overview"><h2>Overview</h2></a>
+
+<p>Motive is a cross-platform animation system. It's designed to be,</p>
+
+<ul>
+  <li> <b>performant</b> -- data is stored centrally and processed in bulk so that we
+    can take advantage of [SIMD] and multi-threading opportunities. </li>
+  <li> <b>compact</b> -- spline data is preferred over sampled data, so animation
+    data requires less memory. </li>
+  <li> <b>expandable</b> -- new animation algorithms can be registered and executed
+    without touching central code. </li>
+</ul>
+
+<p>
+Motive is distributed as portable C++. It has been tested on [Android],
+[Windows], [OS X], and [Linux].
+</p>
+
+<a name="Download"><h2>Download</h2></a>
+
+<p>Motive can be downloaded from
+<a href="http://github.com/google/motive">github.com/google/motive</a>
+or the
+<a href="http://github.com/google/motive/releases">release page</a>.
+
+<p><b>Important:</b> Motive uses submodules to reference other components
+it depends upon so download the source using:</p>
+
+<blockquote>
+    git clone --recursive https://github.com/google/motive.git
+</blockquote>
+
+<a name="Feedback"><h2>Feedback and Reporting Bugs</h2></a>
+
+<ul>
+  <li> Discuss Motive with other developers and users on the
+       <a href="http://group.google.com/group/motiveanimation">Motive Google Group</a>.</li>
+  <li> File issues on the
+       <a href="http://github.com/google/motive/issues">Motive Issues Tracker</a>. </li>
+  <li> Post your questions to
+       <a href="http://www.stackoverflow.com">stackoverflow.com</a>
+       with a mention of <it>motive animation</it>. </li>
+</ul>
+
+<a name="Documentation"><h2>Documentation</h2></a>
+
+<ul>
+  <li><a href="Building.html">Build Instructions</a>: A description of how to
+  build the examples and unit test binaries from source for each target
+  operating system.</li>
+  <li><a href="Programmers-Guide.html">Programmer's Guide</a>: Descriptions
+  of Motives's components and examples.</li>
+</ul>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-49880327-7', 'google.github.io');
+  ga('send', 'pageview');
+
+</script>
+
+</body>
+</html>

@@ -3,6 +3,7 @@ libs/
 bin/
 obj/
 tests/*_test
+docs/samples/*_sample
 *.bin
 *.a
 

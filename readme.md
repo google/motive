@@ -1,3 +1,6 @@
+Motive Version 1.0.0    {#motive_readme}
+====================
+
 # Overview
 
 Motive is an open-source, cross-platform, memory efficient, and performant animation system.
