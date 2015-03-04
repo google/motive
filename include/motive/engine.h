@@ -24,6 +24,7 @@
 namespace motive {
 
 struct MotiveProcessorFunctions;
+struct MotiveVersion;
 
 // The engine holds all of the processors, and updates them all when
 // AdvanceFrame() is called. The processing is kept central, in this manner,
