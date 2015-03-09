@@ -225,9 +225,22 @@ float CompactSpline::EndDerivative() const {
   return nodes_.back().Derivative();
 }
 
+float CompactSpline::NodeX(const CompactSplineIndex index) const {
+  return nodes_[index].X(x_granularity_);
+}
+float CompactSpline::NodeY(const CompactSplineIndex index) const {
+  return nodes_[index].Y(y_range_);
+}
+float CompactSpline::NodeDerivative(const CompactSplineIndex index) const {
+  return nodes_[index].Derivative();
+}
+
 Range CompactSpline::RangeX(const CompactSplineIndex index) const {
   if (index == kBeforeSplineIndex)
-    return Range(-std::numeric_limits<float>::infinity(), StartX());
+    // Return StartX() for the start of the range instead of -inf.
+    // Before we get to the range, we want to have relative x-values that are
+    // negative.
+    return Range(StartX(), StartX());
 
   if (index == kAfterSplineIndex)
     return Range(EndX(), std::numeric_limits<float>::infinity());

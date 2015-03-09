@@ -18,7 +18,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := motive
 LOCAL_ARM_MODE := arm
-LOCAL_STATIC_LIBRARIES := libmathfu
+LOCAL_STATIC_LIBRARIES := libmathfu cpufeatures
 
 MOTIVE_RELATIVE_DIR := ..
 MOTIVE_DIR := $(LOCAL_PATH)/$(MOTIVE_RELATIVE_DIR)
@@ -37,11 +37,6 @@ LOCAL_C_INCLUDES := \
   $(DEPENDENCIES_FLATBUFFERS_DIR)/include \
   $(DEPENDENCIES_FPLUTIL_DIR)/libfplutil/include
 
-MOTIVE_ENABLE_BENCHMARKING ?= 0
-ifneq ($(MOTIVE_ENABLE_BENCHMARKING),0)
-  LOCAL_CFLAGS := -DBENCHMARK_MOTIVE
-endif
-
 LOCAL_SRC_FILES := \
   $(MOTIVE_RELATIVE_DIR)/src/engine.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/io/flatbuffers.cpp \
@@ -55,7 +50,31 @@ LOCAL_SRC_FILES := \
   $(MOTIVE_RELATIVE_DIR)/src/processor/smooth_processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/util/benchmark.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/util/optimizations.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/version.cpp
+
+MOTIVE_ENABLE_BENCHMARKING ?= 0
+ifneq ($(MOTIVE_ENABLE_BENCHMARKING),0)
+  LOCAL_CFLAGS += -DBENCHMARK_MOTIVE
+endif
+
+MOTIVE_ENABLE_ASSEMBLY ?= 1
+MOTIVE_TEST_ASSEMBLY ?= 0
+ifneq ($(MOTIVE_ENABLE_ASSEMBLY),0)
+  # Presently, we only have assembly functions for 'armeabi-v7a' and
+  # 'armeabi-v7a-hard'.
+  ifneq (,$(findstring armeabi-v7a,$(TARGET_ARCH_ABI)))
+    # Use the .neon extension to compile with NEON support.
+    LOCAL_SRC_FILES += \
+      $(MOTIVE_RELATIVE_DIR)/src/math/bulk_spline_evaluator_neon.s.neon
+    LOCAL_CFLAGS += -DMOTIVE_NEON
+
+    # Run both NEON and C++ code and compare results.
+    ifneq ($(MOTIVE_TEST_ASSEMBLY),0)
+      LOCAL_CFLAGS += -DMOTIVE_ASSEMBLY_TEST=Neon
+    endif
+  endif
+endif
 
 MOTIVE_SCHEMA_DIR := $(MOTIVE_DIR)/schemas
 MOTIVE_SCHEMA_INCLUDE_DIRS :=
@@ -80,4 +99,4 @@ $(call import-add-path,$(DEPENDENCIES_MATHFU_DIR)/..)
 
 $(call import-module,flatbuffers/android/jni)
 $(call import-module,mathfu/jni)
-
+$(call import-module,android/cpufeatures)

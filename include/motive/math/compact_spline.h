@@ -131,6 +131,10 @@ class CompactSpline {
   float EndX() const;
   float EndY() const;
   float EndDerivative() const;
+  float NodeX(const CompactSplineIndex index) const;
+  float NodeY(const CompactSplineIndex index) const;
+  float NodeDerivative(const CompactSplineIndex index) const;
+  float LengthX() const { return EndX() - StartX(); }
   Range RangeX() const { return Range(StartX(), EndX()); }
   const Range& RangeY() const { return y_range_; }
 

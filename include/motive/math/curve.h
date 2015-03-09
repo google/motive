@@ -147,6 +147,13 @@ class QuadraticCurve {
   // Returns the number of coefficients in this curve.
   int NumCoeff() const { return kNumCoeff; }
 
+  // Equality. Checks for exact match. Useful for testing.
+  bool operator==(const QuadraticCurve& rhs) const;
+  bool operator!=(const QuadraticCurve& rhs) const { return !operator==(rhs); }
+
+  // A string with the equation for this quadratic. Useful for debugging.
+  std::string Text() const;
+
  private:
   // Feel free to expose these versions in the external API if they're useful.
   size_t Roots(float roots[2]) const;
@@ -237,6 +244,11 @@ class CubicCurve {
   // Returns the number of coefficients in this curve.
   int NumCoeff() const { return kNumCoeff; }
 
+  // Equality. Checks for exact match. Useful for testing.
+  bool operator==(const CubicCurve& rhs) const;
+  bool operator!=(const CubicCurve& rhs) const { return !operator==(rhs); }
+
+  // A string with the cubic equation. Useful for debugging.
   std::string Text() const;
 
  private:

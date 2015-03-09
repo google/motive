@@ -135,6 +135,19 @@ size_t QuadraticCurve::RangesMatchingSign(const Range& x_limits, float sign,
   return 1;
 }
 
+bool QuadraticCurve::operator==(const QuadraticCurve& rhs) const {
+  for (int i = 0; i < kNumCoeff; ++i) {
+    if (c_[i] != rhs.c_[i]) return false;
+  }
+  return true;
+}
+
+std::string QuadraticCurve::Text() const {
+  std::ostringstream text;
+  text << c_[2] << "x^2 + " << c_[1] << "x + " << c_[0];
+  return text.str();
+}
+
 void CubicCurve::Init(const CubicInit& init) {
   //  f(x) = dx^3 + cx^2 + bx + a
   //
@@ -179,6 +192,13 @@ bool CubicCurve::UniformCurvature(const Range& x_limits) const {
   const float end_second_derivative =
       ClampNearZero(SecondDerivative(x_limits.end()), epsilon);
   return start_second_derivative * end_second_derivative >= 0.0f;
+}
+
+bool CubicCurve::operator==(const CubicCurve& rhs) const {
+  for (int i = 0; i < kNumCoeff; ++i) {
+    if (c_[i] != rhs.c_[i]) return false;
+  }
+  return true;
 }
 
 std::string CubicCurve::Text() const {

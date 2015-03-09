@@ -38,6 +38,10 @@ LOCAL_C_INCLUDES := \
 LOCAL_CFLAGS := -DBENCHMARK_MOTIVE
 MOTIVE_ENABLE_BENCHMARKING := 1
 
+# Uncomment this to run both the C++ and assembly versions of functions
+# and compare the results.
+# MOTIVE_TEST_ASSEMBLY := 1
+
 LOCAL_SRC_FILES := \
   $(MOTIVE_RELATIVE_DIR)/benchmarker/benchmarker.cpp
 

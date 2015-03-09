@@ -141,6 +141,7 @@ set(motive_SRCS
     src/processor/overshoot_processor.cpp
     src/processor/smooth_processor.cpp
     src/util/benchmark.cpp
+    src/util/optimizations.cpp
     src/version.cpp)
 
 # Includes for this project.

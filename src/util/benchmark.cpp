@@ -209,7 +209,10 @@ Benchmark::~Benchmark() {
   gTimes[id_].Append(end_time - start_time_);
 }
 
-
 }  // namespace fpl
 
+#else
+// Add a symbol to avoid the compiler warning about this file having no symbols.
+// This symbol will be culled by the linker since it is never referenced.
+int gMotiveBenchmarkCppSymbolToAvoidCompilerWarning;
 #endif // defined(BENCHMARK_MOTIVE)

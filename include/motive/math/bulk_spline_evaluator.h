@@ -16,6 +16,7 @@
 #define MOTIVE_MATH_BULK_SPLINE_EVALUATOR_H_
 
 #include "motive/math/compact_spline.h"
+#include "motive/util/optimizations.h"
 
 namespace fpl {
 
@@ -57,7 +58,7 @@ class BulkSplineEvaluator {
   void SetYRange(const Index index, const Range& valid_y,
                  const bool modular_arithmetic);
 
-  // Initialize 'index' to process 'spline' starting from 'start_x'.
+  // Initialize 'index' to process 's.spline' starting from 's.start_x'.
   // The Y() and Derivative() values are immediately available.
   void SetSpline(const Index index, const SplinePlayback& s);
 
@@ -68,31 +69,28 @@ class BulkSplineEvaluator {
 
   // Query the current state of the spline associated with 'index'.
   bool Valid(const Index index) const;
-  float X(const Index index) const { return domains_[index].x; }
-  float Y(const Index index) const { return results_[index].y; }
+  float X(const Index index) const {
+    return CubicStartX(index) + cubic_xs_[index];
+  }
+  float Y(const Index index) const { return ys_[index]; }
   float Derivative(const Index index) const {
-    return results_[index].derivative;
+    return Cubic(index).Derivative(cubic_xs_[index]);
   }
   const CompactSpline* SourceSpline(const Index index) const {
-    return splines_[index];
+    return sources_[index].spline;
   }
 
   // Get the raw cubic curve for 'index'. Useful if you need to calculate the
   // second or third derivatives (which are not calculated in AdvanceFrame),
   // or plot the curve for debug reasons.
-  const CubicCurve& Cubic(const Index index) const {
-    return domains_[index].cubic;
-  }
-  float CubicX(const Index index) const {
-    const Domain& d = domains_[index];
-    return OutsideSpline(d.x_index) ? 0.0f : d.x - d.valid_x.start();
-  }
+  const CubicCurve& Cubic(const Index index) const { return cubics_[index]; }
+  float CubicX(const Index index) const { return cubic_xs_[index]; }
 
   // Get state at end of the spline.
-  float EndX(const Index index) const { return splines_[index]->EndX(); }
-  float EndY(const Index index) const { return splines_[index]->EndY(); }
+  float EndX(const Index index) const { return sources_[index].spline->EndX(); }
+  float EndY(const Index index) const { return sources_[index].spline->EndY(); }
   float EndDerivative(const Index index) const {
-    return splines_[index]->EndDerivative();
+    return sources_[index].spline->EndDerivative();
   }
 
   // Return y-distance between current y and end-y. If using modular arithmetic,
@@ -104,8 +102,8 @@ class BulkSplineEvaluator {
 
   // Apply modular arithmetic to ensure that 'y' is within the valid y_range.
   float NormalizeY(const Index index, const float y) const {
-    const Domain& d = domains_[index];
-    return d.modular_arithmetic ? d.valid_y.Normalize(y) : y;
+    const YRange& r = y_ranges_[index];
+    return r.modular_arithmetic ? r.valid_y.Normalize(y) : y;
   }
 
   // Helper function to calculate the next y-value in a series of y-values
@@ -114,40 +112,54 @@ class BulkSplineEvaluator {
   // one.
   float NextY(const Index index, const float current_y, const float target_y,
               const ModularDirection direction) const {
-    const Domain& d = domains_[index];
-    if (!d.modular_arithmetic) return target_y;
+    const YRange& r = y_ranges_[index];
+    if (!r.modular_arithmetic) return target_y;
 
     // Calculate the difference from the current-y value for 'direction'.
-    const float diff = d.valid_y.ModDiff(current_y, target_y, direction);
+    const float diff = r.valid_y.ModDiff(current_y, target_y, direction);
     return current_y + diff;
   }
 
  private:
-  void InitCubic(const Index index);
+  void InitCubic(const Index index, const float start_x);
+  Index NumIndices() const { return static_cast<Index>(sources_.size()); }
+  float SplineStartX(const Index index) const {
+    return sources_[index].spline->StartX();
+  }
+  float CubicStartX(const Index index) const {
+    const Source& s = sources_[index];
+    return s.spline->NodeX(s.x_index);
+  }
+
+  // These functions have C and assembly language variants.
+  void UpdateCubicXsAndGetMask(const float delta_x, uint8_t* masks);
+  void UpdateCubicXsAndGetMask_C(const float delta_x, uint8_t* masks);
+  size_t UpdateCubicXs(const float delta_x, Index* indices_to_init);
+  size_t UpdateCubicXs_TwoSteps(const float delta_x, Index* indices_to_init);
+  size_t UpdateCubicXs_OneStep(const float delta_x, Index* indices_to_init);
   void EvaluateIndex(const Index index);
-  Index NumIndices() const { return static_cast<Index>(splines_.size()); }
+  void EvaluateCubics();
+  void EvaluateCubics_C();
 
-  struct Domain {
-    Domain()
-        : x(0.0f),
-          x_index(kInvalidSplineIndex),
-          valid_y(-std::numeric_limits<float>::infinity(),
-                  std::numeric_limits<float>::infinity()),
-          modular_arithmetic(false),
-          repeat(false) {}
+  struct Source {
+    // Pointer to the source spline node. Spline data is owned externally.
+    // We neither allocate or free this pointer here.
+    const CompactSpline* spline;
 
-    // The start and end 'x' values for the current Cubic.
-    Range valid_x;
-
-    // The current 'x' value. We evaluate the cubic at x - valid_x.start.
-    float x;
-
-    // Index of 'x' in 'spline'. This is the current spline node segment.
+    // Current index into 'spline'. The cubics_ valid is instantiated from
+    // spline[x_index].
     CompactSplineIndex x_index;
 
-    // Currently active segment of splines_.
-    // Instantiated from splines_[i].CreateInitCubic(domains_[i].x_index).
-    CubicCurve cubic;
+    // If true, start again at the beginning of the spline when we reach
+    // the end.
+    bool repeat;
+
+    Source()
+        : spline(nullptr), x_index(fpl::kInvalidSplineIndex), repeat(false) {}
+  };
+
+  struct YRange {
+    YRange() : modular_arithmetic(0) {}
 
     // Hold min and max values for the y result, or for the modular range.
     // Modular ranges are used for things like angles, the wrap around from
@@ -156,46 +168,56 @@ class BulkSplineEvaluator {
 
     // True if y values wrap around when they exit the valid_y range.
     // False if y values clamp to the edges of the valid_y range.
-    bool modular_arithmetic;
-
-    // If true, start again at the beginning of the spline when we reach
-    // the end.
-    bool repeat;
+    // Use a mask for 'modular_arithmetic' so that it can be used in 'select'
+    // instructions, in SIMD code.
+    uint32_t modular_arithmetic;
   };
 
-  struct Result {
-    Result() : y(0.0f), derivative(0.0f) {}
-
-    // Value of the spline at 'Domain::x'. Evaluated in AdvanceFrame.
-    float y;
-
-    // Value of the spline's derivative at 'Domain::x'.
-    // Evaluated in AdvanceFrame.
-    float derivative;
-  };
-
-  // Data is organized in struct-of-array format to match the algorithm's
+  // Data is organized in struct-of-arrays format to match the algorithm's
   // consumption of the data.
-  // - The algorithm that transitions us to the next segment of the spline
-  //   looks only at data in 'domain_' (until it finds a segment that needs
-  //   to be transitioned).
-  // - The algorithm that updates 'results_' looks only at the data in
-  //   'cubics_'.
+  // - The algorithm that updates x values, and detects when we must transition
+  //   to the next segment of the spline looks only at data in 'cubic_xs_' and
+  //   'cubic_x_ends_'.
+  // - The algorithm that updates 'ys_' looks only at the data in 'cubic_xs_',
+  //   'cubics_', and 'y_ranges_'. It writes to 'ys_'.
   // These vectors grow when SetNumIndices() is called, but they never shrink.
   // So, we'll have a few reallocs (which are slow) until the highwater mark is
   // reached. Then the cost of reallocs disappears. In this way we have a
   // reasonable tradeoff between memory conservation and runtime performance.
 
-  // Pointers to the source spline nodes. Spline data is owned externally.
-  // We neither allocate or free this pointer here.
-  std::vector<const CompactSpline*> splines_;
+  // Source spline nodes and our current index into these splines.
+  std::vector<Source> sources_;
 
-  // X-related values. We keep them together so that we can quickly check if
-  // x is still in the valid range of the current 'cubic_'.
-  std::vector<Domain> domains_;
+  // Define the valid output values. We can clamp to a range, or wrap around to
+  // a range using modular arithmetic (two modes of operation).
+  std::vector<YRange> y_ranges_;
 
-  // Result of evaluating the current cubic at the current x.
-  std::vector<Result> results_;
+  // The current 'x' value at which 'cubics_' are evaluated.
+  //   ys_[i] = cubics_[i].Evaluate(cubic_xs_[i])
+  std::vector<float> cubic_xs_;
+
+  // The last valid x value in 'cubics_'.
+  std::vector<float> cubic_x_ends_;
+
+  // Currently active segment of sources_.spline.
+  // Instantiated from sources_[i].spline->CreateInitCubic(sources_[i].x_index).
+  std::vector<CubicCurve> cubics_;
+
+  // Value of the spline at 'cubic_xs_', normalized and clamped to be within
+  // 'y_ranges_'. Evaluated in AdvanceFrame.
+  std::vector<float> ys_;
+
+  // Stratch buffer used for internal calculations.
+  std::vector<Index> scratch_;
+
+  // Call the specified optimized functions, when available, instead of the
+  // plain C++ functions. Note that we must perform this check at runtime,
+  // not compile time: some platforms may or may not support all the
+  // instructions used in the optimized functions. For example, some x86
+  // processors support SSE3, others also support SSSE3, and still others
+  // support neither. Therefore, x86 code always includes the C++ functions as
+  // a fallback, and chooses the best functions at runtime.
+  ProcessorOptimization optimization_;
 };
 
 }  // namespace fpl
