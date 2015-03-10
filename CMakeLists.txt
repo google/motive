@@ -58,6 +58,9 @@ option(motive_build_tests "Build tests for this project." ON)
 # Option to only build flatc
 option(motive_only_flatc "Only build FlatBuffers compiler." OFF)
 
+# Option to only build debug functions. Handy, but take up code space.
+option(motive_debug_functions "Only build FlatBuffers compiler." ON)
+
 # Include MathFu in this project with test and benchmark builds disabled.
 set(mathfu_build_benchmarks OFF CACHE BOOL "")
 set(mathfu_build_tests OFF CACHE BOOL "")
@@ -175,6 +178,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${C_FLAGS_WARNINGS}")
 if(motive_DEBUG)
   # if we want to define this, it needs to be only in debug builds
   #add_definitions(-D_DEBUG)
+endif()
+
+if(motive_debug_functions)
+  add_definitions(-DFPL_CURVE_GRAPH_FUNCTIONS)
 endif()
 
 set (SDL_LIBRARIES SDL2-static)

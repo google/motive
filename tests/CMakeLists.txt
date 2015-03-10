@@ -54,8 +54,6 @@ endif()
 
 set(COMMON_LIBS "gtest;motive;${CMAKE_THREAD_LIBS_INIT}")
 
-add_definitions(-DFPL_CURVE_GRAPH_FUNCTIONS)
-
 # PUT ADDITIONAL UNIT TEST BINARIES BELOW!
 # The commands should be of the form:
 #
