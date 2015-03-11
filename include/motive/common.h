@@ -63,26 +63,27 @@ class MotivatorInit {
 // Add this to the public interface of your derivation of Init. It defines
 // a unique identifier for this type as kType. Your derivation's constructor
 // should construct base class with Init(kType).
-#define MOTIVE_INTERFACE()          \
-  static const char* kName;         \
-  static const MotivatorType kType; \
+#define MOTIVE_INTERFACE()                  \
+  static const char* kName;                 \
+  static const motive::MotivatorType kType; \
   static void Register()
 
 // Add this to the source file with your processor code. It instantiates the
 // static variables and functions declared in MOTIVE_INTERFACE.
 // Example usage,
 //    MOTIVE_INSTANCE(AwesomeInit, AwesomeMotiveProcessor);
-#define MOTIVE_INSTANCE(InitType, ProcessorType)                        \
-  static motive::MotiveProcessor* ProcessorType##Create() {             \
-    return new ProcessorType();                                         \
-  }                                                                     \
-  static void ProcessorType##Destroy(MotiveProcessor* p) { delete p; }  \
-  void InitType::Register() {                                           \
-    const MotiveProcessorFunctions functions(ProcessorType##Create,     \
-                                             ProcessorType##Destroy);   \
-    MotiveEngine::RegisterProcessorFactory(InitType::kType, functions); \
-  }                                                                     \
-  const char* InitType::kName = #ProcessorType;                         \
+#define MOTIVE_INSTANCE(InitType, ProcessorType)                               \
+  static motive::MotiveProcessor* ProcessorType##Create() {                    \
+    return new ProcessorType();                                                \
+  }                                                                            \
+  static void ProcessorType##Destroy(motive::MotiveProcessor* p) { delete p; } \
+  void InitType::Register() {                                                  \
+    const motive::MotiveProcessorFunctions functions(ProcessorType##Create,    \
+                                                     ProcessorType##Destroy);  \
+    motive::MotiveEngine::RegisterProcessorFactory(InitType::kType,            \
+                                                   functions);                 \
+  }                                                                            \
+  const char* InitType::kName = #ProcessorType;                                \
   const motive::MotivatorType InitType::kType = &InitType::kName
 
 // ARRAYSIZE performs essentially the same calculation as arraysize,
