@@ -19,7 +19,6 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := motive
 LOCAL_ARM_MODE := arm
 LOCAL_STATIC_LIBRARIES := libmathfu
-LOCAL_SHARED_LIBRARIES := SDL2
 
 MOTIVE_RELATIVE_DIR := ..
 MOTIVE_DIR := $(LOCAL_PATH)/$(MOTIVE_RELATIVE_DIR)
@@ -27,19 +26,21 @@ MOTIVE_DIR := $(LOCAL_PATH)/$(MOTIVE_RELATIVE_DIR)
 include $(MOTIVE_DIR)/jni/android_config.mk
 include $(DEPENDENCIES_FLATBUFFERS_DIR)/android/jni/include.mk
 
-MOTIVE_GENERATED_OUTPUT_DIR := $(MOTIVE_DIR)/gen/include
-
 LOCAL_EXPORT_C_INCLUDES := \
   $(MOTIVE_DIR)/include \
-  $(MOTIVE_GENERATED_OUTPUT_DIR)
+  $(MOTIVE_GENERATED_OUTPUT_DIR) \
+  $(DEPENDENCIES_MATHFU_DIR)/benchmarks
 
 LOCAL_C_INCLUDES := \
   $(LOCAL_EXPORT_C_INCLUDES) \
   $(MOTIVE_DIR)/src \
   $(DEPENDENCIES_FLATBUFFERS_DIR)/include \
-  $(DEPENDENCIES_FPLUTIL_DIR)/libfplutil/include \
-  $(DEPENDENCIES_SDL_DIR) \
-  $(DEPENDENCIES_SDL_DIR)/include
+  $(DEPENDENCIES_FPLUTIL_DIR)/libfplutil/include
+
+MOTIVE_ENABLE_BENCHMARKING ?= 0
+ifneq ($(MOTIVE_ENABLE_BENCHMARKING),0)
+  LOCAL_CFLAGS := -DBENCHMARK_MOTIVE
+endif
 
 LOCAL_SRC_FILES := \
   $(MOTIVE_RELATIVE_DIR)/src/engine.cpp \
@@ -53,6 +54,7 @@ LOCAL_SRC_FILES := \
   $(MOTIVE_RELATIVE_DIR)/src/processor/overshoot_processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/processor/smooth_processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/processor.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/util/benchmark.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/version.cpp
 
 MOTIVE_SCHEMA_DIR := $(MOTIVE_DIR)/schemas

@@ -20,6 +20,7 @@
 
 #include "motive/common.h"
 #include "motive/processor.h"
+#include "motive/util/benchmark.h"
 
 namespace motive {
 
@@ -32,14 +33,16 @@ struct MotiveVersion;
 // minimize the number of engines in your game. As more Motivators are added to
 // the processors, you start to get economies of scale.
 class MotiveEngine {
-  struct ComparePriority {
-    bool operator()(const MotiveProcessor* lhs, const MotiveProcessor* rhs) {
-      return lhs->Priority() < rhs->Priority();
+  struct ProcessorDetails {
+    MotiveProcessor* processor;
+    int benchmark_id;
+    bool operator<(const ProcessorDetails& rhs) const {
+      return processor->Priority() < rhs.processor->Priority();
     }
   };
   typedef std::map<MotivatorType, MotiveProcessor*> ProcessorMap;
   typedef std::pair<MotivatorType, MotiveProcessor*> ProcessorPair;
-  typedef std::multiset<MotiveProcessor*, ComparePriority> ProcessorSet;
+  typedef std::multiset<ProcessorDetails> ProcessorSet;
   typedef std::map<MotivatorType, MotiveProcessorFunctions> FunctionMap;
   typedef std::pair<MotivatorType, MotiveProcessorFunctions> FunctionPair;
 

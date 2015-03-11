@@ -6,6 +6,14 @@ tests/*_test
 docs/samples/*_sample
 *.bin
 *.a
+benchmarker/apks/
+benchmarker/bin/
+benchmarker/build.xml
+benchmarker/libs/
+benchmarker/local.properties
+benchmarker/obj/
+benchmarker/proguard-project.txt
+benchmarker/project.properties
 
 # CMake files
 CMakeCache.txt

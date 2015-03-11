@@ -26,8 +26,8 @@ ifneq ($(DEPENDENCIES_ROOT),)
   FPL_ROOT:=$(DEPENDENCIES_ROOT)
 endif
 
-# Location of the SDL library.
-DEPENDENCIES_SDL_DIR?=$(THIRD_PARTY_ROOT)/sdl
+MOTIVE_GENERATED_OUTPUT_DIR := $(MOTIVE_DIR)/gen/include
+
 # Location of the Flatbuffers library.
 DEPENDENCIES_FLATBUFFERS_DIR?=$(FPL_ROOT)/flatbuffers
 # Location of the fplutil library.

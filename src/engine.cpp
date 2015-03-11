@@ -18,6 +18,10 @@
 
 namespace motive {
 
+// If we benchmark other stuff besides the MotiveProcessor::AdvanceFrame(),
+// we'll have to move this to an enum of benchmarking ids.
+static const int kBenchmarkIdOfFirstProcessor = 0;
+
 // static
 MotiveEngine::FunctionMap MotiveEngine::function_map_;
 
@@ -29,7 +33,8 @@ void MotiveEngine::RegisterProcessorFactory(
 
 // Prevent the version string from being stripped from the binary by keeping
 // a reference to it here.
-MotiveEngine::MotiveEngine() : version_(&Version()) {}
+MotiveEngine::MotiveEngine()
+  : version_(&Version()) {}
 
 void MotiveEngine::Reset() {
   for (ProcessorMap::iterator it = mapped_processors_.begin();
@@ -58,12 +63,16 @@ MotiveProcessor* MotiveEngine::Processor(MotivatorType type) {
   const MotiveProcessorFunctions& fns = function_pair->second;
 
   // Remember processor for next time. We only want at most one processor per
-  // type in an engine.
-  MotiveProcessor* processor = fns.create();
-  mapped_processors_.insert(ProcessorPair(type, processor));
+  // type in an engine
+  ProcessorDetails details;
+  details.processor = fns.create();
+  details.benchmark_id = kBenchmarkIdOfFirstProcessor +
+                         sorted_processors_.size();
+  mapped_processors_.insert(ProcessorPair(type, details.processor));
+  sorted_processors_.insert(details);
 
-  sorted_processors_.insert(processor);
-  return processor;
+  fpl::SetBenchmarkDetails(details.benchmark_id, *type);
+  return details.processor;
 }
 
 void MotiveEngine::AdvanceFrame(MotiveTime delta_time) {
@@ -75,9 +84,10 @@ void MotiveEngine::AdvanceFrame(MotiveTime delta_time) {
   // assume that one pass is sufficient.
   for (ProcessorSet::iterator it = sorted_processors_.begin();
        it != sorted_processors_.end(); ++it) {
-    MotiveProcessor* processor = *it;
-    processor->AdvanceFrame(delta_time);
+    const fpl::Benchmark b(it->benchmark_id);
+    it->processor->AdvanceFrame(delta_time);
   }
 }
 
 }  // namespace motive
+

@@ -49,8 +49,6 @@ set(dependencies_fplutil_dir "${fpl_root}/fplutil"
     CACHE PATH "Directory containing the fplutil library.")
 set(dependencies_mathfu_dir "${fpl_root}/mathfu"
     CACHE PATH "Directory containing the MathFu library.")
-set(dependencies_sdl_dir "${third_party_root}/sdl"
-    CACHE PATH "Directory containing the SDL library.")
 
 # Option to enable / disable the test build.
 option(motive_build_tests "Build tests for this project." ON)
@@ -61,6 +59,9 @@ option(motive_only_flatc "Only build FlatBuffers compiler." OFF)
 
 # Option to only build debug functions. Handy, but take up code space.
 option(motive_debug_functions "Only build FlatBuffers compiler." ON)
+
+# Option to instrument the code with timers. Useful for benchmarking.
+option(motive_enable_benchmarks "Measure performance of key subsystems." OFF)
 
 # Include MathFu in this project with test and benchmark builds disabled.
 set(mathfu_build_benchmarks OFF CACHE BOOL "")
@@ -79,9 +80,6 @@ add_definitions(-DHAVE_LIBC)
 add_definitions(-DHAVE_STDIO_H)
 set(BIN_DIR ${CMAKE_CURRENT_BINARY_DIR})
 set(CMAKE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/.)
-if(NOT motive_only_flatc AND NOT TARGET SDL2-static)
-  add_subdirectory(${dependencies_sdl_dir} ${tmp_dir}/sdl)
-endif()
 set(CMAKE_BINARY_DIR ${BIN_DIR})
 
 # Include FlatBuffers in this project.
@@ -142,6 +140,7 @@ set(motive_SRCS
     src/processor/matrix_processor.cpp
     src/processor/overshoot_processor.cpp
     src/processor/smooth_processor.cpp
+    src/util/benchmark.cpp
     src/version.cpp)
 
 # Includes for this project.
@@ -152,6 +151,7 @@ endif()
 include_directories(${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${dependencies_fplutil_dir}/libfplutil/include)
+include_directories(${dependencies_mathfu_dir}/benchmarks)
 include_directories(${dependencies_mathfu_dir}/include)
 
 # SDL includes.
@@ -185,6 +185,10 @@ if(motive_debug_functions)
   add_definitions(-DFPL_CURVE_GRAPH_FUNCTIONS)
 endif()
 
+if(motive_enable_benchmarks)
+  add_definitions(-DBENCHMARK_MOTIVE)
+endif()
+
 set (SDL_LIBRARIES SDL2-static)
 if(WIN32)
   add_definitions(-D_USE_MATH_DEFINES)
@@ -210,3 +214,4 @@ endif()
 if(motive_build_samples)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/docs/samples)
 endif()
+

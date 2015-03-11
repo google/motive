@@ -44,7 +44,7 @@ static const CompactSplineIndex kBeforeSplineIndex =
 static const CompactSplineIndex kAfterSplineIndex =
     static_cast<CompactSplineIndex>(-3);
 
-static bool OutsideSpline(CompactSplineIndex index) {
+inline bool OutsideSpline(CompactSplineIndex index) {
   return index >= kAfterSplineIndex;
 }
 

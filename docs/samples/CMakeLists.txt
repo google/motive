@@ -35,12 +35,7 @@ if(NOT MSVC)
   find_package(Threads)
 endif()
 
-set (SDL_LIBRARIES SDL2-static)
-if(WIN32)
-  set(SDL_LIBRARIES SDL2main;${SDL_LIBRARIES})
-endif()
-
-set(COMMON_LIBS "gtest;motive;${SDL_LIBRARIES};${CMAKE_THREAD_LIBS_INIT}")
+set(COMMON_LIBS "gtest;motive;${CMAKE_THREAD_LIBS_INIT}")
 
 add_definitions(-DFPL_CURVE_GRAPH_FUNCTIONS)
 
