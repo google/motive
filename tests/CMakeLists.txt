@@ -52,12 +52,7 @@ if(NOT MSVC)
   find_package(Threads)
 endif()
 
-set (SDL_LIBRARIES SDL2-static)
-if(WIN32)
-  set(SDL_LIBRARIES SDL2main;${SDL_LIBRARIES})
-endif()
-
-set(COMMON_LIBS "gtest;${SDL_LIBRARIES};${CMAKE_THREAD_LIBS_INIT}")
+set(COMMON_LIBS "gtest;motive;${CMAKE_THREAD_LIBS_INIT}")
 
 add_definitions(-DFPL_CURVE_GRAPH_FUNCTIONS)
 
@@ -78,22 +73,9 @@ function(test_executable name)
   mathfu_configure_flags(${name}_test)
 endfunction()
 
-test_executable(angle ../include/motive/math/angle.h)
-test_executable(motive ../src/math/curve.cpp
-                ../src/math/bulk_spline_evaluator.cpp
-                ../src/math/compact_spline.cpp
-                ../src/math/dual_cubic.cpp
-                ../src/engine.cpp
-                ../src/motivator.cpp
-                ../src/processor.cpp
-                ../src/processor/matrix_processor.cpp
-                ../src/processor/overshoot_processor.cpp
-                ../src/processor/smooth_processor.cpp
-                ../src/version.cpp)
-test_executable(range ../include/motive/math/range.h)
-test_executable(curve ../src/math/curve.cpp)
-test_executable(spline ../src/math/bulk_spline_evaluator.cpp
-                ../src/math/compact_spline.cpp
-                ../src/math/curve.cpp
-                ../src/math/dual_cubic.cpp)
+test_executable(angle)
+test_executable(motive)
+test_executable(range)
+test_executable(curve)
+test_executable(spline)
 
