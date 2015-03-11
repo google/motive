@@ -22,12 +22,32 @@ MotiveProcessor::~MotiveProcessor() {
   // We don't want any of them to reference us after we've been destroyed.
   for (MotiveIndex index = 0; index < index_allocator_.num_indices(); ++index) {
     if (motivators_[index] != nullptr) {
-      RemoveMotivator(index);
+      RemoveMotivatorWithoutNotifying(index);
     }
   }
 
   // Sanity-check: Ensure that we have no more active Motivators.
   assert(index_allocator_.Empty());
+}
+
+void MotiveProcessor::ValidInternalState() const {
+  // Only Motivators at the end should be nullptr. Skip checking those.
+  MotiveIndex len = static_cast<MotiveIndex>(motivators_.size());
+  for (; len > 0 && motivators_[len - 1] == nullptr; --len) {}
+
+  // Check the validity of each Motivator.
+  for (MotiveIndex i = 0; i < len; ++i) {
+    // If a motivator is nullptr, its index should not be allocated.
+    assert((motivators_[i] == nullptr && !index_allocator_.ValidIndex(i)) ||
+           motivators_[i]->Valid());
+
+    if (motivators_[i] == nullptr)
+      continue;
+
+    for (MotiveIndex j = i + 1; j < len; ++j) {
+      assert(motivators_[i] != motivators_[j]);
+    }
+  }
 }
 
 void MotiveProcessor::InitializeMotivator(const MotivatorInit& init,
@@ -49,12 +69,9 @@ void MotiveProcessor::InitializeMotivator(const MotivatorInit& init,
   InitializeIndex(init, index, engine);
 }
 
-void MotiveProcessor::RemoveMotivator(MotiveIndex index) {
-  assert(ValidIndex(index));
-
-  // Call the MotiveProcessor-specific remove routine.
-  RemoveIndex(index);
-
+// Don't notify derived classes. Useful in the destructor, since derived classes
+// have already been destroyed.
+void MotiveProcessor::RemoveMotivatorWithoutNotifying(MotiveIndex index) {
   // Ensure the Motivator no longer references us.
   motivators_[index]->Reset();
 
@@ -64,6 +81,17 @@ void MotiveProcessor::RemoveMotivator(MotiveIndex index) {
   // Recycle 'index'. It will be used in the next allocation, or back-filled in
   // the next call to Defragment().
   index_allocator_.Free(index);
+}
+
+void MotiveProcessor::RemoveMotivator(MotiveIndex index) {
+  assert(ValidIndex(index));
+
+  // Call the MotiveProcessor-specific remove routine.
+  RemoveIndex(index);
+
+  // Need this version since the destructor can't call the pure virtual
+  // RemoveIndex() above.
+  RemoveMotivatorWithoutNotifying(index);
 }
 
 void MotiveProcessor::TransferMotivator(MotiveIndex index,

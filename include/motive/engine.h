@@ -45,10 +45,18 @@ class MotiveEngine {
 
  public:
   MotiveEngine();
+  ~MotiveEngine() { Reset(); }
+
+  // Deallocate all MotiveProcessors, which, in turn, resets all Motivators
+  // that use those MotiveProcessors.
   void Reset();
-  MotiveProcessor* Processor(MotivatorType type);
+
+  // Update all the MotiveProcessors by 'delta_time'. This advances all
+  // Motivators created with this MotiveEngine.
   void AdvanceFrame(MotiveTime delta_time);
 
+  // For internal use only.
+  MotiveProcessor* Processor(MotivatorType type);
   static void RegisterProcessorFactory(MotivatorType type,
                                        const MotiveProcessorFunctions& fns);
 

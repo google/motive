@@ -105,6 +105,10 @@ class MotiveProcessor {
   // we impose a strict ordering here.
   virtual int Priority() const = 0;
 
+  // Ensure that the internal state is consistent. Call periodically when
+  // debugging problems where the internal state is corrupt.
+  void VerifyInternalState() const;
+
  protected:
   // Initialize data at 'index'. The meaning of 'index' is determined by the
   // MotiveProcessor implementation (most likely it is the index into one or
@@ -139,6 +143,9 @@ class MotiveProcessor {
   void Defragment() { index_allocator_.Defragment(); }
 
  private:
+  // Don't notify derived class.
+  void RemoveMotivatorWithoutNotifying(MotiveIndex index);
+
   // Proxy callbacks from IndexAllocator into MotiveProcessor.
   class AllocatorCallbacks
       : public fpl::IndexAllocator<MotiveIndex>::CallbackInterface {
