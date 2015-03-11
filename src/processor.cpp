@@ -30,20 +30,17 @@ MotiveProcessor::~MotiveProcessor() {
   assert(index_allocator_.Empty());
 }
 
-void MotiveProcessor::ValidInternalState() const {
-  // Only Motivators at the end should be nullptr. Skip checking those.
-  MotiveIndex len = static_cast<MotiveIndex>(motivators_.size());
-  for (; len > 0 && motivators_[len - 1] == nullptr; --len) {}
-
+void MotiveProcessor::VerifyInternalState() const {
   // Check the validity of each Motivator.
+  MotiveIndex len = static_cast<MotiveIndex>(motivators_.size());
   for (MotiveIndex i = 0; i < len; ++i) {
-    // If a motivator is nullptr, its index should not be allocated.
+    // If a Motivator is nullptr, its index should not be allocated.
     assert((motivators_[i] == nullptr && !index_allocator_.ValidIndex(i)) ||
            motivators_[i]->Valid());
 
-    if (motivators_[i] == nullptr)
-      continue;
+    if (motivators_[i] == nullptr) continue;
 
+    // A Motivator should be referenced once.
     for (MotiveIndex j = i + 1; j < len; ++j) {
       assert(motivators_[i] != motivators_[j]);
     }
