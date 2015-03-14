@@ -43,12 +43,12 @@ void BulkSplineEvaluator::SetYRange(const Index index, const Range& valid_y,
 }
 
 void BulkSplineEvaluator::SetSpline(const Index index,
-                                    const CompactSpline& spline,
-                                    const float start_x) {
+                                    const SplinePlayback& s) {
   Domain& d = domains_[index];
-  splines_[index] = &spline;
-  d.x = start_x;
+  splines_[index] = s.spline;
+  d.x = s.start_x;
   d.x_index = kInvalidSplineIndex;
+  d.repeat = s.repeat;
   InitCubic(index);
   EvaluateIndex(index);
 }
@@ -106,7 +106,11 @@ void BulkSplineEvaluator::InitCubic(const Index index) {
 
   // Do nothing if the current cubic matches the current spline segment.
   Domain& d = domains_[index];
-  const CompactSplineIndex x_index = spline->IndexForX(d.x, d.x_index + 1);
+  CompactSplineIndex x_index = spline->IndexForX(d.x, d.x_index + 1);
+  if (d.repeat && x_index == kAfterSplineIndex) {
+    d.x -= spline->EndX();
+    x_index = spline->IndexForX(d.x, 0);
+  }
   if (d.x_index == x_index) return;
 
   // Update the x-related values.

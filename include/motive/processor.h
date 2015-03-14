@@ -22,6 +22,7 @@
 
 namespace fpl {
 class CompactSpline;
+struct SplinePlayback;
 }
 
 namespace motive {
@@ -204,9 +205,8 @@ class MotiveProcessor1f : public MotiveProcessor {
   // At least one of these should be implemented. Otherwise, there will be
   // no way to drive the Motivator towards a target.
   virtual void SetTarget(MotiveIndex /*index*/, const MotiveTarget1f& /*t*/) {}
-  virtual void SetWaypoints(MotiveIndex /*index*/,
-                            const fpl::CompactSpline& /*waypoints*/,
-                            float /*start_time*/) {}
+  virtual void SetSpline(MotiveIndex /*index*/,
+                         const fpl::SplinePlayback& /*s*/) {}
 };
 
 // Interface for motivator types that drive a 4x4 float matrix.

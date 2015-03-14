@@ -123,7 +123,7 @@ class Motivator {
 // Drive a float value towards a target.
 //
 // The current and target values and velocities can be specified by SetTarget()
-// or SetWaypoints().
+// or SetSpline().
 class Motivator1f : public Motivator {
  public:
   Motivator1f() {}
@@ -156,9 +156,8 @@ class Motivator1f : public Motivator {
   // Set current motivator values in the processor. Processors may choose to
   // ignore whichever values make sense for them to ignore.
   void SetTarget(const MotiveTarget1f& t) { Processor().SetTarget(index_, t); }
-  void SetWaypoints(const fpl::CompactSpline& waypoints,
-                    float start_time = 0.0f) {
-    Processor().SetWaypoints(index_, waypoints, start_time);
+  void SetSpline(const fpl::SplinePlayback& s) {
+    Processor().SetSpline(index_, s);
   }
 
  private:

@@ -65,9 +65,8 @@ class MatrixOperation {
             value_.motivator.SetTarget(*init.target);
             break;
 
-          case MatrixOperationInit::kUnionWaypoints:
-            value_.motivator.SetWaypoints(*init.waypoints.spline,
-                                          init.waypoints.start_time);
+          case MatrixOperationInit::kUnionSpline:
+            value_.motivator.SetSpline(*init.spline);
             break;
 
           default:

@@ -177,7 +177,7 @@ struct MatrixOperationInit {
     kUnionEmpty,
     kUnionInitialValue,
     kUnionTarget,
-    kUnionWaypoints
+    kUnionSpline
   };
 
   // Matrix operation never changes. Always use 'const_value'.
@@ -205,16 +205,8 @@ struct MatrixOperationInit {
       : init(&init), type(type), union_type(kUnionTarget), target(&target) {}
 
   MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init,
-                      const fpl::CompactSpline& spline, float start_time)
-      : init(&init), type(type), union_type(kUnionWaypoints) {
-    waypoints.spline = &spline;
-    waypoints.start_time = start_time;
-  }
-
-  struct Waypoints {
-    const fpl::CompactSpline* spline;
-    float start_time;
-  };
+                      const fpl::SplinePlayback& spline)
+      : init(&init), type(type), union_type(kUnionSpline), spline(&spline) {}
 
   const MotivatorInit* init;
   MatrixOperationType type;
@@ -222,7 +214,7 @@ struct MatrixOperationInit {
   union {
     float initial_value;
     const MotiveTarget1f* target;
-    Waypoints waypoints;
+    const fpl::SplinePlayback* spline;
   };
 };
 
@@ -280,8 +272,8 @@ class MatrixInit : public MotivatorInit {
   }
 
   void AddOp(MatrixOperationType type, const MotivatorInit& init,
-             const fpl::CompactSpline& spline, float start_time = 0.0f) {
-    ops_.push_back(MatrixOperationInit(type, init, spline, start_time));
+             const fpl::SplinePlayback& spline) {
+    ops_.push_back(MatrixOperationInit(type, init, spline));
   }
 
   const OpVector& ops() const { return ops_; }
