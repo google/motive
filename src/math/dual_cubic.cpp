@@ -21,6 +21,7 @@ namespace fpl {
 static const float kMaxSteepness = 4.0f;
 static const float kMinMidPercent = 0.1f;
 static const float kMaxMidPercent = 1.0f - kMinMidPercent;
+static const float kMinYDiff = 0.1f; // Prevent division by zero.
 
 // One node of a spline that specifies both first and second derivatives.
 // Only used internally.
@@ -208,8 +209,11 @@ static float ApproximateMidPercent(const SplineControlNode& start,
                                    const SplineControlNode& end,
                                    float* start_percent, float* end_percent) {
   // The greater the difference in steepness, the more skewed the mid percent.
-  const float start_steepness = CalculateSteepness(start.derivative);
-  const float end_steepness = CalculateSteepness(end.derivative);
+  const float abs_y_diff = fabs(end.y - start.y);
+  const float y_diff_recip = 1.0f / std::max(abs_y_diff, kMinYDiff);
+  const float start_steepness =
+      CalculateSteepness(start.derivative * y_diff_recip);
+  const float end_steepness = CalculateSteepness(end.derivative * y_diff_recip);
   const float diff_steepness = fabs(start_steepness - end_steepness);
   const float percent_extreme = std::min(diff_steepness / kMaxSteepness, 1.0f);
 

@@ -49,10 +49,10 @@ struct GraphData {
 
 static const int kNumCheckPoints = fpl::kDefaultGraphWidth;
 static const vec2i kGraphSize(kNumCheckPoints, fpl::kDefaultGraphHeight);
-static const float kFixedPointEpsilon = 0.01f;
+static const float kFixedPointEpsilon = 0.02f;
 static const float kDerivativePrecision = 0.01f;
-static const float kSecondDerivativePrecision = 0.1f;
-static const float kThirdDerivativePrecision = 1.0f;
+static const float kSecondDerivativePrecision = 0.22f;
+static const float kThirdDerivativePrecision = 2.0f;
 static const float kXGranularityScale = 0.01f;
 static const Range kAngleRange(-kPi, kPi);
 
@@ -61,9 +61,11 @@ static const Range kAngleRange(-kPi, kPi);
 static const CompactSplineIndex kRidiculousSplineIndex = 10000;
 
 static const CubicInit kSimpleSplines[] = {
-  //        start_y   start_derivative  end_y   end_derivative    width_x
-  CubicInit( 1.0f,    -8.0f,            0.0f,   0.0f,             1.0f),
-  CubicInit( 1.0f,    -8.0f,           -1.0f,   0.0f,             1.0f),
+    //    start_y         end_y        width_x
+    //      start_derivative  end_derivative
+    CubicInit(0.0f, 1.0f, 0.1f, 0.0f, 1.0f),
+    CubicInit(1.0f, -8.0f, 0.0f, 0.0f, 1.0f),
+    CubicInit(1.0f, -8.0f, -1.0f, 0.0f, 1.0f),
 };
 static const int kNumSimpleSplines =
     static_cast<int>(ARRAYSIZE(kSimpleSplines));
