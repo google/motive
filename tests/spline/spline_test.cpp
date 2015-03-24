@@ -154,7 +154,7 @@ static void GatherGraphData(const CubicInit& init, GraphData* d,
   if (is_angle) {
     interpolator.SetYRange(0, kAngleRange, true);
   }
-  interpolator.SetSpline(0, spline);
+  interpolator.SetSpline(0, fpl::SplinePlayback(spline));
 
   ExecuteInterpolator(interpolator, kNumCheckPoints, d);
 

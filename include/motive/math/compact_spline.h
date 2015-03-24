@@ -175,6 +175,21 @@ class CompactSpline {
   float x_granularity_;
 };
 
+struct SplinePlayback {
+  explicit SplinePlayback(const CompactSpline& spline, float start_x = 0.0f,
+                          bool repeat = false)
+      : spline(&spline), start_x(start_x), repeat(repeat) {}
+
+  // The spline to follow.
+  const CompactSpline* spline;
+
+  // The starting point from which to play.
+  float start_x;
+
+  // If true, start back at the beginning after we reach the end.
+  bool repeat;
+};
+
 }  // namespace fpl
 
 #endif  // MOTIVE_MATH_COMPACT_SPLINE_H_

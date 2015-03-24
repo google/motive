@@ -112,12 +112,10 @@ class SmoothMotiveProcessor : public MotiveProcessor1f {
 
     // Point the interpolator at the spline we just created. Always start our
     // spline at time 0.
-    interpolator_.SetSpline(index, *d.local_spline);
+    interpolator_.SetSpline(index, fpl::SplinePlayback(*d.local_spline));
   }
 
-  virtual void SetWaypoints(MotiveIndex index,
-                            const fpl::CompactSpline& waypoints,
-                            float start_time) {
+  virtual void SetSpline(MotiveIndex index, const fpl::SplinePlayback& s) {
     SmoothData& d = Data(index);
 
     // Return the local spline to the spline pool. We use external splines now.
@@ -126,7 +124,7 @@ class SmoothMotiveProcessor : public MotiveProcessor1f {
     // Initialize spline to follow way points.
     // Snaps the current value and velocity to the way point's start value
     // and velocity.
-    interpolator_.SetSpline(index, waypoints, start_time);
+    interpolator_.SetSpline(index, s);
   }
 
  protected:

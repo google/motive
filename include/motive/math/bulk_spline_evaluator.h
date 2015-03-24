@@ -59,8 +59,7 @@ class BulkSplineEvaluator {
 
   // Initialize 'index' to process 'spline' starting from 'start_x'.
   // The Y() and Derivative() values are immediately available.
-  void SetSpline(const Index index, const CompactSpline& spline,
-                 const float start_x = 0.0f);
+  void SetSpline(const Index index, const SplinePlayback& s);
 
   // Increment x and update the Y() and Derivative() values for all indices.
   // Process all indices in bulk to efficiently traverse memory and allow SIMD
@@ -134,7 +133,8 @@ class BulkSplineEvaluator {
           x_index(kInvalidSplineIndex),
           valid_y(-std::numeric_limits<float>::infinity(),
                   std::numeric_limits<float>::infinity()),
-          modular_arithmetic(false) {}
+          modular_arithmetic(false),
+          repeat(false) {}
 
     // The start and end 'x' values for the current Cubic.
     Range valid_x;
@@ -157,6 +157,10 @@ class BulkSplineEvaluator {
     // True if y values wrap around when they exit the valid_y range.
     // False if y values clamp to the edges of the valid_y range.
     bool modular_arithmetic;
+
+    // If true, start again at the beginning of the spline when we reach
+    // the end.
+    bool repeat;
   };
 
   struct Result {
