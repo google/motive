@@ -203,10 +203,10 @@ mathfu_configure_flags(motive)
 
 # Tests.
 if(motive_build_tests)
-  add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 endif()
 
 # Samples.
 if(motive_build_samples)
-  add_subdirectory(${CMAKE_SOURCE_DIR}/docs/samples)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/docs/samples)
 endif()
