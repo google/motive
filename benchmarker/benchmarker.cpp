@@ -108,12 +108,14 @@ class MotiveBenchmarker {
     // Create compact splines by modifying some basic functions (straight
     // line and sign wave). The straight line, in this case, represents an
     // angle that travels a total of 2pi, so it ends up where it started.
-    CreateSpline(kStraightLine, ARRAYSIZE(kStraightLine), kLinearOrbitPeriod,
-                 kTwoPi, &splines_[kLinearOrbit]);
-    CreateSpline(kSinWave, ARRAYSIZE(kSinWave), kOscillatingSlowlyPeriod,
-                 kOscillatingSlowlyAmplitude, &splines_[kOscillatingSlowly]);
-    CreateSpline(kSinWave, ARRAYSIZE(kSinWave), kOscillatingQuicklyPeriod,
-                 kOscillatingQuicklyAmplitude, &splines_[kOscillatingQuickly]);
+    CreateSpline(kStraightLine, MOTIVE_ARRAY_SIZE(kStraightLine),
+                 kLinearOrbitPeriod, kTwoPi, &splines_[kLinearOrbit]);
+    CreateSpline(kSinWave, MOTIVE_ARRAY_SIZE(kSinWave),
+                 kOscillatingSlowlyPeriod, kOscillatingSlowlyAmplitude,
+                 &splines_[kOscillatingSlowly]);
+    CreateSpline(kSinWave, MOTIVE_ARRAY_SIZE(kSinWave),
+                 kOscillatingQuicklyPeriod, kOscillatingQuicklyAmplitude,
+                 &splines_[kOscillatingQuickly]);
 
     // Add some information for how to play-back the spline:
     // the start time (always 0 here), and whether to repeat (always true here).

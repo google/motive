@@ -51,8 +51,8 @@ static const int kNumCheckPoints = fpl::kDefaultGraphWidth;
 static const vec2i kGraphSize(kNumCheckPoints, fpl::kDefaultGraphHeight);
 static const float kFixedPointEpsilon = 0.02f;
 static const float kDerivativePrecision = 0.01f;
-static const float kSecondDerivativePrecision = 0.22f;
-static const float kThirdDerivativePrecision = 2.0f;
+static const float kSecondDerivativePrecision = 0.26f;
+static const float kThirdDerivativePrecision = 6.0f;
 static const float kXGranularityScale = 0.01f;
 static const Range kAngleRange(-kPi, kPi);
 
@@ -68,7 +68,7 @@ static const CubicInit kSimpleSplines[] = {
     CubicInit(1.0f, -8.0f, -1.0f, 0.0f, 1.0f),
 };
 static const int kNumSimpleSplines =
-    static_cast<int>(ARRAYSIZE(kSimpleSplines));
+    static_cast<int>(MOTIVE_ARRAY_SIZE(kSimpleSplines));
 
 static const CubicInit CubicInitMirrorY(const CubicInit& init) {
   return CubicInit(-init.start_y, -init.start_derivative,
@@ -79,11 +79,6 @@ static const CubicInit CubicInitScaleX(const CubicInit& init, float scale) {
   return CubicInit(init.start_y, init.start_derivative / scale,
                    init.end_y, init.end_derivative / scale,
                    init.width_x * scale);
-}
-
-static const CubicInit CubicInitFlipStartAndEnd(const CubicInit& init) {
-  return CubicInit(init.end_y, init.end_derivative,
-                   init.start_y, init.start_derivative, init.width_x);
 }
 
 static Range CubicInitYRange(const CubicInit& init, float buffer_percent) {

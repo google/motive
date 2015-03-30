@@ -109,15 +109,11 @@ class CompactSplineNode {
   static CompactSplineXGrain MaxX() { return kMaxX; }
 
  private:
-  static const CompactSplineXGrain kMaxX =
-      std::numeric_limits<CompactSplineXGrain>::max();
-  static const CompactSplineYRung kMaxY =
-      std::numeric_limits<CompactSplineXGrain>::max();
-  static const CompactSplineAngle kMinAngle =
-      std::numeric_limits<CompactSplineAngle>::min();
-  static constexpr float kYScale = 1.0f / static_cast<float>(kMaxY);
-  static constexpr float kAngleScale =
-      static_cast<float>(-M_PI / static_cast<double>(kMinAngle));
+  static const CompactSplineXGrain kMaxX;
+  static const CompactSplineYRung kMaxY;
+  static const CompactSplineAngle kMinAngle;
+  static const float kYScale;
+  static const float kAngleScale;
 
   float YPercent() const { return static_cast<float>(y_) * kYScale; }
   float Angle() const { return static_cast<float>(angle_) * kAngleScale; }
@@ -133,6 +129,17 @@ class CompactSplineNode {
   // Angle from x-axis. tan(angle) = rise / run = derivative.
   CompactSplineAngle angle_;
 };
+
+// static constants
+const CompactSplineXGrain CompactSplineNode::kMaxX =
+    std::numeric_limits<CompactSplineXGrain>::max();
+const CompactSplineYRung CompactSplineNode::kMaxY =
+    std::numeric_limits<CompactSplineXGrain>::max();
+const CompactSplineAngle CompactSplineNode::kMinAngle =
+    std::numeric_limits<CompactSplineAngle>::min();
+const float CompactSplineNode::kYScale = 1.0f / static_cast<float>(kMaxY);
+const float CompactSplineNode::kAngleScale =
+    static_cast<float>(-M_PI / static_cast<double>(kMinAngle));
 
 CompactSpline::CompactSpline() : x_granularity_(0.0f) {}
 
@@ -155,7 +162,7 @@ CompactSpline::~CompactSpline() {}
 // Default implementation. Explicitly written here because 'nodes_' needs the
 // implementation of CompactSplineNode.
 CompactSpline& CompactSpline::operator=(const CompactSpline& rhs) {
-  *this = CompactSpline(rhs);
+  new (this) CompactSpline(rhs);  // Placement new.
   return *this;
 }
 
@@ -226,7 +233,10 @@ float CompactSpline::EndDerivative() const {
 }
 
 float CompactSpline::NodeX(const CompactSplineIndex index) const {
-  return nodes_[index].X(x_granularity_);
+  return index == kAfterSplineIndex
+             ? EndX()
+             : index == kBeforeSplineIndex ? StartX()
+                                           : nodes_[index].X(x_granularity_);
 }
 float CompactSpline::NodeY(const CompactSplineIndex index) const {
   return nodes_[index].Y(y_range_);

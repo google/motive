@@ -79,7 +79,8 @@ int main() {
     // Additionally, we can also access facing_angle.Velocity() for the angular
     // velocity.
     const Angle facing_angle_at_time_t(facing_angle.Value());
-    points.push_back(vec2(t, facing_angle_at_time_t.ToDegrees()));
+    points.push_back(
+        vec2(static_cast<float>(t), facing_angle_at_time_t.ToDegrees()));
   }
 
   printf("\n%s", Graph2DPoints(&points[0], points.size()).c_str());

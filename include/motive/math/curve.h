@@ -55,8 +55,8 @@ class QuadraticCurve {
   static const int kNumCoeff = 3;
 
  public:
-  typedef typename Range::TArray<2> RootsArray;
-  typedef typename Range::RangeArray<2> RangeArray;
+  typedef Range::TArray<2> RootsArray;
+  typedef Range::RangeArray<2> RangeArray;
 
   QuadraticCurve() { memset(c_, 0, sizeof(c_)); }
   QuadraticCurve(const float c2, const float c1, const float c0) {

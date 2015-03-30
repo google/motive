@@ -39,10 +39,7 @@ class ModularInit : public MotivatorInit {
   // The derived type must call this constructor with it's MotivatorType
   // identifier.
   explicit ModularInit(MotivatorType type)
-      : MotivatorInit(type),
-        range_(-std::numeric_limits<float>::infinity(),
-               std::numeric_limits<float>::infinity()),
-        modular_(false) {}
+      : MotivatorInit(type), range_(fpl::Range::Full()), modular_(false) {}
   ModularInit(MotivatorType type, const fpl::Range& range, bool modular)
       : MotivatorInit(type), range_(range), modular_(modular) {}
 
@@ -235,7 +232,7 @@ struct MatrixOperationInit {
 class MatrixInit : public MotivatorInit {
  public:
   MOTIVE_INTERFACE();
-  typedef typename std::vector<MatrixOperationInit> OpVector;
+  typedef std::vector<MatrixOperationInit> OpVector;
 
   // By default expect a relatively high number of ops. Cost for allocating
   // a bit too much temporary memory is small compared to cost of reallocating

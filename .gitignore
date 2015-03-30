@@ -28,14 +28,18 @@ tests/audio_engine_test.dir/
 Makefile
 
 # Visual Studio files
-build/
+*.opensdf
+*.pdb/
+*.sdf
 *.sln
-*.user
 *.suo
+*.user
 *.vcxproj
 *.vcxproj.filters
+build/
 Debug/
 Win32/
+pingme.txt
 
 # qt creator
 *.cbp

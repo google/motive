@@ -266,7 +266,7 @@ std::string Graph2DPoints(const vec2* points, const int num_points,
       if (q->x() == col && q->y() == row) {
         r += '*';
         for (q++; q->x() == col && q->y() == row; q++) {}
-        if (q >= &p[num_points]) break;
+        if (q > &p.back()) break;
       } else if (col == 0) {
         r += '|';
       } else if (row == zero_row) {
@@ -278,7 +278,7 @@ std::string Graph2DPoints(const vec2* points, const int num_points,
       }
     }
     r += '\n';
-    if (q >= &p[num_points]) break;
+    if (q > &p.back()) break;
   }
   r += "y = " + std::to_string(min.y()) + "\n";
   return r;

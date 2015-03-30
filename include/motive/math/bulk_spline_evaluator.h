@@ -159,7 +159,7 @@ class BulkSplineEvaluator {
   };
 
   struct YRange {
-    YRange() : modular_arithmetic(0) {}
+    YRange() : valid_y(Range::Full()), modular_arithmetic(0) {}
 
     // Hold min and max values for the y result, or for the modular range.
     // Modular ranges are used for things like angles, the wrap around from

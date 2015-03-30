@@ -46,11 +46,9 @@ class MatrixOperation {
 
     switch (animation_type) {
       case kMotivatorAnimation: {
-        // Manually construct the motivator in the union, since the constructor
-        // was never called on it. The union disables construction and we
-        // must construct manually, like here.
-        Motivator1f* motivator = &value_.motivator;
-        new (motivator) Motivator1f(*init.init, engine);
+        // Manually construct the motivator in the union's memory buffer.
+        Motivator1f* motivator =
+            new (value_.motivator_memory) Motivator1f(*init.init, engine);
 
         // Initialize the state if required.
         switch (init.union_type) {
@@ -58,15 +56,15 @@ class MatrixOperation {
             break;
 
           case MatrixOperationInit::kUnionInitialValue:
-            value_.motivator.SetTarget(Current1f(init.initial_value));
+            motivator->SetTarget(Current1f(init.initial_value));
             break;
 
           case MatrixOperationInit::kUnionTarget:
-            value_.motivator.SetTarget(*init.target);
+            motivator->SetTarget(*init.target);
             break;
 
           case MatrixOperationInit::kUnionSpline:
-            value_.motivator.SetSpline(*init.spline);
+            motivator->SetSpline(*init.spline);
             break;
 
           default:
@@ -92,7 +90,7 @@ class MatrixOperation {
   ~MatrixOperation() {
     // Manually call the Motivator destructor, since the union hides it.
     if (animation_type_ == kMotivatorAnimation) {
-      value_.motivator.~Motivator1f();
+      Motivator().~Motivator1f();
     }
   }
 
@@ -103,24 +101,20 @@ class MatrixOperation {
 
   // Return the value we are animating.
   float Value() const {
-    return animation_type_ == kMotivatorAnimation ? value_.motivator.Value()
+    return animation_type_ == kMotivatorAnimation ? Motivator().Value()
                                                   : value_.const_value;
   }
 
   // Return the child motivator if it is valid. Otherwise, return nullptr.
   Motivator1f* ValueMotivator() {
-    return animation_type_ == kMotivatorAnimation ? &value_.motivator : nullptr;
+    return animation_type_ == kMotivatorAnimation ? &Motivator() : nullptr;
   }
 
   const Motivator1f* ValueMotivator() const {
-    return animation_type_ == kMotivatorAnimation ? &value_.motivator : nullptr;
+    return animation_type_ == kMotivatorAnimation ? &Motivator() : nullptr;
   }
 
-  void SetTarget1f(const MotiveTarget1f& t) {
-    assert(animation_type_ == kMotivatorAnimation);
-    value_.motivator.SetTarget(t);
-  }
-
+  void SetTarget1f(const MotiveTarget1f& t) { Motivator().SetTarget(t); }
   void SetValue1f(float value) {
     assert(animation_type_ == kConstValueAnimation &&
            (!IsRotation(Type()) || Angle::IsAngleInRange(value)));
@@ -134,13 +128,17 @@ class MatrixOperation {
     kConstValueAnimation
   };
 
-  // Override the constructor and destructor and call manually, when required,
-  // on Motivator1f. We call manually since AnimatedValue is not always an
-  // 'motivator'--sometimes it's a simple 'const_value'.
+  // Disable copies so we don't have to worry about copying the Motivator1f in
+  // the union.
+  MatrixOperation(const MatrixOperation& rhs);
+  MatrixOperation& operator=(const MatrixOperation& rhs);
+
+  // Motivator1f has non-trivial constructors, destructors, and copy operators,
+  // so we don't use it in the union. C++11 supports these kinds of unions,
+  // but not all compilers (notably, Visual Studio) have complex union support
+  // yet.
   union AnimatedValue {
-    AnimatedValue() {}
-    ~AnimatedValue() {}
-    Motivator1f motivator;
+    uint8_t motivator_memory[sizeof(Motivator1f)];
     float const_value;
   };
 
@@ -150,6 +148,16 @@ class MatrixOperation {
 
   void SetAnimationType(AnimationType animation_type) {
     animation_type_ = static_cast<uint8_t>(animation_type);
+  }
+
+  Motivator1f& Motivator() {
+    assert(animation_type_ == kMotivatorAnimation);
+    return *reinterpret_cast<Motivator1f*>(value_.motivator_memory);
+  }
+
+  const Motivator1f& Motivator() const {
+    assert(animation_type_ == kMotivatorAnimation);
+    return *reinterpret_cast<const Motivator1f*>(value_.motivator_memory);
   }
 
   // Enum MatrixOperationType compressed to 8-bits to save memory.

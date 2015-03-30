@@ -188,7 +188,7 @@ static float ExtremeSecondDerivativeForEnd(const SplineControlNode& start,
 
 // Android does not support log2 in its math.h.
 static inline float Log2(const float x) {
-#ifdef __ANDROID__
+#if defined(__ANDROID__) || defined(_WIN32)
   static const float kOneOverLog2 = 3.32192809489f;
   return log(x) * kOneOverLog2;  // log2(x) = log(x) / log(2)
 #else

@@ -94,7 +94,7 @@ class LinearMotiveProcessor : public MotiveProcessor1f {
     return d.target_value - d.value;
   }
   virtual MotiveTime TargetTime(MotiveIndex index) const {
-    return Data(index).target_time;
+    return static_cast<MotiveTime>(Data(index).target_time);
   }
 
   // Target values are set in bulk. Please see MotiveTarget1f for a description
@@ -119,7 +119,7 @@ class LinearMotiveProcessor : public MotiveProcessor1f {
                                     : &node0;
     if (target_node != nullptr) {
       d.target_value = target_node->value;
-      d.target_time = target_node->time;
+      d.target_time = static_cast<float>(target_node->time);
     }
   }
 
@@ -208,7 +208,7 @@ int main() {
   std::vector<vec2> points;
   points.reserve(target.EndTime() + 1);
   for (MotiveTime t = 0; t <= target.EndTime(); ++t) {
-    points.push_back(vec2(t, linear_motivator.Value()));
+    points.push_back(vec2(static_cast<float>(t), linear_motivator.Value()));
     engine.AdvanceFrame(1);
   }
   printf("\n%s", fpl::Graph2DPoints(&points[0], points.size()).c_str());

@@ -47,7 +47,7 @@ class SmoothMotiveProcessor : public MotiveProcessor1f {
 
   virtual void AdvanceFrame(MotiveTime delta_time) {
     Defragment();
-    interpolator_.AdvanceFrame(delta_time);
+    interpolator_.AdvanceFrame(static_cast<float>(delta_time));
   }
 
   virtual MotivatorType Type() const { return SmoothInit::kType; }
@@ -84,7 +84,7 @@ class SmoothMotiveProcessor : public MotiveProcessor1f {
     const float start_y = override_current ? node0.value : Value(index);
     const float start_derivative =
         override_current ? node0.velocity : Velocity(index);
-    const float start_node_index = override_current ? 1 : 0;
+    const int start_node_index = override_current ? 1 : 0;
 
     // Ensure we have a local spline available, allocated from our pool of
     // splines.

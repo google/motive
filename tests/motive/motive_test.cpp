@@ -194,7 +194,7 @@ TEST_F(MotiveTests, StaysWithinBound) {
 // Open up a hole in the data and then call Defragment() to close it.
 TEST_F(MotiveTests, Defragment) {
   Motivator1f motivators[4];
-  const int len = static_cast<int>(ARRAYSIZE(motivators));
+  const int len = static_cast<int>(MOTIVE_ARRAY_SIZE(motivators));
   for (int hole = 0; hole < len; ++hole) {
     InitOvershootMotivatorArray(motivators, len);
 

@@ -336,6 +336,11 @@ class RangeT {
     return IndexOfShortest(ranges.arr, ranges.len);
   }
 
+  static RangeT<T> Full() {
+    return RangeT<T>(-std::numeric_limits<T>::infinity(),
+                     std::numeric_limits<T>::infinity());
+  }
+
  private:
   T start_;  // Start of the range. Range is valid if start_ <= end_.
   T end_;    // End of the range. Range is inclusive of start_ and end_.
