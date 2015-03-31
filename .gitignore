@@ -37,6 +37,10 @@ build/
 Debug/
 Win32/
 
+# XCode files
+motive.xcodeproj/
+tests/googletest/
+
 # qt creator
 *.cbp
 
