@@ -33,7 +33,7 @@ DOXYFILE_ENCODING      = UTF-8
 # title of most generated pages and in a few other places.
 # The default value is: My Project.
 
-PROJECT_NAME           = "Motive"
+PROJECT_NAME           = "Motive Animation System"
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. This
 # could be handy for archiving the generated documentation or if some version
@@ -749,6 +749,7 @@ INPUT                  = "index.md" \
                          "programmers_guide/building.md" \
                          "programmers_guide/building_android.md" \
                          "programmers_guide/building_linux.md" \
+                         "programmers_guide/building_loose_cpps.md" \
                          "programmers_guide/building_osx.md" \
                          "programmers_guide/building_windows.md" \
                          "programmers_guide/engine.md" \

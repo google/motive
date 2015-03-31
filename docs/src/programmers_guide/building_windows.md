@@ -1,88 +1,51 @@
-Building for Windows    {#motive_guide_building_windows}
+Building for Windows    {#motive_guide_windows}
 ====================
 
-
-MODIFY FOR MOTIVE
-
-
-# Version Requirements    {#motive_guide_building_windows_version}
+# Version Requirements    {#motive_guide_windows_version}
 
 Following are the minimum required versions of tools and libraries you
-need to build [MathFu][] for Android:
+need to build [Motive][] for Android:
 
    * [Windows][]: 7
    * [Visual Studio][]: 2012
    * [CMake][]: 2.8.12.1
 
-# Prerequisites    {#motive_guide_building_windows_prerequisites}
+# Prerequisites    {#motive_guide_windows_prerequisites}
 
 Prior to building, install the following:
 
    * [Visual Studio][]
    * [CMake][] from [cmake.org](http://cmake.org).
 
-# Building with Visual Studio    {#motive_guide_building_windows_building}
+# Building with Visual Studio    {#motive_guide_windows_building}
 
 Generate the [Visual Studio][] project using [CMake][]:
 
    * Open a command line window.
-   * Go to the [MathFu][] project directory.
+   * Go to the [Motive][] project directory.
    * Use [CMake][] to generate the [Visual Studio][] project.
 
 ~~~{.sh}
-    cd mathfu
+    cd motive
     cmake -G "Visual Studio 11 2012" .
 ~~~
 
-Open the [MathFu][] solution in [Visual Studio][].
+Open the [Motive][] solution in [Visual Studio][].
 
-   * Double-click on `mathfu/MathFu.sln` to open the solution.
+   * Double-click on `motive/Motive.sln` to open the solution.
    * Select "Build-->Build Solution" from the menu.
 
-# Running Applications    {#motive_guide_building_windows_running}
+To run the unit tests from [Visual Studio][],
 
-## Running in Visual Studio    {#motive_guide_building_osx_run_vs}
-
-Open [Visual Studio][] select a build target and run it:
-
-   * Double-click on `mathfu/MathFu.sln` to open the solution in
-     [Visual Studio][].
-   * Right click on a project, for example `matrix_tests`, select
+   * Right click on a project, for example `angle_test`, select
      "Set as StartUp Project" from the menu.
-   * Select "Debug-->Start Debugging" from the menu.
+   * Select "Debug-->Start Debugging", or press F5.
 
-## Running from the Command Line {#motive_guide_building_windows_cmdline}
-
-To run all benchmarks:
-
-   * Open a command line window.
-   * Go to the [MathFu][] project directory.
-   * Run each benchmark binary in the `benchmarks/` directory.
-
-For example:
-
-~~~{.sh}
-    cd mathfu
-    for %a in (benchmarks\Debug\*.exe) do %a
-~~~
-
-To run all unit tests:
-
-   * Open a command line window.
-   * Go to the [MathFu][] project directory.
-   * Run each unit test binary in the `unit_tests/` directory.
-
-For example:
-
-~~~{.sh}
-    cd mathfu
-    for %a in (unit_tests\Debug\*.exe) do %a
-~~~
 
 <br>
 
   [CMake]: http://www.cmake.org
-  [MathFu]: @ref motive_overview
+  [Motive]: @ref motive_overview
   [Visual Studio]: http://www.visualstudio.com/
   [Windows]: http://windows.microsoft.com/
 

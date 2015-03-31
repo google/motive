@@ -1,7 +1,7 @@
-Motivators
+Motivators   {#motive_guide_motivators}
 ==========
 
-# Overview   {#motive_guide_motivators}
+# Overview
 
 A `Motivator` is an animated variable. There are currently two kinds:
 `Motivator1f`--which animates a single `float`, and `MotivatorMatrix4f`--which
