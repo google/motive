@@ -41,6 +41,10 @@ Debug/
 Win32/
 pingme.txt
 
+# XCode files
+motive.xcodeproj/
+tests/googletest/
+
 # qt creator
 *.cbp
 
