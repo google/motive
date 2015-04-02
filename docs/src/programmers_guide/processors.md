@@ -1,7 +1,7 @@
-MotiveProcessors
+MotiveProcessors   {#motive_guide_processors}
 ================
 
-# Creating Your Own Animation Algorithms   {#motive_guide_processors}
+# Creating Your Own Animation Algorithms
 
 An animation algorithm is a formula that describes the motion of a variable.
 Each animation algorithm is processed by a `MotiveProcessor`.

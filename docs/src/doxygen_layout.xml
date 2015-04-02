@@ -15,95 +15,31 @@
 <doxygenlayout version="1.0">
   <navindex>
     <tab type="mainpage" visible="no" title=""/>
+    <tab type="usergroup" url="" title="Building">
+      <tab type="user" url="@ref motive_guide_build_targets"
+           title="Targets"/>
+      <tab type="usergroup" url="@ref motive_guide_android"
+           title="Android"/>
+      <tab type="usergroup" url="@ref motive_guide_linux"
+           title="Linux"/>
+      <tab type="usergroup" url="@ref motive_guide_osx"
+           title="OS X"/>
+      <tab type="usergroup" url="@ref motive_guide_windows"
+           title="Windows"/>
+      <tab type="user" url="@ref motive_guide_loose_cpps"
+           title="Loose Cpps"/>
+    </tab>
     <tab type="usergroup" url="" title="Programmer's Guide">
       <tab type="usergroup" url="@ref motive_guide_introduction"
            title="Introduction">
         <tab type="user" url="@ref motive_guide_about_motive"
-             title="About MathFu"/>
+             title="About Motive"/>
         <tab type="user" url="@ref motive_guide_prerequisites"
              title="Prerequisites"/>
         <tab type="user" url="@ref motive_guide_concepts"
              title="Concepts"/>
         <tab type="user" url="@ref motive_guide_optimization"
              title="Optimization"/>
-      </tab>
-      <tab type="usergroup" url="@ref motive_guide_building"
-           title="Building">
-        <tab type="user" url="@ref motive_guide_building_options"
-             title="Integration Options"/>
-        <tab type="user" url="@ref motive_guide_building_compiler_config"
-             title="Manual Compiler Configuration"/>
-        <tab type="user" url="@ref motive_guide_building_cmake"
-             title="CMake"/>
-        <tab type="user" url="@ref motive_guide_building_android_makefiles"
-             title="Android NDK Makefiles"/>
-        <tab type="usergroup" url="" title="Building Unit Tests">
-          <tab type="usergroup" url="@ref motive_guide_building_android"
-               title="Building for Android">
-            <tab type="user" url="@ref motive_guide_building_android_version"
-                 title="Version Requirements"/>
-            <tab type="user"
-                 url="@ref motive_guide_building_android_prerequisites"
-                 title="Prerequisites"/>
-            <tab type="user"
-                 url="@ref motive_guide_building_android_building"
-                 title="Building"/>
-            <tab type="user"
-                 url="@ref motive_guide_building_android_building_ndk_build"
-                 title="Building with ndk-build"/>
-            <tab type="user"
-                 url="@ref motive_guide_building_android_building_fplutil"
-                 title="Building with fplutil"/>
-            <tab type="user"
-                 url="@ref motive_guide_building_android_running"
-                 title="Installing and Running Applications"/>
-            <tab type="user"
-                 url="@ref motive_guide_building_android_eclipse"
-                 title="Using Eclipse"/>
-            <tab type="user"
-                 url="@ref motive_guide_building_android_fplutil"
-                 title="Using fplutil"/>
-            <tab type="user"
-                 url="@ref motive_guide_building_android_code_generation"
-                 title="Code Generation"/>
-          </tab>
-          <tab type="usergroup" url="@ref motive_guide_building_linux"
-               title="Building for Linux">
-            <tab type="user" url="@ref motive_guide_building_linux_version"
-                 title="Version Requirements"/>
-            <tab type="user"
-                 url="@ref motive_guide_building_linux_prerequisites"
-                 title="Prerequisites"/>
-            <tab type="user" url="@ref motive_guide_building_linux_building"
-                 title="Building"/>
-            <tab type="user" url="@ref motive_guide_building_linux_running"
-                 title="Running Applications"/>
-          </tab>
-          <tab type="usergroup" url="@ref motive_guide_building_osx"
-               title="Building for OS X">
-            <tab type="user" url="@ref motive_guide_building_osx_version"
-                 title="Version Requirements"/>
-            <tab type="user"
-                 url="@ref motive_guide_building_osx_prerequisites"
-                 title="Prerequisites"/>
-            <tab type="user" url="@ref motive_guide_building_osx_building"
-                 title="Building with Xcode"/>
-            <tab type="user" url="@ref motive_guide_building_osx_running"
-                 title="Running Applications"/>
-          </tab>
-          <tab type="usergroup" url="@ref motive_guide_building_windows"
-               title="Building for Windows">
-            <tab type="user" url="@ref motive_guide_building_windows_version"
-                 title="Version Requirements"/>
-            <tab type="user"
-                 url="@ref motive_guide_building_windows_prerequisites"
-                 title="Prerequisites"/>
-            <tab type="user" url="@ref motive_guide_building_windows_building"
-                 title="Building with Visual Studio"/>
-            <tab type="user" url="@ref motive_guide_building_windows_running"
-                 title="Running Applications"/>
-          </tab>
-        </tab>
       </tab>
       <tab type="usergroup" url="@ref motive_guide_motivators"
            title="Motivators">
