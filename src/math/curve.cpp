@@ -259,7 +259,7 @@ std::string Graph2DPoints(const vec2* points, const int num_points,
   r.reserve(size.y() * size.x() + 100);
 
   // Iterate through each "pixel" of the graph.
-  r += "y = " + std::to_string(max.y()) + "\n";
+  r += "y = " + std::to_string(static_cast<long double>(max.y())) + "\n";
   const vec2i* q = &p[0];
   for (int row = size.y(); row >= 0; --row) {
     for (int col = 0; col <= size.x(); ++col) {
@@ -280,7 +280,7 @@ std::string Graph2DPoints(const vec2* points, const int num_points,
     r += '\n';
     if (q > &p.back()) break;
   }
-  r += "y = " + std::to_string(min.y()) + "\n";
+  r += "y = " + std::to_string(static_cast<long double>(min.y())) + "\n";
   return r;
 #else
   (void)points;

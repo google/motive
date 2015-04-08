@@ -42,9 +42,18 @@ using mathfu::vec3;
 // not very high fidelity, obviously.
 #define PRINT_SPLINES_AS_ASCII_GRAPHS 1
 
+struct GraphDerivatives {
+  float first;
+  float second;
+  float third;
+  GraphDerivatives() : first(0.0f), second(0.0f), third(0.0f) {}
+  GraphDerivatives(float first, float second, float third)
+      : first(first), second(second), third(third) {}
+};
+
 struct GraphData {
   std::vector<vec2> points;
-  std::vector<vec3> derivatives;
+  std::vector<GraphDerivatives> derivatives;
 };
 
 static const int kNumCheckPoints = fpl::kDefaultGraphWidth;
@@ -111,8 +120,9 @@ static void ExecuteInterpolator(BulkSplineEvaluator& interpolator,
                 kDerivativePrecision);
 
     const vec2 point(interpolator.X(0), interpolator.Y(0));
-    const vec3 derivatives(interpolator.Derivative(0), c.SecondDerivative(x),
-                           c.ThirdDerivative(x));
+    const GraphDerivatives derivatives(
+        interpolator.Derivative(0), c.SecondDerivative(x),
+        c.ThirdDerivative(x));
     d->points.push_back(point);
     d->derivatives.push_back(derivatives);
 
@@ -125,8 +135,8 @@ static void PrintGraphDataAsCsv(const GraphData& d) {
 #if PRINT_SPLINES_AS_CSV
   for (size_t i = 0; i < d.points.size(); ++i) {
     printf("%f, %f, %f, %f, %f\n",
-           d.points[i].x(), d.points[i].y(), d.derivatives[i].x(),
-           d.derivatives[i].y(), d.derivatives[i].z());
+           d.points[i].x(), d.points[i].y(), d.derivatives[i].first,
+           d.derivatives[i].second, d.derivatives[i].third);
   }
 #endif // PRINT_SPLINES_AS_CSV
 }
@@ -272,11 +282,11 @@ TEST_F(SplineTests, MirrorY) {
     for (int i = 0; i < num_points; ++i) {
       EXPECT_EQ(d.points[i].x(), mirrored_d.points[i].x());
       EXPECT_NEAR(d.points[i].y(), -mirrored_d.points[i].y(), y_precision);
-      EXPECT_NEAR(d.derivatives[i].x(), -mirrored_d.derivatives[i].x(),
+      EXPECT_NEAR(d.derivatives[i].first, -mirrored_d.derivatives[i].first,
                   kDerivativePrecision);
-      EXPECT_NEAR(d.derivatives[i].y(), -mirrored_d.derivatives[i].y(),
+      EXPECT_NEAR(d.derivatives[i].second, -mirrored_d.derivatives[i].second,
                   kSecondDerivativePrecision);
-      EXPECT_NEAR(d.derivatives[i].z(), -mirrored_d.derivatives[i].z(),
+      EXPECT_NEAR(d.derivatives[i].third, -mirrored_d.derivatives[i].third,
                   kThirdDerivativePrecision);
     }
   }
@@ -302,11 +312,11 @@ TEST_F(SplineTests, ScaleX) {
       EXPECT_NEAR(d.points[i].x(), scaled_d.points[i].x() / kScale,
                   x_precision);
       EXPECT_NEAR(d.points[i].y(), scaled_d.points[i].y(), y_precision);
-      EXPECT_NEAR(d.derivatives[i].x(), scaled_d.derivatives[i].x() *
+      EXPECT_NEAR(d.derivatives[i].first, scaled_d.derivatives[i].first *
                   kScale, kDerivativePrecision);
-      EXPECT_NEAR(d.derivatives[i].y(), scaled_d.derivatives[i].y() *
+      EXPECT_NEAR(d.derivatives[i].second, scaled_d.derivatives[i].second *
                   kScale * kScale, kSecondDerivativePrecision);
-      EXPECT_NEAR(d.derivatives[i].z(), scaled_d.derivatives[i].z() *
+      EXPECT_NEAR(d.derivatives[i].third, scaled_d.derivatives[i].third *
                   kScale * kScale * kScale, kThirdDerivativePrecision);
     }
   }

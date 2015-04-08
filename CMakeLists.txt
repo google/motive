@@ -166,7 +166,7 @@ endif()
 # Compiler flags.
 set(C_FLAGS_WARNINGS "")
 if(MSVC)
-  set(C_FLAGS_WARNINGS "/W4 /WX /wd4065")
+  set(C_FLAGS_WARNINGS "/W4 /WX /wd4065 /wd4355")
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR
        CMAKE_COMPILER_IS_CLANGXX)
   add_definitions(-g)
