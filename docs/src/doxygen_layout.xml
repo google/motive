@@ -70,6 +70,21 @@
              title="Alignment"/>
       </tab>
     </tab>
+    <tab type="usergroup" url="@ref motive_api_reference"
+         title="API Reference">
+      <tab type="modules" visible="yes" title="" intro=""/>
+      <tab type="classes" visible="yes" title="">
+        <tab type="classlist" visible="yes" title="" intro=""/>
+        <tab type="classindex" visible="$ALPHABETICAL_INDEX" title=""/>
+        <tab type="hierarchy" visible="yes" title="" intro=""/>
+        <tab type="classmembers" visible="yes" title="" intro=""/>
+      </tab>
+      <tab type="files" visible="yes" title="">
+        <tab type="filelist" visible="yes" title="" intro=""/>
+        <tab type="globals" visible="yes" title="" intro=""/>
+      </tab>
+      <!--tab type="examples" visible="yes" title="" intro=""/-->
+    </tab>
     <tab type="user" url="@ref motive_readme" title="Readme"/>
     <tab type="user" url="@ref contributing" title="Contributing"/>
   </navindex>
