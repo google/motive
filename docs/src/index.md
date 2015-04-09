@@ -83,7 +83,7 @@ appreciate if you would leave it in.
   [FplUtil]: https://github.com/google/fplutil
   [Linux]: http://en.m.wikipedia.org/wiki/Linux
   [MathFu]: https://github.com/google/mathfu
-  [Motive Google Group]: http://group.google.com/group/motiveanimation
+  [Motive Google Group]: http://group.google.com/group/motive-anim
   [Motive Issues Tracker]: http://github.com/google/motive/issues
   [Motive]: @ref motive_overview
   [OS X]: http://www.apple.com/osx/

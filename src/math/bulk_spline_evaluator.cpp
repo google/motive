@@ -205,7 +205,7 @@ void BulkSplineEvaluator::EvaluateCubics_C() {
 void BulkSplineEvaluator::AdvanceFrame(const float delta_x) {
   // Add 'delta_x' to 'cubic_xs'.
   // Gather a list of indices that are now beyond the end of the cubic.
-  Index* indices_to_init = &scratch_.front();
+  Index* indices_to_init = scratch_.size() == 0 ? nullptr : &scratch_.front();
   const size_t num_to_init = UpdateCubicXs(delta_x, indices_to_init);
 
   // Reinitialize indices that have traversed beyond the end of their cubic.
