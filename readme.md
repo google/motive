@@ -3,13 +3,26 @@ Motive Version 1.0.0    {#motive_readme}
 
 # Overview
 
-Motive is an open-source, cross-platform, memory efficient, and performant animation system.
+Motive is an open-source, cross-platform, memory efficient, and performant
+animation system.
 
 # Features
 
 The v1.0 release of Motive is feature light. It's focused primarily on
 procedural animation and simple hand-tunable motion. It is suitable for
 the animation of props, cameras, GUI elements, and simple rigs.
+
+# Downloading
+
+Motive can be downloaded from [GitHub](http://github.com/google/motive) or
+the [releases page](http://github.com/google/motive/releases).
+
+**Important**: Motive uses submodules to reference other components it depends
+upon so download the source using:
+
+~~~{.sh}
+    git clone --recursive https://github.com/google/motive.git
+~~~
 
 # Dependencies
 
