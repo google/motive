@@ -19,17 +19,17 @@ namespace fpl {
 
 enum ProcessorOptimization {
   kNoOptimizations,
-  kNeonOptimizations,  // NEON is a SIMD instruction set for ARM processors
-  kSse3Optimizations,  // SSE is a SIMD instruction set for x86 processors
-  kSsse3Optimizations  // SSSE3 is an extension of SSE3
+  kNeonOptimizations,  /// NEON is a SIMD instruction set for ARM processors
+  kSse3Optimizations,  /// SSE is a SIMD instruction set for x86 processors
+  kSsse3Optimizations  /// SSSE3 is an extension of SSE3
 };
 
-// Look at the capabilities of the CPU and return the most performant set of
-// processor optimizations. For example, on Android, return kNeonOptimizations
-// if the CPU supports the NEON instruction set. On x86 (once we have x86
-// optimizations), return kSse2Optimizations if it's supported, or if it's not,
-// return kSse2Optimizations if it's supported. If none of the processors are
-// supported, return kNoOptimizations.
+/// Look at the capabilities of the CPU and return the most performant set of
+/// processor optimizations. For example, on Android, return kNeonOptimizations
+/// if the CPU supports the NEON instruction set. On x86 (once we have x86
+/// optimizations), return kSse2Optimizations if it's supported, or if it's not,
+/// return kSse2Optimizations if it's supported. If none of the processors are
+/// supported, return kNoOptimizations.
 ProcessorOptimization BestProcessorOptimization();
 
 }  // namespace fpl

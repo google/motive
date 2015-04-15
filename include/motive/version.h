@@ -20,20 +20,23 @@
 
 namespace motive {
 
+/// @class MotiveVersion
+/// @brief Current version information for the Motive animation system.
 struct MotiveVersion {
-  // Version number, updated only on major releases.
+  /// Major version number, updated only on major releases.
   unsigned char major;
 
-  // Version number, updated for point releases.
+  /// Minor version number, updated for point releases.
   unsigned char minor;
 
-  // Version number, updated for tiny releases, for example, bug fixes.
+  /// Revision number, updated for tiny releases, for example, bug fixes.
   unsigned char revision;
 
   // Text string holding the name and version of library.
   const char* text;
 };
 
+/// Return the current version of the Motive animation system.
 const MotiveVersion& Version();
 
 }  // namespace motive

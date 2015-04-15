@@ -19,6 +19,16 @@
 
 namespace fpl {
 
+/// Find a point in between init.start_x and init.end_x such that the two
+/// cubic functions look smoother than the one cubic function created by init.
+///
+/// Please see docs/dual_cubic.pdf for the math.
+///
+/// @param init Start and end values for the cubic that we're splitting into
+///             two cubics.
+/// @param x Output mid point's x value.
+/// @param y Output mid point's y value.
+/// @param derivative Output mid point's derivative value.
 void CalculateDualCubicMidNode(const CubicInit &init, float *x, float *y,
                                float *derivative);
 

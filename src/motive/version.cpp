@@ -18,14 +18,14 @@ namespace motive {
 
 #define MOTIVE_VERSION_MAJOR 1
 #define MOTIVE_VERSION_MINOR 0
-#define MOTIVE_VERSION_REVISION 0
+#define MOTIVE_VERSION_REVISION 1
 
 // Turn X into a string literal.
 #define MOTIVE_STRING_EXPAND(X) #X
 #define MOTIVE_STRING(X) MOTIVE_STRING_EXPAND(X)
 
 /// @var kVersion
-/// @brief String which identifies the current version of MathFu.
+/// @brief String which identifies the current version of Motive.
 ///
 /// @ref kVersion is used by Google developers to identify which applications
 /// uploaded to Google Play are using this library. This allows the development
@@ -39,7 +39,7 @@ static const MotiveVersion kVersion = {
   MOTIVE_VERSION_MAJOR,
   MOTIVE_VERSION_MINOR,
   MOTIVE_VERSION_REVISION,
-  "Motive Animation System "
+  "Motive animation system "
   MOTIVE_STRING(MOTIVE_VERSION_MAJOR) "."
   MOTIVE_STRING(MOTIVE_VERSION_MINOR) "."
   MOTIVE_STRING(MOTIVE_VERSION_REVISION)
