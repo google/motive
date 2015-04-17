@@ -195,6 +195,12 @@ class RangeT {
     return RangeT(start_ - extra, end_ + extra);
   }
 
+  /// Returns the smallest range that contains both `x` and the range in
+  /// `this`.
+  RangeT Include(const T x) const {
+    return RangeT(std::min<T>(start_, x), std::max<T>(end_, x));
+  }
+
   /// Equality is strict. No epsilon checking here.
   bool operator==(const RangeT& rhs) const {
     return start_ == rhs.start_ && end_ == rhs.end_;
@@ -344,9 +350,19 @@ class RangeT {
     return IndexOfShortest(ranges.arr, ranges.len);
   }
 
+  /// Returns the complete range. Every T is contained in this range.
   static RangeT<T> Full() {
     return RangeT<T>(-std::numeric_limits<T>::infinity(),
                      std::numeric_limits<T>::infinity());
+  }
+
+  /// Returns the most empty range possible. The lower bound is
+  /// greater than everything, and the upper bound is less than
+  /// everything. Useful when finding the min/max values of an
+  /// array of numbers.
+  static RangeT<T> Empty() {
+    return RangeT<T>(std::numeric_limits<T>::infinity(),
+                     -std::numeric_limits<T>::infinity());
   }
 
  private:

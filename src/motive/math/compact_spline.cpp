@@ -220,6 +220,12 @@ void CompactSpline::AddNode(const float x, const float y,
   nodes_.push_back(new_node);
 }
 
+void CompactSpline::AddNodeVerbatim(const CompactSplineXGrain x,
+                                    const CompactSplineYRung y,
+                                    const CompactSplineAngle angle) {
+  nodes_.push_back(CompactSplineNode(x, y, angle));
+}
+
 float CompactSpline::StartX() const { return nodes_.front().X(x_granularity_); }
 float CompactSpline::StartY() const { return nodes_.front().Y(y_range_); }
 float CompactSpline::StartDerivative() const {
@@ -397,6 +403,8 @@ CubicInit CompactSpline::CreateCubicInit(const CompactSplineNode& s,
   return CubicInit(s.Y(y_range_), s.Derivative(), e.Y(y_range_), e.Derivative(),
                    WidthX(s, e));
 }
+
+const CompactSplineNode* CompactSpline::nodes() const { return &nodes_[0]; }
 
 // static
 float CompactSpline::RecommendXGranularity(const float max_x) {

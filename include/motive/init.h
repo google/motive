@@ -32,7 +32,20 @@ enum MatrixOperationType {
   kScaleY,
   kScaleZ,
   kScaleUniformly,
+  kNumMatrixOperationTypes
 };
+
+inline bool RotateOp(MatrixOperationType op) {
+  return kRotateAboutX <= op && op <= kRotateAboutZ;
+}
+
+inline bool TranslateOp(MatrixOperationType op) {
+  return kTranslateX <= op && op <= kTranslateZ;
+}
+
+inline bool ScaleOp(MatrixOperationType op) {
+  return kScaleX <= op && op <= kScaleUniformly;
+}
 
 /// @class ModularInit
 /// Base-class for OvershootInit and SmoothInit. Holds parameters related
@@ -264,15 +277,23 @@ class MatrixInit : public MotivatorInit {
   MOTIVE_INTERFACE();
   typedef std::vector<MatrixOperationInit> OpVector;
 
+  // Guess at the number of operations we'll have. Better to high-ball a little
+  // so that we don't have to reallocate the `ops_` vector.
+  static const int kDefaultExpectedNumOps = 8;
+
   /// By default expect a relatively high number of ops. Cost for allocating
   /// a bit too much temporary memory is small compared to cost of reallocating
   /// that memory.
-  explicit MatrixInit(int expected_num_ops = 8) : MotivatorInit(kType) {
+  explicit MatrixInit(int expected_num_ops = kDefaultExpectedNumOps)
+      : MotivatorInit(kType) {
     ops_.reserve(expected_num_ops);
   }
 
   /// Remove all matrix operations from the sequence.
-  void Clear() { ops_.clear(); }
+  void Clear(int expected_num_ops = kDefaultExpectedNumOps) {
+    ops_.clear();
+    ops_.reserve(expected_num_ops);
+  }
 
   /// Operation is constant. For example, use to put something flat on the
   /// ground, with 'type' = kRotateAboutX and 'const_value' = pi/2.

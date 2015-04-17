@@ -119,6 +119,11 @@ class CompactSpline {
   void AddNode(const float x, const float y, const float derivative,
                const CompactSplineAddMethod method = kEnsureCubicWellBehaved);
 
+  /// Add values without converting them. Useful when initializing from
+  /// precalculated data.
+  void AddNodeVerbatim(const CompactSplineXGrain x, const CompactSplineYRung y,
+                       const CompactSplineAngle angle);
+
   /// Remove all nodes from the spline.
   void Clear();
 
@@ -171,6 +176,11 @@ class CompactSpline {
 
   /// Returns the number of nodes in this spline.
   CompactSplineIndex NumNodes() const;
+
+  /// Return const versions of internal values. For serialization.
+  const CompactSplineNode* nodes() const;
+  const Range& y_range() const { return y_range_; }
+  float x_granularity() const { return x_granularity_; }
 
   /// Recommend a granularity given a maximal-x value. We want to have the
   /// most precise granularity when quantizing x's.
@@ -267,7 +277,7 @@ struct SplinePlaybackN {
     splines[1] = &y;
   }
 
-  /// Initialize 2D spline playback.
+  /// Initialize 3D spline playback.
   SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
                   const CompactSpline& z, float start_x = 0.0f,
                   bool repeat = false, float playback_rate = 1.0f)
@@ -278,7 +288,7 @@ struct SplinePlaybackN {
     splines[2] = &z;
   }
 
-  /// Initialize 2D spline playback.
+  /// Initialize 4D spline playback.
   SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
                   const CompactSpline& z, const CompactSpline& w,
                   float start_x = 0.0f, bool repeat = false,

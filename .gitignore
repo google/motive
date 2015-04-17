@@ -1,7 +1,8 @@
 # Binary
 libs/
-bin/
 obj/
+bin/flatc
+bin/flathash
 src/tests/*_test
 src/samples/*_sample
 *.bin

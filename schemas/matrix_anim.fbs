@@ -1,0 +1,73 @@
+// Copyright 2015 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+namespace motive;
+
+// Same as MatrixOperationType in motive/init.h.
+enum MatrixOperationTypeFb : byte {
+  kInvalidMatrixOperation,
+  kRotateAboutX,
+  kRotateAboutY,
+  kRotateAboutZ,
+  kTranslateX,
+  kTranslateY,
+  kTranslateZ,
+  kScaleX,
+  kScaleY,
+  kScaleZ,
+  kScaleUniformly,
+  kNumMatrixOperationTypes
+}
+
+// Same as CompactSplineNode in compact_spline.cpp.
+struct CompactSplineNodeFb {
+  x:ushort;
+  y:ushort;
+  angle:short;
+}
+
+// Similar to CompactSpline in compact_spline.h.
+table CompactSplineFb {
+  y_range_start:float;
+  y_range_end:float;
+  x_granularity:float;
+  modular_arithmetic:bool;
+  nodes:[CompactSplineNodeFb];
+}
+
+table ConstantOpFb {
+  y_const:float;
+}
+
+union MatrixOpValueFb {
+  CompactSplineFb,
+  ConstantOpFb,
+}
+
+// One operation performed on the matrix.
+// The input value to the operation can be constant, or driven by a spline.
+table MatrixOpFb {
+  type:MatrixOperationTypeFb;
+  value:MatrixOpValueFb;
+}
+
+// Animate a single matrix. Combine several of these in a rig for skeletal
+// animation.
+table MatrixAnimFb {
+  ops:[MatrixOpFb];
+}
+
+root_type MatrixAnimFb;
+file_identifier "ANIM";
+file_extension "fplanim";
