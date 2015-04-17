@@ -129,20 +129,20 @@ set(motive_SRCS
     include/motive/target.h
     include/motive/util.h
     include/motive/version.h
-    src/engine.cpp
-    src/motivator.cpp
-    src/io/flatbuffers.cpp
-    src/math/bulk_spline_evaluator.cpp
-    src/math/compact_spline.cpp
-    src/math/curve.cpp
-    src/math/dual_cubic.cpp
-    src/processor.cpp
-    src/processor/matrix_processor.cpp
-    src/processor/overshoot_processor.cpp
-    src/processor/smooth_processor.cpp
-    src/util/benchmark.cpp
-    src/util/optimizations.cpp
-    src/version.cpp)
+    src/motive/engine.cpp
+    src/motive/motivator.cpp
+    src/motive/io/flatbuffers.cpp
+    src/motive/math/bulk_spline_evaluator.cpp
+    src/motive/math/compact_spline.cpp
+    src/motive/math/curve.cpp
+    src/motive/math/dual_cubic.cpp
+    src/motive/processor.cpp
+    src/motive/processor/matrix_processor.cpp
+    src/motive/processor/overshoot_processor.cpp
+    src/motive/processor/smooth_processor.cpp
+    src/motive/util/benchmark.cpp
+    src/motive/util/optimizations.cpp
+    src/motive/version.cpp)
 
 # Includes for this project.
 include_directories(src include)
@@ -208,11 +208,11 @@ mathfu_configure_flags(motive)
 
 # Tests.
 if(motive_build_tests)
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/tests)
 endif()
 
 # Samples.
 if(motive_build_samples)
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/docs/samples)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/samples)
 endif()
 

@@ -2,8 +2,8 @@
 libs/
 bin/
 obj/
-tests/*_test
-docs/samples/*_sample
+src/tests/*_test
+src/samples/*_sample
 *.bin
 *.a
 benchmarker/apks/

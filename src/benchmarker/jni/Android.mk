@@ -20,7 +20,7 @@ LOCAL_MODULE := motive_benchmarker
 LOCAL_ARM_MODE := arm
 LOCAL_STATIC_LIBRARIES := libmathfu libmotive
 
-MOTIVE_RELATIVE_DIR := ../..
+MOTIVE_RELATIVE_DIR := ../../..
 MOTIVE_DIR := $(LOCAL_PATH)/$(MOTIVE_RELATIVE_DIR)
 
 include $(MOTIVE_DIR)/jni/android_config.mk
@@ -43,7 +43,7 @@ MOTIVE_ENABLE_BENCHMARKING := 1
 # MOTIVE_TEST_ASSEMBLY := 1
 
 LOCAL_SRC_FILES := \
-  $(MOTIVE_RELATIVE_DIR)/benchmarker/benchmarker.cpp
+  $(MOTIVE_RELATIVE_DIR)/src/benchmarker/benchmarker.cpp
 
 LOCAL_WHOLE_STATIC_LIBRARIES:=android_native_app_glue libfplutil_main \
   libfplutil_print
@@ -52,6 +52,7 @@ LOCAL_LDLIBS:=-llog -landroid
 
 include $(BUILD_SHARED_LIBRARY)
 
+$(call import-add-path,$(MOTIVE_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_FLATBUFFERS_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_MATHFU_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_FPLUTIL_DIR))

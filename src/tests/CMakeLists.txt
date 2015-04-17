@@ -66,7 +66,7 @@ set(COMMON_LIBS "gtest;motive;${CMAKE_THREAD_LIBS_INIT}")
 
 function(test_executable name)
   cxx_executable_with_flags(${name}_test "${cxx_default}" "${COMMON_LIBS}"
-      ${CMAKE_CURRENT_SOURCE_DIR}/${name}/${name}_test.cpp ${SUPPORT_SRCS}
+      ${CMAKE_CURRENT_SOURCE_DIR}/${name}_test.cpp ${SUPPORT_SRCS}
       ${ARGN})
   mathfu_configure_flags(${name}_test)
 endfunction()

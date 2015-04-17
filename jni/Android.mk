@@ -33,25 +33,25 @@ LOCAL_EXPORT_C_INCLUDES := \
 
 LOCAL_C_INCLUDES := \
   $(LOCAL_EXPORT_C_INCLUDES) \
-  $(MOTIVE_DIR)/src \
+  $(MOTIVE_DIR)/src/motive \
   $(DEPENDENCIES_FLATBUFFERS_DIR)/include \
   $(DEPENDENCIES_FPLUTIL_DIR)/libfplutil/include
 
 LOCAL_SRC_FILES := \
-  $(MOTIVE_RELATIVE_DIR)/src/engine.cpp \
-  $(MOTIVE_RELATIVE_DIR)/src/io/flatbuffers.cpp \
-  $(MOTIVE_RELATIVE_DIR)/src/math/bulk_spline_evaluator.cpp \
-  $(MOTIVE_RELATIVE_DIR)/src/math/compact_spline.cpp \
-  $(MOTIVE_RELATIVE_DIR)/src/math/curve.cpp \
-  $(MOTIVE_RELATIVE_DIR)/src/math/dual_cubic.cpp \
-  $(MOTIVE_RELATIVE_DIR)/src/motivator.cpp \
-  $(MOTIVE_RELATIVE_DIR)/src/processor/matrix_processor.cpp \
-  $(MOTIVE_RELATIVE_DIR)/src/processor/overshoot_processor.cpp \
-  $(MOTIVE_RELATIVE_DIR)/src/processor/smooth_processor.cpp \
-  $(MOTIVE_RELATIVE_DIR)/src/processor.cpp \
-  $(MOTIVE_RELATIVE_DIR)/src/util/benchmark.cpp \
-  $(MOTIVE_RELATIVE_DIR)/src/util/optimizations.cpp \
-  $(MOTIVE_RELATIVE_DIR)/src/version.cpp
+  $(MOTIVE_RELATIVE_DIR)/src/motive/engine.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/io/flatbuffers.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/math/bulk_spline_evaluator.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/math/compact_spline.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/math/curve.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/math/dual_cubic.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/motivator.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/processor/matrix_processor.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/processor/overshoot_processor.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/processor/smooth_processor.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/processor.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/util/benchmark.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/util/optimizations.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/version.cpp
 
 MOTIVE_ENABLE_BENCHMARKING ?= 0
 ifneq ($(MOTIVE_ENABLE_BENCHMARKING),0)
@@ -66,7 +66,7 @@ ifneq ($(MOTIVE_ENABLE_ASSEMBLY),0)
   ifneq (,$(findstring armeabi-v7a,$(TARGET_ARCH_ABI)))
     # Use the .neon extension to compile with NEON support.
     LOCAL_SRC_FILES += \
-      $(MOTIVE_RELATIVE_DIR)/src/math/bulk_spline_evaluator_neon.s.neon
+      $(MOTIVE_RELATIVE_DIR)/src/motive/math/bulk_spline_evaluator_neon.s.neon
     LOCAL_CFLAGS += -DMOTIVE_NEON
 
     # Run both NEON and C++ code and compare results.
