@@ -21,6 +21,7 @@ set(motive_DEBUG ON)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
+get_directory_property(motive_has_parent PARENT_DIRECTORY)
 
 # Temporary files (like object files) created while compiling projects.
 set(tmp_dir ${CMAKE_CURRENT_BINARY_DIR}/obj)
@@ -92,8 +93,10 @@ endif()
 # directory.
 set(MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR
     ${CMAKE_CURRENT_SOURCE_DIR}${CMAKE_FILES_DIRECTORY}/include)
-set(MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR
-    ${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR} PARENT_SCOPE)
+if(motive_has_parent)
+  set(MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR
+      ${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR} PARENT_SCOPE)
+endif()
 file(GLOB_RECURSE FLATBUFFERS_SCHEMAS ${CMAKE_CURRENT_SOURCE_DIR}/schemas/*.fbs)
 
 # Generate rules to build the set of output files from the set of input
