@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Motive Animation System: fpl::SplinePlayback Struct Reference</title>
+<title>Motive Animation System: fpl::SplinePlayback Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -78,6 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
       <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -100,7 +101,7 @@ $(document).ready(function(){initNavTree('structfpl_1_1_spline_playback.html',''
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -113,31 +114,41 @@ $(document).ready(function(){initNavTree('structfpl_1_1_spline_playback.html',''
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="structfpl_1_1_spline_playback-members.html">List of all members</a>  </div>
+<a href="classfpl_1_1_spline_playback-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">fpl::SplinePlayback Struct Reference</div>  </div>
+<div class="title">fpl::SplinePlayback Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
+
+<p>Parameters to specify how a spline should be traversed.  
+ <a href="structfpl_1_1_spline_playback.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="compact__spline_8h_source.html">compact_spline.h</a>&gt;</code></p>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Parameters to specify how a spline should be traversed. </p>
+</div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:acb5fc1241b70d964e76854b743b3f57c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acb5fc1241b70d964e76854b743b3f57c"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>SplinePlayback</b> (const <a class="el" href="classfpl_1_1_compact_spline.html">CompactSpline</a> &amp;spline, float start_x=0.0f, bool repeat=false)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>SplinePlayback</b> (const <a class="el" href="classfpl_1_1_compact_spline.html">CompactSpline</a> &amp;<a class="el" href="structfpl_1_1_spline_playback.html#a4cb99a638c16a59cd2a4cdbd853b2565">spline</a>, float <a class="el" href="structfpl_1_1_spline_playback.html#a21ea7220232cd1bafceb430f3315cdf7">start_x</a>=0.0f, bool repeat=false)</td></tr>
 <tr class="separator:acb5fc1241b70d964e76854b743b3f57c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a4cb99a638c16a59cd2a4cdbd853b2565"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4cb99a638c16a59cd2a4cdbd853b2565"></a>
-const <a class="el" href="classfpl_1_1_compact_spline.html">CompactSpline</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>spline</b></td></tr>
+const <a class="el" href="classfpl_1_1_compact_spline.html">CompactSpline</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfpl_1_1_spline_playback.html#a4cb99a638c16a59cd2a4cdbd853b2565">spline</a></td></tr>
+<tr class="memdesc:a4cb99a638c16a59cd2a4cdbd853b2565"><td class="mdescLeft">&#160;</td><td class="mdescRight">The spline to follow. <br/></td></tr>
 <tr class="separator:a4cb99a638c16a59cd2a4cdbd853b2565"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a21ea7220232cd1bafceb430f3315cdf7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a21ea7220232cd1bafceb430f3315cdf7"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>start_x</b></td></tr>
+float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfpl_1_1_spline_playback.html#a21ea7220232cd1bafceb430f3315cdf7">start_x</a></td></tr>
+<tr class="memdesc:a21ea7220232cd1bafceb430f3315cdf7"><td class="mdescLeft">&#160;</td><td class="mdescRight">The starting point from which to play. <br/></td></tr>
 <tr class="separator:a21ea7220232cd1bafceb430f3315cdf7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae3006a6d7734453294332d20b9512741"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae3006a6d7734453294332d20b9512741"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>repeat</b></td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfpl_1_1_spline_playback.html#ae3006a6d7734453294332d20b9512741">repeat</a></td></tr>
+<tr class="memdesc:ae3006a6d7734453294332d20b9512741"><td class="mdescLeft">&#160;</td><td class="mdescRight">If true, start back at the beginning after we reach the end. <br/></td></tr>
 <tr class="separator:ae3006a6d7734453294332d20b9512741"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this struct was generated from the following file:<ul>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="compact__spline_8h_source.html">compact_spline.h</a></li>
 </ul>
 </div><!-- contents -->

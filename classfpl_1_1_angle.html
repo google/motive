@@ -78,6 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
       <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -100,7 +101,7 @@ $(document).ready(function(){initNavTree('classfpl_1_1_angle.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -119,71 +120,86 @@ $(document).ready(function(){initNavTree('classfpl_1_1_angle.html','');});
 <div class="title">fpl::Angle Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
+
+<p>Represent an angle in radians, uniquely in the range (-pi, pi].  
+ <a href="classfpl_1_1_angle.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="angle_8h_source.html">angle.h</a>&gt;</code></p>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Represent an angle in radians, uniquely in the range (-pi, pi]. </p>
+<p>We include pi in the range, but exclude -pi, because pi and -pi are equivalent mod 2pi.</p>
+<p>Equivalence is key to this class. We want only one representation of every equivalent angle. For example, 0 and 2pi are both represented as 0, internally. This unique representation allows for comparison and precise arithmetic.</p>
+<p>All operators keep the angle values in the valid range.</p>
+<h2>Why use instead of Quaternions? </h2>
+<p>Quaternions are great for three dimensional rotations, but for many applications you only have two dimensional rotations. Instead of the four floats and heavy operations required by quaternions, an angle can represent the rotation in one float and reasonably light operations. Angles are easier to do trigonometry on. Also, they're conceptually simpler. </p>
+</div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a59d3177f5d5347c39966ce0f3402fc73"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a59d3177f5d5347c39966ce0f3402fc73"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Angle</b> (float angle)</td></tr>
+<tr class="memitem:a59d3177f5d5347c39966ce0f3402fc73"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#a59d3177f5d5347c39966ce0f3402fc73">Angle</a> (float angle)</td></tr>
 <tr class="separator:a59d3177f5d5347c39966ce0f3402fc73"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b3329e5d2b536f6ff0909827ae3999c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7b3329e5d2b536f6ff0909827ae3999c"></a>
-<a class="el" href="classfpl_1_1_angle.html">Angle</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Abs</b> () const </td></tr>
+<a class="el" href="classfpl_1_1_angle.html">Angle</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#a7b3329e5d2b536f6ff0909827ae3999c">Abs</a> () const </td></tr>
+<tr class="memdesc:a7b3329e5d2b536f6ff0909827ae3999c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the absolute value of an angle. <br/></td></tr>
 <tr class="separator:a7b3329e5d2b536f6ff0909827ae3999c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af59b131d1abaf2a0b16b2617815491f7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af59b131d1abaf2a0b16b2617815491f7"></a>
 <a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;rhs)</td></tr>
 <tr class="separator:af59b131d1abaf2a0b16b2617815491f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abae6829931ffd29e52ccf12cebcae68a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abae6829931ffd29e52ccf12cebcae68a"></a>
-<a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator+=</b> (const <a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;rhs)</td></tr>
+<a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#abae6829931ffd29e52ccf12cebcae68a">operator+=</a> (const <a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;rhs)</td></tr>
+<tr class="memdesc:abae6829931ffd29e52ccf12cebcae68a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add <code>rhs</code> and ensure result is in the range (-pi,pi]. <br/></td></tr>
 <tr class="separator:abae6829931ffd29e52ccf12cebcae68a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a12b6fc44d57883d63bb555764ed8b81f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a12b6fc44d57883d63bb555764ed8b81f"></a>
-<a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator-=</b> (const <a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;rhs)</td></tr>
+<a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#a12b6fc44d57883d63bb555764ed8b81f">operator-=</a> (const <a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;rhs)</td></tr>
+<tr class="memdesc:a12b6fc44d57883d63bb555764ed8b81f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Subtract <code>rhs</code> and ensure result is in the range (-pi,pi]. <br/></td></tr>
 <tr class="separator:a12b6fc44d57883d63bb555764ed8b81f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af80834e7e75434e7253bd64c307cce38"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af80834e7e75434e7253bd64c307cce38"></a>
-<a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator*=</b> (const float rhs)</td></tr>
+<a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#af80834e7e75434e7253bd64c307cce38">operator*=</a> (const float rhs)</td></tr>
+<tr class="memdesc:af80834e7e75434e7253bd64c307cce38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Multiply <code>rhs</code> and ensure result is in the normalized range (-pi,pi]. <br/></td></tr>
 <tr class="separator:af80834e7e75434e7253bd64c307cce38"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad7c45bdf056a1e92d5042baf6fef4822"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad7c45bdf056a1e92d5042baf6fef4822"></a>
-<a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator/=</b> (const float rhs)</td></tr>
+<a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#ad7c45bdf056a1e92d5042baf6fef4822">operator/=</a> (const float rhs)</td></tr>
+<tr class="memdesc:ad7c45bdf056a1e92d5042baf6fef4822"><td class="mdescLeft">&#160;</td><td class="mdescRight">Divide <code>rhs</code> and ensure result is in the normalized range (-pi,pi]. <br/></td></tr>
 <tr class="separator:ad7c45bdf056a1e92d5042baf6fef4822"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a750e9fd06e60eda9881a8d9da43d889a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a750e9fd06e60eda9881a8d9da43d889a"></a>
+<a class="el" href="classfpl_1_1_angle.html">Angle</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#a750e9fd06e60eda9881a8d9da43d889a">operator-</a> () const </td></tr>
+<tr class="memdesc:a750e9fd06e60eda9881a8d9da43d889a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Negate the angle and ensure result is in the normalized range (-pi,pi]. <br/></td></tr>
+<tr class="separator:a750e9fd06e60eda9881a8d9da43d889a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a65c0d5ba73d8cd413089d5c75a5098e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a65c0d5ba73d8cd413089d5c75a5098e4"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>ToRadians</b> () const </td></tr>
+float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#a65c0d5ba73d8cd413089d5c75a5098e4">ToRadians</a> () const </td></tr>
+<tr class="memdesc:a65c0d5ba73d8cd413089d5c75a5098e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the angle value in radians. Value is in the range (-pi,pi]. <br/></td></tr>
 <tr class="separator:a65c0d5ba73d8cd413089d5c75a5098e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1f0b212b9ba8f1755d30b186af6dd6e5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1f0b212b9ba8f1755d30b186af6dd6e5"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>ToDegrees</b> () const </td></tr>
+float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#a1f0b212b9ba8f1755d30b186af6dd6e5">ToDegrees</a> () const </td></tr>
+<tr class="memdesc:a1f0b212b9ba8f1755d30b186af6dd6e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the angle value in degrees. Value is in the range (-180,180]. <br/></td></tr>
 <tr class="separator:a1f0b212b9ba8f1755d30b186af6dd6e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b761620f88f11a877f4729dbc61ea6a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5b761620f88f11a877f4729dbc61ea6a"></a>
-mathfu::vec3&#160;</td><td class="memItemRight" valign="bottom"><b>ToXZVector</b> () const </td></tr>
+<tr class="memitem:a5b761620f88f11a877f4729dbc61ea6a"><td class="memItemLeft" align="right" valign="top">mathfu::vec3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#a5b761620f88f11a877f4729dbc61ea6a">ToXZVector</a> () const </td></tr>
 <tr class="separator:a5b761620f88f11a877f4729dbc61ea6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5b57c2b4dc308100f14f0b6c094a99a7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5b57c2b4dc308100f14f0b6c094a99a7"></a>
-mathfu::mat3&#160;</td><td class="memItemRight" valign="bottom"><b>ToXZRotationMatrix</b> () const </td></tr>
+mathfu::mat3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#a5b57c2b4dc308100f14f0b6c094a99a7">ToXZRotationMatrix</a> () const </td></tr>
+<tr class="memdesc:a5b57c2b4dc308100f14f0b6c094a99a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a matrix that rotates about the Y axis <code>angle</code> radians. <br/></td></tr>
 <tr class="separator:a5b57c2b4dc308100f14f0b6c094a99a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a750e9fd06e60eda9881a8d9da43d889a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a750e9fd06e60eda9881a8d9da43d889a"></a>
-<a class="el" href="classfpl_1_1_angle.html">Angle</a>&#160;</td><td class="memItemRight" valign="bottom"><b>operator-</b> () const </td></tr>
-<tr class="separator:a750e9fd06e60eda9881a8d9da43d889a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6f95125cd5285d4d3d300c4a90d5e60e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6f95125cd5285d4d3d300c4a90d5e60e"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsValid</b> () const </td></tr>
+<tr class="memitem:a6f95125cd5285d4d3d300c4a90d5e60e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#a6f95125cd5285d4d3d300c4a90d5e60e">IsValid</a> () const </td></tr>
 <tr class="separator:a6f95125cd5285d4d3d300c4a90d5e60e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a024ce15b54463fb79db280a0afee03d6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a024ce15b54463fb79db280a0afee03d6"></a>
-<a class="el" href="classfpl_1_1_angle.html">Angle</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Clamp</b> (const <a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;center, const <a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;max_diff) const </td></tr>
+<tr class="memitem:a024ce15b54463fb79db280a0afee03d6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfpl_1_1_angle.html">Angle</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#a024ce15b54463fb79db280a0afee03d6">Clamp</a> (const <a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;center, const <a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;max_diff) const </td></tr>
 <tr class="separator:a024ce15b54463fb79db280a0afee03d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a95e29a58b2bfd1b176e291868801c442"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a95e29a58b2bfd1b176e291868801c442"></a>
-static float&#160;</td><td class="memItemRight" valign="bottom"><b>WrapAngle</b> (float angle)</td></tr>
+<tr class="memitem:a95e29a58b2bfd1b176e291868801c442"><td class="memItemLeft" align="right" valign="top">static float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#a95e29a58b2bfd1b176e291868801c442">WrapAngle</a> (float angle)</td></tr>
 <tr class="separator:a95e29a58b2bfd1b176e291868801c442"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab0fc3d8df25c2f0546c4bc9e8fcff184"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab0fc3d8df25c2f0546c4bc9e8fcff184"></a>
-static <a class="el" href="classfpl_1_1_angle.html">Angle</a>&#160;</td><td class="memItemRight" valign="bottom"><b>FromWithinThreePi</b> (const float angle)</td></tr>
+<tr class="memitem:ab0fc3d8df25c2f0546c4bc9e8fcff184"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classfpl_1_1_angle.html">Angle</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#ab0fc3d8df25c2f0546c4bc9e8fcff184">FromWithinThreePi</a> (const float angle)</td></tr>
 <tr class="separator:ab0fc3d8df25c2f0546c4bc9e8fcff184"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a23faa13075a0ff8909ea1227968ce6f0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a23faa13075a0ff8909ea1227968ce6f0"></a>
-static <a class="el" href="classfpl_1_1_angle.html">Angle</a>&#160;</td><td class="memItemRight" valign="bottom"><b>FromRadians</b> (const float radians)</td></tr>
+static <a class="el" href="classfpl_1_1_angle.html">Angle</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#a23faa13075a0ff8909ea1227968ce6f0">FromRadians</a> (const float radians)</td></tr>
+<tr class="memdesc:a23faa13075a0ff8909ea1227968ce6f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create from <code>radians</code>, which is converted to the range (-pi, pi]. <br/></td></tr>
 <tr class="separator:a23faa13075a0ff8909ea1227968ce6f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acd50d976f6c8baca0d4348e0eeb33a90"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acd50d976f6c8baca0d4348e0eeb33a90"></a>
-static <a class="el" href="classfpl_1_1_angle.html">Angle</a>&#160;</td><td class="memItemRight" valign="bottom"><b>FromDegrees</b> (const float degrees)</td></tr>
+static <a class="el" href="classfpl_1_1_angle.html">Angle</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#acd50d976f6c8baca0d4348e0eeb33a90">FromDegrees</a> (const float degrees)</td></tr>
+<tr class="memdesc:acd50d976f6c8baca0d4348e0eeb33a90"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create from <code>degrees</code>, which is converted to the range (-pi, pi]. <br/></td></tr>
 <tr class="separator:acd50d976f6c8baca0d4348e0eeb33a90"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3567ab5b0261bd74a6fc46dbc4f12879"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3567ab5b0261bd74a6fc46dbc4f12879"></a>
-static <a class="el" href="classfpl_1_1_angle.html">Angle</a>&#160;</td><td class="memItemRight" valign="bottom"><b>FromXZVector</b> (const mathfu::vec3 &amp;v)</td></tr>
+<tr class="memitem:a3567ab5b0261bd74a6fc46dbc4f12879"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classfpl_1_1_angle.html">Angle</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#a3567ab5b0261bd74a6fc46dbc4f12879">FromXZVector</a> (const mathfu::vec3 &amp;v)</td></tr>
 <tr class="separator:a3567ab5b0261bd74a6fc46dbc4f12879"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a48e55e8f7960312f8d869ad9f4a2d956"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a48e55e8f7960312f8d869ad9f4a2d956"></a>
-static bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsAngleInRange</b> (const float angle)</td></tr>
+<tr class="memitem:a48e55e8f7960312f8d869ad9f4a2d956"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_angle.html#a48e55e8f7960312f8d869ad9f4a2d956">IsAngleInRange</a> (const float angle)</td></tr>
 <tr class="separator:a48e55e8f7960312f8d869ad9f4a2d956"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
@@ -198,6 +214,222 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;</b> (con
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;=</b> (const <a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;a, const <a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;b)</td></tr>
 <tr class="separator:a73a8e7577313c041177660e71103cc77"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a59d3177f5d5347c39966ce0f3402fc73"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">fpl::Angle::Angle </td>
+          <td>(</td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>angle</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Create from <code>angle</code>, which is already in the valid range (-pi,pi]. If your angle is outside that range, construct the <a class="el" href="classfpl_1_1_angle.html" title="Represent an angle in radians, uniquely in the range (-pi, pi]. ">Angle</a> with the slower FromRadians function to automatically wrap it. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">angle</td><td>radians in the range (-pi,pi] &ndash; i.e. exclusive of -pi but inclusive of +pi. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a024ce15b54463fb79db280a0afee03d6"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfpl_1_1_angle.html">Angle</a> fpl::Angle::Clamp </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;&#160;</td>
+          <td class="paramname"><em>center</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classfpl_1_1_angle.html">Angle</a> &amp;&#160;</td>
+          <td class="paramname"><em>max_diff</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Clamps the angle to the range [center - max_diff, center + max_diff]. max_diff must be in the range [0~pi]. </p>
+
+</div>
+</div>
+<a class="anchor" id="ab0fc3d8df25c2f0546c4bc9e8fcff184"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classfpl_1_1_angle.html">Angle</a> fpl::Angle::FromWithinThreePi </td>
+          <td>(</td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>angle</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Create from <code>angle</code>, in radians, which is in the range (-3pi,3pi]. This function is significantly faster than WrapAngle since it avoids division. It's also more precise for the same reason. The range may seem strange at first glance; it's a consequence of the implementation. Just know that any two sums of normalized angles will still be in the range (-3pi,3pi]. </p>
+
+</div>
+</div>
+<a class="anchor" id="a3567ab5b0261bd74a6fc46dbc4f12879"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classfpl_1_1_angle.html">Angle</a> fpl::Angle::FromXZVector </td>
+          <td>(</td>
+          <td class="paramtype">const mathfu::vec3 &amp;&#160;</td>
+          <td class="paramname"><em>v</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Create from the x,z coordinates of a vector, using the system described in <a class="el" href="classfpl_1_1_angle.html#a5b761620f88f11a877f4729dbc61ea6a">ToXZVector()</a>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a48e55e8f7960312f8d869ad9f4a2d956"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool fpl::Angle::IsAngleInRange </td>
+          <td>(</td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>angle</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return true if 'angle' is within the valid range (-pi,pi], that is, the range inclusive of +pi but exclusive of -pi. </p>
+
+</div>
+</div>
+<a class="anchor" id="a6f95125cd5285d4d3d300c4a90d5e60e"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool fpl::Angle::IsValid </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Check internal consistency. If class is functioning correctly, should always return true. </p>
+
+</div>
+</div>
+<a class="anchor" id="a5b761620f88f11a877f4729dbc61ea6a"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">mathfu::vec3 fpl::Angle::ToXZVector </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns a point on unit circle corresponding to a sweep of <code>angle</code> degrees from the x-axis towards the z-axis. 0 ==&gt; ( 1, 0, 0) pi/2 ==&gt; ( 0, 0, 1) pi ==&gt; (-1, 0, 0) 3pi/2 ==&gt; ( 0, 0, -1) </p>
+
+</div>
+</div>
+<a class="anchor" id="a95e29a58b2bfd1b176e291868801c442"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static float fpl::Angle::WrapAngle </td>
+          <td>(</td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>angle</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Wraps an angle to the range (-pi, pi]. This function is slow because it has a division. When possible, use FromWithinThreePi instead. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="angle_8h_source.html">angle.h</a></li>
 </ul>

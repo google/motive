@@ -78,6 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
       <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -100,7 +101,7 @@ $(document).ready(function(){initNavTree('classfpl_1_1_compact_spline.html','');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -118,29 +119,36 @@ $(document).ready(function(){initNavTree('classfpl_1_1_compact_spline.html','');
 <div class="title">fpl::CompactSpline Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
+
+<p>Represent a smooth curve in a small amount of memory.  
+ <a href="classfpl_1_1_compact_spline.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="compact__spline_8h_source.html">compact_spline.h</a>&gt;</code></p>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Represent a smooth curve in a small amount of memory. </p>
+<p>This spline interpolates a series of (x, y, derivative) nodes to create a smooth curve.</p>
+<p>This class holds a series of such nodes, and aids with the construction of that series by inserting extra nodes when extra smoothness is required.</p>
+<p>The data in this class is compacted as quantized values. It's not intended to be read directly. You should use the <a class="el" href="classfpl_1_1_bulk_spline_evaluator.html" title="Traverse through a set of splines in a performant way. ">BulkSplineEvaluator</a> to update and read values from the splines in a performant manner. </p>
+</div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a43ad60f5130fb50398aa922c44cde6ba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a43ad60f5130fb50398aa922c44cde6ba"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>CompactSpline</b> (const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;y_range, const float x_granularity, const int num_nodes=0)</td></tr>
 <tr class="separator:a43ad60f5130fb50398aa922c44cde6ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4cb8136e658bb5402c827ddbc2a926c5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4cb8136e658bb5402c827ddbc2a926c5"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>CompactSpline</b> (const <a class="el" href="classfpl_1_1_compact_spline.html">CompactSpline</a> &amp;rhs)</td></tr>
+<tr class="memitem:a4cb8136e658bb5402c827ddbc2a926c5"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a4cb8136e658bb5402c827ddbc2a926c5">CompactSpline</a> (const <a class="el" href="classfpl_1_1_compact_spline.html">CompactSpline</a> &amp;rhs)</td></tr>
 <tr class="separator:a4cb8136e658bb5402c827ddbc2a926c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aef8c197c973c1a14aa6bf6b98df7b2fe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aef8c197c973c1a14aa6bf6b98df7b2fe"></a>
 <a class="el" href="classfpl_1_1_compact_spline.html">CompactSpline</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classfpl_1_1_compact_spline.html">CompactSpline</a> &amp;rhs)</td></tr>
 <tr class="separator:aef8c197c973c1a14aa6bf6b98df7b2fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aab75d3119edaf091402e2c49284bec9b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aab75d3119edaf091402e2c49284bec9b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Init</b> (const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;y_range, const float x_granularity, const int num_nodes=0)</td></tr>
+<tr class="memitem:aab75d3119edaf091402e2c49284bec9b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#aab75d3119edaf091402e2c49284bec9b">Init</a> (const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;y_range, const float x_granularity, const int num_nodes=0)</td></tr>
 <tr class="separator:aab75d3119edaf091402e2c49284bec9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8cf74846c2624dae3a9f12b97ce46a1c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8cf74846c2624dae3a9f12b97ce46a1c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddNode</b> (const float x, const float y, const float derivative, const CompactSplineAddMethod method=kEnsureCubicWellBehaved)</td></tr>
+<tr class="memitem:a8cf74846c2624dae3a9f12b97ce46a1c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a8cf74846c2624dae3a9f12b97ce46a1c">AddNode</a> (const float x, const float y, const float derivative, const CompactSplineAddMethod method=kEnsureCubicWellBehaved)</td></tr>
 <tr class="separator:a8cf74846c2624dae3a9f12b97ce46a1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a61f1d3a3986d04f7069aee9281d8d100"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a61f1d3a3986d04f7069aee9281d8d100"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Clear</b> ()</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a61f1d3a3986d04f7069aee9281d8d100">Clear</a> ()</td></tr>
+<tr class="memdesc:a61f1d3a3986d04f7069aee9281d8d100"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove all nodes from the spline. <br/></td></tr>
 <tr class="separator:a61f1d3a3986d04f7069aee9281d8d100"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a07feb860d1ff9a50a44ea633dd55844c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a07feb860d1ff9a50a44ea633dd55844c"></a>
-CompactSplineIndex&#160;</td><td class="memItemRight" valign="bottom"><b>IndexForX</b> (const float x, const CompactSplineIndex guess_index) const </td></tr>
+<tr class="memitem:a07feb860d1ff9a50a44ea633dd55844c"><td class="memItemLeft" align="right" valign="top">CompactSplineIndex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a07feb860d1ff9a50a44ea633dd55844c">IndexForX</a> (const float x, const CompactSplineIndex guess_index) const </td></tr>
 <tr class="separator:a07feb860d1ff9a50a44ea633dd55844c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa02c25fa42695b179e4d17f8afe25012"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa02c25fa42695b179e4d17f8afe25012"></a>
 float&#160;</td><td class="memItemRight" valign="bottom"><b>StartX</b> () const </td></tr>
@@ -179,18 +187,200 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>LengthX</b> () const
 const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>RangeY</b> () const </td></tr>
 <tr class="separator:a755e6b713e9ffdb1bcbd45092455d6cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b077aa3b63addb635a6e7a16d6a91f6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8b077aa3b63addb635a6e7a16d6a91f6"></a>
-<a class="el" href="classfpl_1_1_range_t.html">Range</a>&#160;</td><td class="memItemRight" valign="bottom"><b>RangeX</b> (const CompactSplineIndex index) const </td></tr>
+<a class="el" href="classfpl_1_1_range_t.html">Range</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a8b077aa3b63addb635a6e7a16d6a91f6">RangeX</a> (const CompactSplineIndex index) const </td></tr>
+<tr class="memdesc:a8b077aa3b63addb635a6e7a16d6a91f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">The start and end x-values covered by the segment after <code>index</code>. <br/></td></tr>
 <tr class="separator:a8b077aa3b63addb635a6e7a16d6a91f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a959587439623ef16bfa54b6eeb1f675b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a959587439623ef16bfa54b6eeb1f675b"></a>
-<a class="el" href="structfpl_1_1_cubic_init.html">CubicInit</a>&#160;</td><td class="memItemRight" valign="bottom"><b>CreateCubicInit</b> (const CompactSplineIndex index) const </td></tr>
+<tr class="memitem:a959587439623ef16bfa54b6eeb1f675b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfpl_1_1_cubic_init.html">CubicInit</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a959587439623ef16bfa54b6eeb1f675b">CreateCubicInit</a> (const CompactSplineIndex index) const </td></tr>
 <tr class="separator:a959587439623ef16bfa54b6eeb1f675b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a169bcfb33bea4168a443225d03ba12e2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a169bcfb33bea4168a443225d03ba12e2"></a>
-static float&#160;</td><td class="memItemRight" valign="bottom"><b>RecommendXGranularity</b> (const float max_x)</td></tr>
+<tr class="memitem:a169bcfb33bea4168a443225d03ba12e2"><td class="memItemLeft" align="right" valign="top">static float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a169bcfb33bea4168a443225d03ba12e2">RecommendXGranularity</a> (const float max_x)</td></tr>
 <tr class="separator:a169bcfb33bea4168a443225d03ba12e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a4cb8136e658bb5402c827ddbc2a926c5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">fpl::CompactSpline::CompactSpline </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classfpl_1_1_compact_spline.html">CompactSpline</a> &amp;&#160;</td>
+          <td class="paramname"><em>rhs</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>The copy constructors, copy operator, and destructor are all default implementations, but must be specified explicitly because CompactSplineNode is not specified in the header file. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a8cf74846c2624dae3a9f12b97ce46a1c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fpl::CompactSpline::AddNode </td>
+          <td>(</td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>derivative</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const CompactSplineAddMethod&#160;</td>
+          <td class="paramname"><em>method</em> = <code>kEnsureCubicWellBehaved</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Add a node to the end of the spline. Depending on the method, an intermediate node may also be inserted.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>Must be greater than the x-value of the last spline node. If not, this call is a nop. </td></tr>
+    <tr><td class="paramname">y</td><td>Must be within the <code>y_range</code> specified in <a class="el" href="classfpl_1_1_compact_spline.html#aab75d3119edaf091402e2c49284bec9b">Init()</a>. </td></tr>
+    <tr><td class="paramname">derivative</td><td>No restrictions, but excessively large values may still result in overshoot, even with an intermediate node. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a959587439623ef16bfa54b6eeb1f675b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structfpl_1_1_cubic_init.html">CubicInit</a> fpl::CompactSpline::CreateCubicInit </td>
+          <td>(</td>
+          <td class="paramtype">const CompactSplineIndex&#160;</td>
+          <td class="paramname"><em>index</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Initialization parameters for a cubic curve that starts at <code>index</code> and ends at <code>index</code> + 1. Or a constant curve if <code>index</code> is kBeforeSplineIndex or kAfterSplineIndex. </p>
+
+</div>
+</div>
+<a class="anchor" id="a07feb860d1ff9a50a44ea633dd55844c"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">CompactSplineIndex fpl::CompactSpline::IndexForX </td>
+          <td>(</td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const CompactSplineIndex&#160;</td>
+          <td class="paramname"><em>guess_index</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Return index of the first node before <code>x</code>. If <code>x</code> is before the first node, return kBeforeSplineIndex. If <code>x</code> is past the last node, return kAfterSplineIndex.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>x-value in the spline. Most often, the x-axis represents time. </td></tr>
+    <tr><td class="paramname">guess_index</td><td>Best guess at what the index for <code>x</code> will be. Often the caller will be traversing from low to high x, so a good guess is the index after the current index. If you have no idea, set to 0. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="aab75d3119edaf091402e2c49284bec9b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fpl::CompactSpline::Init </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;&#160;</td>
+          <td class="paramname"><em>y_range</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>x_granularity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const int&#160;</td>
+          <td class="paramname"><em>num_nodes</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>The range of values for x and y must be specified at spline creation time and cannot be changed afterwards. Empties all nodes, if we have any.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">y_range</td><td>The upper and lower bounds for y-values in the nodes. The more narrow this is, the better the precision of the fixed point numbers. Note that you should add 10% padding here, since AddNode may insert a smoothing node that is slightly beyond the source y range. </td></tr>
+    <tr><td class="paramname">x_granularity</td><td>The minimum increment of x-values. If you're working with a spline changes at most 30 times per second, and your x is in units of 1/1000th of a second, then x_granularity = 33 is a good baseline. You'll probably want granularity around 1/50th of that baseline value, though, since AddNode may insert smoothing nodes at intermediate x's. In our example here, you could set x_granularity near 33 / 50. For ease of debugging, an x_granularity of 0.5 or 1 is probably best. </td></tr>
+    <tr><td class="paramname">num_nodes</td><td>A hint for how many nodes are expected to be added. Try to get this close or slightly too high, to avoid reallocation of internal memory. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a169bcfb33bea4168a443225d03ba12e2"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static float fpl::CompactSpline::RecommendXGranularity </td>
+          <td>(</td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>max_x</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Recommend a granularity given a maximal-x value. We want to have the most precise granularity when quantizing x's. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="compact__spline_8h_source.html">compact_spline.h</a></li>
 </ul>

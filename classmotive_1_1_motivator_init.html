@@ -78,6 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
       <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -100,7 +101,7 @@ $(document).ready(function(){initNavTree('classmotive_1_1_motivator_init.html','
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -117,23 +118,28 @@ $(document).ready(function(){initNavTree('classmotive_1_1_motivator_init.html','
 <div class="title">motive::MotivatorInit Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="common_8h_source.html">common.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for motive::MotivatorInit:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="classmotive_1_1_motivator_init.png" usemap="#motive::MotivatorInit_map" alt=""/>
   <map id="motive::MotivatorInit_map" name="motive::MotivatorInit_map">
-<area href="classmotive_1_1_matrix_init.html" alt="motive::MatrixInit" shape="rect" coords="0,56,129,80"/>
+<area href="classmotive_1_1_matrix_init.html" title="Initialize a MotivatorMatrix4f to generate its matrix from a series of operations. " alt="motive::MatrixInit" shape="rect" coords="0,56,129,80"/>
 <area href="classmotive_1_1_modular_init.html" alt="motive::ModularInit" shape="rect" coords="139,56,268,80"/>
 <area href="classmotive_1_1_overshoot_init.html" alt="motive::OvershootInit" shape="rect" coords="69,112,198,136"/>
-<area href="classmotive_1_1_smooth_init.html" alt="motive::SmoothInit" shape="rect" coords="208,112,337,136"/>
+<area href="classmotive_1_1_smooth_init.html" title="Initialize a Motivator1f to follow a spline. " alt="motive::SmoothInit" shape="rect" coords="208,112,337,136"/>
 </map>
  </div></div>
-<table class="memberdecls">
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Base class for <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> parameterization. Every motivator type has a its own init class that derives from <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a>. In the derivation, the MOTIVE_INTERFACE() macro should be added to the public interface. This macro will define <code>kName</code>, <code>kType</code>, and Register() calls for the motivator type. </p>
+</div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a4bad26a44261bf463f6aef03f9f7ac1a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4bad26a44261bf463f6aef03f9f7ac1a"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>MotivatorInit</b> (MotivatorType type)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_init.html#a4bad26a44261bf463f6aef03f9f7ac1a">MotivatorInit</a> (MotivatorType type)</td></tr>
+<tr class="memdesc:a4bad26a44261bf463f6aef03f9f7ac1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The derived class's constructor should set 'type'. <br/></td></tr>
 <tr class="separator:a4bad26a44261bf463f6aef03f9f7ac1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad6e60182c4ede9f1fea9c0e8d7cb9589"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad6e60182c4ede9f1fea9c0e8d7cb9589"></a>
 MotivatorType&#160;</td><td class="memItemRight" valign="bottom"><b>type</b> () const </td></tr>

@@ -78,6 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
       <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -100,7 +101,7 @@ $(document).ready(function(){initNavTree('classfpl_1_1_quadratic_curve.html','')
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -118,7 +119,14 @@ $(document).ready(function(){initNavTree('classfpl_1_1_quadratic_curve.html','')
 <div class="title">fpl::QuadraticCurve Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
+
+<p>Represent a quadratic polynomial in the form c_[2] * x^2 + c_[1] * x + c_[0].  
+ <a href="classfpl_1_1_quadratic_curve.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="curve_8h_source.html">curve.h</a>&gt;</code></p>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Represent a quadratic polynomial in the form c_[2] * x^2 + c_[1] * x + c_[0]. </p>
+</div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a064cee7b0b0a076832cc5cdb77bb8587"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a064cee7b0b0a076832cc5cdb77bb8587"></a>
@@ -142,61 +150,350 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a52ec58971885d20710a0825f52de689a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a52ec58971885d20710a0825f52de689a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Init</b> (const <a class="el" href="structfpl_1_1_quadratic_init_with_start_derivative.html">QuadraticInitWithStartDerivative</a> &amp;init)</td></tr>
 <tr class="separator:a52ec58971885d20710a0825f52de689a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a805525f25ee54135df88695d4c52961b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a805525f25ee54135df88695d4c52961b"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>Evaluate</b> (const float x) const </td></tr>
+<tr class="memitem:a805525f25ee54135df88695d4c52961b"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_quadratic_curve.html#a805525f25ee54135df88695d4c52961b">Evaluate</a> (const float x) const </td></tr>
 <tr class="separator:a805525f25ee54135df88695d4c52961b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa1f26eb123ad398fd12a27c8e89309d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afa1f26eb123ad398fd12a27c8e89309d"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>Derivative</b> (const float x) const </td></tr>
+<tr class="memitem:afa1f26eb123ad398fd12a27c8e89309d"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_quadratic_curve.html#afa1f26eb123ad398fd12a27c8e89309d">Derivative</a> (const float x) const </td></tr>
 <tr class="separator:afa1f26eb123ad398fd12a27c8e89309d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a589be36a9cefdcf0b143034d395d1c78"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a589be36a9cefdcf0b143034d395d1c78"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>SecondDerivative</b> (const float x) const </td></tr>
+<tr class="memitem:a589be36a9cefdcf0b143034d395d1c78"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_quadratic_curve.html#a589be36a9cefdcf0b143034d395d1c78">SecondDerivative</a> (const float x) const </td></tr>
 <tr class="separator:a589be36a9cefdcf0b143034d395d1c78"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa233d99b0b90c56643b8f04cb4bdfcfe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa233d99b0b90c56643b8f04cb4bdfcfe"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>ThirdDerivative</b> (const float x) const </td></tr>
+<tr class="memitem:aa233d99b0b90c56643b8f04cb4bdfcfe"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_quadratic_curve.html#aa233d99b0b90c56643b8f04cb4bdfcfe">ThirdDerivative</a> (const float x) const </td></tr>
 <tr class="separator:aa233d99b0b90c56643b8f04cb4bdfcfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2a3b00f3a99b58448e17fe6f98ed799a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2a3b00f3a99b58448e17fe6f98ed799a"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>Epsilon</b> () const </td></tr>
+<tr class="memitem:a2a3b00f3a99b58448e17fe6f98ed799a"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_quadratic_curve.html#a2a3b00f3a99b58448e17fe6f98ed799a">Epsilon</a> () const </td></tr>
 <tr class="separator:a2a3b00f3a99b58448e17fe6f98ed799a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3175e00058750f769f491117e99cb73d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3175e00058750f769f491117e99cb73d"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>Discriminant</b> () const </td></tr>
+<tr class="memitem:a3175e00058750f769f491117e99cb73d"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_quadratic_curve.html#a3175e00058750f769f491117e99cb73d">Discriminant</a> () const </td></tr>
 <tr class="separator:a3175e00058750f769f491117e99cb73d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad720b91b59b58bdf05a07252fb7e6136"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad720b91b59b58bdf05a07252fb7e6136"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>ReliableDiscriminant</b> (const float epsilon) const </td></tr>
+<tr class="memitem:ad720b91b59b58bdf05a07252fb7e6136"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_quadratic_curve.html#ad720b91b59b58bdf05a07252fb7e6136">ReliableDiscriminant</a> (const float epsilon) const </td></tr>
 <tr class="separator:ad720b91b59b58bdf05a07252fb7e6136"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac39cb585a6f0c42e1675eb576bca34a8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac39cb585a6f0c42e1675eb576bca34a8"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>CriticalPoint</b> () const </td></tr>
+<tr class="memitem:ac39cb585a6f0c42e1675eb576bca34a8"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_quadratic_curve.html#ac39cb585a6f0c42e1675eb576bca34a8">CriticalPoint</a> () const </td></tr>
+<tr class="memdesc:ac39cb585a6f0c42e1675eb576bca34a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the x at which the derivative is zero.  <a href="#ac39cb585a6f0c42e1675eb576bca34a8">More...</a><br/></td></tr>
 <tr class="separator:ac39cb585a6f0c42e1675eb576bca34a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3b4b15d7ab5cf0690c70756b286710d6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3b4b15d7ab5cf0690c70756b286710d6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Roots</b> (<a class="el" href="structfpl_1_1_range_t_1_1_t_array.html">RootsArray</a> *roots) const </td></tr>
+<tr class="memitem:a3b4b15d7ab5cf0690c70756b286710d6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_quadratic_curve.html#a3b4b15d7ab5cf0690c70756b286710d6">Roots</a> (<a class="el" href="structfpl_1_1_range_t_1_1_t_array.html">RootsArray</a> *roots) const </td></tr>
 <tr class="separator:a3b4b15d7ab5cf0690c70756b286710d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aecae2f148ab21eb2a0c1e503c95bf493"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aecae2f148ab21eb2a0c1e503c95bf493"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>RootsInRange</b> (const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;x_limits, <a class="el" href="structfpl_1_1_range_t_1_1_t_array.html">RootsArray</a> *roots) const </td></tr>
+<tr class="memitem:aecae2f148ab21eb2a0c1e503c95bf493"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_quadratic_curve.html#aecae2f148ab21eb2a0c1e503c95bf493">RootsInRange</a> (const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;x_limits, <a class="el" href="structfpl_1_1_range_t_1_1_t_array.html">RootsArray</a> *roots) const </td></tr>
 <tr class="separator:aecae2f148ab21eb2a0c1e503c95bf493"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4566cf6994eeafe6c4f9a239ab75c42a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4566cf6994eeafe6c4f9a239ab75c42a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>RangesMatchingSign</b> (const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;x_limits, float sign, <a class="el" href="structfpl_1_1_range_t_1_1_range_array.html">RangeArray</a> *matching) const </td></tr>
+<tr class="memitem:a4566cf6994eeafe6c4f9a239ab75c42a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_quadratic_curve.html#a4566cf6994eeafe6c4f9a239ab75c42a">RangesMatchingSign</a> (const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;x_limits, float sign, <a class="el" href="structfpl_1_1_range_t_1_1_range_array.html">RangeArray</a> *matching) const </td></tr>
 <tr class="separator:a4566cf6994eeafe6c4f9a239ab75c42a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5529521d49349f8d392fab540a7bb3e3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5529521d49349f8d392fab540a7bb3e3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>RangesAboveZero</b> (const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;x_limits, <a class="el" href="structfpl_1_1_range_t_1_1_range_array.html">RangeArray</a> *matching) const </td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_quadratic_curve.html#a5529521d49349f8d392fab540a7bb3e3">RangesAboveZero</a> (const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;x_limits, <a class="el" href="structfpl_1_1_range_t_1_1_range_array.html">RangeArray</a> *matching) const </td></tr>
+<tr class="memdesc:a5529521d49349f8d392fab540a7bb3e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the ranges on which the quadratic is above zero. <br/></td></tr>
 <tr class="separator:a5529521d49349f8d392fab540a7bb3e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af1186883a94680a9b95265a0d804c892"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af1186883a94680a9b95265a0d804c892"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>RangesBelowZero</b> (const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;x_limits, <a class="el" href="structfpl_1_1_range_t_1_1_range_array.html">RangeArray</a> *matching) const </td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_quadratic_curve.html#af1186883a94680a9b95265a0d804c892">RangesBelowZero</a> (const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;x_limits, <a class="el" href="structfpl_1_1_range_t_1_1_range_array.html">RangeArray</a> *matching) const </td></tr>
+<tr class="memdesc:af1186883a94680a9b95265a0d804c892"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the ranges on which the quadratic is below zero. <br/></td></tr>
 <tr class="separator:af1186883a94680a9b95265a0d804c892"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab1640e567fe2f76db8aad550a9e3afc5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab1640e567fe2f76db8aad550a9e3afc5"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>Coeff</b> (int i) const </td></tr>
+float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_quadratic_curve.html#ab1640e567fe2f76db8aad550a9e3afc5">Coeff</a> (int i) const </td></tr>
+<tr class="memdesc:ab1640e567fe2f76db8aad550a9e3afc5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the coefficient for x-to-the-ith -power. <br/></td></tr>
 <tr class="separator:ab1640e567fe2f76db8aad550a9e3afc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7603be49c1bb6915a181d6b98295b515"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7603be49c1bb6915a181d6b98295b515"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>NumCoeff</b> () const </td></tr>
+int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_quadratic_curve.html#a7603be49c1bb6915a181d6b98295b515">NumCoeff</a> () const </td></tr>
+<tr class="memdesc:a7603be49c1bb6915a181d6b98295b515"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of coefficients in this curve. <br/></td></tr>
 <tr class="separator:a7603be49c1bb6915a181d6b98295b515"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a979e6616c8e76b8d3502d3e41465e828"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a979e6616c8e76b8d3502d3e41465e828"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (const <a class="el" href="classfpl_1_1_quadratic_curve.html">QuadraticCurve</a> &amp;rhs) const </td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_quadratic_curve.html#a979e6616c8e76b8d3502d3e41465e828">operator==</a> (const <a class="el" href="classfpl_1_1_quadratic_curve.html">QuadraticCurve</a> &amp;rhs) const </td></tr>
+<tr class="memdesc:a979e6616c8e76b8d3502d3e41465e828"><td class="mdescLeft">&#160;</td><td class="mdescRight">Equality. Checks for exact match. Useful for testing. <br/></td></tr>
 <tr class="separator:a979e6616c8e76b8d3502d3e41465e828"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7a2b5c07a7f685b08f4ec70afdcc6274"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7a2b5c07a7f685b08f4ec70afdcc6274"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator!=</b> (const <a class="el" href="classfpl_1_1_quadratic_curve.html">QuadraticCurve</a> &amp;rhs) const </td></tr>
 <tr class="separator:a7a2b5c07a7f685b08f4ec70afdcc6274"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a59fec772af762d03e089f62283a6d7a7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a59fec772af762d03e089f62283a6d7a7"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>Text</b> () const </td></tr>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_quadratic_curve.html#a59fec772af762d03e089f62283a6d7a7">Text</a> () const </td></tr>
+<tr class="memdesc:a59fec772af762d03e089f62283a6d7a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">A string with the equation for this quadratic. Useful for debugging. <br/></td></tr>
 <tr class="separator:a59fec772af762d03e089f62283a6d7a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="ac39cb585a6f0c42e1675eb576bca34a8"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">float fpl::QuadraticCurve::CriticalPoint </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Return the x at which the derivative is zero. </p>
+<p>0 = f'(x) = 2*c2*x + c1 ==&gt; x = -c1 / 2c2 </p>
+
+</div>
+</div>
+<a class="anchor" id="afa1f26eb123ad398fd12a27c8e89309d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">float fpl::QuadraticCurve::Derivative </td>
+          <td>(</td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>x</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return the quadratic function's slope at <code>x</code>. f'(x) = 2*c2*x + c1 </p>
+
+</div>
+</div>
+<a class="anchor" id="a3175e00058750f769f491117e99cb73d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">float fpl::QuadraticCurve::Discriminant </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Used for finding roots, and more. See <a href="http://en.wikipedia.org/wiki/Discriminant">http://en.wikipedia.org/wiki/Discriminant</a> </p>
+
+</div>
+</div>
+<a class="anchor" id="a2a3b00f3a99b58448e17fe6f98ed799a"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">float fpl::QuadraticCurve::Epsilon </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns a value below which floating point precision is unreliable. If we're testing for zero, for instance, we should test against this <a class="el" href="classfpl_1_1_quadratic_curve.html#a2a3b00f3a99b58448e17fe6f98ed799a">Epsilon()</a>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a805525f25ee54135df88695d4c52961b"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">float fpl::QuadraticCurve::Evaluate </td>
+          <td>(</td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>x</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return the quadratic function's value at <code>x</code>. f(x) = c2*x^2 + c1*x + c0 </p>
+
+</div>
+</div>
+<a class="anchor" id="a4566cf6994eeafe6c4f9a239ab75c42a"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fpl::QuadraticCurve::RangesMatchingSign </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;&#160;</td>
+          <td class="paramname"><em>x_limits</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>sign</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfpl_1_1_range_t_1_1_range_array.html">RangeArray</a> *&#160;</td>
+          <td class="paramname"><em>matching</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Get ranges above or below zero. Since a quadratic can cross zero at most twice, there can be at most two ranges. Ranges are clamped to <code>x_limits</code>. <code>sign</code> is used to determine above or below zero only&ndash;actual value is ignored. </p>
+
+</div>
+</div>
+<a class="anchor" id="ad720b91b59b58bdf05a07252fb7e6136"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float fpl::QuadraticCurve::ReliableDiscriminant </td>
+          <td>(</td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>epsilon</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>When <a class="el" href="classfpl_1_1_quadratic_curve.html#a3175e00058750f769f491117e99cb73d">Discriminant()</a> is close to zero, set to zero. Often floating point precision problems can make the discriminant very slightly non-zero, even though mathematically it should be zero. </p>
+
+</div>
+</div>
+<a class="anchor" id="a3b4b15d7ab5cf0690c70756b286710d6"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fpl::QuadraticCurve::Roots </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structfpl_1_1_range_t_1_1_t_array.html">RootsArray</a> *&#160;</td>
+          <td class="paramname"><em>roots</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Calculate the x-coordinates where this quadratic is zero, and put them into <code>roots</code>, in ascending order. Returns the 0, 1, or 2, the number of unique values put into <code>roots</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="aecae2f148ab21eb2a0c1e503c95bf493"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fpl::QuadraticCurve::RootsInRange </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;&#160;</td>
+          <td class="paramname"><em>x_limits</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structfpl_1_1_range_t_1_1_t_array.html">RootsArray</a> *&#160;</td>
+          <td class="paramname"><em>roots</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Calculate the x-coordinates within the range [start_x, end_x] where the quadratic is zero. Put them into <code>roots</code>. Return the number of unique values put into <code>roots</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a589be36a9cefdcf0b143034d395d1c78"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">float fpl::QuadraticCurve::SecondDerivative </td>
+          <td>(</td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>x</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return the quadratic function's constant second derivative. Even though <code>x</code> is unused, we pass it in for consistency with other curve classes. f''(x) = 2*c2 </p>
+
+</div>
+</div>
+<a class="anchor" id="aa233d99b0b90c56643b8f04cb4bdfcfe"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">float fpl::QuadraticCurve::ThirdDerivative </td>
+          <td>(</td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>x</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return the quadratic function's constant third derivative: 0. Even though <code>x</code> is unused, we pass it in for consistency with other curve classes. f'''(x) = 0 </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="curve_8h_source.html">curve.h</a></li>
 </ul>

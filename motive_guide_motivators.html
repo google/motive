@@ -87,7 +87,7 @@ $(document).ready(function(){initNavTree('motive_guide_motivators.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -108,81 +108,7 @@ $(document).ready(function(){initNavTree('motive_guide_motivators.html','');});
 <h1><a class="anchor" id="motive_guide_motivator_example"></a>
 Example Usage</h1>
 <p>The following example illustrates how to animate the face-angle of a character. The comments describe, in brief, what is going on internally.</p>
-<div class="fragment"><div class="line"></div>
-<div class="line"><span class="preprocessor">#include &quot;motive/engine.h&quot;</span></div>
-<div class="line"><span class="preprocessor">#include &quot;motive/init.h&quot;</span></div>
-<div class="line"><span class="preprocessor">#include &quot;motive/math/angle.h&quot;</span></div>
-<div class="line"><span class="preprocessor">#include &quot;motive/math/curve.h&quot;</span></div>
-<div class="line"></div>
-<div class="line"><span class="keyword">using</span> <a class="code" href="classfpl_1_1_angle.html">fpl::Angle</a>;</div>
-<div class="line"><span class="keyword">using</span> <a class="code" href="classfpl_1_1_range_t.html">fpl::Range</a>;</div>
-<div class="line"><span class="keyword">using</span> fpl::kPi;</div>
-<div class="line"><span class="keyword">using</span> fpl::Graph2DPoints;</div>
-<div class="line"><span class="keyword">using</span> mathfu::vec2;</div>
-<div class="line"></div>
-<div class="line"><span class="keywordtype">int</span> main() {</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// Since we will be using the ‘smooth’ animation algorithm, we must register it</span></div>
-<div class="line">  <span class="comment">// with the engine.</span></div>
-<div class="line">  motive::SmoothInit::Register();</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// The engine is the central place where animation data is stored and processed.</span></div>
-<div class="line">  <a class="code" href="classmotive_1_1_motive_engine.html">motive::MotiveEngine</a> engine;</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// In this example, we animate a one-dimensional floating point value.</span></div>
-<div class="line">  <span class="comment">// It&#39;s also possible to animate a mathfu::vec2 with motive::Motivator2f, and</span></div>
-<div class="line">  <span class="comment">// similarly for higher dimensional vectors. We can even animate a mathfu::mat4</span></div>
-<div class="line">  <span class="comment">// (a 4x4 matrix) with motive::MotivatorMatrix4f.</span></div>
-<div class="line">  <span class="comment">//</span></div>
-<div class="line">  <span class="comment">// If you have your own math library, you can also animate those instead of</span></div>
-<div class="line">  <span class="comment">// mathfu types. See [Using Your Own Math Types][].</span></div>
-<div class="line">  <a class="code" href="classmotive_1_1_motivator1f.html">motive::Motivator1f</a> facing_angle;</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// Initialize facing_angle Motivator to animate as a &#39;Smooth&#39; Motivator.</span></div>
-<div class="line">  <span class="comment">// Alternatively, we could initialize as an &#39;Overshoot&#39; Motivator. All</span></div>
-<div class="line">  <span class="comment">// Motivator types have the same interface. Internally, they are animated</span></div>
-<div class="line">  <span class="comment">// with different algorithms, and they will move differently towards their</span></div>
-<div class="line">  <span class="comment">// targets. However, to switch between Motivator types it is a simple matter</span></div>
-<div class="line">  <span class="comment">// of initializing with a different kind of MotiveInit struct.</span></div>
-<div class="line">  <span class="comment">//</span></div>
-<div class="line">  <span class="comment">// Angles wrap around with modular arithmetic. That is, -pi is equivalent to</span></div>
-<div class="line">  <span class="comment">// pi. Valid range for angles is -pi..pi, inclusive of +pi and exclusive of</span></div>
-<div class="line">  <span class="comment">// -pi.</span></div>
-<div class="line">  <span class="keyword">const</span> <a class="code" href="classmotive_1_1_smooth_init.html">motive::SmoothInit</a> init(Range(-kPi, kPi), <span class="keyword">true</span>);</div>
-<div class="line">  facing_angle.Initialize(init, &amp;engine);</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// Set initial state of the Motivator, and the target parameters.</span></div>
-<div class="line">  <span class="comment">// &#39;Smooth&#39; Motivators animate to a target-value in a target-time. Not all</span></div>
-<div class="line">  <span class="comment">// types of Motivators use all target data.</span></div>
-<div class="line">  <span class="keyword">const</span> Angle start = Angle::FromDegrees(120.0f);</div>
-<div class="line">  <span class="keyword">const</span> <span class="keywordtype">float</span> start_angular_velocity = 0.0f;</div>
-<div class="line">  <span class="keyword">const</span> Angle target = Angle::FromDegrees(-120.0f);</div>
-<div class="line">  <span class="keyword">const</span> <span class="keywordtype">float</span> target_angular_velocity = 0.0f;</div>
-<div class="line">  <span class="keyword">const</span> motive::MotiveTime target_time = 100;</div>
-<div class="line">  <span class="keyword">const</span> motive::MotiveTime delta_time = 1;</div>
-<div class="line">  facing_angle.SetTarget(</div>
-<div class="line">      motive::CurrentToTarget1f(start.ToRadians(), start_angular_velocity,</div>
-<div class="line">                                target.ToRadians(), target_angular_velocity,</div>
-<div class="line">                                target_time));</div>
-<div class="line"></div>
-<div class="line">  std::vector&lt;vec2&gt; points(target_time / delta_time + 1);</div>
-<div class="line">  <span class="keywordflow">for</span> (motive::MotiveTime t = 0; t &lt;= target_time; t += delta_time) {</div>
-<div class="line">    <span class="comment">// That is, all Motivators created with &#39;engine&#39; are animated here.</span></div>
-<div class="line">    engine.AdvanceFrame(delta_time);</div>
-<div class="line"></div>
-<div class="line">    <span class="comment">// The current value of the variable being animated is always available.</span></div>
-<div class="line">    <span class="comment">// Additionally, we can also access facing_angle.Velocity() for the angular</span></div>
-<div class="line">    <span class="comment">// velocity.</span></div>
-<div class="line">    <span class="keyword">const</span> Angle facing_angle_at_time_t(facing_angle.Value());</div>
-<div class="line">    points.push_back(</div>
-<div class="line">        vec2(static_cast&lt;float&gt;(t), facing_angle_at_time_t.ToDegrees()));</div>
-<div class="line">  }</div>
-<div class="line"></div>
-<div class="line">  printf(<span class="stringliteral">&quot;\n%s&quot;</span>, Graph2DPoints(&amp;points[0], points.size()).c_str());</div>
-<div class="line">  <span class="keywordflow">return</span> 0;</div>
-<div class="line">}</div>
-<div class="line"></div>
-</div><!-- fragment --><p> This program generates the output below. Notice that the face angle is animated smoothly from 120 degrees to -120 degrees.</p>
+<div class="fragment"></div><!-- fragment --><p> This program generates the output below. Notice that the face angle is animated smoothly from 120 degrees to -120 degrees.</p>
 <p>Notice also that we take the shortest path by passing through 180 degrees, instead of 0. We get this behavior by setting <code>modular_arithmetic</code> to <code>true</code> in <code>SmoothInit</code>. </p>
 <pre class="fragment">y = 178.020294
 |
@@ -217,7 +143,7 @@ Example Usage</h1>
 |                                             *****
 |                                          ***
 y = -179.489014
-</pre><p>If you'd like to experiment with this program, it is compiled for you in <code>docs/samples/smooth1f.cpp</code>. </p>
+</pre><p>If you'd like to experiment with this program, it is compiled for you in <code>src/samples/smooth1f.cpp</code>. </p>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->

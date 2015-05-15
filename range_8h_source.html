@@ -98,7 +98,7 @@ $(document).ready(function(){initNavTree('range_8h_source.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -145,341 +145,379 @@ $(document).ready(function(){initNavTree('range_8h_source.html','');});
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  kDirectionDirect,</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;};</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">/// Represent an interval on a number line.</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment"></span><span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt;</div>
-<div class="line"><a name="l00036"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html">   36</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfpl_1_1_range_t.html">RangeT</a> {</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;  <span class="keyword">template</span> &lt;<span class="keywordtype">size_t</span> kMaxLen&gt;</div>
-<div class="line"><a name="l00039"></a><span class="lineno"><a class="line" href="structfpl_1_1_range_t_1_1_t_array.html">   39</a></span>&#160;  <span class="keyword">struct </span><a class="code" href="structfpl_1_1_range_t_1_1_t_array.html">TArray</a> {</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keywordtype">size_t</span> len;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    T arr[kMaxLen];</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  };</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  <span class="keyword">template</span> &lt;<span class="keywordtype">size_t</span> kMaxLen&gt;</div>
-<div class="line"><a name="l00045"></a><span class="lineno"><a class="line" href="structfpl_1_1_range_t_1_1_range_array.html">   45</a></span>&#160;  <span class="keyword">struct </span><a class="code" href="structfpl_1_1_range_t_1_1_range_array.html">RangeArray</a> {</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordtype">size_t</span> len;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <a class="code" href="classfpl_1_1_range_t.html">RangeT&lt;T&gt;</a> arr[kMaxLen];</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  };</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  <span class="comment">// By default, initialize to an invalid range.</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>() : start_(static_cast&lt;T&gt;(1)), end_(static_cast&lt;T&gt;(0)) {}</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>(<span class="keyword">const</span> T start, <span class="keyword">const</span> T end) : start_(start), end_(end) {}</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  <span class="comment">// A range is valid if it contains at least one number.</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  <span class="keywordtype">bool</span> Valid()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> start_ &lt;= end_; }</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  <span class="comment">// Returns the mid-point of the range, rounded down for integers.</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="comment">// Behavior is undefined for invalid regions.</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  T Middle()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> (start_ + end_) / <span class="keyword">static_cast&lt;</span>T<span class="keyword">&gt;</span>(2); }</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  <span class="comment">// Returns the span of the range. Returns 0 when only one number in range.</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <span class="comment">// Behavior is undefined for invalid regions.</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  T Length()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> end_ - start_; }</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <span class="comment">// Returns &#39;x&#39; if it is within the range. Otherwise, returns start_ or end_,</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="comment">// whichever is closer to &#39;x&#39;.</span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  <span class="comment">// Behavior is undefined for invalid regions.</span></div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  T Clamp(<span class="keyword">const</span> T x)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> mathfu::Clamp(x, start_, end_); }</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  <span class="comment">// Clamp &#39;x&#39; so it is inside one of the bounds. Can save cycles if you</span></div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  <span class="comment">// already know that &#39;x&#39; is inside the other bound.</span></div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  T ClampAfterStart(<span class="keyword">const</span> T x)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> std::max(x, start_); }</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  T ClampBeforeEnd(<span class="keyword">const</span> T x)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> std::min(x, end_); }</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  <span class="comment">// Returns distances outside of the range. If inside the range, returns 0.</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  <span class="comment">// Behavior is undefined for invalid regions.</span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  T DistanceFrom(<span class="keyword">const</span> T x)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> fabs(x - Clamp(x)); }</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  <span class="comment">// Lerps between the start and the end.</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <span class="comment">// &#39;percent&#39; of 0 returns start. &#39;percent&#39; of 1 returns end.</span></div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  <span class="comment">// Behavior is undefined for invalid regions.</span></div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  T Lerp(<span class="keyword">const</span> <span class="keywordtype">float</span> percent)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordflow">return</span> mathfu::Lerp(start_, end_, percent);</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;  }</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  <span class="comment">// Returns percent 0~1, from start to end. *Not* clamped to 0~1.</span></div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  <span class="comment">// 0 ==&gt; start;  1 ==&gt; end;  0.5 ==&gt; Middle();  -1 ==&gt; start - Length()</span></div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;  <span class="keywordtype">float</span> Percent(<span class="keyword">const</span> T x)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> (x - start_) / Length(); }</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  <span class="comment">// Returns percent 0~1, from start to end. Clamped to 0~1.</span></div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  <span class="comment">// 0 ==&gt; start or earlier;  1 ==&gt; end or later;  0.5 ==&gt; Middle()</span></div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  T PercentClamped(<span class="keyword">const</span> T x)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordflow">return</span> mathfu::Clamp(Percent(x), 0.0f, 1.0f);</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  }</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  <span class="comment">// Ensure &#39;x&#39; is within the valid constraint range.</span></div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  <span class="comment">// &#39;x&#39; must be within +-Length() of the range bounds. This is a reasonable</span></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  <span class="comment">// restriction in most cases (such as after an arithmetic operation).</span></div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  <span class="comment">// For cases where &#39;x&#39; may be wildly outside the range, use</span></div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  <span class="comment">// NormalizeWildValue() instead.</span></div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  T Normalize(T x)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> x + ModularAdjustment(x); }</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  T NormalizeWildValue(T x)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    <span class="comment">// Use (expensive) division to determine how many lengths we are away from</span></div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="comment">// the normalized range.</span></div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <span class="keyword">const</span> T length = Length();</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    <span class="keyword">const</span> T units = (x - start_) / length;</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    <span class="keyword">const</span> T whole_units = floor(units);</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    <span class="comment">// Subtract off those units to get something that (mathematically) should</span></div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="comment">// be normalized. Due to Ting point error, it sometimes is slightly</span></div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="comment">// outside the bounds, so we need to do a standard normalization afterwards.</span></div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <span class="keyword">const</span> T close = x - whole_units * length;</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keyword">const</span> T normalized = close + ModularAdjustment(close);</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keywordflow">return</span> normalized;</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  }</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">/// @class RangeT</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">/// @brief Represent an interval on a number line.</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment"></span><span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt;</div>
+<div class="line"><a name="l00037"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html">   37</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfpl_1_1_range_t.html">RangeT</a> {</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  <span class="keyword">template</span> &lt;<span class="keywordtype">size_t</span> kMaxLen&gt;</div>
+<div class="line"><a name="l00040"></a><span class="lineno"><a class="line" href="structfpl_1_1_range_t_1_1_t_array.html">   40</a></span>&#160;  <span class="keyword">struct </span><a class="code" href="structfpl_1_1_range_t_1_1_t_array.html">TArray</a> {</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordtype">size_t</span> len;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    T arr[kMaxLen];</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  };</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <span class="keyword">template</span> &lt;<span class="keywordtype">size_t</span> kMaxLen&gt;</div>
+<div class="line"><a name="l00046"></a><span class="lineno"><a class="line" href="structfpl_1_1_range_t_1_1_range_array.html">   46</a></span>&#160;  <span class="keyword">struct </span><a class="code" href="structfpl_1_1_range_t_1_1_range_array.html">RangeArray</a> {</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keywordtype">size_t</span> len;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <a class="code" href="classfpl_1_1_range_t.html">RangeT&lt;T&gt;</a> arr[kMaxLen];</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  };</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  <span class="comment">// By default, initialize to an invalid range.</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>() : start_(static_cast&lt;T&gt;(1)), end_(static_cast&lt;T&gt;(0)) {}</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>(<span class="keyword">const</span> T <a class="code" href="classfpl_1_1_range_t.html#a371c069c19788cbf6eb1c67b09a01897">start</a>, <span class="keyword">const</span> T end) : start_(start), end_(end) {}</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">  /// A range is valid if it contains at least one number.</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#aab0e742ec80a1831fef6aa9dd7529ee9">   56</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classfpl_1_1_range_t.html#aab0e742ec80a1831fef6aa9dd7529ee9">Valid</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> start_ &lt;= end_; }</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">  /// Returns the mid-point of the range, rounded down for integers.</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment">  /// Behavior is undefined for invalid regions.</span></div>
+<div class="line"><a name="l00060"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#aa7c38bff2e1d7ef30c2674bf78ed3b47">   60</a></span>&#160;<span class="comment"></span>  T <a class="code" href="classfpl_1_1_range_t.html#aa7c38bff2e1d7ef30c2674bf78ed3b47">Middle</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> (start_ + end_) / <span class="keyword">static_cast&lt;</span>T<span class="keyword">&gt;</span>(2); }</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment">  /// Returns the span of the range. Returns 0 when only one number in range.</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="comment">  /// Behavior is undefined for invalid regions.</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#aa8ae45a82c188b920c24b96f06f62354">   64</a></span>&#160;<span class="comment"></span>  T <a class="code" href="classfpl_1_1_range_t.html#aa8ae45a82c188b920c24b96f06f62354">Length</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> end_ - start_; }</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="comment">  /// Returns `x` if it is within the range. Otherwise, returns start_ or end_,</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="comment">  /// whichever is closer to `x`.</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment">  /// Behavior is undefined for invalid regions.</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#a0cba8bf3b6ce55c54b88c3e2edbaf4ca">   69</a></span>&#160;<span class="comment"></span>  T <a class="code" href="classfpl_1_1_range_t.html#a0cba8bf3b6ce55c54b88c3e2edbaf4ca">Clamp</a>(<span class="keyword">const</span> T x)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> mathfu::Clamp(x, start_, end_); }</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="comment">  /// Clamp `x` so it is inside the start bound. Can save cycles if you</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment">  /// already know that `x` is inside the end bound.</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#ab33ab50dcdce98ae0ad10956eb1eaf1d">   73</a></span>&#160;<span class="comment"></span>  T <a class="code" href="classfpl_1_1_range_t.html#ab33ab50dcdce98ae0ad10956eb1eaf1d">ClampAfterStart</a>(<span class="keyword">const</span> T x)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> std::max(x, start_); }</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="comment">  /// Clamp `x` so it is inside the end bound. Can save cycles if you</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="comment">  /// already know that `x` is inside the start bound.</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#abe970dd059f0bbfd8ee9688a4aeb3f8a">   77</a></span>&#160;<span class="comment"></span>  T <a class="code" href="classfpl_1_1_range_t.html#abe970dd059f0bbfd8ee9688a4aeb3f8a">ClampBeforeEnd</a>(<span class="keyword">const</span> T x)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> std::min(x, end_); }</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment">  /// Returns distance outside of the range. If inside the range, returns 0.</span></div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment">  /// Behavior is undefined for invalid regions.</span></div>
+<div class="line"><a name="l00081"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#a5b74519b2921ab408c7c02564e2a6433">   81</a></span>&#160;<span class="comment"></span>  T <a class="code" href="classfpl_1_1_range_t.html#a5b74519b2921ab408c7c02564e2a6433">DistanceFrom</a>(<span class="keyword">const</span> T x)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> fabs(x - <a class="code" href="classfpl_1_1_range_t.html#a0cba8bf3b6ce55c54b88c3e2edbaf4ca">Clamp</a>(x)); }</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="comment">  /// Lerps between the start and the end.</span></div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="comment">  /// &#39;percent&#39; of 0 returns start. &#39;percent&#39; of 1 returns end.</span></div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="comment">  /// Behavior is undefined for invalid regions.</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#a511414b8c3bda04f34a3aeba88ab6c26">   86</a></span>&#160;<span class="comment"></span>  T <a class="code" href="classfpl_1_1_range_t.html#a511414b8c3bda04f34a3aeba88ab6c26">Lerp</a>(<span class="keyword">const</span> <span class="keywordtype">float</span> percent)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    <span class="keywordflow">return</span> mathfu::Lerp(start_, end_, percent);</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;  }</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="comment">  /// Returns percent 0~1, from start to end. *Not* clamped to 0~1.</span></div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="comment">  /// 0 ==&gt; start;  1 ==&gt; end;  0.5 ==&gt; Middle();  -1 ==&gt; start - Length()</span></div>
+<div class="line"><a name="l00092"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#ab72282135ce2c5357d91c0e7fceb05db">   92</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">float</span> <a class="code" href="classfpl_1_1_range_t.html#ab72282135ce2c5357d91c0e7fceb05db">Percent</a>(<span class="keyword">const</span> T x)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> (x - start_) / <a class="code" href="classfpl_1_1_range_t.html#aa8ae45a82c188b920c24b96f06f62354">Length</a>(); }</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="comment">  /// Returns percent 0~1, from start to end. Clamped to 0~1.</span></div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="comment">  /// 0 ==&gt; start or earlier;  1 ==&gt; end or later;  0.5 ==&gt; Middle()</span></div>
+<div class="line"><a name="l00096"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#a26db0a24db36cdf83fa7c5e93ea12b81">   96</a></span>&#160;<span class="comment"></span>  T <a class="code" href="classfpl_1_1_range_t.html#a26db0a24db36cdf83fa7c5e93ea12b81">PercentClamped</a>(<span class="keyword">const</span> T x)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keywordflow">return</span> mathfu::Clamp(<a class="code" href="classfpl_1_1_range_t.html#ab72282135ce2c5357d91c0e7fceb05db">Percent</a>(x), 0.0f, 1.0f);</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  }</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="comment">  /// Ensure `x` is within the valid constraint range, by subtracting or</span></div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="comment">  /// adding Length() to it.</span></div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="comment">  /// `x` must be within +-Length() of the range bounds. This is a reasonable</span></div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="comment">  /// restriction in most cases (such as after an arithmetic operation).</span></div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="comment">  /// For cases where `x` may be wildly outside the range, use</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="comment">  /// NormalizeWildValue() instead.</span></div>
+<div class="line"><a name="l00106"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#aa070d4d86edf9bdcf6caf80b5b2c7061">  106</a></span>&#160;<span class="comment"></span>  T <a class="code" href="classfpl_1_1_range_t.html#aa070d4d86edf9bdcf6caf80b5b2c7061">Normalize</a>(T x)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> x + <a class="code" href="classfpl_1_1_range_t.html#af8c6fb86ad4e573f84e18425df86c410">ModularAdjustment</a>(x); }</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="comment">  /// Ensure `x` is within the valid constraint range, by subtracting multiples</span></div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="comment">  /// of Length() from it until it is.</span></div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="comment">  /// `x` can be any value.</span></div>
+<div class="line"><a name="l00111"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#a9f32a6399a268159367e09c7f4a0c6f9">  111</a></span>&#160;<span class="comment"></span>  T <a class="code" href="classfpl_1_1_range_t.html#a9f32a6399a268159367e09c7f4a0c6f9">NormalizeWildValue</a>(T x)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="comment">// Use (expensive) division to determine how many lengths we are away from</span></div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <span class="comment">// the normalized range.</span></div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keyword">const</span> T length = <a class="code" href="classfpl_1_1_range_t.html#aa8ae45a82c188b920c24b96f06f62354">Length</a>();</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keyword">const</span> T units = (x - start_) / length;</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;    <span class="keyword">const</span> T whole_units = floor(units);</div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;  <span class="comment">// Returns:</span></div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;  <span class="comment">//   Length() if &#39;x&#39; is below the valid range</span></div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;  <span class="comment">//   -Length() if &#39;x&#39; is above the valid range</span></div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;  <span class="comment">//   0 if &#39;x&#39; is within the valid range.</span></div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;  T ModularAdjustment(T x)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    <span class="keyword">const</span> T length = Length();</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    <span class="keyword">const</span> T adjustment = x &lt;= start_ ? length : x &gt; end_ ? -length : 0.0f;</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    assert(start_ &lt; x + adjustment &amp;&amp; x + adjustment &lt;= end_);</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    <span class="keywordflow">return</span> adjustment;</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;  }</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;  <span class="comment">// In modular arithmetic, you can get from &#39;a&#39; to &#39;b&#39; by going directly, or</span></div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;  <span class="comment">// by wrapping around.</span></div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;  <span class="comment">// Return the closest difference from &#39;a&#39; to &#39;b&#39; under modular arithmetic.</span></div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;  <span class="keywordtype">float</span> ModDiffClose(T a, T b)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> Normalize(b - a); }</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;  <span class="comment">// Return the farthest difference from &#39;a&#39; to &#39;b&#39; under modular arithmetic.</span></div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;  <span class="keywordtype">float</span> ModDiffFar(T a, T b)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">float</span> length = Length();</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">float</span> close = ModDiffClose(a, b);</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;    <span class="keywordflow">return</span> close &gt;= 0.0f ? close - length : close + length;</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;  }</div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;  <span class="comment">// Return the difference from &#39;a&#39; to &#39;b&#39; under modular arithmetic that is</span></div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;  <span class="comment">// positive.</span></div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;  <span class="keywordtype">float</span> ModDiffPositive(T a, T b)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">float</span> length = Length();</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">float</span> close = ModDiffClose(a, b);</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    <span class="keywordflow">return</span> close &gt;= 0.0f ? close : close + length;</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <span class="comment">// Subtract off those units to get something that (mathematically) should</span></div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    <span class="comment">// be normalized. Due to Ting point error, it sometimes is slightly</span></div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    <span class="comment">// outside the bounds, so we need to do a standard normalization afterwards.</span></div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    <span class="keyword">const</span> T close = x - whole_units * length;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    <span class="keyword">const</span> T normalized = close + <a class="code" href="classfpl_1_1_range_t.html#af8c6fb86ad4e573f84e18425df86c410">ModularAdjustment</a>(close);</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    <span class="keywordflow">return</span> normalized;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;  }</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;<span class="comment">  /// Returns:</span></div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="comment">  ///   Length() if `x` is below the valid range</span></div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="comment">  ///   -Length() if `x` is above the valid range</span></div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="comment">  ///   0 if `x` is within the valid range.</span></div>
+<div class="line"><a name="l00130"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#af8c6fb86ad4e573f84e18425df86c410">  130</a></span>&#160;<span class="comment"></span>  T <a class="code" href="classfpl_1_1_range_t.html#af8c6fb86ad4e573f84e18425df86c410">ModularAdjustment</a>(T x)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <span class="keyword">const</span> T length = <a class="code" href="classfpl_1_1_range_t.html#aa8ae45a82c188b920c24b96f06f62354">Length</a>();</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <span class="keyword">const</span> T adjustment = x &lt;= start_ ? length : x &gt; end_ ? -length : 0.0f;</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    assert(start_ &lt; x + adjustment &amp;&amp; x + adjustment &lt;= end_);</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    <span class="keywordflow">return</span> adjustment;</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;  }</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;<span class="comment">  /// In modular arithmetic, you can get from &#39;a&#39; to &#39;b&#39; by going directly, or</span></div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;<span class="comment">  /// by wrapping around.</span></div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;<span class="comment">  /// Return the closest difference from &#39;a&#39; to &#39;b&#39; under modular arithmetic.</span></div>
+<div class="line"><a name="l00140"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#a1d63d8a275c461b4e4e1e75ec6ac7475">  140</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">float</span> <a class="code" href="classfpl_1_1_range_t.html#a1d63d8a275c461b4e4e1e75ec6ac7475">ModDiffClose</a>(T a, T b)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <a class="code" href="classfpl_1_1_range_t.html#aa070d4d86edf9bdcf6caf80b5b2c7061">Normalize</a>(b - a); }</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;<span class="comment">  /// Return the farthest difference from &#39;a&#39; to &#39;b&#39; under modular arithmetic.</span></div>
+<div class="line"><a name="l00143"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#a29b3231203f7b440bf7e34fdd52c1c88">  143</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">float</span> <a class="code" href="classfpl_1_1_range_t.html#a29b3231203f7b440bf7e34fdd52c1c88">ModDiffFar</a>(T a, T b)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">float</span> length = <a class="code" href="classfpl_1_1_range_t.html#aa8ae45a82c188b920c24b96f06f62354">Length</a>();</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">float</span> close = <a class="code" href="classfpl_1_1_range_t.html#a1d63d8a275c461b4e4e1e75ec6ac7475">ModDiffClose</a>(a, b);</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    <span class="keywordflow">return</span> close &gt;= 0.0f ? close - length : close + length;</div>
 <div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;  }</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;  <span class="comment">// Return the difference from &#39;a&#39; to &#39;b&#39; under modular arithmetic that is</span></div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;  <span class="comment">// negative.</span></div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;  <span class="keywordtype">float</span> ModDiffNegative(T a, T b)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">float</span> length = Length();</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">float</span> close = ModDiffClose(a, b);</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <span class="keywordflow">return</span> close &gt;= 0.0f ? close - length : close;</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;<span class="comment">  /// Return the difference from &#39;a&#39; to &#39;b&#39; under modular arithmetic that is</span></div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;<span class="comment">  /// positive.</span></div>
+<div class="line"><a name="l00151"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#afaaf4200104bb4fe435904ac8af1c5c9">  151</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">float</span> <a class="code" href="classfpl_1_1_range_t.html#afaaf4200104bb4fe435904ac8af1c5c9">ModDiffPositive</a>(T a, T b)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">float</span> length = <a class="code" href="classfpl_1_1_range_t.html#aa8ae45a82c188b920c24b96f06f62354">Length</a>();</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">float</span> close = <a class="code" href="classfpl_1_1_range_t.html#a1d63d8a275c461b4e4e1e75ec6ac7475">ModDiffClose</a>(a, b);</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <span class="keywordflow">return</span> close &gt;= 0.0f ? close : close + length;</div>
 <div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;  }</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;</div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;  <span class="comment">// Return the difference from &#39;a&#39; to &#39;b&#39; that satisfies the &#39;direction&#39;</span></div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;  <span class="comment">// criteria.</span></div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;  <span class="keywordtype">float</span> ModDiff(T a, T b, ModularDirection direction)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    <span class="keywordflow">switch</span> (direction) {</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;      <span class="keywordflow">case</span> kDirectionClosest:</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;        <span class="keywordflow">return</span> ModDiffClose(a, b);</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;      <span class="keywordflow">case</span> kDirectionFarthest:</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;        <span class="keywordflow">return</span> ModDiffFar(a, b);</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;      <span class="keywordflow">case</span> kDirectionPositive:</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;        <span class="keywordflow">return</span> ModDiffPositive(a, b);</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;      <span class="keywordflow">case</span> kDirectionNegative:</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;        <span class="keywordflow">return</span> ModDiffNegative(a, b);</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;      <span class="keywordflow">case</span> kDirectionDirect:</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;        <span class="keywordflow">return</span> b - a;</div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    }</div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    assert(<span class="keyword">false</span>);</div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    <span class="keywordflow">return</span> 0.0f;</div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;  }</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;</div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;  <span class="keywordtype">bool</span> Contains(<span class="keyword">const</span> T x)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> start_ &lt;= x &amp;&amp; x &lt;= end_; }</div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;  <span class="comment">// Swap start and end. When &#39;a&#39; and &#39;b&#39; don&#39;t overlap, if you invert the</span></div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;  <span class="comment">// return value of Range::Intersect(a, b), you&#39;ll get the gap between</span></div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;  <span class="comment">// &#39;a&#39; and &#39;b&#39;.</span></div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;  RangeT Invert()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> RangeT(end_, start_); }</div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;  <span class="comment">// Returns a range that is &#39;percent&#39; longer. If &#39;percent&#39; is &lt; 1.0, then</span></div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;  <span class="comment">// returned range will actually be shorter.</span></div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;  RangeT Lengthen(<span class="keyword">const</span> <span class="keywordtype">float</span> percent)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    <span class="keyword">const</span> T extra = <span class="keyword">static_cast&lt;</span>T<span class="keyword">&gt;</span>(Length() * percent * 0.5f);</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    <span class="keywordflow">return</span> RangeT(start_ - extra, end_ + extra);</div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;  }</div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;</div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;  <span class="comment">// Equality is strict. No epsilon checking here.</span></div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;  <span class="keywordtype">bool</span> operator==(<span class="keyword">const</span> RangeT&amp; rhs)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    <span class="keywordflow">return</span> start_ == rhs.start_ &amp;&amp; end_ == rhs.end_;</div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;  }</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;  <span class="keywordtype">bool</span> operator!=(<span class="keyword">const</span> RangeT&amp; rhs)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> !operator==(rhs); }</div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;</div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;  <span class="comment">// Scale by multiplying by a scalar.</span></div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;  RangeT operator*(<span class="keyword">const</span> <span class="keywordtype">float</span> s)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> RangeT(s * start_, s * end_); }</div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;  <span class="comment">// Accessors.</span></div>
-<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;  T start()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> start_; }</div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;  T end()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> end_; }</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;  <span class="keywordtype">void</span> set_start(<span class="keyword">const</span> T start) { start_ = start; }</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;  <span class="keywordtype">void</span> set_end(<span class="keyword">const</span> T end) { end_ = end; }</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;</div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;  <span class="comment">// Return the overlap of &#39;a&#39; and &#39;b&#39;, or an invalid range if they do not</span></div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;  <span class="comment">// overlap at all.</span></div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;  <span class="comment">// When &#39;a&#39; and &#39;b&#39; don&#39;t overlap at all, calling Invert on the returned</span></div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;  <span class="comment">// range will give the gap between &#39;a&#39; and &#39;b&#39;.</span></div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;  <span class="keyword">static</span> RangeT Intersect(<span class="keyword">const</span> RangeT&amp; a, <span class="keyword">const</span> RangeT&amp; b) {</div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;    <span class="comment">// Possible cases:</span></div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;    <span class="comment">// 1.  |-a---|    |-b---|  ==&gt;  return invalid</span></div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    <span class="comment">// 2.  |-b---|    |-a---|  ==&gt;  return invalid</span></div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;    <span class="comment">// 3.  |-a---------|       ==&gt;  return b</span></div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;    <span class="comment">//        |-b---|</span></div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    <span class="comment">// 4.  |-b---------|       ==&gt;  return a</span></div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    <span class="comment">//        |-a---|</span></div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    <span class="comment">// 5.  |-a---|             ==&gt;  return (b.start, a.end)</span></div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <span class="comment">//        |-b---|</span></div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    <span class="comment">// 6.  |-b---|             ==&gt;  return (a.start, b.end)</span></div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <span class="comment">//        |-a---|</span></div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <span class="comment">//</span></div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    <span class="comment">// All satisfied by,</span></div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    <span class="comment">//   intersection.start = max(a.start, b.start)</span></div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;    <span class="comment">//   intersection.end = min(a.end, b.end)</span></div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    <span class="comment">// Note that ranges where start &gt; end are considered invalid.</span></div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;    <span class="keywordflow">return</span> RangeT(std::max(a.start_, b.start_), std::min(a.end_, b.end_));</div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;  }</div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;</div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;  <span class="comment">// Only keep entries in &#39;values&#39; if they are in</span></div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;  <span class="comment">// (range.start - epsition, range.end + epsilon).</span></div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;  <span class="comment">// Any values that are kept are clamped to &#39;range&#39;.</span></div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;  <span class="comment">//</span></div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;  <span class="comment">// This function is useful when floating point precision error might put a</span></div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;  <span class="comment">// value slightly outside &#39;range&#39; even though mathematically it should be</span></div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;  <span class="comment">// inside &#39;range&#39;. This often happens with values right on the border of the</span></div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;  <span class="comment">// valid range.</span></div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">size_t</span> ValuesInRange(<span class="keyword">const</span> RangeT&amp; range, T epsilon, <span class="keywordtype">size_t</span> num_values,</div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;                              T* values) {</div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;    <span class="keywordtype">size_t</span> num_returned = 0;</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; num_values; ++i) {</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;      <span class="keyword">const</span> T value = values[i];</div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;      <span class="keyword">const</span> T clamped = range.Clamp(value);</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;      <span class="keyword">const</span> T dist = fabs(value - clamped);</div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;</div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;      <span class="comment">// If the distance from the range is small, keep the clamped value.</span></div>
-<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;      <span class="keywordflow">if</span> (dist &lt;= epsilon) {</div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;        values[num_returned++] = clamped;</div>
-<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;      }</div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;    }</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;    <span class="keywordflow">return</span> num_returned;</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;  }</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;<span class="comment">  /// Return the difference from &#39;a&#39; to &#39;b&#39; under modular arithmetic that is</span></div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;<span class="comment">  /// negative.</span></div>
+<div class="line"><a name="l00159"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#ab1225e54f8b6039c08ff123b7f1025d2">  159</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">float</span> <a class="code" href="classfpl_1_1_range_t.html#ab1225e54f8b6039c08ff123b7f1025d2">ModDiffNegative</a>(T a, T b)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">float</span> length = <a class="code" href="classfpl_1_1_range_t.html#aa8ae45a82c188b920c24b96f06f62354">Length</a>();</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">float</span> close = <a class="code" href="classfpl_1_1_range_t.html#a1d63d8a275c461b4e4e1e75ec6ac7475">ModDiffClose</a>(a, b);</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keywordflow">return</span> close &gt;= 0.0f ? close - length : close;</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;  }</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;<span class="comment">  /// Return the difference from &#39;a&#39; to &#39;b&#39; that satisfies the &#39;direction&#39;</span></div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;<span class="comment">  /// criteria.</span></div>
+<div class="line"><a name="l00167"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#a52b397b70a840ef8c2cbb54207e6c0b3">  167</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">float</span> <a class="code" href="classfpl_1_1_range_t.html#a52b397b70a840ef8c2cbb54207e6c0b3">ModDiff</a>(T a, T b, ModularDirection direction)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <span class="keywordflow">switch</span> (direction) {</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;      <span class="keywordflow">case</span> kDirectionClosest:</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;        <span class="keywordflow">return</span> <a class="code" href="classfpl_1_1_range_t.html#a1d63d8a275c461b4e4e1e75ec6ac7475">ModDiffClose</a>(a, b);</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;      <span class="keywordflow">case</span> kDirectionFarthest:</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;        <span class="keywordflow">return</span> <a class="code" href="classfpl_1_1_range_t.html#a29b3231203f7b440bf7e34fdd52c1c88">ModDiffFar</a>(a, b);</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;      <span class="keywordflow">case</span> kDirectionPositive:</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;        <span class="keywordflow">return</span> <a class="code" href="classfpl_1_1_range_t.html#afaaf4200104bb4fe435904ac8af1c5c9">ModDiffPositive</a>(a, b);</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;      <span class="keywordflow">case</span> kDirectionNegative:</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;        <span class="keywordflow">return</span> <a class="code" href="classfpl_1_1_range_t.html#ab1225e54f8b6039c08ff123b7f1025d2">ModDiffNegative</a>(a, b);</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;      <span class="keywordflow">case</span> kDirectionDirect:</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;        <span class="keywordflow">return</span> b - a;</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    }</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    assert(<span class="keyword">false</span>);</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    <span class="keywordflow">return</span> 0.0f;</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;  }</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;  <span class="keywordtype">bool</span> Contains(<span class="keyword">const</span> T x)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> start_ &lt;= x &amp;&amp; x &lt;= end_; }</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="comment">  /// Swap start and end. When &#39;a&#39; and &#39;b&#39; don&#39;t overlap, if you invert the</span></div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;<span class="comment">  /// return value of Range::Intersect(a, b), you&#39;ll get the gap between</span></div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;<span class="comment">  /// &#39;a&#39; and &#39;b&#39;.</span></div>
+<div class="line"><a name="l00189"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#a713b880033161403da46985d79f29099">  189</a></span>&#160;<span class="comment"></span>  <a class="code" href="classfpl_1_1_range_t.html">RangeT</a> <a class="code" href="classfpl_1_1_range_t.html#a713b880033161403da46985d79f29099">Invert</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>(end_, start_); }</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="comment">  /// Returns a range that is &#39;percent&#39; longer. If &#39;percent&#39; is &lt; 1.0, then</span></div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;<span class="comment">  /// returned range will actually be shorter.</span></div>
+<div class="line"><a name="l00193"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#a8337a83f15d6a9ed13d17e9697153652">  193</a></span>&#160;<span class="comment"></span>  <a class="code" href="classfpl_1_1_range_t.html">RangeT</a> <a class="code" href="classfpl_1_1_range_t.html#a8337a83f15d6a9ed13d17e9697153652">Lengthen</a>(<span class="keyword">const</span> <span class="keywordtype">float</span> percent)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    <span class="keyword">const</span> T extra = <span class="keyword">static_cast&lt;</span>T<span class="keyword">&gt;</span>(<a class="code" href="classfpl_1_1_range_t.html#aa8ae45a82c188b920c24b96f06f62354">Length</a>() * percent * 0.5f);</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>(start_ - extra, end_ + extra);</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;  }</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;<span class="comment">  /// Equality is strict. No epsilon checking here.</span></div>
+<div class="line"><a name="l00199"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#a4074e43599d136bfecd11a8d03021d0a">  199</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classfpl_1_1_range_t.html#a4074e43599d136bfecd11a8d03021d0a">operator==</a>(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>&amp; rhs)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;    <span class="keywordflow">return</span> start_ == rhs.start_ &amp;&amp; end_ == rhs.end_;</div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;  }</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;  <span class="keywordtype">bool</span> operator!=(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>&amp; rhs)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> !<a class="code" href="classfpl_1_1_range_t.html#a4074e43599d136bfecd11a8d03021d0a">operator==</a>(rhs); }</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;<span class="comment">  /// Scale by multiplying by a scalar.</span></div>
+<div class="line"><a name="l00205"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#a842da86571b2ffd6caec7e54063c4cd8">  205</a></span>&#160;<span class="comment"></span>  <a class="code" href="classfpl_1_1_range_t.html">RangeT</a> <a class="code" href="classfpl_1_1_range_t.html#a842da86571b2ffd6caec7e54063c4cd8">operator*</a>(<span class="keyword">const</span> <span class="keywordtype">float</span> s)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>(s * start_, s * end_); }</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;<span class="comment">  /// Accessors.</span></div>
+<div class="line"><a name="l00208"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#a371c069c19788cbf6eb1c67b09a01897">  208</a></span>&#160;<span class="comment"></span>  T <a class="code" href="classfpl_1_1_range_t.html#a371c069c19788cbf6eb1c67b09a01897">start</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> start_; }</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;  T end()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> end_; }</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;  <span class="keywordtype">void</span> set_start(<span class="keyword">const</span> T <a class="code" href="classfpl_1_1_range_t.html#a371c069c19788cbf6eb1c67b09a01897">start</a>) { start_ = <a class="code" href="classfpl_1_1_range_t.html#a371c069c19788cbf6eb1c67b09a01897">start</a>; }</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;  <span class="keywordtype">void</span> set_end(<span class="keyword">const</span> T end) { end_ = end; }</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;<span class="comment">  /// Return the overlap of &#39;a&#39; and &#39;b&#39;, or an invalid range if they do not</span></div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;<span class="comment">  /// overlap at all.</span></div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;<span class="comment">  /// When &#39;a&#39; and &#39;b&#39; don&#39;t overlap at all, calling Invert on the returned</span></div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;<span class="comment">  /// range will give the gap between &#39;a&#39; and &#39;b&#39;.</span></div>
+<div class="line"><a name="l00217"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#a5a7eccc7d4bec9b67cf53f56b0fd0f56">  217</a></span>&#160;<span class="comment"></span>  <span class="keyword">static</span> <a class="code" href="classfpl_1_1_range_t.html">RangeT</a> <a class="code" href="classfpl_1_1_range_t.html#a5a7eccc7d4bec9b67cf53f56b0fd0f56">Intersect</a>(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>&amp; a, <span class="keyword">const</span> <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>&amp; b) {</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <span class="comment">// Possible cases:</span></div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    <span class="comment">// 1.  |-a---|    |-b---|  ==&gt;  return invalid</span></div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <span class="comment">// 2.  |-b---|    |-a---|  ==&gt;  return invalid</span></div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <span class="comment">// 3.  |-a---------|       ==&gt;  return b</span></div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    <span class="comment">//        |-b---|</span></div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    <span class="comment">// 4.  |-b---------|       ==&gt;  return a</span></div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;    <span class="comment">//        |-a---|</span></div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    <span class="comment">// 5.  |-a---|             ==&gt;  return (b.start, a.end)</span></div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;    <span class="comment">//        |-b---|</span></div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    <span class="comment">// 6.  |-b---|             ==&gt;  return (a.start, b.end)</span></div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;    <span class="comment">//        |-a---|</span></div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    <span class="comment">//</span></div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    <span class="comment">// All satisfied by,</span></div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;    <span class="comment">//   intersection.start = max(a.start, b.start)</span></div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;    <span class="comment">//   intersection.end = min(a.end, b.end)</span></div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    <span class="comment">// Note that ranges where start &gt; end are considered invalid.</span></div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>(std::max(a.start_, b.start_), std::min(a.end_, b.end_));</div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;  }</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;<span class="comment">  /// Only keep entries in &#39;values&#39; if they are in</span></div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;<span class="comment">  /// (range.start - epsition, range.end + epsilon).</span></div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;<span class="comment">  /// Any values that are kept are clamped to &#39;range&#39;.</span></div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;<span class="comment">  ///</span></div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;<span class="comment">  /// This function is useful when floating point precision error might put a</span></div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;<span class="comment">  /// value slightly outside &#39;range&#39; even though mathematically it should be</span></div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;<span class="comment">  /// inside &#39;range&#39;. This often happens with values right on the border of the</span></div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;<span class="comment">  /// valid range.</span></div>
+<div class="line"><a name="l00245"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#ade7255d08a3de8edb1dafb8fd9fba85f">  245</a></span>&#160;<span class="comment"></span>  <span class="keyword">static</span> <span class="keywordtype">size_t</span> <a class="code" href="classfpl_1_1_range_t.html#ade7255d08a3de8edb1dafb8fd9fba85f">ValuesInRange</a>(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>&amp; range, T epsilon, <span class="keywordtype">size_t</span> num_values,</div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;                              T* values) {</div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;    <span class="keywordtype">size_t</span> num_returned = 0;</div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; num_values; ++i) {</div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;      <span class="keyword">const</span> T value = values[i];</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;      <span class="keyword">const</span> T clamped = range.<a class="code" href="classfpl_1_1_range_t.html#a0cba8bf3b6ce55c54b88c3e2edbaf4ca">Clamp</a>(value);</div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;      <span class="keyword">const</span> T dist = fabs(value - clamped);</div>
 <div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;  <span class="keyword">template</span> &lt;<span class="keywordtype">size_t</span> kMaxLen&gt;</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> ValuesInRange(<span class="keyword">const</span> RangeT&amp; range, T epsilon,</div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;                            TArray&lt;kMaxLen&gt;* values) {</div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    values-&gt;len = ValuesInRange(range, epsilon, values-&gt;len, values-&gt;arr);</div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;  }</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;  <span class="comment">// Intersect every element of &#39;a&#39; with every element of &#39;b&#39;. Append</span></div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;  <span class="comment">// intersections to &#39;intersections&#39;. Note that &#39;intersections&#39; is not reset at</span></div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;  <span class="comment">// the start of the call.</span></div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">size_t</span> IntersectRanges(<span class="keyword">const</span> RangeT* a, <span class="keywordtype">size_t</span> len_a, <span class="keyword">const</span> RangeT* b,</div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;                                <span class="keywordtype">size_t</span> len_b, RangeT* intersections,</div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;                                RangeT* gaps = <span class="keyword">nullptr</span>,</div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;                                <span class="keywordtype">size_t</span>* len_gaps = <span class="keyword">nullptr</span>) {</div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    <span class="keywordtype">size_t</span> num_intersections = 0;</div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    <span class="keywordtype">size_t</span> num_gaps = 0;</div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; len_a; ++i) {</div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> j = 0; j &lt; len_b; ++j) {</div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;        <span class="keyword">const</span> RangeT intersection = RangeT::Intersect(a[i], b[j]);</div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;        <span class="keywordflow">if</span> (intersection.Valid()) {</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;          intersections[num_intersections++] = intersection;</div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;</div>
-<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;        } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (gaps != <span class="keyword">nullptr</span>) {</div>
-<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;          <span class="comment">// Return the gaps, too, if requested. Invert() invalid intersections</span></div>
-<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;          <span class="comment">// to get the gap between the ranges.</span></div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;          gaps[num_gaps++] = intersection.Invert();</div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;        }</div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;      }</div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    }</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;      <span class="comment">// If the distance from the range is small, keep the clamped value.</span></div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;      <span class="keywordflow">if</span> (dist &lt;= epsilon) {</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;        values[num_returned++] = clamped;</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;      }</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    }</div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    <span class="keywordflow">return</span> num_returned;</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;  }</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;  <span class="keyword">template</span> &lt;<span class="keywordtype">size_t</span> kMaxLen&gt;</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="classfpl_1_1_range_t.html#ade7255d08a3de8edb1dafb8fd9fba85f">ValuesInRange</a>(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>&amp; range, T epsilon,</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;                            TArray&lt;kMaxLen&gt;* values) {</div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    values-&gt;len = <a class="code" href="classfpl_1_1_range_t.html#ade7255d08a3de8edb1dafb8fd9fba85f">ValuesInRange</a>(range, epsilon, values-&gt;len, values-&gt;arr);</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;  }</div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;<span class="comment">  /// Intersect every element of &#39;a&#39; with every element of &#39;b&#39;. Append</span></div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;<span class="comment">  /// intersections to &#39;intersections&#39;. Note that &#39;intersections&#39; is not reset</span></div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;<span class="comment">  /// at the start of the call.</span></div>
+<div class="line"><a name="l00270"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#a8b9d577500a721eee4b30d5e5b8e83fe">  270</a></span>&#160;<span class="comment"></span>  <span class="keyword">static</span> <span class="keywordtype">size_t</span> <a class="code" href="classfpl_1_1_range_t.html#a8b9d577500a721eee4b30d5e5b8e83fe">IntersectRanges</a>(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>* a, <span class="keywordtype">size_t</span> len_a, <span class="keyword">const</span> <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>* b,</div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;                                <span class="keywordtype">size_t</span> len_b, <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>* intersections,</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;                                <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>* gaps = <span class="keyword">nullptr</span>,</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;                                <span class="keywordtype">size_t</span>* len_gaps = <span class="keyword">nullptr</span>) {</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    <span class="keywordtype">size_t</span> num_intersections = 0;</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    <span class="keywordtype">size_t</span> num_gaps = 0;</div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;</div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; len_a; ++i) {</div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;      <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> j = 0; j &lt; len_b; ++j) {</div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;        <span class="keyword">const</span> <a class="code" href="classfpl_1_1_range_t.html">RangeT</a> intersection = <a class="code" href="classfpl_1_1_range_t.html#a5a7eccc7d4bec9b67cf53f56b0fd0f56">RangeT::Intersect</a>(a[i], b[j]);</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;        <span class="keywordflow">if</span> (intersection.<a class="code" href="classfpl_1_1_range_t.html#aab0e742ec80a1831fef6aa9dd7529ee9">Valid</a>()) {</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;          intersections[num_intersections++] = intersection;</div>
 <div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;</div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    <span class="comment">// Set return values.</span></div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    <span class="keywordflow">if</span> (len_gaps != <span class="keyword">nullptr</span>) {</div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;      *len_gaps = num_gaps;</div>
-<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;    }</div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    <span class="keywordflow">return</span> num_intersections;</div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;  }</div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;  <span class="keyword">template</span> &lt;<span class="keywordtype">size_t</span> kMaxLen&gt;</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> IntersectRanges(<span class="keyword">const</span> RangeArray&lt;kMaxLen&gt;&amp; a,</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;                              <span class="keyword">const</span> RangeArray&lt;kMaxLen&gt;&amp; b,</div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;                              RangeArray&lt;kMaxLen * kMaxLen&gt;* intersections,</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;                              RangeArray&lt;kMaxLen * kMaxLen&gt;* gaps = <span class="keyword">nullptr</span>) {</div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">bool</span> use_gaps = gaps != <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;    intersections-&gt;len = IntersectRanges(</div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;        a.arr, a.len, b.arr, b.len, intersections-&gt;arr,</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;        use_gaps ? gaps-&gt;arr : <span class="keyword">nullptr</span>, use_gaps ? &amp;gaps-&gt;len : <span class="keyword">nullptr</span>);</div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;  }</div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;</div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;  <span class="comment">// Return the index of the longest range in &#39;ranges&#39;.</span></div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">size_t</span> IndexOfLongest(<span class="keyword">const</span> RangeT* ranges, <span class="keywordtype">size_t</span> len) {</div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    T longest_length = -1.0f;</div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;    <span class="keywordtype">size_t</span> longest_index = 0;</div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; len; ++i) {</div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;      <span class="keyword">const</span> T length = ranges[i].Length();</div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;      <span class="keywordflow">if</span> (length &gt; longest_length) {</div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;        longest_length = length;</div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;        longest_index = i;</div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;      }</div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;    }</div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;    <span class="keywordflow">return</span> longest_index;</div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;  }</div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;</div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;  <span class="keyword">template</span> &lt;<span class="keywordtype">size_t</span> kMaxLen&gt;</div>
-<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">size_t</span> IndexOfLongest(<span class="keyword">const</span> RangeArray&lt;kMaxLen&gt;&amp; ranges) {</div>
-<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;    <span class="keywordflow">return</span> IndexOfLongest(ranges.arr, ranges.len);</div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;  }</div>
-<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;</div>
-<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;  <span class="comment">// Return the index of the shortest range in &#39;ranges&#39;.</span></div>
-<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">size_t</span> IndexOfShortest(<span class="keyword">const</span> RangeT* ranges, <span class="keywordtype">size_t</span> len) {</div>
-<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;    T shortest_length = std::numeric_limits&lt;T&gt;::infinity();</div>
-<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;    <span class="keywordtype">size_t</span> shortest_index = 0;</div>
-<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; len; ++i) {</div>
-<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;      <span class="keyword">const</span> T length = ranges[i].Length();</div>
-<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;      <span class="keywordflow">if</span> (length &lt; shortest_length) {</div>
-<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;        shortest_length = length;</div>
-<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;        shortest_index = i;</div>
-<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;      }</div>
-<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;    }</div>
-<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;    <span class="keywordflow">return</span> shortest_index;</div>
-<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;  }</div>
-<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;</div>
-<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;  <span class="keyword">template</span> &lt;<span class="keywordtype">size_t</span> kMaxLen&gt;</div>
-<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">size_t</span> IndexOfShortest(<span class="keyword">const</span> RangeArray&lt;kMaxLen&gt;&amp; ranges) {</div>
-<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;    <span class="keywordflow">return</span> IndexOfShortest(ranges.arr, ranges.len);</div>
-<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;  }</div>
-<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;</div>
-<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;  <span class="keyword">static</span> RangeT&lt;T&gt; Full() {</div>
-<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;    <span class="keywordflow">return</span> RangeT&lt;T&gt;(-std::numeric_limits&lt;T&gt;::infinity(),</div>
-<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;                     std::numeric_limits&lt;T&gt;::infinity());</div>
-<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;  }</div>
-<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;</div>
-<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160; <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;  T start_;  <span class="comment">// Start of the range. Range is valid if start_ &lt;= end_.</span></div>
-<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;  T end_;    <span class="comment">// End of the range. Range is inclusive of start_ and end_.</span></div>
-<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;};</div>
-<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;</div>
-<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt;</div>
-<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;RangeT&lt;T&gt; CreateValidRange(<span class="keyword">const</span> T a, <span class="keyword">const</span> T b) {</div>
-<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;  <span class="keywordflow">return</span> RangeT&lt;T&gt;(std::min&lt;T&gt;(a, b), std::max&lt;T&gt;(a, b));</div>
-<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;}</div>
-<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;</div>
-<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;<span class="comment">// Instantiate for various scalar.</span></div>
-<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;<span class="keyword">typedef</span> RangeT&lt;float&gt; RangeFloat;</div>
-<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;<span class="keyword">typedef</span> RangeT&lt;double&gt; RangeDouble;</div>
-<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;<span class="keyword">typedef</span> RangeT&lt;int&gt; RangeInt;</div>
-<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;<span class="keyword">typedef</span> RangeT&lt;unsigned int&gt; RangeUInt;</div>
-<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;</div>
-<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;<span class="comment">// Since the float specification will be most common, we give it a simple name.</span></div>
-<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;<span class="keyword">typedef</span> RangeFloat Range;</div>
-<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;</div>
-<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;}  <span class="comment">// namespace fpl</span></div>
-<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;</div>
-<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;<span class="preprocessor">#endif  // MOTIVE_MATH_RANGE_H_</span></div>
-<div class="ttc" id="structfpl_1_1_range_t_1_1_range_array_html"><div class="ttname"><a href="structfpl_1_1_range_t_1_1_range_array.html">fpl::RangeT::RangeArray</a></div><div class="ttdef"><b>Definition:</b> range.h:45</div></div>
-<div class="ttc" id="structfpl_1_1_range_t_1_1_t_array_html"><div class="ttname"><a href="structfpl_1_1_range_t_1_1_t_array.html">fpl::RangeT::TArray</a></div><div class="ttdef"><b>Definition:</b> range.h:39</div></div>
-<div class="ttc" id="classfpl_1_1_range_t_html"><div class="ttname"><a href="classfpl_1_1_range_t.html">fpl::RangeT</a></div><div class="ttdoc">Represent an interval on a number line. </div><div class="ttdef"><b>Definition:</b> range.h:36</div></div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;        } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (gaps != <span class="keyword">nullptr</span>) {</div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;          <span class="comment">// Return the gaps, too, if requested. Invert() invalid intersections</span></div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;          <span class="comment">// to get the gap between the ranges.</span></div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;          gaps[num_gaps++] = intersection.<a class="code" href="classfpl_1_1_range_t.html#a713b880033161403da46985d79f29099">Invert</a>();</div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;        }</div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;      }</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;    }</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    <span class="comment">// Set return values.</span></div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    <span class="keywordflow">if</span> (len_gaps != <span class="keyword">nullptr</span>) {</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;      *len_gaps = num_gaps;</div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    }</div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    <span class="keywordflow">return</span> num_intersections;</div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;  }</div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;</div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;  <span class="keyword">template</span> &lt;<span class="keywordtype">size_t</span> kMaxLen&gt;</div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> <a class="code" href="classfpl_1_1_range_t.html#a8b9d577500a721eee4b30d5e5b8e83fe">IntersectRanges</a>(<span class="keyword">const</span> RangeArray&lt;kMaxLen&gt;&amp; a,</div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;                              <span class="keyword">const</span> RangeArray&lt;kMaxLen&gt;&amp; b,</div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;                              RangeArray&lt;kMaxLen * kMaxLen&gt;* intersections,</div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;                              RangeArray&lt;kMaxLen * kMaxLen&gt;* gaps = <span class="keyword">nullptr</span>) {</div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;    <span class="keyword">const</span> <span class="keywordtype">bool</span> use_gaps = gaps != <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;    intersections-&gt;len = <a class="code" href="classfpl_1_1_range_t.html#a8b9d577500a721eee4b30d5e5b8e83fe">IntersectRanges</a>(</div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;        a.arr, a.len, b.arr, b.len, intersections-&gt;arr,</div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;        use_gaps ? gaps-&gt;arr : <span class="keyword">nullptr</span>, use_gaps ? &amp;gaps-&gt;len : <span class="keyword">nullptr</span>);</div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;  }</div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;<span class="comment">  /// Return the index of the longest range in `ranges`.</span></div>
+<div class="line"><a name="l00310"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#ac23520662815f3ba6c41bd5cd42aec37">  310</a></span>&#160;<span class="comment"></span>  <span class="keyword">static</span> <span class="keywordtype">size_t</span> <a class="code" href="classfpl_1_1_range_t.html#ac23520662815f3ba6c41bd5cd42aec37">IndexOfLongest</a>(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>* ranges, <span class="keywordtype">size_t</span> len) {</div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;    T longest_length = -1.0f;</div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;    <span class="keywordtype">size_t</span> longest_index = 0;</div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; len; ++i) {</div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;      <span class="keyword">const</span> T length = ranges[i].<a class="code" href="classfpl_1_1_range_t.html#aa8ae45a82c188b920c24b96f06f62354">Length</a>();</div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;      <span class="keywordflow">if</span> (length &gt; longest_length) {</div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;        longest_length = length;</div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;        longest_index = i;</div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;      }</div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;    }</div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;    <span class="keywordflow">return</span> longest_index;</div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;  }</div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;</div>
+<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;  <span class="keyword">template</span> &lt;<span class="keywordtype">size_t</span> kMaxLen&gt;</div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">size_t</span> <a class="code" href="classfpl_1_1_range_t.html#ac23520662815f3ba6c41bd5cd42aec37">IndexOfLongest</a>(<span class="keyword">const</span> RangeArray&lt;kMaxLen&gt;&amp; ranges) {</div>
+<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="classfpl_1_1_range_t.html#ac23520662815f3ba6c41bd5cd42aec37">IndexOfLongest</a>(ranges.arr, ranges.len);</div>
+<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;  }</div>
+<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;<span class="comment">  /// Return the index of the shortest range in `ranges`.</span></div>
+<div class="line"><a name="l00329"></a><span class="lineno"><a class="line" href="classfpl_1_1_range_t.html#ac34ddbf2ff2713fb147d0fd8702d5555">  329</a></span>&#160;<span class="comment"></span>  <span class="keyword">static</span> <span class="keywordtype">size_t</span> <a class="code" href="classfpl_1_1_range_t.html#ac34ddbf2ff2713fb147d0fd8702d5555">IndexOfShortest</a>(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_range_t.html">RangeT</a>* ranges, <span class="keywordtype">size_t</span> len) {</div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;    T shortest_length = std::numeric_limits&lt;T&gt;::infinity();</div>
+<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;    <span class="keywordtype">size_t</span> shortest_index = 0;</div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; len; ++i) {</div>
+<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;      <span class="keyword">const</span> T length = ranges[i].<a class="code" href="classfpl_1_1_range_t.html#aa8ae45a82c188b920c24b96f06f62354">Length</a>();</div>
+<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;      <span class="keywordflow">if</span> (length &lt; shortest_length) {</div>
+<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;        shortest_length = length;</div>
+<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;        shortest_index = i;</div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;      }</div>
+<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;    }</div>
+<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;    <span class="keywordflow">return</span> shortest_index;</div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;  }</div>
+<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;</div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;  <span class="keyword">template</span> &lt;<span class="keywordtype">size_t</span> kMaxLen&gt;</div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">size_t</span> <a class="code" href="classfpl_1_1_range_t.html#ac34ddbf2ff2713fb147d0fd8702d5555">IndexOfShortest</a>(<span class="keyword">const</span> RangeArray&lt;kMaxLen&gt;&amp; ranges) {</div>
+<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="classfpl_1_1_range_t.html#ac34ddbf2ff2713fb147d0fd8702d5555">IndexOfShortest</a>(ranges.arr, ranges.len);</div>
+<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;  }</div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;</div>
+<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;  <span class="keyword">static</span> RangeT&lt;T&gt; Full() {</div>
+<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;    <span class="keywordflow">return</span> RangeT&lt;T&gt;(-std::numeric_limits&lt;T&gt;::infinity(),</div>
+<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;                     std::numeric_limits&lt;T&gt;::infinity());</div>
+<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;  }</div>
+<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;</div>
+<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160; <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;  T start_;  <span class="comment">// Start of the range. Range is valid if start_ &lt;= end_.</span></div>
+<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;  T end_;    <span class="comment">// End of the range. Range is inclusive of start_ and end_.</span></div>
+<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;};</div>
+<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;<span class="comment">/// Given two numbers, create a range that has the lower one as min,</span></div>
+<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;<span class="comment">/// and the higher one as max.</span></div>
+<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;<span class="comment"></span><span class="keyword">template</span> &lt;<span class="keyword">class</span> T&gt;</div>
+<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;RangeT&lt;T&gt; CreateValidRange(<span class="keyword">const</span> T a, <span class="keyword">const</span> T b) {</div>
+<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;  <span class="keywordflow">return</span> RangeT&lt;T&gt;(std::min&lt;T&gt;(a, b), std::max&lt;T&gt;(a, b));</div>
+<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;}</div>
+<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;</div>
+<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;<span class="comment">// Instantiate for various scalars.</span></div>
+<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160;<span class="keyword">typedef</span> RangeT&lt;float&gt; RangeFloat;</div>
+<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;<span class="keyword">typedef</span> RangeT&lt;double&gt; RangeDouble;</div>
+<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;<span class="keyword">typedef</span> RangeT&lt;int&gt; RangeInt;</div>
+<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;<span class="keyword">typedef</span> RangeT&lt;unsigned int&gt; RangeUInt;</div>
+<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;</div>
+<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;<span class="comment">// Since the float specialization will be most common, we give it a simple name.</span></div>
+<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;<span class="keyword">typedef</span> RangeFloat Range;</div>
+<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;</div>
+<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;}  <span class="comment">// namespace fpl</span></div>
+<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;</div>
+<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;<span class="preprocessor">#endif  // MOTIVE_MATH_RANGE_H_</span></div>
+<div class="ttc" id="structfpl_1_1_range_t_1_1_range_array_html"><div class="ttname"><a href="structfpl_1_1_range_t_1_1_range_array.html">fpl::RangeT::RangeArray</a></div><div class="ttdef"><b>Definition:</b> range.h:46</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_a1d63d8a275c461b4e4e1e75ec6ac7475"><div class="ttname"><a href="classfpl_1_1_range_t.html#a1d63d8a275c461b4e4e1e75ec6ac7475">fpl::RangeT::ModDiffClose</a></div><div class="ttdeci">float ModDiffClose(T a, T b) const </div><div class="ttdef"><b>Definition:</b> range.h:140</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_a511414b8c3bda04f34a3aeba88ab6c26"><div class="ttname"><a href="classfpl_1_1_range_t.html#a511414b8c3bda04f34a3aeba88ab6c26">fpl::RangeT::Lerp</a></div><div class="ttdeci">T Lerp(const float percent) const </div><div class="ttdef"><b>Definition:</b> range.h:86</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_a5b74519b2921ab408c7c02564e2a6433"><div class="ttname"><a href="classfpl_1_1_range_t.html#a5b74519b2921ab408c7c02564e2a6433">fpl::RangeT::DistanceFrom</a></div><div class="ttdeci">T DistanceFrom(const T x) const </div><div class="ttdef"><b>Definition:</b> range.h:81</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_ac34ddbf2ff2713fb147d0fd8702d5555"><div class="ttname"><a href="classfpl_1_1_range_t.html#ac34ddbf2ff2713fb147d0fd8702d5555">fpl::RangeT::IndexOfShortest</a></div><div class="ttdeci">static size_t IndexOfShortest(const RangeT *ranges, size_t len)</div><div class="ttdoc">Return the index of the shortest range in ranges. </div><div class="ttdef"><b>Definition:</b> range.h:329</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_a842da86571b2ffd6caec7e54063c4cd8"><div class="ttname"><a href="classfpl_1_1_range_t.html#a842da86571b2ffd6caec7e54063c4cd8">fpl::RangeT::operator*</a></div><div class="ttdeci">RangeT operator*(const float s) const </div><div class="ttdoc">Scale by multiplying by a scalar. </div><div class="ttdef"><b>Definition:</b> range.h:205</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_a4074e43599d136bfecd11a8d03021d0a"><div class="ttname"><a href="classfpl_1_1_range_t.html#a4074e43599d136bfecd11a8d03021d0a">fpl::RangeT::operator==</a></div><div class="ttdeci">bool operator==(const RangeT &amp;rhs) const </div><div class="ttdoc">Equality is strict. No epsilon checking here. </div><div class="ttdef"><b>Definition:</b> range.h:199</div></div>
+<div class="ttc" id="structfpl_1_1_range_t_1_1_t_array_html"><div class="ttname"><a href="structfpl_1_1_range_t_1_1_t_array.html">fpl::RangeT::TArray</a></div><div class="ttdef"><b>Definition:</b> range.h:40</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_aa8ae45a82c188b920c24b96f06f62354"><div class="ttname"><a href="classfpl_1_1_range_t.html#aa8ae45a82c188b920c24b96f06f62354">fpl::RangeT::Length</a></div><div class="ttdeci">T Length() const </div><div class="ttdef"><b>Definition:</b> range.h:64</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_ab1225e54f8b6039c08ff123b7f1025d2"><div class="ttname"><a href="classfpl_1_1_range_t.html#ab1225e54f8b6039c08ff123b7f1025d2">fpl::RangeT::ModDiffNegative</a></div><div class="ttdeci">float ModDiffNegative(T a, T b) const </div><div class="ttdef"><b>Definition:</b> range.h:159</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_a26db0a24db36cdf83fa7c5e93ea12b81"><div class="ttname"><a href="classfpl_1_1_range_t.html#a26db0a24db36cdf83fa7c5e93ea12b81">fpl::RangeT::PercentClamped</a></div><div class="ttdeci">T PercentClamped(const T x) const </div><div class="ttdef"><b>Definition:</b> range.h:96</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_ac23520662815f3ba6c41bd5cd42aec37"><div class="ttname"><a href="classfpl_1_1_range_t.html#ac23520662815f3ba6c41bd5cd42aec37">fpl::RangeT::IndexOfLongest</a></div><div class="ttdeci">static size_t IndexOfLongest(const RangeT *ranges, size_t len)</div><div class="ttdoc">Return the index of the longest range in ranges. </div><div class="ttdef"><b>Definition:</b> range.h:310</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_ab72282135ce2c5357d91c0e7fceb05db"><div class="ttname"><a href="classfpl_1_1_range_t.html#ab72282135ce2c5357d91c0e7fceb05db">fpl::RangeT::Percent</a></div><div class="ttdeci">float Percent(const T x) const </div><div class="ttdef"><b>Definition:</b> range.h:92</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_aab0e742ec80a1831fef6aa9dd7529ee9"><div class="ttname"><a href="classfpl_1_1_range_t.html#aab0e742ec80a1831fef6aa9dd7529ee9">fpl::RangeT::Valid</a></div><div class="ttdeci">bool Valid() const </div><div class="ttdoc">A range is valid if it contains at least one number. </div><div class="ttdef"><b>Definition:</b> range.h:56</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_a5a7eccc7d4bec9b67cf53f56b0fd0f56"><div class="ttname"><a href="classfpl_1_1_range_t.html#a5a7eccc7d4bec9b67cf53f56b0fd0f56">fpl::RangeT::Intersect</a></div><div class="ttdeci">static RangeT Intersect(const RangeT &amp;a, const RangeT &amp;b)</div><div class="ttdef"><b>Definition:</b> range.h:217</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_a8337a83f15d6a9ed13d17e9697153652"><div class="ttname"><a href="classfpl_1_1_range_t.html#a8337a83f15d6a9ed13d17e9697153652">fpl::RangeT::Lengthen</a></div><div class="ttdeci">RangeT Lengthen(const float percent) const </div><div class="ttdef"><b>Definition:</b> range.h:193</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_a9f32a6399a268159367e09c7f4a0c6f9"><div class="ttname"><a href="classfpl_1_1_range_t.html#a9f32a6399a268159367e09c7f4a0c6f9">fpl::RangeT::NormalizeWildValue</a></div><div class="ttdeci">T NormalizeWildValue(T x) const </div><div class="ttdef"><b>Definition:</b> range.h:111</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_aa7c38bff2e1d7ef30c2674bf78ed3b47"><div class="ttname"><a href="classfpl_1_1_range_t.html#aa7c38bff2e1d7ef30c2674bf78ed3b47">fpl::RangeT::Middle</a></div><div class="ttdeci">T Middle() const </div><div class="ttdef"><b>Definition:</b> range.h:60</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_a371c069c19788cbf6eb1c67b09a01897"><div class="ttname"><a href="classfpl_1_1_range_t.html#a371c069c19788cbf6eb1c67b09a01897">fpl::RangeT::start</a></div><div class="ttdeci">T start() const </div><div class="ttdoc">Accessors. </div><div class="ttdef"><b>Definition:</b> range.h:208</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_afaaf4200104bb4fe435904ac8af1c5c9"><div class="ttname"><a href="classfpl_1_1_range_t.html#afaaf4200104bb4fe435904ac8af1c5c9">fpl::RangeT::ModDiffPositive</a></div><div class="ttdeci">float ModDiffPositive(T a, T b) const </div><div class="ttdef"><b>Definition:</b> range.h:151</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_a29b3231203f7b440bf7e34fdd52c1c88"><div class="ttname"><a href="classfpl_1_1_range_t.html#a29b3231203f7b440bf7e34fdd52c1c88">fpl::RangeT::ModDiffFar</a></div><div class="ttdeci">float ModDiffFar(T a, T b) const </div><div class="ttdoc">Return the farthest difference from &#39;a&#39; to &#39;b&#39; under modular arithmetic. </div><div class="ttdef"><b>Definition:</b> range.h:143</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html"><div class="ttname"><a href="classfpl_1_1_range_t.html">fpl::RangeT</a></div><div class="ttdoc">Represent an interval on a number line. </div><div class="ttdef"><b>Definition:</b> range.h:37</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_a0cba8bf3b6ce55c54b88c3e2edbaf4ca"><div class="ttname"><a href="classfpl_1_1_range_t.html#a0cba8bf3b6ce55c54b88c3e2edbaf4ca">fpl::RangeT::Clamp</a></div><div class="ttdeci">T Clamp(const T x) const </div><div class="ttdef"><b>Definition:</b> range.h:69</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_abe970dd059f0bbfd8ee9688a4aeb3f8a"><div class="ttname"><a href="classfpl_1_1_range_t.html#abe970dd059f0bbfd8ee9688a4aeb3f8a">fpl::RangeT::ClampBeforeEnd</a></div><div class="ttdeci">T ClampBeforeEnd(const T x) const </div><div class="ttdef"><b>Definition:</b> range.h:77</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_a713b880033161403da46985d79f29099"><div class="ttname"><a href="classfpl_1_1_range_t.html#a713b880033161403da46985d79f29099">fpl::RangeT::Invert</a></div><div class="ttdeci">RangeT Invert() const </div><div class="ttdef"><b>Definition:</b> range.h:189</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_a8b9d577500a721eee4b30d5e5b8e83fe"><div class="ttname"><a href="classfpl_1_1_range_t.html#a8b9d577500a721eee4b30d5e5b8e83fe">fpl::RangeT::IntersectRanges</a></div><div class="ttdeci">static size_t IntersectRanges(const RangeT *a, size_t len_a, const RangeT *b, size_t len_b, RangeT *intersections, RangeT *gaps=nullptr, size_t *len_gaps=nullptr)</div><div class="ttdef"><b>Definition:</b> range.h:270</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_af8c6fb86ad4e573f84e18425df86c410"><div class="ttname"><a href="classfpl_1_1_range_t.html#af8c6fb86ad4e573f84e18425df86c410">fpl::RangeT::ModularAdjustment</a></div><div class="ttdeci">T ModularAdjustment(T x) const </div><div class="ttdef"><b>Definition:</b> range.h:130</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_ab33ab50dcdce98ae0ad10956eb1eaf1d"><div class="ttname"><a href="classfpl_1_1_range_t.html#ab33ab50dcdce98ae0ad10956eb1eaf1d">fpl::RangeT::ClampAfterStart</a></div><div class="ttdeci">T ClampAfterStart(const T x) const </div><div class="ttdef"><b>Definition:</b> range.h:73</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_a52b397b70a840ef8c2cbb54207e6c0b3"><div class="ttname"><a href="classfpl_1_1_range_t.html#a52b397b70a840ef8c2cbb54207e6c0b3">fpl::RangeT::ModDiff</a></div><div class="ttdeci">float ModDiff(T a, T b, ModularDirection direction) const </div><div class="ttdef"><b>Definition:</b> range.h:167</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_aa070d4d86edf9bdcf6caf80b5b2c7061"><div class="ttname"><a href="classfpl_1_1_range_t.html#aa070d4d86edf9bdcf6caf80b5b2c7061">fpl::RangeT::Normalize</a></div><div class="ttdeci">T Normalize(T x) const </div><div class="ttdef"><b>Definition:</b> range.h:106</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html_ade7255d08a3de8edb1dafb8fd9fba85f"><div class="ttname"><a href="classfpl_1_1_range_t.html#ade7255d08a3de8edb1dafb8fd9fba85f">fpl::RangeT::ValuesInRange</a></div><div class="ttdeci">static size_t ValuesInRange(const RangeT &amp;range, T epsilon, size_t num_values, T *values)</div><div class="ttdef"><b>Definition:</b> range.h:245</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->

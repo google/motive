@@ -98,7 +98,7 @@ $(document).ready(function(){initNavTree('engine_8h_source.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -140,68 +140,80 @@ $(document).ready(function(){initNavTree('engine_8h_source.html','');});
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">struct </span>MotiveProcessorFunctions;</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keyword">struct </span>MotiveVersion;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="comment">// The engine holds all of the processors, and updates them all when</span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment">// AdvanceFrame() is called. The processing is kept central, in this manner,</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">// for scalability. The engine is not a singleton, but you should try to</span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">// minimize the number of engines in your game. As more Motivators are added to</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">// the processors, you start to get economies of scale.</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno"><a class="line" href="classmotive_1_1_motive_engine.html">   35</a></span>&#160;<span class="keyword">class </span><a class="code" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> {</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  <span class="keyword">struct </span>ProcessorDetails {</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <a class="code" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a>* processor;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="keywordtype">int</span> benchmark_id;</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keywordtype">bool</span> operator&lt;(<span class="keyword">const</span> ProcessorDetails&amp; rhs)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;      <span class="keywordflow">return</span> processor-&gt;Priority() &lt; rhs.processor-&gt;Priority();</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    }</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  };</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  <span class="keyword">typedef</span> std::map&lt;MotivatorType, MotiveProcessor*&gt; ProcessorMap;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  <span class="keyword">typedef</span> std::pair&lt;MotivatorType, MotiveProcessor*&gt; ProcessorPair;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  <span class="keyword">typedef</span> std::multiset&lt;ProcessorDetails&gt; ProcessorSet;</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keyword">typedef</span> std::map&lt;MotivatorType, MotiveProcessorFunctions&gt; FunctionMap;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <span class="keyword">typedef</span> std::pair&lt;MotivatorType, MotiveProcessorFunctions&gt; FunctionPair;</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  <a class="code" href="classmotive_1_1_motive_engine.html">MotiveEngine</a>();</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  ~<a class="code" href="classmotive_1_1_motive_engine.html">MotiveEngine</a>() { Reset(); }</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <span class="comment">// Deallocate all MotiveProcessors, which, in turn, resets all Motivators</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  <span class="comment">// that use those MotiveProcessors.</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  <span class="keywordtype">void</span> Reset();</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  <span class="comment">// Update all the MotiveProcessors by &#39;delta_time&#39;. This advances all</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="comment">// Motivators created with this MotiveEngine.</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  <span class="keywordtype">void</span> AdvanceFrame(MotiveTime delta_time);</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;  <span class="comment">// For internal use only.</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <a class="code" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a>* Processor(MotivatorType type);</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> RegisterProcessorFactory(MotivatorType type,</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;                                       <span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_processor_functions.html">MotiveProcessorFunctions</a>&amp; fns);</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160; <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  <span class="comment">// Map from the MotivatorType to the MotiveProcessor. Only one MotiveProcessor</span></div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  <span class="comment">// per type per engine. This is to maximize centralization of data.</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  ProcessorMap mapped_processors_;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  <span class="comment">// Sort the MotiveProcessors by priority. Low numbered priorities run first.</span></div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  <span class="comment">// This allows high number priorities to have child motivators, as long as</span></div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  <span class="comment">// the child motivators have lower priority.</span></div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  ProcessorSet sorted_processors_;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  <span class="comment">// Current version of the Motive Animation System.</span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  <span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_version.html">MotiveVersion</a>* version_;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  <span class="comment">// ProcessorMap from the MotivatorType to the factory that creates the</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <span class="comment">// MotiveProcessor. We only create an MotiveProcessor when one is needed.</span></div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  <span class="keyword">static</span> FunctionMap function_map_;</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;};</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;}  <span class="comment">// namespace motive</span></div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="preprocessor">#endif  // MOTIVE_ENGINE_H_</span></div>
-<div class="ttc" id="structmotive_1_1_motive_version_html"><div class="ttname"><a href="structmotive_1_1_motive_version.html">motive::MotiveVersion</a></div><div class="ttdef"><b>Definition:</b> version.h:23</div></div>
-<div class="ttc" id="classmotive_1_1_motive_processor_html"><div class="ttname"><a href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></div><div class="ttdef"><b>Definition:</b> processor.h:59</div></div>
-<div class="ttc" id="structmotive_1_1_motive_processor_functions_html"><div class="ttname"><a href="structmotive_1_1_motive_processor_functions.html">motive::MotiveProcessorFunctions</a></div><div class="ttdef"><b>Definition:</b> processor.h:250</div></div>
-<div class="ttc" id="classmotive_1_1_motive_engine_html"><div class="ttname"><a href="classmotive_1_1_motive_engine.html">motive::MotiveEngine</a></div><div class="ttdef"><b>Definition:</b> engine.h:35</div></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="comment">/// @class MotiveEngine</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment">/// @brief Hold and update all animation data.</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">///</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">/// The engine holds all of the MotiveProcessors, and updates them all when</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">/// AdvanceFrame() is called. The processing is kept central, in this manner,</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">/// for scalability. The engine is not a singleton, but you should try to</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment">/// minimize the number of engines in your game. As more Motivators are added to</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment">/// the processors, you start to get economies of scale.</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="classmotive_1_1_motive_engine.html">   38</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> {</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  <span class="keyword">struct </span>ProcessorDetails {</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <a class="code" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a>* processor;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordtype">int</span> benchmark_id;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keywordtype">bool</span> operator&lt;(<span class="keyword">const</span> ProcessorDetails&amp; rhs)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;      <span class="keywordflow">return</span> processor-&gt;Priority() &lt; rhs.processor-&gt;Priority();</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    }</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;  };</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keyword">typedef</span> std::map&lt;MotivatorType, MotiveProcessor*&gt; ProcessorMap;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  <span class="keyword">typedef</span> std::pair&lt;MotivatorType, MotiveProcessor*&gt; ProcessorPair;</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  <span class="keyword">typedef</span> std::multiset&lt;ProcessorDetails&gt; ProcessorSet;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;  <span class="keyword">typedef</span> std::map&lt;MotivatorType, MotiveProcessorFunctions&gt; FunctionMap;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  <span class="keyword">typedef</span> std::pair&lt;MotivatorType, MotiveProcessorFunctions&gt; FunctionPair;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160; <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <a class="code" href="classmotive_1_1_motive_engine.html">MotiveEngine</a>();</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  ~<a class="code" href="classmotive_1_1_motive_engine.html">MotiveEngine</a>() { <a class="code" href="classmotive_1_1_motive_engine.html#a585ef9466764c0c6a176c27fa8d0ec1f">Reset</a>(); }</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">  /// Deallocate all MotiveProcessors, which, in turn, resets all Motivators</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment">  /// that use those MotiveProcessors.</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_motive_engine.html#a585ef9466764c0c6a176c27fa8d0ec1f">Reset</a>();</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="comment">  /// Update all the MotiveProcessors by &#39;delta_time&#39;. This advances all</span></div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">  /// Motivators created with this MotiveEngine.</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment">  /// @param delta_time Elapsed time since the last call to AdvanceFrame().</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="comment">  ///                   Time units are defined by the user. When using spline</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="comment">  ///                   animations, for instance, the time unit is the unit of</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="comment">  ///                   the x-axis.</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_motive_engine.html#a8696d6a9ed3b919d6e4832c9e08958cd">AdvanceFrame</a>(MotiveTime delta_time);</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment">  /// @private For internal use only.</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment"></span>  <a class="code" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a>* Processor(MotivatorType type);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="comment">  /// @private For internal use only.</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> <span class="keywordtype">void</span> RegisterProcessorFactory(MotivatorType type,</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;                                       <span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_processor_functions.html">MotiveProcessorFunctions</a>&amp; fns);</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; <span class="keyword">private</span>:<span class="comment"></span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="comment">  /// Map from the MotivatorType to the MotiveProcessor. Only one</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment">  /// MotiveProcessor per type per engine. This is to maximize centralization</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment">  /// of data.</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment"></span>  ProcessorMap mapped_processors_;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="comment">  /// Sort the MotiveProcessors by priority. Low numbered priorities run first.</span></div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="comment">  /// This allows high number priorities to have child motivators, as long as</span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="comment">  /// the child motivators have lower priority.</span></div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="comment"></span>  ProcessorSet sorted_processors_;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="comment">  /// Current version of the Motive Animation System.</span></div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="comment"></span>  <span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_version.html">MotiveVersion</a>* version_;</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="comment">  /// ProcessorMap from the MotivatorType to the factory that creates the</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="comment">  /// MotiveProcessor. We only create an MotiveProcessor when one is needed.</span></div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> FunctionMap function_map_;</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;};</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;}  <span class="comment">// namespace motive</span></div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="preprocessor">#endif  // MOTIVE_ENGINE_H_</span></div>
+<div class="ttc" id="structmotive_1_1_motive_version_html"><div class="ttname"><a href="structmotive_1_1_motive_version.html">motive::MotiveVersion</a></div><div class="ttdoc">Current version information for the Motive animation system. </div><div class="ttdef"><b>Definition:</b> version.h:25</div></div>
+<div class="ttc" id="classmotive_1_1_motive_engine_html_a8696d6a9ed3b919d6e4832c9e08958cd"><div class="ttname"><a href="classmotive_1_1_motive_engine.html#a8696d6a9ed3b919d6e4832c9e08958cd">motive::MotiveEngine::AdvanceFrame</a></div><div class="ttdeci">void AdvanceFrame(MotiveTime delta_time)</div></div>
+<div class="ttc" id="classmotive_1_1_motive_processor_html"><div class="ttname"><a href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></div><div class="ttdoc">A MotiveProcessor processes all instances of one type of Motivator. </div><div class="ttdef"><b>Definition:</b> processor.h:59</div></div>
+<div class="ttc" id="structmotive_1_1_motive_processor_functions_html"><div class="ttname"><a href="structmotive_1_1_motive_processor_functions.html">motive::MotiveProcessorFunctions</a></div><div class="ttdef"><b>Definition:</b> processor.h:283</div></div>
+<div class="ttc" id="classmotive_1_1_motive_engine_html"><div class="ttname"><a href="classmotive_1_1_motive_engine.html">motive::MotiveEngine</a></div><div class="ttdoc">Hold and update all animation data. </div><div class="ttdef"><b>Definition:</b> engine.h:38</div></div>
+<div class="ttc" id="classmotive_1_1_motive_engine_html_a585ef9466764c0c6a176c27fa8d0ec1f"><div class="ttname"><a href="classmotive_1_1_motive_engine.html#a585ef9466764c0c6a176c27fa8d0ec1f">motive::MotiveEngine::Reset</a></div><div class="ttdeci">void Reset()</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->

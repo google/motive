@@ -98,7 +98,7 @@ $(document).ready(function(){initNavTree('compact__spline_8h_source.html','');})
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -135,186 +135,209 @@ $(document).ready(function(){initNavTree('compact__spline_8h_source.html','');})
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="keyword">namespace </span>fpl {</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">class </span>CompactSplineNode;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">// X-axis is quantized into units of &#39;x_granularity&#39;. X values are represented</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment">// by multiples of &#39;x_granularity&#39;. One unit of CompactSplineXGrain represents</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment">// one multiple of &#39;x_granularity&#39;.</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keyword">typedef</span> uint16_t CompactSplineXGrain;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="comment">// Y values within &#39;y_range&#39; can be represented. We quantize the &#39;y_range&#39;</span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment">// into equally-sized rungs, and round to the closest rung.</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="keyword">typedef</span> uint16_t CompactSplineYRung;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">// Angles strictly between -90 and +90 can be represented. We record the angle</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">// instead of the slope for more uniform distribution.</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="keyword">typedef</span> int16_t CompactSplineAngle;</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">// Index into the spline. Some high values have special meaning (see below).</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="keyword">typedef</span> uint16_t CompactSplineIndex;</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="keyword">static</span> <span class="keyword">const</span> CompactSplineIndex kInvalidSplineIndex =</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keyword">static_cast&lt;</span>CompactSplineIndex<span class="keyword">&gt;</span>(-1);</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="keyword">static</span> <span class="keyword">const</span> CompactSplineIndex kBeforeSplineIndex =</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keyword">static_cast&lt;</span>CompactSplineIndex<span class="keyword">&gt;</span>(-2);</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keyword">static</span> <span class="keyword">const</span> CompactSplineIndex kAfterSplineIndex =</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keyword">static_cast&lt;</span>CompactSplineIndex<span class="keyword">&gt;</span>(-3);</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="keyword">inline</span> <span class="keywordtype">bool</span> OutsideSpline(CompactSplineIndex index) {</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;  <span class="keywordflow">return</span> index &gt;= kAfterSplineIndex;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;}</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="keyword">enum</span> CompactSplineAddMethod {</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  kAddWithoutModification,  <span class="comment">// Add node straight-up. No changes.</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  kEnsureCubicWellBehaved,  <span class="comment">// Insert an intermediate node, if required,</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;                            <span class="comment">// to ensure cubic splines have uniform curvature.</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;};</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment">// A spline interpolates a series of (x, y, derivative) nodes to create a</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">// smooth curve.</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="comment">// This class holds a series of such nodes, and aids with the construction of</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">// that series by inserting extra nodes when extra smoothness is required.</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="comment">// The data in this class is compacted as quantized values. It&#39;s not intended</span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="comment">// to be read directly. You should use the BulkSplineEvaluator to update</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="comment">// and read values from the splines in a performant manner.</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno"><a class="line" href="classfpl_1_1_compact_spline.html">   66</a></span>&#160;<span class="keyword">class </span><a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a> {</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;  <a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>();</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  <a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_range_t.html">Range</a>&amp; y_range, <span class="keyword">const</span> <span class="keywordtype">float</span> x_granularity,</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;                <span class="keyword">const</span> <span class="keywordtype">int</span> num_nodes = 0);</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  <span class="comment">// The copy constructors, copy operator, and destructor are all default</span></div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  <span class="comment">// implementations, but must be specified explicitly because</span></div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;  <span class="comment">// CompactSplineNode is not specified in the header file.</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;  <a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>&amp; rhs);</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  ~<a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>();</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  <a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>&amp; operator=(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>&amp; rhs);</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;  <span class="comment">// The range of values for x and y must be specified at spline creation time</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <span class="comment">// and cannot be changed afterwards. Empties all nodes, if we have any.</span></div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  <span class="comment">//</span></div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;  <span class="comment">// &#39;y_range&#39; -- The upper and lower bounds for y-values in the nodes.</span></div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  <span class="comment">//              The more narrow this is, the better the precision of the</span></div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;  <span class="comment">//              fixed point numbers. Note that you should add 10% padding</span></div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  <span class="comment">//              here, since AddNode may insert a smoothing node that is</span></div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  <span class="comment">//              slightly beyond the source y range.</span></div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  <span class="comment">// &#39;x_granularity&#39; -- The minimum increment of x-values. If you&#39;re working</span></div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;  <span class="comment">//                    with a spline changes at most 30 times per second,</span></div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;  <span class="comment">//                    and your x is in units of 1/1000th of a second, then</span></div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  <span class="comment">//                    x_granularity = 33 is a good baseline. You&#39;ll probably</span></div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  <span class="comment">//                    want granularity around 1/50th of that baseline value,</span></div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  <span class="comment">//                    though, since AddNode may insert smoothing nodes at</span></div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  <span class="comment">//                    intermediate x&#39;s. In our example here, you could set</span></div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  <span class="comment">//                    x_granularity near 33 / 50. For ease of debugging,</span></div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  <span class="comment">//                    an x_granularity of 0.5 or 1 is probably best.</span></div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  <span class="comment">// &#39;num_nodes&#39; -- A hint for how many nodes are expected to be added.</span></div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  <span class="comment">//                Try to get this close or slightly too high, to avoid</span></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  <span class="comment">//                reallocation of internal memory.</span></div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  <span class="keywordtype">void</span> Init(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_range_t.html">Range</a>&amp; y_range, <span class="keyword">const</span> <span class="keywordtype">float</span> x_granularity,</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;            <span class="keyword">const</span> <span class="keywordtype">int</span> num_nodes = 0);</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  <span class="comment">// Add a node to the end of the spline. Depending on the method, an</span></div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  <span class="comment">// intermediate node may also be inserted.</span></div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  <span class="comment">//</span></div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;  <span class="comment">// &#39;x&#39; -- Must be greater than the x-value of the last spline node. If not,</span></div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;  <span class="comment">//        this call is a nop.</span></div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;  <span class="comment">// &#39;y&#39; -- Must be within the &#39;y_range&#39; specified in Init().</span></div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  <span class="comment">// &#39;derivative&#39; -- No restrictions, but excessively large values may still</span></div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  <span class="comment">//                 result in overshoot, even with an intermediate node.</span></div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;  <span class="keywordtype">void</span> AddNode(<span class="keyword">const</span> <span class="keywordtype">float</span> x, <span class="keyword">const</span> <span class="keywordtype">float</span> y, <span class="keyword">const</span> <span class="keywordtype">float</span> derivative,</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;               <span class="keyword">const</span> CompactSplineAddMethod method = kEnsureCubicWellBehaved);</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;  <span class="comment">// Remove all nodes from the spline.</span></div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;  <span class="keywordtype">void</span> Clear();</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  <span class="comment">// Return index of the first node before &#39;x&#39;.</span></div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;  <span class="comment">// If &#39;x&#39; is before the first node, return kBeforeSplineIndex.</span></div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;  <span class="comment">// If &#39;x&#39; is past the last node, return kAfterSplineIndex.</span></div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;  <span class="comment">//</span></div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;  <span class="comment">// &#39;guess_index&#39; -- Best guess at what the index for &#39;x&#39; will be. Often the</span></div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;  <span class="comment">//                  caller will be traversing from low to high x, so a good</span></div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;  <span class="comment">//                  guess is the index after the current index.</span></div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;  <span class="comment">//                  If you have no idea, set to 0.</span></div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;  CompactSplineIndex IndexForX(<span class="keyword">const</span> <span class="keywordtype">float</span> x,</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;                               <span class="keyword">const</span> CompactSplineIndex guess_index) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;  <span class="comment">// First and last x, y, and derivatives in the spline.</span></div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;  <span class="keywordtype">float</span> StartX() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;  <span class="keywordtype">float</span> StartY() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;  <span class="keywordtype">float</span> StartDerivative() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;  <span class="keywordtype">float</span> EndX() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;  <span class="keywordtype">float</span> EndY() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;  <span class="keywordtype">float</span> EndDerivative() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;  <span class="keywordtype">float</span> NodeX(<span class="keyword">const</span> CompactSplineIndex index) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;  <span class="keywordtype">float</span> NodeY(<span class="keyword">const</span> CompactSplineIndex index) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;  <span class="keywordtype">float</span> NodeDerivative(<span class="keyword">const</span> CompactSplineIndex index) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;  <span class="keywordtype">float</span> LengthX()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> EndX() - StartX(); }</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;  <a class="code" href="classfpl_1_1_range_t.html">Range</a> RangeX()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <a class="code" href="classfpl_1_1_range_t.html">Range</a>(StartX(), EndX()); }</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;  <span class="keyword">const</span> <a class="code" href="classfpl_1_1_range_t.html">Range</a>&amp; RangeY()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> y_range_; }</div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;  <span class="comment">// The start and end x-values covered by the segment after &#39;index&#39;.</span></div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;  <a class="code" href="classfpl_1_1_range_t.html">Range</a> RangeX(<span class="keyword">const</span> CompactSplineIndex index) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;</div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;  <span class="comment">// Initialization parameters for a cubic curve that starts at &#39;index&#39; and</span></div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;  <span class="comment">// ends at &#39;index&#39; + 1. Or a constant curve if &#39;index&#39; is kBeforeSplineIndex</span></div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;  <span class="comment">// or kAfterSplineIndex.</span></div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;  <a class="code" href="structfpl_1_1_cubic_init.html">CubicInit</a> CreateCubicInit(<span class="keyword">const</span> CompactSplineIndex index) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">float</span> RecommendXGranularity(<span class="keyword">const</span> <span class="keywordtype">float</span> max_x);</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160; <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;  CompactSplineIndex LastNodeIndex() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;  <span class="comment">// Return true iff &#39;x&#39; is between the the nodes at &#39;index&#39; and &#39;index&#39; + 1.</span></div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;  <span class="keywordtype">bool</span> IndexContainsX(<span class="keyword">const</span> CompactSplineXGrain compact_x,</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;                      <span class="keyword">const</span> CompactSplineIndex index) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;</div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;  <span class="comment">// Search the nodes to find the index of the first node before &#39;x&#39;.</span></div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;  CompactSplineIndex BinarySearchIndexForX(</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;      <span class="keyword">const</span> CompactSplineXGrain compact_x) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;  <span class="comment">// Return e.x - s.x, converted from quantized to external units.</span></div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;  <span class="keywordtype">float</span> WidthX(<span class="keyword">const</span> CompactSplineNode&amp; s, <span class="keyword">const</span> CompactSplineNode&amp; e) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;  <span class="comment">// Create the initialization parameters for a cubic running from &#39;s&#39; to &#39;e&#39;.</span></div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;  <a class="code" href="structfpl_1_1_cubic_init.html">CubicInit</a> CreateCubicInit(<span class="keyword">const</span> CompactSplineNode&amp; s,</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;                            <span class="keyword">const</span> CompactSplineNode&amp; e) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;  <span class="comment">// Array of key points (x, y, derivative) that describe the curve.</span></div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;  <span class="comment">// The curve is interpolated smoothly between these key points.</span></div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;  <span class="comment">// Key points are stored in quantized form, and converted back to world</span></div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;  <span class="comment">// co-ordinates by using &#39;y_range_&#39; and &#39;x_granularity_&#39;.</span></div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;  std::vector&lt;CompactSplineNode&gt; nodes_;</div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;  <span class="comment">// Extreme values for y. See comments on Init() for details.</span></div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;  <a class="code" href="classfpl_1_1_range_t.html">Range</a> y_range_;</div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;  <span class="comment">// Minimum increment for x. See comments on Init() for details.</span></div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;  <span class="keywordtype">float</span> x_granularity_;</div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;};</div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;</div>
-<div class="line"><a name="l00182"></a><span class="lineno"><a class="line" href="structfpl_1_1_spline_playback.html">  182</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfpl_1_1_spline_playback.html">SplinePlayback</a> {</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;  <span class="keyword">explicit</span> <a class="code" href="structfpl_1_1_spline_playback.html">SplinePlayback</a>(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>&amp; spline, <span class="keywordtype">float</span> start_x = 0.0f,</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;                          <span class="keywordtype">bool</span> repeat = <span class="keyword">false</span>)</div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;      : spline(&amp;spline), start_x(start_x), repeat(repeat) {}</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;</div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;  <span class="comment">// The spline to follow.</span></div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;  <span class="keyword">const</span> <a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>* spline;</div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;</div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;  <span class="comment">// The starting point from which to play.</span></div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;  <span class="keywordtype">float</span> start_x;</div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;</div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;  <span class="comment">// If true, start back at the beginning after we reach the end.</span></div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;  <span class="keywordtype">bool</span> repeat;</div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;};</div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;</div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;}  <span class="comment">// namespace fpl</span></div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;</div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;<span class="preprocessor">#endif  // MOTIVE_MATH_COMPACT_SPLINE_H_</span></div>
-<div class="ttc" id="structfpl_1_1_spline_playback_html"><div class="ttname"><a href="structfpl_1_1_spline_playback.html">fpl::SplinePlayback</a></div><div class="ttdef"><b>Definition:</b> compact_spline.h:182</div></div>
-<div class="ttc" id="classfpl_1_1_compact_spline_html"><div class="ttname"><a href="classfpl_1_1_compact_spline.html">fpl::CompactSpline</a></div><div class="ttdef"><b>Definition:</b> compact_spline.h:66</div></div>
-<div class="ttc" id="classfpl_1_1_range_t_html"><div class="ttname"><a href="classfpl_1_1_range_t.html">fpl::RangeT</a></div><div class="ttdoc">Represent an interval on a number line. </div><div class="ttdef"><b>Definition:</b> range.h:36</div></div>
-<div class="ttc" id="structfpl_1_1_cubic_init_html"><div class="ttname"><a href="structfpl_1_1_cubic_init.html">fpl::CubicInit</a></div><div class="ttdef"><b>Definition:</b> curve.h:169</div></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">/// @typedef CompactSplineXGrain</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment">/// X-axis is quantized into units of `x_granularity`. X values are represented</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="comment">/// by multiples of `x_granularity`. One unit of CompactSplineXGrain represents</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment">/// one multiple of `x_granularity`.</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="comment"></span><span class="keyword">typedef</span> uint16_t CompactSplineXGrain;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment">/// @typedef CompactSplineYRung</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">/// Y values within `y_range` can be represented. We quantize the `y_range`</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">/// into equally-sized rungs, and round to the closest rung.</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment"></span><span class="keyword">typedef</span> uint16_t CompactSplineYRung;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment">/// @typedef CompactSplineAngle</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment">/// Angles strictly between -90 and +90 can be represented. We record the angle</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">/// instead of the slope for more uniform distribution.</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment"></span><span class="keyword">typedef</span> int16_t CompactSplineAngle;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">/// @typedef CompactSplineIndex</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">/// Index into the spline. Some high values have special meaning (see below).</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment"></span><span class="keyword">typedef</span> uint16_t CompactSplineIndex;</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keyword">static</span> <span class="keyword">const</span> CompactSplineIndex kInvalidSplineIndex =</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keyword">static_cast&lt;</span>CompactSplineIndex<span class="keyword">&gt;</span>(-1);</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="keyword">static</span> <span class="keyword">const</span> CompactSplineIndex kBeforeSplineIndex =</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <span class="keyword">static_cast&lt;</span>CompactSplineIndex<span class="keyword">&gt;</span>(-2);</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keyword">static</span> <span class="keyword">const</span> CompactSplineIndex kAfterSplineIndex =</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    <span class="keyword">static_cast&lt;</span>CompactSplineIndex<span class="keyword">&gt;</span>(-3);</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment">/// Return true if `index` is not an index into the spline.</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment"></span><span class="keyword">inline</span> <span class="keywordtype">bool</span> OutsideSpline(CompactSplineIndex index) {</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <span class="keywordflow">return</span> index &gt;= kAfterSplineIndex;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;}</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="keyword">enum</span> CompactSplineAddMethod {</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  kAddWithoutModification,  <span class="comment">/// Add node straight-up. No changes.</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment"></span>  kEnsureCubicWellBehaved,  <span class="comment">/// Insert an intermediate node, if required,</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment"></span><span class="comment">                            /// to ensure cubic splines have uniform curvature.</span></div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="comment"></span>};</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment">/// @class CompactSpline</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="comment">/// @brief Represent a smooth curve in a small amount of memory.</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="comment">///</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="comment">/// This spline interpolates a series of (x, y, derivative) nodes to create a</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="comment">/// smooth curve.</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="comment">///</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment">/// This class holds a series of such nodes, and aids with the construction of</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">/// that series by inserting extra nodes when extra smoothness is required.</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment">///</span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="comment">/// The data in this class is compacted as quantized values. It&#39;s not intended</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment">/// to be read directly. You should use the BulkSplineEvaluator to update</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment">/// and read values from the splines in a performant manner.</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno"><a class="line" href="classfpl_1_1_compact_spline.html">   74</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a> {</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160; <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;  <a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>();</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  <a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_range_t.html">Range</a>&amp; y_range, <span class="keyword">const</span> <span class="keywordtype">float</span> x_granularity,</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;                <span class="keyword">const</span> <span class="keywordtype">int</span> num_nodes = 0);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment">  /// The copy constructors, copy operator, and destructor are all default</span></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="comment">  /// implementations, but must be specified explicitly because</span></div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="comment">  /// CompactSplineNode is not specified in the header file.</span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="comment"></span>  <a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>&amp; rhs);</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;  ~<a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>();</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  <a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>&amp; operator=(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>&amp; rhs);</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="comment">  /// The range of values for x and y must be specified at spline creation time</span></div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="comment">  /// and cannot be changed afterwards. Empties all nodes, if we have any.</span></div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="comment">  ///</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="comment">  /// @param y_range The upper and lower bounds for y-values in the nodes.</span></div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="comment">  ///                The more narrow this is, the better the precision of the</span></div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="comment">  ///                fixed point numbers. Note that you should add 10% padding</span></div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="comment">  ///                here, since AddNode may insert a smoothing node that is</span></div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="comment">  ///                slightly beyond the source y range.</span></div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="comment">  /// @param x_granularity The minimum increment of x-values. If you&#39;re working</span></div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="comment">  ///                      with a spline changes at most 30 times per second,</span></div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="comment">  ///                      and your x is in units of 1/1000th of a second, then</span></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment">  ///                      x_granularity = 33 is a good baseline. You&#39;ll</span></div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="comment">  ///                      probably want granularity around 1/50th of that</span></div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="comment">  ///                      baseline value, though, since AddNode may insert</span></div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="comment">  ///                      smoothing nodes at intermediate x&#39;s.</span></div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="comment">  ///                      In our example here, you could set</span></div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="comment">  ///                      x_granularity near 33 / 50. For ease of debugging,</span></div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="comment">  ///                      an x_granularity of 0.5 or 1 is probably best.</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="comment">  /// @param num_nodes A hint for how many nodes are expected to be added.</span></div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="comment">  ///                  Try to get this close or slightly too high, to avoid</span></div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="comment">  ///                  reallocation of internal memory.</span></div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classfpl_1_1_compact_spline.html#aab75d3119edaf091402e2c49284bec9b">Init</a>(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_range_t.html">Range</a>&amp; y_range, <span class="keyword">const</span> <span class="keywordtype">float</span> x_granularity,</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;            <span class="keyword">const</span> <span class="keywordtype">int</span> num_nodes = 0);</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="comment">  /// Add a node to the end of the spline. Depending on the method, an</span></div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;<span class="comment">  /// intermediate node may also be inserted.</span></div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="comment">  ///</span></div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;<span class="comment">  /// @param x Must be greater than the x-value of the last spline node. If not,</span></div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;<span class="comment">  ///          this call is a nop.</span></div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="comment">  /// @param y Must be within the `y_range` specified in Init().</span></div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="comment">  /// @param derivative No restrictions, but excessively large values may still</span></div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;<span class="comment">  ///                   result in overshoot, even with an intermediate node.</span></div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classfpl_1_1_compact_spline.html#a8cf74846c2624dae3a9f12b97ce46a1c">AddNode</a>(<span class="keyword">const</span> <span class="keywordtype">float</span> x, <span class="keyword">const</span> <span class="keywordtype">float</span> y, <span class="keyword">const</span> <span class="keywordtype">float</span> derivative,</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;               <span class="keyword">const</span> CompactSplineAddMethod method = kEnsureCubicWellBehaved);</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;<span class="comment">  /// Remove all nodes from the spline.</span></div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classfpl_1_1_compact_spline.html#a61f1d3a3986d04f7069aee9281d8d100">Clear</a>();</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="comment">  /// Return index of the first node before `x`.</span></div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;<span class="comment">  /// If `x` is before the first node, return kBeforeSplineIndex.</span></div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="comment">  /// If `x` is past the last node, return kAfterSplineIndex.</span></div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="comment">  ///</span></div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="comment">  /// @param x x-value in the spline. Most often, the x-axis represents time.</span></div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="comment">  /// @param guess_index Best guess at what the index for `x` will be.</span></div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;<span class="comment">  ///                    Often the caller will be traversing from low to high x,</span></div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;<span class="comment">  ///                    so a good guess is the index after the current index.</span></div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;<span class="comment">  ///                    If you have no idea, set to 0.</span></div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;<span class="comment"></span>  CompactSplineIndex <a class="code" href="classfpl_1_1_compact_spline.html#a07feb860d1ff9a50a44ea633dd55844c">IndexForX</a>(<span class="keyword">const</span> <span class="keywordtype">float</span> x,</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;                               <span class="keyword">const</span> CompactSplineIndex guess_index) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;  <span class="comment">// First and last x, y, and derivatives in the spline.</span></div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;  <span class="keywordtype">float</span> StartX() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;  <span class="keywordtype">float</span> StartY() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;  <span class="keywordtype">float</span> StartDerivative() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;  <span class="keywordtype">float</span> EndX() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;  <span class="keywordtype">float</span> EndY() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;  <span class="keywordtype">float</span> EndDerivative() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;  <span class="keywordtype">float</span> NodeX(<span class="keyword">const</span> CompactSplineIndex index) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;  <span class="keywordtype">float</span> NodeY(<span class="keyword">const</span> CompactSplineIndex index) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;  <span class="keywordtype">float</span> NodeDerivative(<span class="keyword">const</span> CompactSplineIndex index) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;  <span class="keywordtype">float</span> LengthX()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> EndX() - StartX(); }</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;  <a class="code" href="classfpl_1_1_range_t.html">Range</a> RangeX()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <a class="code" href="classfpl_1_1_range_t.html">Range</a>(StartX(), EndX()); }</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;  <span class="keyword">const</span> <a class="code" href="classfpl_1_1_range_t.html">Range</a>&amp; RangeY()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> y_range_; }</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;<span class="comment">  /// The start and end x-values covered by the segment after `index`.</span></div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;<span class="comment"></span>  <a class="code" href="classfpl_1_1_range_t.html">Range</a> RangeX(<span class="keyword">const</span> CompactSplineIndex index) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;<span class="comment">  /// Initialization parameters for a cubic curve that starts at `index` and</span></div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;<span class="comment">  /// ends at `index` + 1. Or a constant curve if `index` is kBeforeSplineIndex</span></div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;<span class="comment">  /// or kAfterSplineIndex.</span></div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;<span class="comment"></span>  <a class="code" href="structfpl_1_1_cubic_init.html">CubicInit</a> <a class="code" href="classfpl_1_1_compact_spline.html#a959587439623ef16bfa54b6eeb1f675b">CreateCubicInit</a>(<span class="keyword">const</span> CompactSplineIndex index) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;<span class="comment">  /// Recommend a granularity given a maximal-x value. We want to have the</span></div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;<span class="comment">  /// most precise granularity when quantizing x&#39;s.</span></div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;<span class="comment"></span>  <span class="keyword">static</span> <span class="keywordtype">float</span> <a class="code" href="classfpl_1_1_compact_spline.html#a169bcfb33bea4168a443225d03ba12e2">RecommendXGranularity</a>(<span class="keyword">const</span> <span class="keywordtype">float</span> max_x);</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160; <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;  CompactSplineIndex LastNodeIndex() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;<span class="comment">  /// Return true iff `x` is between the the nodes at `index` and `index` + 1.</span></div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> IndexContainsX(<span class="keyword">const</span> CompactSplineXGrain compact_x,</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;                      <span class="keyword">const</span> CompactSplineIndex index) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;<span class="comment">  /// Search the nodes to find the index of the first node before `x`.</span></div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;<span class="comment"></span>  CompactSplineIndex BinarySearchIndexForX(</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;      <span class="keyword">const</span> CompactSplineXGrain compact_x) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;<span class="comment">  /// Return e.x - s.x, converted from quantized to external units.</span></div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;<span class="comment"></span>  <span class="keywordtype">float</span> WidthX(<span class="keyword">const</span> CompactSplineNode&amp; s, <span class="keyword">const</span> CompactSplineNode&amp; e) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;<span class="comment">  /// Create the initialization parameters for a cubic running from `s` to `e`.</span></div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;<span class="comment"></span>  <a class="code" href="structfpl_1_1_cubic_init.html">CubicInit</a> <a class="code" href="classfpl_1_1_compact_spline.html#a959587439623ef16bfa54b6eeb1f675b">CreateCubicInit</a>(<span class="keyword">const</span> CompactSplineNode&amp; s,</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;                            <span class="keyword">const</span> CompactSplineNode&amp; e) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;<span class="comment">  /// Array of key points (x, y, derivative) that describe the curve.</span></div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;<span class="comment">  /// The curve is interpolated smoothly between these key points.</span></div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;<span class="comment">  /// Key points are stored in quantized form, and converted back to world</span></div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;<span class="comment">  /// co-ordinates by using `y_range_` and `x_granularity_`.</span></div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="comment"></span>  std::vector&lt;CompactSplineNode&gt; nodes_;</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;<span class="comment">  /// Extreme values for y. See comments on Init() for details.</span></div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;<span class="comment"></span>  <a class="code" href="classfpl_1_1_range_t.html">Range</a> y_range_;</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;<span class="comment">  /// Minimum increment for x. See comments on Init() for details.</span></div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="comment"></span>  <span class="keywordtype">float</span> x_granularity_;</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;};</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;<span class="comment">/// @class SplinePlayback</span></div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;<span class="comment">/// @brief Parameters to specify how a spline should be traversed.</span></div>
+<div class="line"><a name="l00196"></a><span class="lineno"><a class="line" href="structfpl_1_1_spline_playback.html">  196</a></span>&#160;<span class="comment"></span><span class="keyword">struct </span><a class="code" href="structfpl_1_1_spline_playback.html">SplinePlayback</a> {</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;  <span class="keyword">explicit</span> <a class="code" href="structfpl_1_1_spline_playback.html">SplinePlayback</a>(<span class="keyword">const</span> <a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>&amp; <a class="code" href="structfpl_1_1_spline_playback.html#a4cb99a638c16a59cd2a4cdbd853b2565">spline</a>, <span class="keywordtype">float</span> <a class="code" href="structfpl_1_1_spline_playback.html#a21ea7220232cd1bafceb430f3315cdf7">start_x</a> = 0.0f,</div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;                          <span class="keywordtype">bool</span> <a class="code" href="structfpl_1_1_spline_playback.html#ae3006a6d7734453294332d20b9512741">repeat</a> = <span class="keyword">false</span>)</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;      : <a class="code" href="structfpl_1_1_spline_playback.html#a4cb99a638c16a59cd2a4cdbd853b2565">spline</a>(&amp;spline), <a class="code" href="structfpl_1_1_spline_playback.html#a21ea7220232cd1bafceb430f3315cdf7">start_x</a>(<a class="code" href="structfpl_1_1_spline_playback.html#a21ea7220232cd1bafceb430f3315cdf7">start_x</a>), <a class="code" href="structfpl_1_1_spline_playback.html#ae3006a6d7734453294332d20b9512741">repeat</a>(<a class="code" href="structfpl_1_1_spline_playback.html#ae3006a6d7734453294332d20b9512741">repeat</a>) {}</div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;<span class="comment">  /// The spline to follow.</span></div>
+<div class="line"><a name="l00202"></a><span class="lineno"><a class="line" href="structfpl_1_1_spline_playback.html#a4cb99a638c16a59cd2a4cdbd853b2565">  202</a></span>&#160;<span class="comment"></span>  <span class="keyword">const</span> <a class="code" href="classfpl_1_1_compact_spline.html">CompactSpline</a>* <a class="code" href="structfpl_1_1_spline_playback.html#a4cb99a638c16a59cd2a4cdbd853b2565">spline</a>;</div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;<span class="comment">  /// The starting point from which to play.</span></div>
+<div class="line"><a name="l00205"></a><span class="lineno"><a class="line" href="structfpl_1_1_spline_playback.html#a21ea7220232cd1bafceb430f3315cdf7">  205</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">float</span> <a class="code" href="structfpl_1_1_spline_playback.html#a21ea7220232cd1bafceb430f3315cdf7">start_x</a>;</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;<span class="comment">  /// If true, start back at the beginning after we reach the end.</span></div>
+<div class="line"><a name="l00208"></a><span class="lineno"><a class="line" href="structfpl_1_1_spline_playback.html#ae3006a6d7734453294332d20b9512741">  208</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="structfpl_1_1_spline_playback.html#ae3006a6d7734453294332d20b9512741">repeat</a>;</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;};</div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;}  <span class="comment">// namespace fpl</span></div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;<span class="preprocessor">#endif  // MOTIVE_MATH_COMPACT_SPLINE_H_</span></div>
+<div class="ttc" id="structfpl_1_1_spline_playback_html_a4cb99a638c16a59cd2a4cdbd853b2565"><div class="ttname"><a href="structfpl_1_1_spline_playback.html#a4cb99a638c16a59cd2a4cdbd853b2565">fpl::SplinePlayback::spline</a></div><div class="ttdeci">const CompactSpline * spline</div><div class="ttdoc">The spline to follow. </div><div class="ttdef"><b>Definition:</b> compact_spline.h:202</div></div>
+<div class="ttc" id="classfpl_1_1_compact_spline_html_a61f1d3a3986d04f7069aee9281d8d100"><div class="ttname"><a href="classfpl_1_1_compact_spline.html#a61f1d3a3986d04f7069aee9281d8d100">fpl::CompactSpline::Clear</a></div><div class="ttdeci">void Clear()</div><div class="ttdoc">Remove all nodes from the spline. </div></div>
+<div class="ttc" id="structfpl_1_1_spline_playback_html_ae3006a6d7734453294332d20b9512741"><div class="ttname"><a href="structfpl_1_1_spline_playback.html#ae3006a6d7734453294332d20b9512741">fpl::SplinePlayback::repeat</a></div><div class="ttdeci">bool repeat</div><div class="ttdoc">If true, start back at the beginning after we reach the end. </div><div class="ttdef"><b>Definition:</b> compact_spline.h:208</div></div>
+<div class="ttc" id="classfpl_1_1_compact_spline_html_a07feb860d1ff9a50a44ea633dd55844c"><div class="ttname"><a href="classfpl_1_1_compact_spline.html#a07feb860d1ff9a50a44ea633dd55844c">fpl::CompactSpline::IndexForX</a></div><div class="ttdeci">CompactSplineIndex IndexForX(const float x, const CompactSplineIndex guess_index) const </div></div>
+<div class="ttc" id="structfpl_1_1_spline_playback_html"><div class="ttname"><a href="structfpl_1_1_spline_playback.html">fpl::SplinePlayback</a></div><div class="ttdoc">Parameters to specify how a spline should be traversed. </div><div class="ttdef"><b>Definition:</b> compact_spline.h:196</div></div>
+<div class="ttc" id="classfpl_1_1_compact_spline_html"><div class="ttname"><a href="classfpl_1_1_compact_spline.html">fpl::CompactSpline</a></div><div class="ttdoc">Represent a smooth curve in a small amount of memory. </div><div class="ttdef"><b>Definition:</b> compact_spline.h:74</div></div>
+<div class="ttc" id="classfpl_1_1_compact_spline_html_a8cf74846c2624dae3a9f12b97ce46a1c"><div class="ttname"><a href="classfpl_1_1_compact_spline.html#a8cf74846c2624dae3a9f12b97ce46a1c">fpl::CompactSpline::AddNode</a></div><div class="ttdeci">void AddNode(const float x, const float y, const float derivative, const CompactSplineAddMethod method=kEnsureCubicWellBehaved)</div></div>
+<div class="ttc" id="classfpl_1_1_compact_spline_html_aab75d3119edaf091402e2c49284bec9b"><div class="ttname"><a href="classfpl_1_1_compact_spline.html#aab75d3119edaf091402e2c49284bec9b">fpl::CompactSpline::Init</a></div><div class="ttdeci">void Init(const Range &amp;y_range, const float x_granularity, const int num_nodes=0)</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html"><div class="ttname"><a href="classfpl_1_1_range_t.html">fpl::RangeT</a></div><div class="ttdoc">Represent an interval on a number line. </div><div class="ttdef"><b>Definition:</b> range.h:37</div></div>
+<div class="ttc" id="classfpl_1_1_compact_spline_html_a169bcfb33bea4168a443225d03ba12e2"><div class="ttname"><a href="classfpl_1_1_compact_spline.html#a169bcfb33bea4168a443225d03ba12e2">fpl::CompactSpline::RecommendXGranularity</a></div><div class="ttdeci">static float RecommendXGranularity(const float max_x)</div></div>
+<div class="ttc" id="classfpl_1_1_compact_spline_html_a959587439623ef16bfa54b6eeb1f675b"><div class="ttname"><a href="classfpl_1_1_compact_spline.html#a959587439623ef16bfa54b6eeb1f675b">fpl::CompactSpline::CreateCubicInit</a></div><div class="ttdeci">CubicInit CreateCubicInit(const CompactSplineIndex index) const </div></div>
+<div class="ttc" id="structfpl_1_1_cubic_init_html"><div class="ttname"><a href="structfpl_1_1_cubic_init.html">fpl::CubicInit</a></div><div class="ttdoc">Initialization parameters to create a cubic curve with start and end y-values and derivatives...</div><div class="ttdef"><b>Definition:</b> curve.h:186</div></div>
+<div class="ttc" id="structfpl_1_1_spline_playback_html_a21ea7220232cd1bafceb430f3315cdf7"><div class="ttname"><a href="structfpl_1_1_spline_playback.html#a21ea7220232cd1bafceb430f3315cdf7">fpl::SplinePlayback::start_x</a></div><div class="ttdeci">float start_x</div><div class="ttdoc">The starting point from which to play. </div><div class="ttdef"><b>Definition:</b> compact_spline.h:205</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->

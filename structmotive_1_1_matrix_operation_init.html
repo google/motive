@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Motive Animation System: motive::MatrixOperationInit Struct Reference</title>
+<title>Motive Animation System: motive::MatrixOperationInit Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -78,6 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
       <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -100,7 +101,7 @@ $(document).ready(function(){initNavTree('structmotive_1_1_matrix_operation_init
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -114,12 +115,19 @@ $(document).ready(function(){initNavTree('structmotive_1_1_matrix_operation_init
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="structmotive_1_1_matrix_operation_init-members.html">List of all members</a>  </div>
+<a href="classmotive_1_1_matrix_operation_init-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">motive::MatrixOperationInit Struct Reference</div>  </div>
+<div class="title">motive::MatrixOperationInit Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
+
+<p>Init params for a basic operation on a matrix.  
+ <a href="structmotive_1_1_matrix_operation_init.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="init_8h_source.html">init.h</a>&gt;</code></p>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Init params for a basic operation on a matrix. </p>
+</div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a4cee217df008abf3e03b94c832268ee2"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>UnionType</b> { <b>kUnionEmpty</b>, 
@@ -132,13 +140,14 @@ Public Types</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a731e4766440f7e94619a0f3432cca4ff"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a731e4766440f7e94619a0f3432cca4ff"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>MatrixOperationInit</b> (MatrixOperationType type, float const_value)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmotive_1_1_matrix_operation_init.html#a731e4766440f7e94619a0f3432cca4ff">MatrixOperationInit</a> (MatrixOperationType type, float const_value)</td></tr>
+<tr class="memdesc:a731e4766440f7e94619a0f3432cca4ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix operation never changes. Always use 'const_value'. <br/></td></tr>
 <tr class="separator:a731e4766440f7e94619a0f3432cca4ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ead8dd7384c9d4cf8e75a641a364a49"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3ead8dd7384c9d4cf8e75a641a364a49"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>MatrixOperationInit</b> (MatrixOperationType type, const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmotive_1_1_matrix_operation_init.html#a3ead8dd7384c9d4cf8e75a641a364a49">MatrixOperationInit</a> (MatrixOperationType type, const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init)</td></tr>
+<tr class="memdesc:a3ead8dd7384c9d4cf8e75a641a364a49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix operation is driven by <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> defined by 'init'. <br/></td></tr>
 <tr class="separator:a3ead8dd7384c9d4cf8e75a641a364a49"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6841ed228041f342025bfe4f4de646e3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6841ed228041f342025bfe4f4de646e3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>MatrixOperationInit</b> (MatrixOperationType type, const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, float initial_value)</td></tr>
+<tr class="memitem:a6841ed228041f342025bfe4f4de646e3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmotive_1_1_matrix_operation_init.html#a6841ed228041f342025bfe4f4de646e3">MatrixOperationInit</a> (MatrixOperationType type, const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, float initial_value)</td></tr>
 <tr class="separator:a6841ed228041f342025bfe4f4de646e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace3cbb2a7bf3547808f6c24256d4deff"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ace3cbb2a7bf3547808f6c24256d4deff"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>MatrixOperationInit</b> (MatrixOperationType type, const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, const <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> &amp;target)</td></tr>
@@ -172,7 +181,49 @@ union {</td></tr>
 <tr class="memitem:a6684b497cd2fba042ddb0bfd700c45cb"><td class="memItemLeft" valign="top">};&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="separator:a6684b497cd2fba042ddb0bfd700c45cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this struct was generated from the following file:<ul>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a6841ed228041f342025bfe4f4de646e3"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">motive::MatrixOperationInit::MatrixOperationInit </td>
+          <td>(</td>
+          <td class="paramtype">MatrixOperationType&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;&#160;</td>
+          <td class="paramname"><em>init</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>initial_value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Matrix operation is driven by <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> defined by 'init'. Specify initial value as well. </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="init_8h_source.html">init.h</a></li>
 </ul>
 </div><!-- contents -->

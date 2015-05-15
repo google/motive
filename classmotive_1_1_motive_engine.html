@@ -78,6 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
       <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -100,7 +101,7 @@ $(document).ready(function(){initNavTree('classmotive_1_1_motive_engine.html',''
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -113,31 +114,67 @@ $(document).ready(function(){initNavTree('classmotive_1_1_motive_engine.html',''
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="classmotive_1_1_motive_engine-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">motive::MotiveEngine Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
+
+<p>Hold and update all animation data.  
+ <a href="classmotive_1_1_motive_engine.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="engine_8h_source.html">engine.h</a>&gt;</code></p>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Hold and update all animation data. </p>
+<p>The engine holds all of the MotiveProcessors, and updates them all when <a class="el" href="classmotive_1_1_motive_engine.html#a8696d6a9ed3b919d6e4832c9e08958cd">AdvanceFrame()</a> is called. The processing is kept central, in this manner, for scalability. The engine is not a singleton, but you should try to minimize the number of engines in your game. As more Motivators are added to the processors, you start to get economies of scale. </p>
+</div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a585ef9466764c0c6a176c27fa8d0ec1f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a585ef9466764c0c6a176c27fa8d0ec1f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Reset</b> ()</td></tr>
+<tr class="memitem:a585ef9466764c0c6a176c27fa8d0ec1f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_engine.html#a585ef9466764c0c6a176c27fa8d0ec1f">Reset</a> ()</td></tr>
 <tr class="separator:a585ef9466764c0c6a176c27fa8d0ec1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8696d6a9ed3b919d6e4832c9e08958cd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8696d6a9ed3b919d6e4832c9e08958cd"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AdvanceFrame</b> (MotiveTime delta_time)</td></tr>
+<tr class="memitem:a8696d6a9ed3b919d6e4832c9e08958cd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_engine.html#a8696d6a9ed3b919d6e4832c9e08958cd">AdvanceFrame</a> (MotiveTime delta_time)</td></tr>
 <tr class="separator:a8696d6a9ed3b919d6e4832c9e08958cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab5dc43eb88b4e45ba8c48ab0f66d2bcd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab5dc43eb88b4e45ba8c48ab0f66d2bcd"></a>
-<a class="el" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Processor</b> (MotivatorType type)</td></tr>
-<tr class="separator:ab5dc43eb88b4e45ba8c48ab0f66d2bcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
-Static Public Member Functions</h2></td></tr>
-<tr class="memitem:ae4e652ab9eb822e0f8e444a32f40b1ed"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae4e652ab9eb822e0f8e444a32f40b1ed"></a>
-static void&#160;</td><td class="memItemRight" valign="bottom"><b>RegisterProcessorFactory</b> (MotivatorType type, const <a class="el" href="structmotive_1_1_motive_processor_functions.html">MotiveProcessorFunctions</a> &amp;fns)</td></tr>
-<tr class="separator:ae4e652ab9eb822e0f8e444a32f40b1ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a8696d6a9ed3b919d6e4832c9e08958cd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void motive::MotiveEngine::AdvanceFrame </td>
+          <td>(</td>
+          <td class="paramtype">MotiveTime&#160;</td>
+          <td class="paramname"><em>delta_time</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Update all the MotiveProcessors by 'delta_time'. This advances all Motivators created with this <a class="el" href="classmotive_1_1_motive_engine.html" title="Hold and update all animation data. ">MotiveEngine</a>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">delta_time</td><td>Elapsed time since the last call to <a class="el" href="classmotive_1_1_motive_engine.html#a8696d6a9ed3b919d6e4832c9e08958cd">AdvanceFrame()</a>. Time units are defined by the user. When using spline animations, for instance, the time unit is the unit of the x-axis. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a585ef9466764c0c6a176c27fa8d0ec1f"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void motive::MotiveEngine::Reset </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Deallocate all MotiveProcessors, which, in turn, resets all Motivators that use those MotiveProcessors. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="engine_8h_source.html">engine.h</a></li>
 </ul>

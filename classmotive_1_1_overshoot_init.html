@@ -78,6 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
       <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -100,7 +101,7 @@ $(document).ready(function(){initNavTree('classmotive_1_1_overshoot_init.html','
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -134,13 +135,12 @@ Public Member Functions</h2></td></tr>
 &#160;</td><td class="memItemRight" valign="bottom"><b>MOTIVE_INTERFACE</b> ()</td></tr>
 <tr class="separator:a9e5293edfa248c9451dbaf3e8194ba5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a79ef0f23546efefa467f41c17e342601"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a79ef0f23546efefa467f41c17e342601"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>ClampVelocity</b> (float velocity) const </td></tr>
+float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_overshoot_init.html#a79ef0f23546efefa467f41c17e342601">ClampVelocity</a> (float velocity) const </td></tr>
+<tr class="memdesc:a79ef0f23546efefa467f41c17e342601"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ensure velocity is within the reasonable limits. <br/></td></tr>
 <tr class="separator:a79ef0f23546efefa467f41c17e342601"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8b0085c1f6ff75a117d7ba55c47f7cc4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8b0085c1f6ff75a117d7ba55c47f7cc4"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>ClampDelta</b> (float delta) const </td></tr>
+<tr class="memitem:a8b0085c1f6ff75a117d7ba55c47f7cc4"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_overshoot_init.html#a8b0085c1f6ff75a117d7ba55c47f7cc4">ClampDelta</a> (float delta) const </td></tr>
 <tr class="separator:a8b0085c1f6ff75a117d7ba55c47f7cc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af0d7e085dba2432ab64d9082e3eca6d5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af0d7e085dba2432ab64d9082e3eca6d5"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>AtTarget</b> (float dist, float velocity) const </td></tr>
+<tr class="memitem:af0d7e085dba2432ab64d9082e3eca6d5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_overshoot_init.html#af0d7e085dba2432ab64d9082e3eca6d5">AtTarget</a> (float dist, float velocity) const </td></tr>
 <tr class="separator:af0d7e085dba2432ab64d9082e3eca6d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a27f7e5536167e4bdd384476b7aed299d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a27f7e5536167e4bdd384476b7aed299d"></a>
 float&#160;</td><td class="memItemRight" valign="bottom"><b>max_velocity</b> () const </td></tr>
@@ -182,26 +182,24 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_wrong_direction_m
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_max_delta_time</b> (MotiveTime max_delta_time)</td></tr>
 <tr class="separator:a141e81e983343e5b2abbfb5c1110d6f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classmotive_1_1_modular_init"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classmotive_1_1_modular_init')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classmotive_1_1_modular_init.html">motive::ModularInit</a></td></tr>
-<tr class="memitem:aefcfe8a0cd2fa7b5a2753ab5309d9b57 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aefcfe8a0cd2fa7b5a2753ab5309d9b57"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ModularInit</b> (MotivatorType type)</td></tr>
+<tr class="memitem:aefcfe8a0cd2fa7b5a2753ab5309d9b57 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_modular_init.html#aefcfe8a0cd2fa7b5a2753ab5309d9b57">ModularInit</a> (MotivatorType type)</td></tr>
 <tr class="separator:aefcfe8a0cd2fa7b5a2753ab5309d9b57 inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3663450303847baa14c27a5b3e427ae5 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3663450303847baa14c27a5b3e427ae5"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ModularInit</b> (MotivatorType type, const <a class="el" href="classfpl_1_1_range_t.html">fpl::Range</a> &amp;range, bool modular)</td></tr>
 <tr class="separator:a3663450303847baa14c27a5b3e427ae5 inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af1f210390644301a13b4e121cc86ec94 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af1f210390644301a13b4e121cc86ec94"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>Normalize</b> (float x) const </td></tr>
+<tr class="memitem:af1f210390644301a13b4e121cc86ec94 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_modular_init.html#af1f210390644301a13b4e121cc86ec94">Normalize</a> (float x) const </td></tr>
 <tr class="separator:af1f210390644301a13b4e121cc86ec94 inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0690cf92b8851770349e56c3f57d6028 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0690cf92b8851770349e56c3f57d6028"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>NormalizeWildValue</b> (float x) const </td></tr>
+<tr class="memitem:a0690cf92b8851770349e56c3f57d6028 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_modular_init.html#a0690cf92b8851770349e56c3f57d6028">NormalizeWildValue</a> (float x) const </td></tr>
 <tr class="separator:a0690cf92b8851770349e56c3f57d6028 inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a42516b02d60a3da4a16936380908c9 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3a42516b02d60a3da4a16936380908c9"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>ClampValue</b> (float x) const </td></tr>
+<tr class="memitem:a3a42516b02d60a3da4a16936380908c9 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_modular_init.html#a3a42516b02d60a3da4a16936380908c9">ClampValue</a> (float x) const </td></tr>
 <tr class="separator:a3a42516b02d60a3da4a16936380908c9 inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3aa3e28c8ccde930d4e528734d83d057 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3aa3e28c8ccde930d4e528734d83d057"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>Min</b> () const </td></tr>
+float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_modular_init.html#a3aa3e28c8ccde930d4e528734d83d057">Min</a> () const </td></tr>
+<tr class="memdesc:a3aa3e28c8ccde930d4e528734d83d057 inherit pub_methods_classmotive_1_1_modular_init"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return minimum value of the range. <br/></td></tr>
 <tr class="separator:a3aa3e28c8ccde930d4e528734d83d057 inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4b5117cb40b88491a09a2b48f878a0b3 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4b5117cb40b88491a09a2b48f878a0b3"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>Max</b> () const </td></tr>
+float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_modular_init.html#a4b5117cb40b88491a09a2b48f878a0b3">Max</a> () const </td></tr>
+<tr class="memdesc:a4b5117cb40b88491a09a2b48f878a0b3 inherit pub_methods_classmotive_1_1_modular_init"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return maximum value of the range. <br/></td></tr>
 <tr class="separator:a4b5117cb40b88491a09a2b48f878a0b3 inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af834b0c7c4468844ff8f6d9fdec768f4 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af834b0c7c4468844ff8f6d9fdec768f4"></a>
 const <a class="el" href="classfpl_1_1_range_t.html">fpl::Range</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>range</b> () const </td></tr>
@@ -217,7 +215,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_modular</b> (bool
 <tr class="separator:a3ba00b89c0da5ffe050028e0230cc920 inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classmotive_1_1_motivator_init"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classmotive_1_1_motivator_init')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classmotive_1_1_motivator_init.html">motive::MotivatorInit</a></td></tr>
 <tr class="memitem:a4bad26a44261bf463f6aef03f9f7ac1a inherit pub_methods_classmotive_1_1_motivator_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4bad26a44261bf463f6aef03f9f7ac1a"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>MotivatorInit</b> (MotivatorType type)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_init.html#a4bad26a44261bf463f6aef03f9f7ac1a">MotivatorInit</a> (MotivatorType type)</td></tr>
+<tr class="memdesc:a4bad26a44261bf463f6aef03f9f7ac1a inherit pub_methods_classmotive_1_1_motivator_init"><td class="mdescLeft">&#160;</td><td class="mdescRight">The derived class's constructor should set 'type'. <br/></td></tr>
 <tr class="separator:a4bad26a44261bf463f6aef03f9f7ac1a inherit pub_methods_classmotive_1_1_motivator_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad6e60182c4ede9f1fea9c0e8d7cb9589 inherit pub_methods_classmotive_1_1_motivator_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad6e60182c4ede9f1fea9c0e8d7cb9589"></a>
 MotivatorType&#160;</td><td class="memItemRight" valign="bottom"><b>type</b> () const </td></tr>
@@ -226,6 +225,67 @@ MotivatorType&#160;</td><td class="memItemRight" valign="bottom"><b>type</b> () 
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_type</b> (MotivatorType type)</td></tr>
 <tr class="separator:a2dccaa228badd16290ad8ce063045b9e inherit pub_methods_classmotive_1_1_motivator_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="af0d7e085dba2432ab64d9082e3eca6d5"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool motive::OvershootInit::AtTarget </td>
+          <td>(</td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>dist</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>velocity</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return true if we're close to the target and almost stopped. The definition of "close to" and "almost stopped" are given by the "at_target" member. </p>
+
+</div>
+</div>
+<a class="anchor" id="a8b0085c1f6ff75a117d7ba55c47f7cc4"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">float motive::OvershootInit::ClampDelta </td>
+          <td>(</td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>delta</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Ensure the <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a>'s 'value' doesn't increment by more than 'max_delta'. This is different from ClampVelocity because it is independent of time. No matter how big the timestep, the delta will not be too great. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="init_8h_source.html">init.h</a></li>
 </ul>

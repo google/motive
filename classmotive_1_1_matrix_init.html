@@ -78,6 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
       <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -100,7 +101,7 @@ $(document).ready(function(){initNavTree('classmotive_1_1_matrix_init.html','');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -118,6 +119,11 @@ $(document).ready(function(){initNavTree('classmotive_1_1_matrix_init.html','');
 <div class="title">motive::MatrixInit Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Initialize a MotivatorMatrix4f to generate its matrix from a series of operations.  
+ <a href="classmotive_1_1_matrix_init.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="init_8h_source.html">init.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for motive::MatrixInit:</div>
 <div class="dyncontent">
@@ -127,7 +133,14 @@ Inheritance diagram for motive::MatrixInit:</div>
 <area href="classmotive_1_1_motivator_init.html" alt="motive::MotivatorInit" shape="rect" coords="0,0,123,24"/>
 </map>
  </div></div>
-<table class="memberdecls">
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Initialize a MotivatorMatrix4f to generate its matrix from a series of operations. </p>
+<p>Initialize an MotivatorMatrix4f with these initialization parameters to create an motivator that generates a 4x4 matrix from a series of basic matrix operations. The basic matrix operations are driven by 1 dimensional motivators.</p>
+<p>The series of operations can transform an object from the coordinate space in which it was authored, to world (or local) space. For example, if you have a penguin that is authored at (0,0,0) facing up the x-axis, you can move it to it's target position with four operations: </p>
+<pre class="fragment"> kScaleUniformly --&gt; to make penguin the correct size
+ kRotateAboutY --&gt; to make penguin face the correct direction
+ kTranslateX } --&gt; to move penguin along to ground to target position
+ kTranslateZ }  </pre> </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a664d4f4ccf4ca60ee2ce5ed5c9c108b5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a664d4f4ccf4ca60ee2ce5ed5c9c108b5"></a>
@@ -140,33 +153,29 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aee1a555f8228acc521829ae5e35419b9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aee1a555f8228acc521829ae5e35419b9"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>MOTIVE_INTERFACE</b> ()</td></tr>
 <tr class="separator:aee1a555f8228acc521829ae5e35419b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad82e9a621192bb0f7a460cd05f9723b8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad82e9a621192bb0f7a460cd05f9723b8"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>MatrixInit</b> (int expected_num_ops=8)</td></tr>
+<tr class="memitem:ad82e9a621192bb0f7a460cd05f9723b8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_init.html#ad82e9a621192bb0f7a460cd05f9723b8">MatrixInit</a> (int expected_num_ops=8)</td></tr>
 <tr class="separator:ad82e9a621192bb0f7a460cd05f9723b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a36215402908f99b9d9e132ffb165d051"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a36215402908f99b9d9e132ffb165d051"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Clear</b> ()</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_init.html#a36215402908f99b9d9e132ffb165d051">Clear</a> ()</td></tr>
+<tr class="memdesc:a36215402908f99b9d9e132ffb165d051"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove all matrix operations from the sequence. <br/></td></tr>
 <tr class="separator:a36215402908f99b9d9e132ffb165d051"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a154976329e2fb0b6894b2763e7b4d78f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a154976329e2fb0b6894b2763e7b4d78f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddOp</b> (MatrixOperationType type, float const_value)</td></tr>
+<tr class="memitem:a154976329e2fb0b6894b2763e7b4d78f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_init.html#a154976329e2fb0b6894b2763e7b4d78f">AddOp</a> (MatrixOperationType type, float const_value)</td></tr>
 <tr class="separator:a154976329e2fb0b6894b2763e7b4d78f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa79443fe11919db3fa01ab0bfb4e4c1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afa79443fe11919db3fa01ab0bfb4e4c1"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddOp</b> (MatrixOperationType type, const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init)</td></tr>
+<tr class="memitem:afa79443fe11919db3fa01ab0bfb4e4c1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_init.html#afa79443fe11919db3fa01ab0bfb4e4c1">AddOp</a> (MatrixOperationType type, const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init)</td></tr>
 <tr class="separator:afa79443fe11919db3fa01ab0bfb4e4c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8fc9b4de4cab8e52ed24c2933b9f67cc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8fc9b4de4cab8e52ed24c2933b9f67cc"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddOp</b> (MatrixOperationType type, const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, float initial_value)</td></tr>
+<tr class="memitem:a8fc9b4de4cab8e52ed24c2933b9f67cc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_init.html#a8fc9b4de4cab8e52ed24c2933b9f67cc">AddOp</a> (MatrixOperationType type, const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, float initial_value)</td></tr>
 <tr class="separator:a8fc9b4de4cab8e52ed24c2933b9f67cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5a714d2f4c3d6b11f78e7e25373121f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa5a714d2f4c3d6b11f78e7e25373121f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddOp</b> (MatrixOperationType type, const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, const <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> &amp;target)</td></tr>
+<tr class="memitem:aa5a714d2f4c3d6b11f78e7e25373121f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_init.html#aa5a714d2f4c3d6b11f78e7e25373121f">AddOp</a> (MatrixOperationType type, const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, const <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> &amp;target)</td></tr>
 <tr class="separator:aa5a714d2f4c3d6b11f78e7e25373121f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9251465a017ae2bfe4dc109965a77bda"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9251465a017ae2bfe4dc109965a77bda"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddOp</b> (MatrixOperationType type, const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, const <a class="el" href="structfpl_1_1_spline_playback.html">fpl::SplinePlayback</a> &amp;spline)</td></tr>
+<tr class="memitem:a9251465a017ae2bfe4dc109965a77bda"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_init.html#a9251465a017ae2bfe4dc109965a77bda">AddOp</a> (MatrixOperationType type, const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, const <a class="el" href="structfpl_1_1_spline_playback.html">fpl::SplinePlayback</a> &amp;spline)</td></tr>
 <tr class="separator:a9251465a017ae2bfe4dc109965a77bda"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acec9f6d835f01c2bc0100ec7f6603186"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acec9f6d835f01c2bc0100ec7f6603186"></a>
 const OpVector &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>ops</b> () const </td></tr>
 <tr class="separator:acec9f6d835f01c2bc0100ec7f6603186"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classmotive_1_1_motivator_init"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classmotive_1_1_motivator_init')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classmotive_1_1_motivator_init.html">motive::MotivatorInit</a></td></tr>
 <tr class="memitem:a4bad26a44261bf463f6aef03f9f7ac1a inherit pub_methods_classmotive_1_1_motivator_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4bad26a44261bf463f6aef03f9f7ac1a"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>MotivatorInit</b> (MotivatorType type)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_init.html#a4bad26a44261bf463f6aef03f9f7ac1a">MotivatorInit</a> (MotivatorType type)</td></tr>
+<tr class="memdesc:a4bad26a44261bf463f6aef03f9f7ac1a inherit pub_methods_classmotive_1_1_motivator_init"><td class="mdescLeft">&#160;</td><td class="mdescRight">The derived class's constructor should set 'type'. <br/></td></tr>
 <tr class="separator:a4bad26a44261bf463f6aef03f9f7ac1a inherit pub_methods_classmotive_1_1_motivator_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad6e60182c4ede9f1fea9c0e8d7cb9589 inherit pub_methods_classmotive_1_1_motivator_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad6e60182c4ede9f1fea9c0e8d7cb9589"></a>
 MotivatorType&#160;</td><td class="memItemRight" valign="bottom"><b>type</b> () const </td></tr>
@@ -175,6 +184,226 @@ MotivatorType&#160;</td><td class="memItemRight" valign="bottom"><b>type</b> () 
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_type</b> (MotivatorType type)</td></tr>
 <tr class="separator:a2dccaa228badd16290ad8ce063045b9e inherit pub_methods_classmotive_1_1_motivator_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="ad82e9a621192bb0f7a460cd05f9723b8"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">motive::MatrixInit::MatrixInit </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>expected_num_ops</em> = <code>8</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>By default expect a relatively high number of ops. Cost for allocating a bit too much temporary memory is small compared to cost of reallocating that memory. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a154976329e2fb0b6894b2763e7b4d78f"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void motive::MatrixInit::AddOp </td>
+          <td>(</td>
+          <td class="paramtype">MatrixOperationType&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>const_value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Operation is constant. For example, use to put something flat on the ground, with 'type' = kRotateAboutX and 'const_value' = pi/2. </p>
+
+</div>
+</div>
+<a class="anchor" id="afa79443fe11919db3fa01ab0bfb4e4c1"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void motive::MatrixInit::AddOp </td>
+          <td>(</td>
+          <td class="paramtype">MatrixOperationType&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;&#160;</td>
+          <td class="paramname"><em>init</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Operation is driven by a 1-dimensional motivator. For example, you can control the face angle of a standing object with 'type' = kRotateAboutY and 'init' a curve specified by <a class="el" href="classmotive_1_1_smooth_init.html" title="Initialize a Motivator1f to follow a spline. ">SmoothInit</a>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a8fc9b4de4cab8e52ed24c2933b9f67cc"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void motive::MatrixInit::AddOp </td>
+          <td>(</td>
+          <td class="paramtype">MatrixOperationType&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;&#160;</td>
+          <td class="paramname"><em>init</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>initial_value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Operation is driven by a 1-dimensional motivator, and initial value is specified. </p>
+
+</div>
+</div>
+<a class="anchor" id="aa5a714d2f4c3d6b11f78e7e25373121f"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void motive::MatrixInit::AddOp </td>
+          <td>(</td>
+          <td class="paramtype">MatrixOperationType&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;&#160;</td>
+          <td class="paramname"><em>init</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> &amp;&#160;</td>
+          <td class="paramname"><em>target</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Operation is driven by a 1-dimensional motivator, which is initialized to traverse the key points specified in <code>target</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a9251465a017ae2bfe4dc109965a77bda"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void motive::MatrixInit::AddOp </td>
+          <td>(</td>
+          <td class="paramtype">MatrixOperationType&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;&#160;</td>
+          <td class="paramname"><em>init</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structfpl_1_1_spline_playback.html">fpl::SplinePlayback</a> &amp;&#160;</td>
+          <td class="paramname"><em>spline</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Operation is driven by a 1-dimensional motivator, which is initialized to follow the predefined curve specified in <code>spline</code>. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="init_8h_source.html">init.h</a></li>
 </ul>

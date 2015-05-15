@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Motive Animation System: motive::Settled1f Struct Reference</title>
+<title>Motive Animation System: motive::Settled1f Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -78,6 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
       <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -100,7 +101,7 @@ $(document).ready(function(){initNavTree('structmotive_1_1_settled1f.html','');}
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -113,31 +114,88 @@ $(document).ready(function(){initNavTree('structmotive_1_1_settled1f.html','');}
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="structmotive_1_1_settled1f-members.html">List of all members</a>  </div>
+<a href="classmotive_1_1_settled1f-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">motive::Settled1f Struct Reference</div>  </div>
+<div class="title">motive::Settled1f Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
+
+<p>Helper to determine if we're "at the target" and "stopped".  
+ <a href="structmotive_1_1_settled1f.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="util_8h_source.html">util.h</a>&gt;</code></p>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Helper to determine if we're "at the target" and "stopped". </p>
+</div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a27f91fd3018d8135d43feb7e17254a09"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a27f91fd3018d8135d43feb7e17254a09"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>Settled</b> (float dist, float velocity) const </td></tr>
+<tr class="memitem:a27f91fd3018d8135d43feb7e17254a09"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmotive_1_1_settled1f.html#a27f91fd3018d8135d43feb7e17254a09">Settled</a> (float dist, float velocity) const </td></tr>
 <tr class="separator:a27f91fd3018d8135d43feb7e17254a09"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abcf8d1559b099fcdd04bfc3ee003736c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abcf8d1559b099fcdd04bfc3ee003736c"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>Settled</b> (const <a class="el" href="classmotive_1_1_motivator1f.html">Motivator1f</a> &amp;motivator) const </td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmotive_1_1_settled1f.html#abcf8d1559b099fcdd04bfc3ee003736c">Settled</a> (const <a class="el" href="classmotive_1_1_motivator1f.html">Motivator1f</a> &amp;motivator) const </td></tr>
+<tr class="memdesc:abcf8d1559b099fcdd04bfc3ee003736c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true if <code>motivator</code> is "at the target" and "stopped". <br/></td></tr>
 <tr class="separator:abcf8d1559b099fcdd04bfc3ee003736c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a4cf5116f7e4e3c7f9eb0b79884ce0338"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4cf5116f7e4e3c7f9eb0b79884ce0338"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>max_difference</b></td></tr>
+<tr class="memitem:a4cf5116f7e4e3c7f9eb0b79884ce0338"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmotive_1_1_settled1f.html#a4cf5116f7e4e3c7f9eb0b79884ce0338">max_difference</a></td></tr>
 <tr class="separator:a4cf5116f7e4e3c7f9eb0b79884ce0338"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a2910dff55546a4bbaa7d74911e8961"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4a2910dff55546a4bbaa7d74911e8961"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><b>max_velocity</b></td></tr>
+float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmotive_1_1_settled1f.html#a4a2910dff55546a4bbaa7d74911e8961">max_velocity</a></td></tr>
+<tr class="memdesc:a4a2910dff55546a4bbaa7d74911e8961"><td class="mdescLeft">&#160;</td><td class="mdescRight">Consider ourselves "stopped" if the absolute velocity is less than this. <br/></td></tr>
 <tr class="separator:a4a2910dff55546a4bbaa7d74911e8961"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this struct was generated from the following file:<ul>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a27f91fd3018d8135d43feb7e17254a09"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool motive::Settled1f::Settled </td>
+          <td>(</td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>dist</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>velocity</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return true if our distance from target is and velocity are less than this class' threshold. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a class="anchor" id="a4cf5116f7e4e3c7f9eb0b79884ce0338"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float motive::Settled1f::max_difference</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Consider ourselves "at the target" if the absolute difference between the value and the target is less than this. </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="util_8h_source.html">util.h</a></li>
 </ul>
 </div><!-- contents -->

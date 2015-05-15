@@ -78,6 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
       <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -100,7 +101,7 @@ $(document).ready(function(){initNavTree('classfpl_1_1_benchmark.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -117,12 +118,20 @@ $(document).ready(function(){initNavTree('classfpl_1_1_benchmark.html','');});
 <div class="title">fpl::Benchmark Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<table class="memberdecls">
+
+<p>Record the time for the scope of this variable.  
+ <a href="classfpl_1_1_benchmark.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="benchmark_8h_source.html">benchmark.h</a>&gt;</code></p>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Record the time for the scope of this variable. </p>
+<p>Creates a benchmark sample. We can sample several things at once. The thing we're sampling is specified by 'id'. The sample is the time between creation and destruction of the <a class="el" href="classfpl_1_1_benchmark.html" title="Record the time for the scope of this variable. ">Benchmark</a>. </p>
+</div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a77d8e5e67ef0f9f11a1a27ccee7ae7a7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a77d8e5e67ef0f9f11a1a27ccee7ae7a7"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Benchmark</b> (int)</td></tr>
-<tr class="separator:a77d8e5e67ef0f9f11a1a27ccee7ae7a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee4cc75693e5145362c5f4cb71037b70"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aee4cc75693e5145362c5f4cb71037b70"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Benchmark</b> (int id)</td></tr>
+<tr class="separator:aee4cc75693e5145362c5f4cb71037b70"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="benchmark_8h_source.html">benchmark.h</a></li>

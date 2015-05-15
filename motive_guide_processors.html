@@ -87,7 +87,7 @@ $(document).ready(function(){initNavTree('motive_guide_processors.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -110,177 +110,12 @@ Example</h1>
 <p>Each <code>MotiveProcessor</code> subclass has its own interface that must be instantiated by your derivation. Additionally, there are macros MOTIVE_INTERFACE() and MOTIVE_INSTANCE() that you must add to your code.</p>
 <p>For example, here is a simple one-dimensional algorithm that moves linearly from the current value to the target value, in the target time.</p>
 <p>Put your initialization code in a header file:</p>
-<div class="fragment"><div class="line"><span class="comment">// The init structure is the only code that should be exposed externally.</span></div>
-<div class="line"><span class="comment">// When you call Motivator::Initialize() with initialization parameters of</span></div>
-<div class="line"><span class="comment">// type LinearInit, the initialization call will be routed to</span></div>
-<div class="line"><span class="comment">// LinearMotiveProcessor::InitializeIndex().</span></div>
-<div class="line"><span class="comment">//</span></div>
-<div class="line"><span class="keyword">class </span>LinearInit : <span class="keyword">public</span> MotivatorInit {</div>
-<div class="line"> <span class="keyword">public</span>:</div>
-<div class="line">  <span class="comment">// Defines &#39;kType&#39; and other functions necessary to register this type of</span></div>
-<div class="line">  <span class="comment">// motivator.</span></div>
-<div class="line">  MOTIVE_INTERFACE();</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// This motivator type is rather boring. It has no configuration parameters</span></div>
-<div class="line">  <span class="comment">// at all. We could add some extra parameters here, though, if we like.</span></div>
-<div class="line">  LinearInit() : MotivatorInit(kType) {}</div>
-<div class="line">};</div>
-</div><!-- fragment --><p> The remaining code can be in a .cpp file. There is no need to expose it, since it gets registered with the <code>MotiveEngine</code>, and all calls to it come through <code>MotiveEngine</code>.</p>
-<div class="fragment"><div class="line"><span class="keyword">class </span>LinearMotiveProcessor : <span class="keyword">public</span> MotiveProcessor1f {</div>
-<div class="line"> <span class="keyword">public</span>:</div>
-<div class="line">  <span class="keyword">virtual</span> ~LinearMotiveProcessor() {}</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// Once per frame, the MotiveEngine calls this function. In this one call,</span></div>
-<div class="line">  <span class="comment">// we advance the simulation of _all_ linear Motivators. Bulk processing</span></div>
-<div class="line">  <span class="comment">// allows us to use SIMD or multi-threading when appropriate.</span></div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> AdvanceFrame(MotiveTime delta_time) {</div>
-<div class="line">    <span class="comment">// We could optimize this using SIMD.</span></div>
-<div class="line">    <span class="keywordflow">for</span> (<span class="keyword">auto</span> it = data_.begin(); it &lt; data_.end(); ++it) {</div>
-<div class="line">      LinearData&amp; d = *it;</div>
-<div class="line"></div>
-<div class="line">      <span class="comment">// Advance the value by linearly interpolating towards the target.</span></div>
-<div class="line">      <span class="keywordflow">if</span> (d.target_time &gt; 0.0f) {</div>
-<div class="line">        <span class="keyword">const</span> <span class="keywordtype">float</span> percent_complete = delta_time / d.target_time;</div>
-<div class="line">        d.value = mathfu::Lerp(d.value, d.target_value, percent_complete);</div>
-<div class="line">      } <span class="keywordflow">else</span> {</div>
-<div class="line">        d.value = d.target_value;</div>
-<div class="line">      }</div>
-<div class="line"></div>
-<div class="line">      <span class="comment">// Decrement the target time.</span></div>
-<div class="line">      d.target_time -= delta_time;</div>
-<div class="line">    }</div>
-<div class="line">  }</div>
-<div class="line"></div>
-<div class="line">  <span class="keyword">virtual</span> MotivatorType Type()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> LinearInit::kType; }</div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">int</span> Priority()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> 0; }</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// Accessors to allow the user to get and set simulation values.</span></div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">float</span> Value(MotiveIndex index)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> Data(index).value; }</div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">float</span> Velocity(MotiveIndex index)<span class="keyword"> const </span>{</div>
-<div class="line">    <span class="keyword">const</span> LinearData&amp; d = Data(index);</div>
-<div class="line">    <span class="keywordflow">return</span> d.target_time &lt;= 0.0f ? 0.0f</div>
-<div class="line">        : (d.target_value - d.value) / d.target_time;</div>
-<div class="line">  }</div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">float</span> TargetValue(MotiveIndex index)<span class="keyword"> const </span>{</div>
-<div class="line">    <span class="keywordflow">return</span> Data(index).target_value;</div>
-<div class="line">  }</div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">float</span> TargetVelocity(MotiveIndex index)<span class="keyword"> const </span>{</div>
-<div class="line">    (void)index; <span class="keywordflow">return</span> 0.0f;</div>
-<div class="line">  }</div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">float</span> Difference(MotiveIndex index)<span class="keyword"> const </span>{</div>
-<div class="line">    <span class="keyword">const</span> LinearData&amp; d = Data(index);</div>
-<div class="line">    <span class="keywordflow">return</span> d.target_value - d.value;</div>
-<div class="line">  }</div>
-<div class="line">  <span class="keyword">virtual</span> MotiveTime TargetTime(MotiveIndex index)<span class="keyword"> const </span>{</div>
-<div class="line">    <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span>MotiveTime<span class="keyword">&gt;</span>(Data(index).target_time);</div>
-<div class="line">  }</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// Target values are set in bulk. Please see MotiveTarget1f for a description</span></div>
-<div class="line">  <span class="comment">// of the format. It&#39;s basically an array of way points. In our case, we&#39;re</span></div>
-<div class="line">  <span class="comment">// only interested in (at most) two way points: current and target.</span></div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetTarget(MotiveIndex index, <span class="keyword">const</span> MotiveTarget1f&amp; t) {</div>
-<div class="line">    LinearData&amp; d = Data(index);</div>
-<div class="line"></div>
-<div class="line">    <span class="comment">// If the first node specifies time=0, that means we want to override the</span></div>
-<div class="line">    <span class="comment">// current values with the values specified in the first node.</span></div>
-<div class="line">    <span class="keyword">const</span> MotiveNode1f&amp; node0 = t.Node(0);</div>
-<div class="line">    <span class="keyword">const</span> <span class="keywordtype">bool</span> override_current = node0.time == 0;</div>
-<div class="line">    <span class="keywordflow">if</span> (override_current) {</div>
-<div class="line">      d.value = node0.value;</div>
-<div class="line">    }</div>
-<div class="line"></div>
-<div class="line">    <span class="comment">// If the first node specifies time &gt; 0, that means we want to override the</span></div>
-<div class="line">    <span class="comment">// target values with it. Or, if two nodes are specified, we use the</span></div>
-<div class="line">    <span class="comment">// second for the target values.</span></div>
-<div class="line">    <span class="keyword">const</span> MotiveNode1f* target_node = override_current</div>
-<div class="line">                                    ? (t.num_nodes() &gt; 1 ? &amp;t.Node(1) : <span class="keyword">nullptr</span>)</div>
-<div class="line">                                    : &amp;node0;</div>
-<div class="line">    <span class="keywordflow">if</span> (target_node != <span class="keyword">nullptr</span>) {</div>
-<div class="line">      d.target_value = target_node-&gt;value;</div>
-<div class="line">      d.target_time = <span class="keyword">static_cast&lt;</span><span class="keywordtype">float</span><span class="keyword">&gt;</span>(target_node-&gt;time);</div>
-<div class="line">    }</div>
-<div class="line">  }</div>
-<div class="line"></div>
-<div class="line"> <span class="keyword">protected</span>:</div>
-<div class="line">  <span class="keyword">struct </span>LinearData {</div>
-<div class="line">    <span class="keywordtype">float</span> value;</div>
-<div class="line">    <span class="keywordtype">float</span> target_value;</div>
-<div class="line">    <span class="keywordtype">float</span> target_time;</div>
-<div class="line"></div>
-<div class="line">    LinearData() { Reset(); }</div>
-<div class="line">    <span class="keywordtype">void</span> Reset() {</div>
-<div class="line">      value = 0.0f;</div>
-<div class="line">      target_value = 0.0f;</div>
-<div class="line">      target_time = 0.0f;</div>
-<div class="line">    }</div>
-<div class="line">  };</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// When an Motivator is initialized with LinearInit, this function will</span></div>
-<div class="line">  <span class="comment">// be called. We allocate data for the new Motivator.</span></div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> InitializeIndex(<span class="keyword">const</span> MotivatorInit&amp; init, MotiveIndex index,</div>
-<div class="line">                               MotiveEngine* engine) {</div>
-<div class="line">    (void)init; (void)index; (void)engine;</div>
-<div class="line">    assert(init.type() == LinearInit::kType);</div>
-<div class="line">  }</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// This function is called when an index is removed. We don&#39;t have to do</span></div>
-<div class="line">  <span class="comment">// anything, but for ease of debugging, we call reset.</span></div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> RemoveIndex(MotiveIndex index) {</div>
-<div class="line">    Data(index).Reset();</div>
-<div class="line">  }</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// The base class endeavors to keep our data contiguous in memory, so</span></div>
-<div class="line">  <span class="comment">// whenever Defragment() is called, we may shuffle some indices around.</span></div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> MoveIndex(MotiveIndex old_index, MotiveIndex new_index) {</div>
-<div class="line">    data_[new_index] = data_[old_index];</div>
-<div class="line">  }</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// When new Motivators are being added or removed, this function may be</span></div>
-<div class="line">  <span class="comment">// called. As we grow, resize() might cause reallocs to occur, which is</span></div>
-<div class="line">  <span class="comment">// slow. However, once we reach the high-water mark, reallocs will stop.</span></div>
-<div class="line">  <span class="comment">// This is a reasonable tradeoff between the benefits and slowdowns of</span></div>
-<div class="line">  <span class="comment">// dynamically growing arrays.</span></div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetNumIndices(MotiveIndex num_indices) {</div>
-<div class="line">    data_.resize(num_indices);</div>
-<div class="line">  }</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// Handy accessors that double-check the validity of &#39;index&#39;.</span></div>
-<div class="line">  <span class="keyword">const</span> LinearData&amp; Data(MotiveIndex index)<span class="keyword"> const </span>{</div>
-<div class="line">    assert(ValidIndex(index));</div>
-<div class="line">    <span class="keywordflow">return</span> data_[index];</div>
-<div class="line">  }</div>
-<div class="line"></div>
-<div class="line">  LinearData&amp; Data(MotiveIndex index) {</div>
-<div class="line">    assert(ValidIndex(index));</div>
-<div class="line">    <span class="keywordflow">return</span> data_[index];</div>
-<div class="line">  }</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// Contiguous array of data. During Defragment(), we plug the holes from</span></div>
-<div class="line">  <span class="comment">// indices that have been removed. This allows us to process data by</span></div>
-<div class="line">  <span class="comment">// streaming it in, and maximize memory bandwidth.</span></div>
-<div class="line">  std::vector&lt;LinearData&gt; data_;</div>
-<div class="line">};</div>
-<div class="line"></div>
-<div class="line">MOTIVE_INSTANCE(LinearInit, LinearMotiveProcessor);</div>
-</div><!-- fragment --><p> The MOTIVE_INSTANCE() macro sets up the LinearMotiveProcessor to be registered with the <code>MotiveEngine</code>, but it does not actually register it. The registration must happen in the main program.</p>
-<div class="fragment"><div class="line">  LinearInit::Register();</div>
-</div><!-- fragment --><p> The <code>Register()</code> call is under <code>LinearInit</code> since it is generally the only thing exposed in a header file.</p>
+<div class="fragment"></div><!-- fragment --><p> The remaining code can be in a .cpp file. There is no need to expose it, since it gets registered with the <code>MotiveEngine</code>, and all calls to it come through <code>MotiveEngine</code>.</p>
+<div class="fragment"></div><!-- fragment --><p> The MOTIVE_INSTANCE() macro sets up the LinearMotiveProcessor to be registered with the <code>MotiveEngine</code>, but it does not actually register it. The registration must happen in the main program.</p>
+<div class="fragment"></div><!-- fragment --><p> The <code>Register()</code> call is under <code>LinearInit</code> since it is generally the only thing exposed in a header file.</p>
 <p>Now that your processor is registered, you can instantiate a motivator like so,</p>
-<div class="fragment"><div class="line">  <span class="comment">// Move from 10 --&gt; -5 in 100 internal time units.</span></div>
-<div class="line">  <span class="keyword">const</span> MotiveTarget1f target = motive::CurrentToTarget1f(10, 0, -5, 0, 100);</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// Create the 1-dimensional motivator of type Linear by passing in LinearInit.</span></div>
-<div class="line">  Motivator1f linear_motivator(LinearInit(), &amp;engine, target);</div>
-</div><!-- fragment --><p> Your processor gets updated with all the other processors, during <code>MotiveEngine::AdvanceFrame()</code>.</p>
-<div class="fragment"><div class="line">  <span class="comment">// Advance the simulation one tick at a time by calling engine.AdvanceFrame().</span></div>
-<div class="line">  std::vector&lt;vec2&gt; points;</div>
-<div class="line">  points.reserve(target.EndTime() + 1);</div>
-<div class="line">  <span class="keywordflow">for</span> (MotiveTime t = 0; t &lt;= target.EndTime(); ++t) {</div>
-<div class="line">    points.push_back(vec2(static_cast&lt;float&gt;(t), linear_motivator.Value()));</div>
-<div class="line">    engine.AdvanceFrame(1);</div>
-<div class="line">  }</div>
-<div class="line">  printf(<span class="stringliteral">&quot;\n%s&quot;</span>, fpl::Graph2DPoints(&amp;points[0], points.size()).c_str());</div>
-</div><!-- fragment --><p> The final output of our example is below. Notice that the variable animates linearly from 10 down to -5. </p>
+<div class="fragment"></div><!-- fragment --><p> Your processor gets updated with all the other processors, during <code>MotiveEngine::AdvanceFrame()</code>.</p>
+<div class="fragment"></div><!-- fragment --><p> The final output of our example is below. Notice that the variable animates linearly from 10 down to -5. </p>
 <pre class="fragment">y = 10.000000
 |
 **
@@ -314,7 +149,7 @@ Example</h1>
 |                                                                          ***
 |                                                                             **
 y = -5.000000
-</pre><p>If you'd like to experiment more with this program, it is compiled for you from <code>docs/samples/linear_processor.cpp</code>. </p>
+</pre><p>If you'd like to experiment more with this program, it is compiled for you from <code>src/samples/linear_processor.cpp</code>. </p>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->

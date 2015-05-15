@@ -78,6 +78,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
       <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
       <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -100,7 +101,7 @@ $(document).ready(function(){initNavTree('classmotive_1_1_motive_processor_matri
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -117,32 +118,41 @@ $(document).ready(function(){initNavTree('classmotive_1_1_motive_processor_matri
 <div class="title">motive::MotiveProcessorMatrix4f Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Interface for motivator types that drive a 4x4 float matrix. That is, for MotiveProcessors that interface with MotivatorMatrix4f's.  
+ <a href="classmotive_1_1_motive_processor_matrix4f.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="processor_8h_source.html">processor.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for motive::MotiveProcessorMatrix4f:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="classmotive_1_1_motive_processor_matrix4f.png" usemap="#motive::MotiveProcessorMatrix4f_map" alt=""/>
   <map id="motive::MotiveProcessorMatrix4f_map" name="motive::MotiveProcessorMatrix4f_map">
-<area href="classmotive_1_1_motive_processor.html" alt="motive::MotiveProcessor" shape="rect" coords="0,0,196,24"/>
+<area href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. " alt="motive::MotiveProcessor" shape="rect" coords="0,0,196,24"/>
 </map>
  </div></div>
-<table class="memberdecls">
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Interface for motivator types that drive a 4x4 float matrix. That is, for MotiveProcessors that interface with MotivatorMatrix4f's. </p>
+</div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ac45f934a16287bdbfa276c1afd770af9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac45f934a16287bdbfa276c1afd770af9"></a>
-virtual int&#160;</td><td class="memItemRight" valign="bottom"><b>Dimensions</b> () const </td></tr>
+<tr class="memitem:ac45f934a16287bdbfa276c1afd770af9"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor_matrix4f.html#ac45f934a16287bdbfa276c1afd770af9">Dimensions</a> () const </td></tr>
 <tr class="separator:ac45f934a16287bdbfa276c1afd770af9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a41a6bbf63242a5812737c2dbb972df16"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a41a6bbf63242a5812737c2dbb972df16"></a>
-virtual const mathfu::mat4 &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>Value</b> (MotiveIndex index) const =0</td></tr>
+virtual const mathfu::mat4 &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor_matrix4f.html#a41a6bbf63242a5812737c2dbb972df16">Value</a> (MotiveIndex index) const =0</td></tr>
+<tr class="memdesc:a41a6bbf63242a5812737c2dbb972df16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the current matrix value from the processor. <br/></td></tr>
 <tr class="separator:a41a6bbf63242a5812737c2dbb972df16"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6d9f19bc958a8e52ff325808ea539329"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6d9f19bc958a8e52ff325808ea539329"></a>
-virtual float&#160;</td><td class="memItemRight" valign="bottom"><b>ChildValue1f</b> (MotiveIndex index, MotiveChildIndex child_index) const =0</td></tr>
+virtual float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor_matrix4f.html#a6d9f19bc958a8e52ff325808ea539329">ChildValue1f</a> (MotiveIndex index, MotiveChildIndex child_index) const =0</td></tr>
+<tr class="memdesc:a6d9f19bc958a8e52ff325808ea539329"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get current values of the components that create the matrix. <br/></td></tr>
 <tr class="separator:a6d9f19bc958a8e52ff325808ea539329"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa09246db3388cbdc072413a40d7815a4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa09246db3388cbdc072413a40d7815a4"></a>
 virtual mathfu::vec3&#160;</td><td class="memItemRight" valign="bottom"><b>ChildValue3f</b> (MotiveIndex index, MotiveChildIndex child_index) const </td></tr>
 <tr class="separator:aa09246db3388cbdc072413a40d7815a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa6ecebe9e8fe936d5e07316509864e52"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa6ecebe9e8fe936d5e07316509864e52"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>SetChildTarget1f</b> (MotiveIndex, MotiveChildIndex, const <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> &amp;)</td></tr>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor_matrix4f.html#aa6ecebe9e8fe936d5e07316509864e52">SetChildTarget1f</a> (MotiveIndex, MotiveChildIndex, const <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> &amp;)</td></tr>
+<tr class="memdesc:aa6ecebe9e8fe936d5e07316509864e52"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set child values. Matrices are composed from child components. <br/></td></tr>
 <tr class="separator:aa6ecebe9e8fe936d5e07316509864e52"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a07b2b12fc5d35f6dee998d931754ff7f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a07b2b12fc5d35f6dee998d931754ff7f"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>SetChildValue1f</b> (MotiveIndex, MotiveChildIndex, float)</td></tr>
@@ -151,59 +161,66 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>SetChildValue
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>SetChildValue3f</b> (MotiveIndex index, MotiveChildIndex child_index, const mathfu::vec3 &amp;value)</td></tr>
 <tr class="separator:a7279e6f85d280e4c0c6ea944ea47a16f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classmotive_1_1_motive_processor"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classmotive_1_1_motive_processor')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td></tr>
-<tr class="memitem:a962acea201d6d550cce3dab2efda7f67 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a962acea201d6d550cce3dab2efda7f67"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>InitializeMotivator</b> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, <a class="el" href="classmotive_1_1_motivator.html">Motivator</a> *motivator)</td></tr>
+<tr class="memitem:a962acea201d6d550cce3dab2efda7f67 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a962acea201d6d550cce3dab2efda7f67">InitializeMotivator</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, <a class="el" href="classmotive_1_1_motivator.html">Motivator</a> *motivator)</td></tr>
 <tr class="separator:a962acea201d6d550cce3dab2efda7f67 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a45b83466165a7046fd558e1c1a8dbc2e inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a45b83466165a7046fd558e1c1a8dbc2e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>RemoveMotivator</b> (MotiveIndex index)</td></tr>
+<tr class="memitem:a45b83466165a7046fd558e1c1a8dbc2e inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a45b83466165a7046fd558e1c1a8dbc2e">RemoveMotivator</a> (MotiveIndex index)</td></tr>
 <tr class="separator:a45b83466165a7046fd558e1c1a8dbc2e inherit pub_methods_classmotive_1_1_motive_processor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ebc43fb42afb52077299e83697a2de7 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1ebc43fb42afb52077299e83697a2de7"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>TransferMotivator</b> (MotiveIndex index, <a class="el" href="classmotive_1_1_motivator.html">Motivator</a> *new_motivator)</td></tr>
+<tr class="memitem:a1ebc43fb42afb52077299e83697a2de7 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a1ebc43fb42afb52077299e83697a2de7">TransferMotivator</a> (MotiveIndex index, <a class="el" href="classmotive_1_1_motivator.html">Motivator</a> *new_motivator)</td></tr>
 <tr class="separator:a1ebc43fb42afb52077299e83697a2de7 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a60e0309b59829453a06bdd98226a6be8 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a60e0309b59829453a06bdd98226a6be8"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>ValidIndex</b> (MotiveIndex index) const </td></tr>
+<tr class="memitem:a60e0309b59829453a06bdd98226a6be8 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a60e0309b59829453a06bdd98226a6be8">ValidIndex</a> (MotiveIndex index) const </td></tr>
 <tr class="separator:a60e0309b59829453a06bdd98226a6be8 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af68018167e12d8546a00bfa7273a6e82 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af68018167e12d8546a00bfa7273a6e82"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>ValidMotivator</b> (MotiveIndex index, const <a class="el" href="classmotive_1_1_motivator.html">Motivator</a> *motivator) const </td></tr>
+<tr class="memitem:af68018167e12d8546a00bfa7273a6e82 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#af68018167e12d8546a00bfa7273a6e82">ValidMotivator</a> (MotiveIndex index, const <a class="el" href="classmotive_1_1_motivator.html">Motivator</a> *motivator) const </td></tr>
 <tr class="separator:af68018167e12d8546a00bfa7273a6e82 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a117b40b073a24876e52325caa1ee1f52 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a117b40b073a24876e52325caa1ee1f52"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>AdvanceFrame</b> (MotiveTime delta_time)=0</td></tr>
+<tr class="memitem:a117b40b073a24876e52325caa1ee1f52 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a117b40b073a24876e52325caa1ee1f52">AdvanceFrame</a> (MotiveTime delta_time)=0</td></tr>
 <tr class="separator:a117b40b073a24876e52325caa1ee1f52 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aee36c02d33c7737a32196c3ac518da7f inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aee36c02d33c7737a32196c3ac518da7f"></a>
-virtual MotivatorType&#160;</td><td class="memItemRight" valign="bottom"><b>Type</b> () const =0</td></tr>
+<tr class="memitem:aee36c02d33c7737a32196c3ac518da7f inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top">virtual MotivatorType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#aee36c02d33c7737a32196c3ac518da7f">Type</a> () const =0</td></tr>
 <tr class="separator:aee36c02d33c7737a32196c3ac518da7f inherit pub_methods_classmotive_1_1_motive_processor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a358fddcc69dbd98a7d8f10e3a0784370 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a358fddcc69dbd98a7d8f10e3a0784370"></a>
-virtual int&#160;</td><td class="memItemRight" valign="bottom"><b>Priority</b> () const =0</td></tr>
+<tr class="memitem:a358fddcc69dbd98a7d8f10e3a0784370 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a358fddcc69dbd98a7d8f10e3a0784370">Priority</a> () const =0</td></tr>
 <tr class="separator:a358fddcc69dbd98a7d8f10e3a0784370 inherit pub_methods_classmotive_1_1_motive_processor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac0ba78dcde1444a1c5b4640156c1380f inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac0ba78dcde1444a1c5b4640156c1380f"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>VerifyInternalState</b> () const </td></tr>
+<tr class="memitem:ac0ba78dcde1444a1c5b4640156c1380f inherit pub_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#ac0ba78dcde1444a1c5b4640156c1380f">VerifyInternalState</a> () const </td></tr>
 <tr class="separator:ac0ba78dcde1444a1c5b4640156c1380f inherit pub_methods_classmotive_1_1_motive_processor"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pro_methods_classmotive_1_1_motive_processor"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classmotive_1_1_motive_processor')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td></tr>
-<tr class="memitem:adbde16c8e034a1d9dcd11ff0b58b12d2 inherit pro_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adbde16c8e034a1d9dcd11ff0b58b12d2"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>InitializeIndex</b> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, MotiveIndex index, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine)=0</td></tr>
+<tr class="memitem:adbde16c8e034a1d9dcd11ff0b58b12d2 inherit pro_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#adbde16c8e034a1d9dcd11ff0b58b12d2">InitializeIndex</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, MotiveIndex index, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine)=0</td></tr>
 <tr class="separator:adbde16c8e034a1d9dcd11ff0b58b12d2 inherit pro_methods_classmotive_1_1_motive_processor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aefa1edd3411d921b3fcc28c675aa62dd inherit pro_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aefa1edd3411d921b3fcc28c675aa62dd"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>RemoveIndex</b> (MotiveIndex index)=0</td></tr>
+<tr class="memitem:aefa1edd3411d921b3fcc28c675aa62dd inherit pro_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#aefa1edd3411d921b3fcc28c675aa62dd">RemoveIndex</a> (MotiveIndex index)=0</td></tr>
 <tr class="separator:aefa1edd3411d921b3fcc28c675aa62dd inherit pro_methods_classmotive_1_1_motive_processor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa4fedcd476ee5eeb4555df714b91fc4 inherit pro_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afa4fedcd476ee5eeb4555df714b91fc4"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>MoveIndex</b> (MotiveIndex old_index, MotiveIndex new_index)=0</td></tr>
+<tr class="memitem:afa4fedcd476ee5eeb4555df714b91fc4 inherit pro_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#afa4fedcd476ee5eeb4555df714b91fc4">MoveIndex</a> (MotiveIndex old_index, MotiveIndex new_index)=0</td></tr>
 <tr class="separator:afa4fedcd476ee5eeb4555df714b91fc4 inherit pro_methods_classmotive_1_1_motive_processor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa281c90c6ccdfb28cbfd54aa69044706 inherit pro_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa281c90c6ccdfb28cbfd54aa69044706"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>SetNumIndices</b> (MotiveIndex num_indices)=0</td></tr>
+<tr class="memitem:aa281c90c6ccdfb28cbfd54aa69044706 inherit pro_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#aa281c90c6ccdfb28cbfd54aa69044706">SetNumIndices</a> (MotiveIndex num_indices)=0</td></tr>
 <tr class="separator:aa281c90c6ccdfb28cbfd54aa69044706 inherit pro_methods_classmotive_1_1_motive_processor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a84bf5679dae4f5b13f6bb0798324143d inherit pro_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a84bf5679dae4f5b13f6bb0798324143d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>MoveIndexBase</b> (MotiveIndex old_index, MotiveIndex new_index)</td></tr>
-<tr class="separator:a84bf5679dae4f5b13f6bb0798324143d inherit pro_methods_classmotive_1_1_motive_processor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a529865abf0d5ca9c19a97f1fe2c8240d inherit pro_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a529865abf0d5ca9c19a97f1fe2c8240d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SetNumIndicesBase</b> (MotiveIndex num_indices)</td></tr>
-<tr class="separator:a529865abf0d5ca9c19a97f1fe2c8240d inherit pro_methods_classmotive_1_1_motive_processor"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4b9c5ed2a91be1f64bc2a34d2c32fb27 inherit pro_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4b9c5ed2a91be1f64bc2a34d2c32fb27"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Defragment</b> ()</td></tr>
+<tr class="memitem:a4b9c5ed2a91be1f64bc2a34d2c32fb27 inherit pro_methods_classmotive_1_1_motive_processor"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a4b9c5ed2a91be1f64bc2a34d2c32fb27">Defragment</a> ()</td></tr>
 <tr class="separator:a4b9c5ed2a91be1f64bc2a34d2c32fb27 inherit pro_methods_classmotive_1_1_motive_processor"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="ac45f934a16287bdbfa276c1afd770af9"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual int motive::MotiveProcessorMatrix4f::Dimensions </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>The number of floats (or doubles) being animated. For example, a position in 3D space would return 3. </p>
+
+<p>Implements <a class="el" href="classmotive_1_1_motive_processor.html#a0182a8fff96258b953f45a368c0935b9">motive::MotiveProcessor</a>.</p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="processor_8h_source.html">processor.h</a></li>
 </ul>

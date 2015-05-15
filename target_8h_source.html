@@ -98,7 +98,7 @@ $(document).ready(function(){initNavTree('target_8h_source.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -132,164 +132,199 @@ $(document).ready(function(){initNavTree('target_8h_source.html','');});
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &quot;motive/math/range.h&quot;</span></div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keyword">namespace </span>motive {</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;</div>
-<div class="line"><a name="l00022"></a><span class="lineno"><a class="line" href="structmotive_1_1_motive_node1f.html">   22</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a> {</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;  <span class="keywordtype">float</span> value;</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;  <span class="keywordtype">float</span> velocity;</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  MotiveTime time;</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  fpl::ModularDirection direction;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;  <a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a>()</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;      : value(0.0f),</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;        velocity(0.0f),</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;        time(0),</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;        direction(fpl::kDirectionClosest) {}</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  <a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a>(<span class="keywordtype">float</span> value, <span class="keywordtype">float</span> velocity, MotiveTime time,</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;               fpl::ModularDirection direction = fpl::kDirectionClosest)</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;      : value(value), velocity(velocity), time(time), direction(direction) {}</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;};</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">// Override the current and/or target state for a one-dimensional Motivator.</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">// It is valid to set a subset of the parameters here. For example, if you</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">// want to continually adjust the target value of an Motivator every frame,</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">// you can call Motivator1f::SetTarget() with an MotiveTarget1f that has only</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">// the target value set.</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">// If the current value and current velocity are not specified, their current</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">// values in the motivator are used.</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">// An Motivator&#39;s target is set in bulk via the SetTarget call. All the state</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment">// is set in one call because SetTarget will generally involve a lot of</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment">// initialization work. We don&#39;t want that initialization to happen twice on</span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment">// one frame if we set both &#39;value&#39; and &#39;velocity&#39;, for instance, so we</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment">// aggregate all the target values into this class, and have only one</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment">// SetTarget() function.</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment">//</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno"><a class="line" href="classmotive_1_1_motive_target1f.html">   54</a></span>&#160;<span class="keyword">class </span><a class="code" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> {</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> kMaxNodes = 3;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <a class="code" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a>() : num_nodes_(0) {}</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  <span class="keyword">explicit</span> <a class="code" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a>(<span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a>&amp; n0) : num_nodes_(1) {</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    nodes_[0] = n0;</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  }</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;  <a class="code" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a>(<span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a>&amp; n0, <span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a>&amp; n1)</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;      : num_nodes_(2) {</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    assert(0 &lt;= n0.time &amp;&amp; n0.time &lt; n1.time);</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    nodes_[0] = n0;</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;    nodes_[1] = n1;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  }</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  <a class="code" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a>(<span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a>&amp; n0, <span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a>&amp; n1,</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;                 <span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a>&amp; n2)</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;      : num_nodes_(3) {</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    assert(0 &lt;= n0.time &amp;&amp; n0.time &lt; n1.time &amp;&amp; n1.time &lt; n2.time);</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    nodes_[0] = n0;</div>
-<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;    nodes_[1] = n1;</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    nodes_[2] = n2;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  }</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;  <span class="comment">// Empty the target of all nodes.</span></div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  <span class="keywordtype">void</span> Reset() { num_nodes_ = 0; }</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  <span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a>&amp; Node(<span class="keywordtype">int</span> node_index)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    assert(0 &lt;= node_index &amp;&amp; node_index &lt; num_nodes_);</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    <span class="keywordflow">return</span> nodes_[node_index];</div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;  }</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;  <a class="code" href="classfpl_1_1_range_t.html">fpl::Range</a> ValueRange(<span class="keywordtype">float</span> start_value)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    assert(num_nodes_ &gt; 0);</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keywordtype">float</span> min = start_value;</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keywordtype">float</span> max = start_value;</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; num_nodes_; ++i) {</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;      min = std::min(nodes_[i].value, min);</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;      max = std::max(nodes_[i].value, max);</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    }</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="classfpl_1_1_range_t.html">fpl::Range</a>(min, max);</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  }</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  MotiveTime EndTime()<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    assert(num_nodes_ &gt; 0);</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <span class="keywordflow">return</span> nodes_[num_nodes_ - 1].time;</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment">/// @class MotiveNode1f</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment">/// @brief A waypoint in MotiveTarget1f.</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment">/// Describes one key point through which a value is animated.</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno"><a class="line" href="structmotive_1_1_motive_node1f.html">   25</a></span>&#160;<span class="comment"></span><span class="keyword">struct </span><a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a> {</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;  <span class="keywordtype">float</span> value;                      <span class="comment">/// Desired value to animate to at `time`.</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno"><a class="line" href="structmotive_1_1_motive_node1f.html#a330076f911a70d8daffb80cdd4674d97">   27</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">float</span> <a class="code" href="structmotive_1_1_motive_node1f.html#a330076f911a70d8daffb80cdd4674d97">velocity</a>;                   <span class="comment">/// Speed when at `time`.</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno"><a class="line" href="structmotive_1_1_motive_node1f.html#aff512fdcf74f5fa95790c2c5809307ea">   28</a></span>&#160;<span class="comment"></span>  MotiveTime <a class="code" href="structmotive_1_1_motive_node1f.html#aff512fdcf74f5fa95790c2c5809307ea">time</a>;                  <span class="comment">/// Time to achieve this key point.</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="structmotive_1_1_motive_node1f.html#a831373eeed3fde8ed80a4fb0253ca78a">   29</a></span>&#160;<span class="comment"></span>  fpl::ModularDirection <a class="code" href="structmotive_1_1_motive_node1f.html#a831373eeed3fde8ed80a4fb0253ca78a">direction</a>;  <span class="comment">/// When using modular arithmetic, which of</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="comment"></span><span class="comment">                                    /// two directions to go.</span></div>
+<div class="line"><a name="l00031"></a><span class="lineno"><a class="line" href="structmotive_1_1_motive_node1f.html#a9750a7df8470e48fe6d688d27d3ea5d6">   31</a></span>&#160;<span class="comment"></span>  <a class="code" href="structmotive_1_1_motive_node1f.html#a9750a7df8470e48fe6d688d27d3ea5d6">MotiveNode1f</a>()</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;      : value(0.0f),</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;        <a class="code" href="structmotive_1_1_motive_node1f.html#a330076f911a70d8daffb80cdd4674d97">velocity</a>(0.0f),</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;        <a class="code" href="structmotive_1_1_motive_node1f.html#aff512fdcf74f5fa95790c2c5809307ea">time</a>(0),</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;        <a class="code" href="structmotive_1_1_motive_node1f.html#a831373eeed3fde8ed80a4fb0253ca78a">direction</a>(fpl::kDirectionClosest) {}</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;  <a class="code" href="structmotive_1_1_motive_node1f.html#a9750a7df8470e48fe6d688d27d3ea5d6">MotiveNode1f</a>(<span class="keywordtype">float</span> value, <span class="keywordtype">float</span> <a class="code" href="structmotive_1_1_motive_node1f.html#a330076f911a70d8daffb80cdd4674d97">velocity</a>, MotiveTime <a class="code" href="structmotive_1_1_motive_node1f.html#aff512fdcf74f5fa95790c2c5809307ea">time</a>,</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;               fpl::ModularDirection <a class="code" href="structmotive_1_1_motive_node1f.html#a831373eeed3fde8ed80a4fb0253ca78a">direction</a> = fpl::kDirectionClosest)</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;      : value(value), velocity(velocity), time(time), <a class="code" href="structmotive_1_1_motive_node1f.html#a831373eeed3fde8ed80a4fb0253ca78a">direction</a>(<a class="code" href="structmotive_1_1_motive_node1f.html#a831373eeed3fde8ed80a4fb0253ca78a">direction</a>) {}</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;};</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">/// @class MotiveTarget1f</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">/// @brief Set the current and/or target state for a one-dimensional Motivator.</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">///</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">/// A series of waypoints through which we animate. If the first waypoint has</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">/// time = 0, the current value and velocity jumps to that waypoint&#39;s value and</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">/// velocity.</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">///</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment">/// MotiveTarget1fs are most easily created with the utility functions below,</span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment">/// for example Current1f, Target1f, CurrentToTarget1f.</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment">///</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment">/// If the current value and velocity are not specified (i.e. if the first</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment">/// waypoint has time &gt; 0), then the current value and velocity in</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment">/// the Motivator are maintained.</span></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment">///</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">/// If the target is not specified (i.e. only one waypoint which has time = 0),</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">/// then the current value is set as specified, and the velocity is set to 0.</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment">///</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno"><a class="line" href="classmotive_1_1_motive_target1f.html">   58</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> {</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">int</span> kMaxNodes = 3;</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <a class="code" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a>() : num_nodes_(0) {}</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="comment">  /// Create with only one waypoint.</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="comment">  /// If n0.time = 0, set the current value and velocity.</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="comment">  /// If n0.time &gt; 0, maintain the current value and velocity and animate to</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="comment">  /// n0&#39;s value and velocity in n0.time.</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno"><a class="line" href="classmotive_1_1_motive_target1f.html#a9bae62146ebec247d3bd03eab3f4b94c">   68</a></span>&#160;<span class="comment"></span>  <span class="keyword">explicit</span> <a class="code" href="classmotive_1_1_motive_target1f.html#a9bae62146ebec247d3bd03eab3f4b94c">MotiveTarget1f</a>(<span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a>&amp; n0) : num_nodes_(1) {</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    nodes_[0] = n0;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;  }</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment">  /// Create with two waypoints.</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment">  /// Can be current to target, if n0.time = 0.</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment">  /// Or can maintain the current and to through two targets: first n0, then n1.</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="comment">  /// Precondition: n0.time &lt; n1.time.</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno"><a class="line" href="classmotive_1_1_motive_target1f.html#a503d89730fc93ea8be942f5a5f6c679f">   76</a></span>&#160;<span class="comment"></span>  <a class="code" href="classmotive_1_1_motive_target1f.html#a503d89730fc93ea8be942f5a5f6c679f">MotiveTarget1f</a>(<span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a>&amp; n0, <span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a>&amp; n1)</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;      : num_nodes_(2) {</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    assert(0 &lt;= n0.<a class="code" href="structmotive_1_1_motive_node1f.html#aff512fdcf74f5fa95790c2c5809307ea">time</a> &amp;&amp; n0.<a class="code" href="structmotive_1_1_motive_node1f.html#aff512fdcf74f5fa95790c2c5809307ea">time</a> &lt; n1.<a class="code" href="structmotive_1_1_motive_node1f.html#aff512fdcf74f5fa95790c2c5809307ea">time</a>);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    nodes_[0] = n0;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    nodes_[1] = n1;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  }</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="comment">  /// Create with three waypoints.</span></div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="comment">  /// 0 &lt;= n0.time &lt; n1.time &lt; n2.time</span></div>
+<div class="line"><a name="l00085"></a><span class="lineno"><a class="line" href="classmotive_1_1_motive_target1f.html#a3fd5ce64f7366361fa353aff979bbf4b">   85</a></span>&#160;<span class="comment"></span>  <a class="code" href="classmotive_1_1_motive_target1f.html#a3fd5ce64f7366361fa353aff979bbf4b">MotiveTarget1f</a>(<span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a>&amp; n0, <span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a>&amp; n1,</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;                 <span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a>&amp; n2)</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;      : num_nodes_(3) {</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    assert(0 &lt;= n0.<a class="code" href="structmotive_1_1_motive_node1f.html#aff512fdcf74f5fa95790c2c5809307ea">time</a> &amp;&amp; n0.<a class="code" href="structmotive_1_1_motive_node1f.html#aff512fdcf74f5fa95790c2c5809307ea">time</a> &lt; n1.<a class="code" href="structmotive_1_1_motive_node1f.html#aff512fdcf74f5fa95790c2c5809307ea">time</a> &amp;&amp; n1.<a class="code" href="structmotive_1_1_motive_node1f.html#aff512fdcf74f5fa95790c2c5809307ea">time</a> &lt; n2.<a class="code" href="structmotive_1_1_motive_node1f.html#aff512fdcf74f5fa95790c2c5809307ea">time</a>);</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    nodes_[0] = n0;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    nodes_[1] = n1;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    nodes_[2] = n2;</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  }</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="comment">  /// Empty the target of all waypoints.</span></div>
+<div class="line"><a name="l00095"></a><span class="lineno"><a class="line" href="classmotive_1_1_motive_target1f.html#a44db9d6ae4dc487c1026f80c332292c8">   95</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_motive_target1f.html#a44db9d6ae4dc487c1026f80c332292c8">Reset</a>() { num_nodes_ = 0; }</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="comment">  /// Return nth waypoint.</span></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment">  /// @param node_index nth waypoint. 0 &lt;= node_index &lt; num_nodes()</span></div>
+<div class="line"><a name="l00099"></a><span class="lineno"><a class="line" href="classmotive_1_1_motive_target1f.html#ad18523938eed11896ff4ed368601e701">   99</a></span>&#160;<span class="comment"></span>  <span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a>&amp; <a class="code" href="classmotive_1_1_motive_target1f.html#ad18523938eed11896ff4ed368601e701">Node</a>(<span class="keywordtype">int</span> node_index)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    assert(0 &lt;= node_index &amp;&amp; node_index &lt; num_nodes_);</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    <span class="keywordflow">return</span> nodes_[node_index];</div>
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;  }</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  <span class="keywordtype">int</span> num_nodes()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> num_nodes_; }</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160; <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;  <span class="keywordtype">int</span> num_nodes_;</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;  <a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a> nodes_[kMaxNodes];</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;};</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="comment">// Set the Motivator&#39;s current values. Target values are reset to be the same</span></div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;<span class="comment">// as the new current values.</span></div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="keyword">inline</span> <a class="code" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> Current1f(<span class="keywordtype">float</span> current_value,</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;                                <span class="keywordtype">float</span> current_velocity = 0.0f) {</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;  <span class="keywordflow">return</span> <a class="code" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a>(<a class="code" href="structmotive_1_1_motive_node1f.html">MotiveNode1f</a>(current_value, current_velocity, 0));</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;}</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;<span class="comment">// Keep the Motivator&#39;s current values, but set the Motivator&#39;s target values.</span></div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;<span class="comment">// If Motivator uses modular arithmetic, traverse from the current to the target</span></div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="comment">// according to &#39;direction&#39;.</span></div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;<span class="keyword">inline</span> MotiveTarget1f Target1f(</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    <span class="keywordtype">float</span> target_value, <span class="keywordtype">float</span> target_velocity, MotiveTime target_time,</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    fpl::ModularDirection direction = fpl::kDirectionClosest) {</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;  assert(target_time &gt; 0);</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;  <span class="keywordflow">return</span> MotiveTarget1f(</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;      MotiveNode1f(target_value, target_velocity, target_time, direction));</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;}</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="comment">// Set both the current and target values for an Motivator.</span></div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="keyword">inline</span> MotiveTarget1f CurrentToTarget1f(</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <span class="keywordtype">float</span> current_value, <span class="keywordtype">float</span> current_velocity, <span class="keywordtype">float</span> target_value,</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <span class="keywordtype">float</span> target_velocity, MotiveTime target_time,</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    fpl::ModularDirection direction = fpl::kDirectionClosest) {</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;  <span class="keywordflow">return</span> MotiveTarget1f(</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;      MotiveNode1f(current_value, current_velocity, 0),</div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;      MotiveNode1f(target_value, target_velocity, target_time, direction));</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;}</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;<span class="comment">// Move from the current value to the target value at a constant speed.</span></div>
-<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;<span class="keyword">inline</span> MotiveTarget1f CurrentToTargetConstVelocity1f(<span class="keywordtype">float</span> current_value,</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;                                                     <span class="keywordtype">float</span> target_value,</div>
-<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;                                                     MotiveTime target_time) {</div>
-<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;  assert(target_time &gt; 0);</div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">float</span> velocity = (target_value - current_value) / target_time;</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;  <span class="keywordflow">return</span> MotiveTarget1f(</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;      MotiveNode1f(current_value, velocity, 0),</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;      MotiveNode1f(target_value, velocity, target_time, fpl::kDirectionDirect));</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;}</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;<span class="comment">// Keep the Motivator&#39;s current values, but set two targets for the Motivator.</span></div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;<span class="comment">// After the first target, go on to the next.</span></div>
-<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;<span class="keyword">inline</span> MotiveTarget1f TargetToTarget1f(<span class="keywordtype">float</span> target_value,</div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;                                       <span class="keywordtype">float</span> target_velocity,</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;                                       MotiveTime target_time,</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;                                       <span class="keywordtype">float</span> third_value, <span class="keywordtype">float</span> third_velocity,</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;                                       MotiveTime third_time) {</div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;  <span class="keywordflow">return</span> MotiveTarget1f(</div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;      MotiveNode1f(target_value, target_velocity, target_time),</div>
-<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;      MotiveNode1f(third_value, third_velocity, third_time));</div>
-<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;}</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;<span class="comment">// Set the Motivator&#39;s current values, and two targets afterwards.</span></div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;<span class="keyword">inline</span> MotiveTarget1f CurrentToTargetToTarget1f(</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    <span class="keywordtype">float</span> current_value, <span class="keywordtype">float</span> current_velocity, <span class="keywordtype">float</span> target_value,</div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    <span class="keywordtype">float</span> target_velocity, MotiveTime target_time, <span class="keywordtype">float</span> third_value,</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    <span class="keywordtype">float</span> third_velocity, MotiveTime third_time) {</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;  <span class="keywordflow">return</span> MotiveTarget1f(</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;      MotiveNode1f(current_value, current_velocity, 0),</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;      MotiveNode1f(target_value, target_velocity, target_time),</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;      MotiveNode1f(third_value, third_velocity, third_time));</div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;}</div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;</div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;}  <span class="comment">// namespace motive</span></div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;</div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;<span class="preprocessor">#endif  // MOTIVE_TARGET_H</span></div>
-<div class="ttc" id="structmotive_1_1_motive_node1f_html"><div class="ttname"><a href="structmotive_1_1_motive_node1f.html">motive::MotiveNode1f</a></div><div class="ttdef"><b>Definition:</b> target.h:22</div></div>
-<div class="ttc" id="classfpl_1_1_range_t_html"><div class="ttname"><a href="classfpl_1_1_range_t.html">fpl::RangeT</a></div><div class="ttdoc">Represent an interval on a number line. </div><div class="ttdef"><b>Definition:</b> range.h:36</div></div>
-<div class="ttc" id="classmotive_1_1_motive_target1f_html"><div class="ttname"><a href="classmotive_1_1_motive_target1f.html">motive::MotiveTarget1f</a></div><div class="ttdef"><b>Definition:</b> target.h:54</div></div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="comment">  /// Return smallest range that covers the values of all waypoints.</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="comment">  /// @param start_value An extra value to include in the min/max calculation.</span></div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="comment">  ///                    Most often is the current value of the Motivator1f.</span></div>
+<div class="line"><a name="l00107"></a><span class="lineno"><a class="line" href="classmotive_1_1_motive_target1f.html#a367ea8ccc4bf8f13b956aff97d46f7c1">  107</a></span>&#160;<span class="comment"></span>  <a class="code" href="classfpl_1_1_range_t.html">fpl::Range</a> <a class="code" href="classmotive_1_1_motive_target1f.html#a367ea8ccc4bf8f13b956aff97d46f7c1">ValueRange</a>(<span class="keywordtype">float</span> start_value)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    assert(num_nodes_ &gt; 0);</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    <span class="keywordtype">float</span> min = start_value;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    <span class="keywordtype">float</span> max = start_value;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; num_nodes_; ++i) {</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;      min = std::min(nodes_[i].value, min);</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;      max = std::max(nodes_[i].value, max);</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    }</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="classfpl_1_1_range_t.html">fpl::Range</a>(min, max);</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  }</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;<span class="comment">  /// Return time of the last waypoint.</span></div>
+<div class="line"><a name="l00119"></a><span class="lineno"><a class="line" href="classmotive_1_1_motive_target1f.html#ad3ffef9ff95c7f38d17ca05588eb9c60">  119</a></span>&#160;<span class="comment"></span>  MotiveTime <a class="code" href="classmotive_1_1_motive_target1f.html#ad3ffef9ff95c7f38d17ca05588eb9c60">EndTime</a>()<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    assert(num_nodes_ &gt; 0);</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    <span class="keywordflow">return</span> nodes_[num_nodes_ - 1].<a class="code" href="structmotive_1_1_motive_node1f.html#aff512fdcf74f5fa95790c2c5809307ea">time</a>;</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;  }</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;  <span class="keywordtype">int</span> num_nodes()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> num_nodes_; }</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160; <span class="keyword">private</span>:<span class="comment"></span></div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="comment">  /// Length of nodes_.</span></div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="comment"></span>  <span class="keywordtype">int</span> num_nodes_;</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="comment">  /// Constant-size array, to avoid dynamic memory allocation.</span></div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;<span class="comment">  /// This class is often used as a parameter and allocated on the stack.</span></div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;<span class="comment"></span>  MotiveNode1f nodes_[kMaxNodes];</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;};</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;<span class="comment">/// Set the Motivator&#39;s current values. Target values are reset to be the same</span></div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;<span class="comment">/// as the new current values.</span></div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;<span class="comment"></span><span class="keyword">inline</span> MotiveTarget1f Current1f(<span class="keywordtype">float</span> current_value,</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;                                <span class="keywordtype">float</span> current_velocity = 0.0f) {</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;  <span class="keywordflow">return</span> MotiveTarget1f(MotiveNode1f(current_value, current_velocity, 0));</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;}</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;<span class="comment">/// Keep the Motivator&#39;s current values, but set the Motivator&#39;s target values.</span></div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;<span class="comment">/// If Motivator uses modular arithmetic, traverse from the current to the</span></div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;<span class="comment">/// target according to &#39;direction&#39;.</span></div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;<span class="comment"></span><span class="keyword">inline</span> MotiveTarget1f Target1f(</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    <span class="keywordtype">float</span> target_value, <span class="keywordtype">float</span> target_velocity, MotiveTime target_time,</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;    fpl::ModularDirection direction = fpl::kDirectionClosest) {</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;  assert(target_time &gt; 0);</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;  <span class="keywordflow">return</span> MotiveTarget1f(</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;      MotiveNode1f(target_value, target_velocity, target_time, direction));</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;}</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;<span class="comment">/// Set both the current and target values for an Motivator.</span></div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;<span class="comment"></span><span class="keyword">inline</span> MotiveTarget1f CurrentToTarget1f(</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    <span class="keywordtype">float</span> current_value, <span class="keywordtype">float</span> current_velocity, <span class="keywordtype">float</span> target_value,</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    <span class="keywordtype">float</span> target_velocity, MotiveTime target_time,</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    fpl::ModularDirection direction = fpl::kDirectionClosest) {</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;  <span class="keywordflow">return</span> MotiveTarget1f(</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;      MotiveNode1f(current_value, current_velocity, 0),</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;      MotiveNode1f(target_value, target_velocity, target_time, direction));</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;}</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;<span class="comment">/// Move from the current value to the target value at a constant speed.</span></div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;<span class="comment"></span><span class="keyword">inline</span> MotiveTarget1f CurrentToTargetConstVelocity1f(<span class="keywordtype">float</span> current_value,</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;                                                     <span class="keywordtype">float</span> target_value,</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;                                                     MotiveTime target_time) {</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;  assert(target_time &gt; 0);</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">float</span> velocity = (target_value - current_value) / target_time;</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;  <span class="keywordflow">return</span> MotiveTarget1f(</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;      MotiveNode1f(current_value, velocity, 0),</div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;      MotiveNode1f(target_value, velocity, target_time, fpl::kDirectionDirect));</div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;}</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;<span class="comment">/// Keep the Motivator&#39;s current values, but set two targets for the Motivator.</span></div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;<span class="comment">/// After the first target, go on to the next.</span></div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;<span class="comment"></span><span class="keyword">inline</span> MotiveTarget1f TargetToTarget1f(<span class="keywordtype">float</span> target_value,</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;                                       <span class="keywordtype">float</span> target_velocity,</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;                                       MotiveTime target_time,</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;                                       <span class="keywordtype">float</span> third_value, <span class="keywordtype">float</span> third_velocity,</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;                                       MotiveTime third_time) {</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;  <span class="keywordflow">return</span> MotiveTarget1f(</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;      MotiveNode1f(target_value, target_velocity, target_time),</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;      MotiveNode1f(third_value, third_velocity, third_time));</div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;}</div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="comment">/// Set the Motivator&#39;s current values, and two targets afterwards.</span></div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;<span class="comment"></span><span class="keyword">inline</span> MotiveTarget1f CurrentToTargetToTarget1f(</div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;    <span class="keywordtype">float</span> current_value, <span class="keywordtype">float</span> current_velocity, <span class="keywordtype">float</span> target_value,</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    <span class="keywordtype">float</span> target_velocity, MotiveTime target_time, <span class="keywordtype">float</span> third_value,</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    <span class="keywordtype">float</span> third_velocity, MotiveTime third_time) {</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;  <span class="keywordflow">return</span> MotiveTarget1f(</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;      MotiveNode1f(current_value, current_velocity, 0),</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;      MotiveNode1f(target_value, target_velocity, target_time),</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;      MotiveNode1f(third_value, third_velocity, third_time));</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;}</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;}  <span class="comment">// namespace motive</span></div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;<span class="preprocessor">#endif  // MOTIVE_TARGET_H</span></div>
+<div class="ttc" id="structmotive_1_1_motive_node1f_html_aff512fdcf74f5fa95790c2c5809307ea"><div class="ttname"><a href="structmotive_1_1_motive_node1f.html#aff512fdcf74f5fa95790c2c5809307ea">motive::MotiveNode1f::time</a></div><div class="ttdeci">MotiveTime time</div><div class="ttdoc">Speed when at time. </div><div class="ttdef"><b>Definition:</b> target.h:28</div></div>
+<div class="ttc" id="classmotive_1_1_motive_target1f_html_a3fd5ce64f7366361fa353aff979bbf4b"><div class="ttname"><a href="classmotive_1_1_motive_target1f.html#a3fd5ce64f7366361fa353aff979bbf4b">motive::MotiveTarget1f::MotiveTarget1f</a></div><div class="ttdeci">MotiveTarget1f(const MotiveNode1f &amp;n0, const MotiveNode1f &amp;n1, const MotiveNode1f &amp;n2)</div><div class="ttdef"><b>Definition:</b> target.h:85</div></div>
+<div class="ttc" id="classmotive_1_1_motive_target1f_html_ad18523938eed11896ff4ed368601e701"><div class="ttname"><a href="classmotive_1_1_motive_target1f.html#ad18523938eed11896ff4ed368601e701">motive::MotiveTarget1f::Node</a></div><div class="ttdeci">const MotiveNode1f &amp; Node(int node_index) const </div><div class="ttdef"><b>Definition:</b> target.h:99</div></div>
+<div class="ttc" id="structmotive_1_1_motive_node1f_html_a330076f911a70d8daffb80cdd4674d97"><div class="ttname"><a href="structmotive_1_1_motive_node1f.html#a330076f911a70d8daffb80cdd4674d97">motive::MotiveNode1f::velocity</a></div><div class="ttdeci">float velocity</div><div class="ttdoc">Desired value to animate to at time. </div><div class="ttdef"><b>Definition:</b> target.h:27</div></div>
+<div class="ttc" id="classmotive_1_1_motive_target1f_html_ad3ffef9ff95c7f38d17ca05588eb9c60"><div class="ttname"><a href="classmotive_1_1_motive_target1f.html#ad3ffef9ff95c7f38d17ca05588eb9c60">motive::MotiveTarget1f::EndTime</a></div><div class="ttdeci">MotiveTime EndTime() const </div><div class="ttdoc">Return time of the last waypoint. </div><div class="ttdef"><b>Definition:</b> target.h:119</div></div>
+<div class="ttc" id="classmotive_1_1_motive_target1f_html_a367ea8ccc4bf8f13b956aff97d46f7c1"><div class="ttname"><a href="classmotive_1_1_motive_target1f.html#a367ea8ccc4bf8f13b956aff97d46f7c1">motive::MotiveTarget1f::ValueRange</a></div><div class="ttdeci">fpl::Range ValueRange(float start_value) const </div><div class="ttdef"><b>Definition:</b> target.h:107</div></div>
+<div class="ttc" id="classmotive_1_1_motive_target1f_html_a9bae62146ebec247d3bd03eab3f4b94c"><div class="ttname"><a href="classmotive_1_1_motive_target1f.html#a9bae62146ebec247d3bd03eab3f4b94c">motive::MotiveTarget1f::MotiveTarget1f</a></div><div class="ttdeci">MotiveTarget1f(const MotiveNode1f &amp;n0)</div><div class="ttdef"><b>Definition:</b> target.h:68</div></div>
+<div class="ttc" id="classmotive_1_1_motive_target1f_html_a503d89730fc93ea8be942f5a5f6c679f"><div class="ttname"><a href="classmotive_1_1_motive_target1f.html#a503d89730fc93ea8be942f5a5f6c679f">motive::MotiveTarget1f::MotiveTarget1f</a></div><div class="ttdeci">MotiveTarget1f(const MotiveNode1f &amp;n0, const MotiveNode1f &amp;n1)</div><div class="ttdef"><b>Definition:</b> target.h:76</div></div>
+<div class="ttc" id="structmotive_1_1_motive_node1f_html"><div class="ttname"><a href="structmotive_1_1_motive_node1f.html">motive::MotiveNode1f</a></div><div class="ttdoc">A waypoint in MotiveTarget1f. Describes one key point through which a value is animated. </div><div class="ttdef"><b>Definition:</b> target.h:25</div></div>
+<div class="ttc" id="classfpl_1_1_range_t_html"><div class="ttname"><a href="classfpl_1_1_range_t.html">fpl::RangeT</a></div><div class="ttdoc">Represent an interval on a number line. </div><div class="ttdef"><b>Definition:</b> range.h:37</div></div>
+<div class="ttc" id="structmotive_1_1_motive_node1f_html_a831373eeed3fde8ed80a4fb0253ca78a"><div class="ttname"><a href="structmotive_1_1_motive_node1f.html#a831373eeed3fde8ed80a4fb0253ca78a">motive::MotiveNode1f::direction</a></div><div class="ttdeci">fpl::ModularDirection direction</div><div class="ttdoc">Time to achieve this key point. </div><div class="ttdef"><b>Definition:</b> target.h:29</div></div>
+<div class="ttc" id="classmotive_1_1_motive_target1f_html_a44db9d6ae4dc487c1026f80c332292c8"><div class="ttname"><a href="classmotive_1_1_motive_target1f.html#a44db9d6ae4dc487c1026f80c332292c8">motive::MotiveTarget1f::Reset</a></div><div class="ttdeci">void Reset()</div><div class="ttdoc">Empty the target of all waypoints. </div><div class="ttdef"><b>Definition:</b> target.h:95</div></div>
+<div class="ttc" id="classmotive_1_1_motive_target1f_html"><div class="ttname"><a href="classmotive_1_1_motive_target1f.html">motive::MotiveTarget1f</a></div><div class="ttdoc">Set the current and/or target state for a one-dimensional Motivator. </div><div class="ttdef"><b>Definition:</b> target.h:58</div></div>
+<div class="ttc" id="structmotive_1_1_motive_node1f_html_a9750a7df8470e48fe6d688d27d3ea5d6"><div class="ttname"><a href="structmotive_1_1_motive_node1f.html#a9750a7df8470e48fe6d688d27d3ea5d6">motive::MotiveNode1f::MotiveNode1f</a></div><div class="ttdeci">MotiveNode1f()</div><div class="ttdef"><b>Definition:</b> target.h:31</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->
