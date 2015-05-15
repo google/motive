@@ -33,11 +33,13 @@ static const int kDefaultGraphHeight = 30;
 static const mathfu::vec2i kDefaultGraphSize(kDefaultGraphWidth,
                                              kDefaultGraphHeight);
 
-// 2^22 = the max precision of significand.
+/// 2^22 = the max precision of significand.
 static const float kEpsilonScale = 1.0f / static_cast<float>(1 << 22);
 
-// Match start and end values, and start derivative.
-// Start is x = 0. End is x = 1.
+/// @class QuadraticInitWithStartDerivative
+/// @brief Initialization parameters to create a quaternion with
+///        start and end values, and start derivative.
+/// Start is x = 0. End is x = 1.
 struct QuadraticInitWithStartDerivative {
   QuadraticInitWithStartDerivative(const float start_y,
                                    const float start_derivative,
@@ -49,8 +51,9 @@ struct QuadraticInitWithStartDerivative {
   float end_y;
 };
 
-// Represent a quadratic polynomial in the form,
-//   c_[2] * x^2  +  c_[1] * x  +  c_[0]
+/// @class QuadraticCurve
+/// @brief Represent a quadratic polynomial in the form
+///        c_[2] * x^2  +  c_[1] * x  +  c_[0]
 class QuadraticCurve {
   static const int kNumCoeff = 3;
 
@@ -68,90 +71,102 @@ class QuadraticCurve {
   QuadraticCurve(const QuadraticInitWithStartDerivative& init) { Init(init); }
   void Init(const QuadraticInitWithStartDerivative& init);
 
-  // f(x) = c2*x^2 + c1*x + c0
+  /// Return the quadratic function's value at `x`.
+  /// f(x) = c2*x^2 + c1*x + c0
   float Evaluate(const float x) const {
     return (c_[2] * x + c_[1]) * x + c_[0];
   }
 
-  // f'(x) = 2*c2*x + c1
+  /// Return the quadratic function's slope at `x`.
+  /// f'(x) = 2*c2*x + c1
   float Derivative(const float x) const { return 2.0f * c_[2] * x + c_[1]; }
 
-  // f''(x) = 2*c2
+  /// Return the quadratic function's constant second derivative.
+  /// Even though `x` is unused, we pass it in for consistency with other
+  /// curve classes.
+  /// f''(x) = 2*c2
   float SecondDerivative(const float x) const {
     (void)x;
     return 2.0f * c_[2];
   }
 
-  // f'''(x) = 0
+  /// Return the quadratic function's constant third derivative: 0.
+  /// Even though `x` is unused, we pass it in for consistency with other
+  /// curve classes.
+  /// f'''(x) = 0
   float ThirdDerivative(const float x) const {
     (void)x;
     return 0.0f;
   }
 
-  // Returns a value below which floating point precision is unreliable.
-  // If we're testing for zero, for instance, we should test against this
-  // Epsilon().
+  /// Returns a value below which floating point precision is unreliable.
+  /// If we're testing for zero, for instance, we should test against this
+  /// Epsilon().
   float Epsilon() const {
     using std::max;
     const float max_c = max(max(fabs(c_[2]), fabs(c_[1])), fabs(c_[0]));
     return max_c * kEpsilonScale;
   }
 
-  // Used for finding roots, and more.
-  // See http://en.wikipedia.org/wiki/Discriminant
+  /// Used for finding roots, and more.
+  /// See http://en.wikipedia.org/wiki/Discriminant
   float Discriminant() const { return c_[1] * c_[1] - 4.0f * c_[2] * c_[0]; }
 
-  // When Discriminant() is close to zero, set to zero.
-  // Often floating point precision problems can make the discriminant
-  // very slightly even though mathematically it should be zero.
+  /// When Discriminant() is close to zero, set to zero.
+  /// Often floating point precision problems can make the discriminant
+  /// very slightly non-zero, even though mathematically it should be zero.
   float ReliableDiscriminant(const float epsilon) const;
 
-  // Return point at which derivative is zero.
+  /// Return the x at which the derivative is zero.
   float CriticalPoint() const {
     assert(fabs(c_[2]) >= Epsilon());
 
-    // 0 = f'(x) = 2*c2*x + c1  ==>  x = -c1 / 2c2
+    /// 0 = f'(x) = 2*c2*x + c1  ==>  x = -c1 / 2c2
     return -(c_[1] / c_[2]) * 0.5f;
   }
 
-  // Calculate the x-coordinates where this quadratic is zero, and put them into
-  // 'roots', in ascending order. Returns the 0, 1, or 2, the number of unique
-  // values put into 'roots'.
+  /// Calculate the x-coordinates where this quadratic is zero,
+  /// and put them into `roots`, in ascending order.
+  /// Returns the 0, 1, or 2, the number of unique values put into `roots`.
   void Roots(RootsArray* roots) const { roots->len = Roots(roots->arr); }
 
-  // Calculate the x-coordinates within the range [start_x, end_x] where the
-  // quadratic is zero. Put them into 'roots'. Return the number of unique
-  // values put into 'roots'.
+  /// Calculate the x-coordinates within the range [start_x, end_x] where the
+  /// quadratic is zero. Put them into `roots`. Return the number of unique
+  /// values put into `roots`.
   void RootsInRange(const Range& x_limits, RootsArray* roots) const {
     roots->len = RootsInRange(x_limits, roots->arr);
   }
 
-  // Get ranges above or below zero. Since a quadratic can cross zero at most
-  // twice, there can be at most two ranges. Ranges are clamped to 'x_limits'.
-  // 'sign' is used to determine above or below zero only--actual value is
-  // ignored.
+  /// Get ranges above or below zero. Since a quadratic can cross zero at most
+  /// twice, there can be at most two ranges. Ranges are clamped to `x_limits`.
+  /// `sign` is used to determine above or below zero only--actual value is
+  /// ignored.
   void RangesMatchingSign(const Range& x_limits, float sign,
                           RangeArray* matching) const {
     matching->len = RangesMatchingSign(x_limits, sign, matching->arr);
   }
+
+  /// Return the ranges on which the quadratic is above zero.
   void RangesAboveZero(const Range& x_limits, RangeArray* matching) const {
     RangesMatchingSign(x_limits, 1.0f, matching);
   }
+
+  /// Return the ranges on which the quadratic is below zero.
   void RangesBelowZero(const Range& x_limits, RangeArray* matching) const {
     RangesMatchingSign(x_limits, -1.0f, matching);
   }
 
-  // Returns the coefficient for x to the ith power.
+  /// Returns the coefficient for x-to-the-ith -power.
   float Coeff(int i) const { return c_[i]; }
 
-  // Returns the number of coefficients in this curve.
+  /// Returns the number of coefficients in this curve.
   int NumCoeff() const { return kNumCoeff; }
 
-  // Equality. Checks for exact match. Useful for testing.
+  /// Equality. Checks for exact match. Useful for testing.
   bool operator==(const QuadraticCurve& rhs) const;
   bool operator!=(const QuadraticCurve& rhs) const { return !operator==(rhs); }
 
-  // A string with the equation for this quadratic. Useful for debugging.
+  /// A string with the equation for this quadratic. Useful for debugging.
   std::string Text() const;
 
  private:
@@ -161,11 +176,13 @@ class QuadraticCurve {
   size_t RangesMatchingSign(const Range& x_limits, float sign,
                             Range matching[2]) const;
 
-  float c_[kNumCoeff];  // c_[2] * x^2  +  c_[1] * x  +  c_[0]
+  float c_[kNumCoeff];  /// c_[2] * x^2  +  c_[1] * x  +  c_[0]
 };
 
-// Match start and end y-values and derivatives.
-// Start is x = 0. End is x = width_x.
+/// @class CubicInit
+/// @brief Initialization parameters to create a cubic curve with start and
+///        end y-values and derivatives.
+/// Start is x = 0. End is x = width_x.
 struct CubicInit {
   CubicInit(const float start_y, const float start_derivative,
             const float end_y, const float end_derivative, const float width_x)
@@ -174,7 +191,8 @@ struct CubicInit {
         end_y(end_y),
         end_derivative(end_derivative),
         width_x(width_x) {}
-  // short-form in comments:
+
+  // Short-form in comments:
   float start_y;           // y0
   float start_derivative;  // s0
   float end_y;             // y1
@@ -182,8 +200,9 @@ struct CubicInit {
   float width_x;           // w
 };
 
-// Represent a cubic polynomial of the form,
-//   c_[3] * x^3  +  c_[2] * x^2  +  c_[1] * x  +  c_[0]
+/// @class CubicCurve
+/// @brief Represent a cubic polynomial of the form,
+///   c_[3] * x^3  +  c_[2] * x^2  +  c_[1] * x  +  c_[0]
 class CubicCurve {
   static const int kNumCoeff = 4;
 
@@ -199,35 +218,43 @@ class CubicCurve {
   CubicCurve(const CubicInit& init) { Init(init); }
   void Init(const CubicInit& init);
 
-  // f(x) = c3*x^3 + c2*x^2 + c1*x + c0
+  /// Return the cubic function's value at `x`.
+  /// f(x) = c3*x^3 + c2*x^2 + c1*x + c0
   float Evaluate(const float x) const {
-    // Take advantage of multiply-and-add instructions that are common on FPUs.
+    /// Take advantage of multiply-and-add instructions that are common on FPUs.
     return ((c_[3] * x + c_[2]) * x + c_[1]) * x + c_[0];
   }
 
-  // f'(x) = 3*c3*x^2 + 2*c2*x + c1
+  /// Return the cubic function's slope at `x`.
+  /// f'(x) = 3*c3*x^2 + 2*c2*x + c1
   float Derivative(const float x) const {
     return (3.0f * c_[3] * x + 2.0f * c_[2]) * x + c_[1];
   }
 
-  // f''(x) = 6*c3*x + 2*c2
+  /// Return the cubic function's second derivative at `x`.
+  /// f''(x) = 6*c3*x + 2*c2
   float SecondDerivative(const float x) const {
     return 6.0f * c_[3] * x + 2.0f * c_[2];
   }
 
-  // f'''(x) = 6*c3
+  /// Return the cubic function's constant third derivative.
+  /// Even though `x` is unused, we pass it in for consistency with other
+  /// curve classes.
+  /// f'''(x) = 6*c3
   float ThirdDerivative(const float x) const {
     (void)x;
     return 6.0f * c_[3];
   }
 
-  // Returns true if always curving upward or always curving downward on the
-  // specified x_limits.
+  /// Returns true if always curving upward or always curving downward on the
+  /// specified x_limits.
+  /// That is, returns true if the second derivative has the same sign over
+  /// all of x_limits.
   bool UniformCurvature(const Range& x_limits) const;
 
-  // Return a value below which floating point precision is unreliable.
-  // If we're testing for zero, for instance, we should test against this
-  // Epsilon().
+  /// Return a value below which floating point precision is unreliable.
+  /// If we're testing for zero, for instance, we should test against this
+  /// Epsilon().
   float Epsilon() const {
     using std::max;
     const float max_c =
@@ -235,34 +262,34 @@ class CubicCurve {
     return max_c * kEpsilonScale;
   }
 
-  // Returns the coefficient for x to the ith power.
+  /// Returns the coefficient for x to the ith power.
   float Coeff(int i) const { return c_[i]; }
 
-  // Overrides the coefficent for x to the ith power.
+  /// Overrides the coefficent for x to the ith power.
   void SetCoeff(int i, float coeff) { c_[i] = coeff; }
 
-  // Returns the number of coefficients in this curve.
+  /// Returns the number of coefficients in this curve.
   int NumCoeff() const { return kNumCoeff; }
 
-  // Equality. Checks for exact match. Useful for testing.
+  /// Equality. Checks for exact match. Useful for testing.
   bool operator==(const CubicCurve& rhs) const;
   bool operator!=(const CubicCurve& rhs) const { return !operator==(rhs); }
 
-  // A string with the cubic equation. Useful for debugging.
+  /// A string with the cubic equation. Useful for debugging.
   std::string Text() const;
 
  private:
-  float c_[kNumCoeff];  // c_[3] * x^3  +  c_[2] * x^2  +  c_[1] * x  +  c_[0]
+  float c_[kNumCoeff];  /// c_[3] * x^3  +  c_[2] * x^2  +  c_[1] * x  +  c_[0]
 };
 
-// Draw an ASCII-art graph of the array of (x,y) 'points'.
-// The size of the graph in (horizontal characters, vertical lines) is given
-// by 'size'.
+/// Draw an ASCII-art graph of the array of (x,y) 'points'.
+/// The size of the graph in (horizontal characters, vertical lines) is given
+/// by 'size'.
 std::string Graph2DPoints(const mathfu::vec2* points, const int num_points,
                           const mathfu::vec2i& size = kDefaultGraphSize);
 
-// Slow function that returns one of the possible values that this curve
-// can evaluate. Useful for debugging.
+/// Slow function that returns one of the possible values that this curve
+/// can evaluate. Useful for debugging.
 template <class T>
 float CurveValue(const T& curve, const float x,
                  const CurveValueType value_type) {
@@ -281,7 +308,7 @@ float CurveValue(const T& curve, const float x,
   return 0.0f;
 }
 
-// Returns an ASCII-art graph for x in 'x_range' for the requested type.
+/// Returns an ASCII-art graph for x in 'x_range' for type T.
 template <class T>
 std::string GraphCurveOnXRange(const T& curve, const CurveValueType value_type,
                                const Range& x_range,
@@ -300,7 +327,7 @@ std::string GraphCurveOnXRange(const T& curve, const CurveValueType value_type,
   return Graph2DPoints(&points[0], num_points, size);
 }
 
-// Returns an ASCII-art graph from StartX()() to EndX() for the requested type.
+/// Returns an ASCII-art graph from StartX() to EndX() for the requested type.
 template <class T>
 std::string GraphCurve(const T& curve, const CurveValueType value_type,
                        const mathfu::vec2i& size = kDefaultGraphSize) {

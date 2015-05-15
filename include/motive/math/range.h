@@ -31,7 +31,8 @@ enum ModularDirection {
   kDirectionDirect,
 };
 
-/// Represent an interval on a number line.
+/// @class RangeT
+/// @brief Represent an interval on a number line.
 template <class T>
 class RangeT {
  public:
@@ -51,55 +52,62 @@ class RangeT {
   RangeT() : start_(static_cast<T>(1)), end_(static_cast<T>(0)) {}
   RangeT(const T start, const T end) : start_(start), end_(end) {}
 
-  // A range is valid if it contains at least one number.
+  /// A range is valid if it contains at least one number.
   bool Valid() const { return start_ <= end_; }
 
-  // Returns the mid-point of the range, rounded down for integers.
-  // Behavior is undefined for invalid regions.
+  /// Returns the mid-point of the range, rounded down for integers.
+  /// Behavior is undefined for invalid regions.
   T Middle() const { return (start_ + end_) / static_cast<T>(2); }
 
-  // Returns the span of the range. Returns 0 when only one number in range.
-  // Behavior is undefined for invalid regions.
+  /// Returns the span of the range. Returns 0 when only one number in range.
+  /// Behavior is undefined for invalid regions.
   T Length() const { return end_ - start_; }
 
-  // Returns 'x' if it is within the range. Otherwise, returns start_ or end_,
-  // whichever is closer to 'x'.
-  // Behavior is undefined for invalid regions.
+  /// Returns `x` if it is within the range. Otherwise, returns start_ or end_,
+  /// whichever is closer to `x`.
+  /// Behavior is undefined for invalid regions.
   T Clamp(const T x) const { return mathfu::Clamp(x, start_, end_); }
 
-  // Clamp 'x' so it is inside one of the bounds. Can save cycles if you
-  // already know that 'x' is inside the other bound.
+  /// Clamp `x` so it is inside the start bound. Can save cycles if you
+  /// already know that `x` is inside the end bound.
   T ClampAfterStart(const T x) const { return std::max(x, start_); }
+
+  /// Clamp `x` so it is inside the end bound. Can save cycles if you
+  /// already know that `x` is inside the start bound.
   T ClampBeforeEnd(const T x) const { return std::min(x, end_); }
 
-  // Returns distances outside of the range. If inside the range, returns 0.
-  // Behavior is undefined for invalid regions.
+  /// Returns distance outside of the range. If inside the range, returns 0.
+  /// Behavior is undefined for invalid regions.
   T DistanceFrom(const T x) const { return fabs(x - Clamp(x)); }
 
-  // Lerps between the start and the end.
-  // 'percent' of 0 returns start. 'percent' of 1 returns end.
-  // Behavior is undefined for invalid regions.
+  /// Lerps between the start and the end.
+  /// 'percent' of 0 returns start. 'percent' of 1 returns end.
+  /// Behavior is undefined for invalid regions.
   T Lerp(const float percent) const {
     return mathfu::Lerp(start_, end_, percent);
   }
 
-  // Returns percent 0~1, from start to end. *Not* clamped to 0~1.
-  // 0 ==> start;  1 ==> end;  0.5 ==> Middle();  -1 ==> start - Length()
+  /// Returns percent 0~1, from start to end. *Not* clamped to 0~1.
+  /// 0 ==> start;  1 ==> end;  0.5 ==> Middle();  -1 ==> start - Length()
   float Percent(const T x) const { return (x - start_) / Length(); }
 
-  // Returns percent 0~1, from start to end. Clamped to 0~1.
-  // 0 ==> start or earlier;  1 ==> end or later;  0.5 ==> Middle()
+  /// Returns percent 0~1, from start to end. Clamped to 0~1.
+  /// 0 ==> start or earlier;  1 ==> end or later;  0.5 ==> Middle()
   T PercentClamped(const T x) const {
     return mathfu::Clamp(Percent(x), 0.0f, 1.0f);
   }
 
-  // Ensure 'x' is within the valid constraint range.
-  // 'x' must be within +-Length() of the range bounds. This is a reasonable
-  // restriction in most cases (such as after an arithmetic operation).
-  // For cases where 'x' may be wildly outside the range, use
-  // NormalizeWildValue() instead.
+  /// Ensure `x` is within the valid constraint range, by subtracting or
+  /// adding Length() to it.
+  /// `x` must be within +-Length() of the range bounds. This is a reasonable
+  /// restriction in most cases (such as after an arithmetic operation).
+  /// For cases where `x` may be wildly outside the range, use
+  /// NormalizeWildValue() instead.
   T Normalize(T x) const { return x + ModularAdjustment(x); }
 
+  /// Ensure `x` is within the valid constraint range, by subtracting multiples
+  /// of Length() from it until it is.
+  /// `x` can be any value.
   T NormalizeWildValue(T x) const {
     // Use (expensive) division to determine how many lengths we are away from
     // the normalized range.
@@ -115,10 +123,10 @@ class RangeT {
     return normalized;
   }
 
-  // Returns:
-  //   Length() if 'x' is below the valid range
-  //   -Length() if 'x' is above the valid range
-  //   0 if 'x' is within the valid range.
+  /// Returns:
+  ///   Length() if `x` is below the valid range
+  ///   -Length() if `x` is above the valid range
+  ///   0 if `x` is within the valid range.
   T ModularAdjustment(T x) const {
     const T length = Length();
     const T adjustment = x <= start_ ? length : x > end_ ? -length : 0.0f;
@@ -126,36 +134,36 @@ class RangeT {
     return adjustment;
   }
 
-  // In modular arithmetic, you can get from 'a' to 'b' by going directly, or
-  // by wrapping around.
-  // Return the closest difference from 'a' to 'b' under modular arithmetic.
+  /// In modular arithmetic, you can get from 'a' to 'b' by going directly, or
+  /// by wrapping around.
+  /// Return the closest difference from 'a' to 'b' under modular arithmetic.
   float ModDiffClose(T a, T b) const { return Normalize(b - a); }
 
-  // Return the farthest difference from 'a' to 'b' under modular arithmetic.
+  /// Return the farthest difference from 'a' to 'b' under modular arithmetic.
   float ModDiffFar(T a, T b) const {
     const float length = Length();
     const float close = ModDiffClose(a, b);
     return close >= 0.0f ? close - length : close + length;
   }
 
-  // Return the difference from 'a' to 'b' under modular arithmetic that is
-  // positive.
+  /// Return the difference from 'a' to 'b' under modular arithmetic that is
+  /// positive.
   float ModDiffPositive(T a, T b) const {
     const float length = Length();
     const float close = ModDiffClose(a, b);
     return close >= 0.0f ? close : close + length;
   }
 
-  // Return the difference from 'a' to 'b' under modular arithmetic that is
-  // negative.
+  /// Return the difference from 'a' to 'b' under modular arithmetic that is
+  /// negative.
   float ModDiffNegative(T a, T b) const {
     const float length = Length();
     const float close = ModDiffClose(a, b);
     return close >= 0.0f ? close - length : close;
   }
 
-  // Return the difference from 'a' to 'b' that satisfies the 'direction'
-  // criteria.
+  /// Return the difference from 'a' to 'b' that satisfies the 'direction'
+  /// criteria.
   float ModDiff(T a, T b, ModularDirection direction) const {
     switch (direction) {
       case kDirectionClosest:
@@ -175,37 +183,37 @@ class RangeT {
 
   bool Contains(const T x) const { return start_ <= x && x <= end_; }
 
-  // Swap start and end. When 'a' and 'b' don't overlap, if you invert the
-  // return value of Range::Intersect(a, b), you'll get the gap between
-  // 'a' and 'b'.
+  /// Swap start and end. When 'a' and 'b' don't overlap, if you invert the
+  /// return value of Range::Intersect(a, b), you'll get the gap between
+  /// 'a' and 'b'.
   RangeT Invert() const { return RangeT(end_, start_); }
 
-  // Returns a range that is 'percent' longer. If 'percent' is < 1.0, then
-  // returned range will actually be shorter.
+  /// Returns a range that is 'percent' longer. If 'percent' is < 1.0, then
+  /// returned range will actually be shorter.
   RangeT Lengthen(const float percent) const {
     const T extra = static_cast<T>(Length() * percent * 0.5f);
     return RangeT(start_ - extra, end_ + extra);
   }
 
-  // Equality is strict. No epsilon checking here.
+  /// Equality is strict. No epsilon checking here.
   bool operator==(const RangeT& rhs) const {
     return start_ == rhs.start_ && end_ == rhs.end_;
   }
   bool operator!=(const RangeT& rhs) const { return !operator==(rhs); }
 
-  // Scale by multiplying by a scalar.
+  /// Scale by multiplying by a scalar.
   RangeT operator*(const float s) const { return RangeT(s * start_, s * end_); }
 
-  // Accessors.
+  /// Accessors.
   T start() const { return start_; }
   T end() const { return end_; }
   void set_start(const T start) { start_ = start; }
   void set_end(const T end) { end_ = end; }
 
-  // Return the overlap of 'a' and 'b', or an invalid range if they do not
-  // overlap at all.
-  // When 'a' and 'b' don't overlap at all, calling Invert on the returned
-  // range will give the gap between 'a' and 'b'.
+  /// Return the overlap of 'a' and 'b', or an invalid range if they do not
+  /// overlap at all.
+  /// When 'a' and 'b' don't overlap at all, calling Invert on the returned
+  /// range will give the gap between 'a' and 'b'.
   static RangeT Intersect(const RangeT& a, const RangeT& b) {
     // Possible cases:
     // 1.  |-a---|    |-b---|  ==>  return invalid
@@ -226,14 +234,14 @@ class RangeT {
     return RangeT(std::max(a.start_, b.start_), std::min(a.end_, b.end_));
   }
 
-  // Only keep entries in 'values' if they are in
-  // (range.start - epsition, range.end + epsilon).
-  // Any values that are kept are clamped to 'range'.
-  //
-  // This function is useful when floating point precision error might put a
-  // value slightly outside 'range' even though mathematically it should be
-  // inside 'range'. This often happens with values right on the border of the
-  // valid range.
+  /// Only keep entries in 'values' if they are in
+  /// (range.start - epsition, range.end + epsilon).
+  /// Any values that are kept are clamped to 'range'.
+  ///
+  /// This function is useful when floating point precision error might put a
+  /// value slightly outside 'range' even though mathematically it should be
+  /// inside 'range'. This often happens with values right on the border of the
+  /// valid range.
   static size_t ValuesInRange(const RangeT& range, T epsilon, size_t num_values,
                               T* values) {
     size_t num_returned = 0;
@@ -256,9 +264,9 @@ class RangeT {
     values->len = ValuesInRange(range, epsilon, values->len, values->arr);
   }
 
-  // Intersect every element of 'a' with every element of 'b'. Append
-  // intersections to 'intersections'. Note that 'intersections' is not reset at
-  // the start of the call.
+  /// Intersect every element of 'a' with every element of 'b'. Append
+  /// intersections to 'intersections'. Note that 'intersections' is not reset
+  /// at the start of the call.
   static size_t IntersectRanges(const RangeT* a, size_t len_a, const RangeT* b,
                                 size_t len_b, RangeT* intersections,
                                 RangeT* gaps = nullptr,
@@ -298,7 +306,7 @@ class RangeT {
         use_gaps ? gaps->arr : nullptr, use_gaps ? &gaps->len : nullptr);
   }
 
-  // Return the index of the longest range in 'ranges'.
+  /// Return the index of the longest range in `ranges`.
   static size_t IndexOfLongest(const RangeT* ranges, size_t len) {
     T longest_length = -1.0f;
     size_t longest_index = 0;
@@ -317,7 +325,7 @@ class RangeT {
     return IndexOfLongest(ranges.arr, ranges.len);
   }
 
-  // Return the index of the shortest range in 'ranges'.
+  /// Return the index of the shortest range in `ranges`.
   static size_t IndexOfShortest(const RangeT* ranges, size_t len) {
     T shortest_length = std::numeric_limits<T>::infinity();
     size_t shortest_index = 0;
@@ -346,18 +354,20 @@ class RangeT {
   T end_;    // End of the range. Range is inclusive of start_ and end_.
 };
 
+/// Given two numbers, create a range that has the lower one as min,
+/// and the higher one as max.
 template <class T>
 RangeT<T> CreateValidRange(const T a, const T b) {
   return RangeT<T>(std::min<T>(a, b), std::max<T>(a, b));
 }
 
-// Instantiate for various scalar.
+// Instantiate for various scalars.
 typedef RangeT<float> RangeFloat;
 typedef RangeT<double> RangeDouble;
 typedef RangeT<int> RangeInt;
 typedef RangeT<unsigned int> RangeUInt;
 
-// Since the float specification will be most common, we give it a simple name.
+// Since the float specialization will be most common, we give it a simple name.
 typedef RangeFloat Range;
 
 }  // namespace fpl

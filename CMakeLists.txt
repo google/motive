@@ -21,6 +21,7 @@ set(motive_DEBUG ON)
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
+get_directory_property(motive_has_parent PARENT_DIRECTORY)
 
 # Temporary files (like object files) created while compiling projects.
 set(tmp_dir ${CMAKE_CURRENT_BINARY_DIR}/obj)
@@ -92,8 +93,10 @@ endif()
 # directory.
 set(MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR
     ${CMAKE_CURRENT_SOURCE_DIR}${CMAKE_FILES_DIRECTORY}/include)
-set(MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR
-    ${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR} PARENT_SCOPE)
+if(motive_has_parent)
+  set(MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR
+      ${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR} PARENT_SCOPE)
+endif()
 file(GLOB_RECURSE FLATBUFFERS_SCHEMAS ${CMAKE_CURRENT_SOURCE_DIR}/schemas/*.fbs)
 
 # Generate rules to build the set of output files from the set of input
@@ -129,20 +132,20 @@ set(motive_SRCS
     include/motive/target.h
     include/motive/util.h
     include/motive/version.h
-    src/engine.cpp
-    src/motivator.cpp
-    src/io/flatbuffers.cpp
-    src/math/bulk_spline_evaluator.cpp
-    src/math/compact_spline.cpp
-    src/math/curve.cpp
-    src/math/dual_cubic.cpp
-    src/processor.cpp
-    src/processor/matrix_processor.cpp
-    src/processor/overshoot_processor.cpp
-    src/processor/smooth_processor.cpp
-    src/util/benchmark.cpp
-    src/util/optimizations.cpp
-    src/version.cpp)
+    src/motive/engine.cpp
+    src/motive/motivator.cpp
+    src/motive/io/flatbuffers.cpp
+    src/motive/math/bulk_spline_evaluator.cpp
+    src/motive/math/compact_spline.cpp
+    src/motive/math/curve.cpp
+    src/motive/math/dual_cubic.cpp
+    src/motive/processor.cpp
+    src/motive/processor/matrix_processor.cpp
+    src/motive/processor/overshoot_processor.cpp
+    src/motive/processor/smooth_processor.cpp
+    src/motive/util/benchmark.cpp
+    src/motive/util/optimizations.cpp
+    src/motive/version.cpp)
 
 # Includes for this project.
 include_directories(src include)
@@ -208,11 +211,11 @@ mathfu_configure_flags(motive)
 
 # Tests.
 if(motive_build_tests)
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/tests)
 endif()
 
 # Samples.
 if(motive_build_samples)
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/docs/samples)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/samples)
 endif()
 

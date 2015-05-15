@@ -11,15 +11,15 @@ vector types, together with conversion functions to and from `mathfu` types.
 # Example  {#motive_guide_vector_types_example}
 For example, suppose you have these vector types in your code base:
 
-\snippet docs/samples/own_vector_types.cpp Own Vector Types
+\snippet src/samples/own_vector_types.cpp Own Vector Types
 
 Then, in your own header file, you can define a conversion class like this:
 
-\snippet docs/samples/own_vector_types.cpp Own Vector Converter
+\snippet src/samples/own_vector_types.cpp Own Vector Converter
 
 And then define a `MatrixMotivator` that uses your types in its external API:
 
-\snippet docs/samples/own_vector_types.cpp Own MatrixMotivator
+\snippet src/samples/own_vector_types.cpp Own MatrixMotivator
 
 # Strict Aliasing  {#motive_guide_vector_types_strict_aliasing}
 

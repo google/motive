@@ -49,48 +49,40 @@ static const float kDegreesPerCircle = 360.0f;
 // (-pi, pi], even when the math is perfect.
 static const float kMinUniqueAngle = -3.1415925f;
 
-//    Purpose
-//    =======
-// Represents an angle in radians, uniquely in the range (-pi, pi].
-//
-// We include pi in the range, but exclude -pi, because pi and -pi
-// are equivalent mod 2pi.
-//
-// Equivalence is key to this class. We want only one representation
-// of every equivalent angle. For example, 0 and 2pi are both represented
-// as 0, internally. This unique representation allows for comparison and
-// precise arithmetic.
-//
-// All operators keep the angle values in the valid range.
-//
-//    Conversions to and from vectors and matrices
-//    ============================================
-// Conversions from and to XZ vectors follow the following convension:
-// The vector is a point on unit circle corresponding to a sweep of 'angle'
-// degrees from the x-axis towards the z-axis.
-//   0     ==> ( 1,  0)
-//   pi/2  ==> ( 0,  1)
-//   pi    ==> (-1,  0)
-//   3pi/2 ==> ( 0, -1)
-//
-//    Why use instead of Quaternions?
-//    ===============================
-// Quaternions are great for three dimensional rotations, but for many
-// applications you only have two dimensional rotations. Instead of the
-// four floats and heavy operations required by quaternions, an angle
-// can represent the rotation in one float and reasonably light operations.
-// Angles are easier to do trigonometry on. Also, they're conceptually
-// simpler.
-//
+/// @class Angle
+/// @brief Represent an angle in radians, uniquely in the range (-pi, pi].
+///
+/// We include pi in the range, but exclude -pi, because pi and -pi
+/// are equivalent mod 2pi.
+///
+/// Equivalence is key to this class. We want only one representation
+/// of every equivalent angle. For example, 0 and 2pi are both represented
+/// as 0, internally. This unique representation allows for comparison and
+/// precise arithmetic.
+///
+/// All operators keep the angle values in the valid range.
+///
+/// Why use instead of Quaternions?
+/// -------------------------------
+/// Quaternions are great for three dimensional rotations, but for many
+/// applications you only have two dimensional rotations. Instead of the
+/// four floats and heavy operations required by quaternions, an angle
+/// can represent the rotation in one float and reasonably light operations.
+/// Angles are easier to do trigonometry on. Also, they're conceptually
+/// simpler.
+///
 class Angle {
  public:
   Angle() : angle_(0.0f) {}
 
-  // Create from 'angle', which is already in the valid range (-pi,pi].
-  // If your angle is outside that range, construct the Angle with the
-  // slower FromRadians function to automatically wrap it.
+  /// Create from `angle`, which is already in the valid range (-pi,pi].
+  /// If your angle is outside that range, construct the Angle with the
+  /// slower FromRadians function to automatically wrap it.
+  /// @param angle radians in the range (-pi,pi] -- i.e. exclusive of -pi but
+  ///              inclusive of +pi.
   explicit Angle(float angle) : angle_(angle) { assert(IsValid()); }
 
+  /// Returns the absolute value of an angle.
   Angle Abs() const { return Angle(fabs(angle_)); }
 
   Angle& operator=(const Angle& rhs) {
@@ -98,89 +90,105 @@ class Angle {
     return *this;
   }
 
+  /// Add `rhs` and ensure result is in the range (-pi,pi].
   Angle& operator+=(const Angle& rhs) {
     angle_ = ModWithinThreePi(angle_ + rhs.angle_);
     return *this;
   }
 
+  /// Subtract `rhs` and ensure result is in the range (-pi,pi].
   Angle& operator-=(const Angle& rhs) {
     angle_ = ModWithinThreePi(angle_ - rhs.angle_);
     return *this;
   }
 
+  /// Multiply `rhs` and ensure result is in the normalized range (-pi,pi].
   Angle& operator*=(const float rhs) {
     angle_ = WrapAngle(angle_ * rhs);
     return *this;
   }
 
+  /// Divide `rhs` and ensure result is in the normalized range (-pi,pi].
   Angle& operator/=(const float rhs) {
     angle_ = WrapAngle(angle_ / rhs);
     return *this;
   }
 
+  /// Negate the angle and ensure result is in the normalized range (-pi,pi].
+  Angle operator-() const { return Angle(ModIfNegativePi(-angle_)); }
+
+  /// Return the angle value in radians. Value is in the range (-pi,pi].
   float ToRadians() const { return angle_; }
 
+  /// Return the angle value in degrees. Value is in the range (-180,180].
   float ToDegrees() const { return kRadiansToDegrees * angle_; }
 
+  /// Returns a point on unit circle corresponding to a sweep of `angle`
+  /// degrees from the x-axis towards the z-axis.
+  ///   0     ==> ( 1,  0,  0)
+  ///   pi/2  ==> ( 0,  0,  1)
+  ///   pi    ==> (-1,  0,  0)
+  ///   3pi/2 ==> ( 0,  0, -1)
   mathfu::vec3 ToXZVector() const {
     float x, z;
     ToVector(&x, &z);
     return mathfu::vec3(x, 0.0f, z);
   }
 
+  /// Returns a matrix that rotates about the Y axis `angle` radians.
   mathfu::mat3 ToXZRotationMatrix() const {
     float x, z;
     ToVector(&x, &z);
     return mathfu::mat3(x, 0.0f, z, 0.0f, 1.0f, 0.0f, -z, 0.0f, x);
   }
 
-  Angle operator-() const { return Angle(ModIfNegativePi(-angle_)); }
-
-  // Check internal consistency. If class is functioning correctly, should
-  // always return true.
+  /// Check internal consistency. If class is functioning correctly, should
+  /// always return true.
   bool IsValid() const { return IsAngleInRange(angle_); }
 
-  // Clamps the angle to the range [center - max_diff, center + max_diff].
-  // max_diff must be in the range [0~pi].
+  /// Clamps the angle to the range [center - max_diff, center + max_diff].
+  /// max_diff must be in the range [0~pi].
   Angle Clamp(const Angle& center, const Angle& max_diff) const;
 
-  // Wraps an angle to the range (-pi, pi].
+  /// Wraps an angle to the range (-pi, pi].
+  /// This function is slow because it has a division. When possible, use
+  /// FromWithinThreePi instead.
   static float WrapAngle(float angle) {
-    angle -= (floor(angle / kTwoPi) + 1.f) * kTwoPi;
+    angle -= (floor(angle / kTwoPi) + 1.0f) * kTwoPi;
     if (angle <= -kPi) {
       angle += kTwoPi;
     }
     return angle;
   }
 
-  // Create from 'angle', in radians, which is in the range (-3pi,3pi].
-  // This function is significantly faster than FromRadians since it avoids
-  // division. It's also more precise for the same reason. The range may seem
-  // strange at first glance; it's a consequence of the implementation. Just
-  // know that any two sums of normalized angles will still be in the range
-  // (-3pi,3pi].
+  /// Create from `angle`, in radians, which is in the range (-3pi,3pi].
+  /// This function is significantly faster than WrapAngle since it avoids
+  /// division. It's also more precise for the same reason. The range may seem
+  /// strange at first glance; it's a consequence of the implementation. Just
+  /// know that any two sums of normalized angles will still be in the range
+  /// (-3pi,3pi].
   static Angle FromWithinThreePi(const float angle) {
     return Angle(ModWithinThreePi(angle));
   }
 
-  // Create from 'radians', which is converted to the range (-pi, pi].
+  /// Create from `radians`, which is converted to the range (-pi, pi].
   static Angle FromRadians(const float radians) {
     return Angle(WrapAngle(radians));
   }
 
-  // Create from 'degrees', which is converted to the range (-pi, pi].
+  /// Create from `degrees`, which is converted to the range (-pi, pi].
   static Angle FromDegrees(const float degrees) {
     return FromRadians(degrees * kDegreesToRadians);
   }
 
-  // Create from the x,z coordinates of a vector, as described in the
-  // comment at the head of the class.
+  /// Create from the x,z coordinates of a vector, using the system
+  /// described in ToXZVector().
   static Angle FromXZVector(const mathfu::vec3& v) {
     return Angle(ModIfNegativePi(atan2f(v[2], v[0])));
   }
 
-  // Return true if 'angle' is within the valid range (-pi,pi], that is,
-  // the range inclusive of +pi but exclusive of -pi.
+  /// Return true if 'angle' is within the valid range (-pi,pi], that is,
+  /// the range inclusive of +pi but exclusive of -pi.
   static bool IsAngleInRange(const float angle) {
     return kMinUniqueAngle <= angle && angle <= kMaxUniqueAngle;
   }
@@ -196,6 +204,7 @@ class Angle {
 #endif  // FPL_ANGLE_UNIT_TESTS
 
   void ToVector(float* const x, float* const z) const {
+    // TODO OPT: Call single function that calculates both cos and sin.
     *x = cos(angle_);
     *z = sin(angle_);
   }

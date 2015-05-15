@@ -24,12 +24,15 @@ struct SmoothParameters;
 struct Settled1f;
 struct Settled1fParameters;
 
+/// Convert from FlatBuffer params to Motive init, for Overshoot.
 void OvershootInitFromFlatBuffers(const OvershootParameters& params,
                                   OvershootInit* init);
 
+/// Convert from FlatBuffer params to Motive init, for Smooth.
 void SmoothInitFromFlatBuffers(const SmoothParameters& params,
                                SmoothInit* init);
 
+/// Convert from FlatBuffer params to Motive Settled1f.
 void Settled1fFromFlatBuffers(const Settled1fParameters& params,
                               Settled1f* settled);
 

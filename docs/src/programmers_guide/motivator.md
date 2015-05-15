@@ -24,7 +24,7 @@ no matter what `MotiveProcessor` is backing a `Motivator`, although not all
 The following example illustrates how to animate the face-angle of a character.
 The comments describe, in brief, what is going on internally.
 
-\snippet docs/samples/smooth1f.cpp Motivator Example
+\snippet src/samples/smooth1f.cpp Motivator Example
 
 This program generates the output below. Notice that the face angle is
 animated smoothly from 120 degrees to -120 degrees.
@@ -68,4 +68,4 @@ in `SmoothInit`.
     y = -179.489014
 
 If you'd like to experiment with this program, it is compiled for you in
-`docs/samples/smooth1f.cpp`.
+`src/samples/smooth1f.cpp`.

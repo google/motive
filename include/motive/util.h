@@ -20,32 +20,44 @@
 
 namespace motive {
 
+/// Direction to boost the value.
 enum TwitchDirection {
-  kTwitchDirectionNone,      // Do nothing.
-  kTwitchDirectionPositive,  // Give the velocity a positive boost.
-  kTwitchDirectionNegative   // Give the velocity a negative boost.
+  kTwitchDirectionNone,      /// Do nothing.
+  kTwitchDirectionPositive,  /// Give the velocity a positive boost.
+  kTwitchDirectionNegative   /// Give the velocity a negative boost.
 };
 
-// Helper to determine if we're "at the target" and "stopped".
+/// @class Settled1f
+/// @brief Helper to determine if we're "at the target" and "stopped".
 struct Settled1f {
-  // Consider ourselves "at the target" if the absolute difference between
-  // the value and the target is less than this.
-  float max_difference;
-
-  // Consider ourselves "stopped" if the absolute velocity is less than this.
-  float max_velocity;
-
   Settled1f() : max_difference(0.0f), max_velocity(0.0f) {}
 
+  /// Return true if our distance from target is and velocity are less than
+  /// this class' threshold.
   bool Settled(float dist, float velocity) const {
     return fabs(dist) <= max_difference && fabs(velocity) <= max_velocity;
   }
 
+  /// Return true if `motivator` is "at the target" and "stopped".
   bool Settled(const Motivator1f& motivator) const {
     return Settled(motivator.Difference(), motivator.Velocity());
   }
+
+  /// Consider ourselves "at the target" if the absolute difference between
+  /// the value and the target is less than this.
+  float max_difference;
+
+  /// Consider ourselves "stopped" if the absolute velocity is less than this.
+  float max_velocity;
 };
 
+/// If `motivator` is "at the target" and "stopped" give it a boost in
+/// `direction`.
+///
+/// A little boost is useful to demonstrate responsiveness to user input,
+/// even when you can't logically change to a new state. A slight boost that
+/// then settles back to its original value (via an OvershootMotivator, for
+/// example) looks and feels correct.
 inline void Twitch(TwitchDirection direction, float velocity,
                    const Settled1f& settled, Motivator1f* motivator) {
   if (direction != kTwitchDirectionNone && settled.Settled(*motivator)) {

@@ -16,11 +16,11 @@
 cmake_minimum_required(VERSION 2.8.12)
 
 # This is the directory into which the executables are built.
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../bin")
 set(COMMON_LIBS "motive;${CMAKE_THREAD_LIBS_INIT}")
 
 set(tmp_dir ${CMAKE_BINARY_DIR}/obj)
-get_filename_component(fpl_root "${CMAKE_SOURCE_DIR}/../.." REALPATH)
+get_filename_component(fpl_root "${CMAKE_SOURCE_DIR}/../../.." REALPATH)
 set(dependencies_motive_dir "${fpl_root}/motive"
     CACHE PATH "Directory containing the motive animation library.")
 set(dependencies_mathfu_dir "${fpl_root}/mathfu"
@@ -63,11 +63,11 @@ set(CMAKE_BUILD_TYPE Release)
 add_definitions(-DBENCHMARK_MOTIVE)
 
 # Executable target.
-add_executable(benchmark ${CMAKE_CURRENT_SOURCE_DIR}/benchmarker.cpp)
+add_executable(benchmarker ${CMAKE_CURRENT_SOURCE_DIR}/benchmarker.cpp)
 
 # Additional flags for the target.
-mathfu_configure_flags(benchmark)
+mathfu_configure_flags(benchmarker)
 
 # Dependencies for the executable target.
-add_dependencies(benchmark mathfu motive)
-target_link_libraries(benchmark motive)
+add_dependencies(benchmarker mathfu motive)
+target_link_libraries(benchmarker motive)

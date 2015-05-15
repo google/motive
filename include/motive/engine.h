@@ -27,11 +27,14 @@ namespace motive {
 struct MotiveProcessorFunctions;
 struct MotiveVersion;
 
-// The engine holds all of the processors, and updates them all when
-// AdvanceFrame() is called. The processing is kept central, in this manner,
-// for scalability. The engine is not a singleton, but you should try to
-// minimize the number of engines in your game. As more Motivators are added to
-// the processors, you start to get economies of scale.
+/// @class MotiveEngine
+/// @brief Hold and update all animation data.
+///
+/// The engine holds all of the MotiveProcessors, and updates them all when
+/// AdvanceFrame() is called. The processing is kept central, in this manner,
+/// for scalability. The engine is not a singleton, but you should try to
+/// minimize the number of engines in your game. As more Motivators are added to
+/// the processors, you start to get economies of scale.
 class MotiveEngine {
   struct ProcessorDetails {
     MotiveProcessor* processor;
@@ -50,34 +53,41 @@ class MotiveEngine {
   MotiveEngine();
   ~MotiveEngine() { Reset(); }
 
-  // Deallocate all MotiveProcessors, which, in turn, resets all Motivators
-  // that use those MotiveProcessors.
+  /// Deallocate all MotiveProcessors, which, in turn, resets all Motivators
+  /// that use those MotiveProcessors.
   void Reset();
 
-  // Update all the MotiveProcessors by 'delta_time'. This advances all
-  // Motivators created with this MotiveEngine.
+  /// Update all the MotiveProcessors by 'delta_time'. This advances all
+  /// Motivators created with this MotiveEngine.
+  /// @param delta_time Elapsed time since the last call to AdvanceFrame().
+  ///                   Time units are defined by the user. When using spline
+  ///                   animations, for instance, the time unit is the unit of
+  ///                   the x-axis.
   void AdvanceFrame(MotiveTime delta_time);
 
-  // For internal use only.
+  /// @private For internal use only.
   MotiveProcessor* Processor(MotivatorType type);
+
+  /// @private For internal use only.
   static void RegisterProcessorFactory(MotivatorType type,
                                        const MotiveProcessorFunctions& fns);
 
  private:
-  // Map from the MotivatorType to the MotiveProcessor. Only one MotiveProcessor
-  // per type per engine. This is to maximize centralization of data.
+  /// Map from the MotivatorType to the MotiveProcessor. Only one
+  /// MotiveProcessor per type per engine. This is to maximize centralization
+  /// of data.
   ProcessorMap mapped_processors_;
 
-  // Sort the MotiveProcessors by priority. Low numbered priorities run first.
-  // This allows high number priorities to have child motivators, as long as
-  // the child motivators have lower priority.
+  /// Sort the MotiveProcessors by priority. Low numbered priorities run first.
+  /// This allows high number priorities to have child motivators, as long as
+  /// the child motivators have lower priority.
   ProcessorSet sorted_processors_;
 
-  // Current version of the Motive Animation System.
+  /// Current version of the Motive Animation System.
   const MotiveVersion* version_;
 
-  // ProcessorMap from the MotivatorType to the factory that creates the
-  // MotiveProcessor. We only create an MotiveProcessor when one is needed.
+  /// ProcessorMap from the MotivatorType to the factory that creates the
+  /// MotiveProcessor. We only create an MotiveProcessor when one is needed.
   static FunctionMap function_map_;
 };
 

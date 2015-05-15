@@ -19,29 +19,32 @@ namespace fpl {
 
 #if defined(BENCHMARK_MOTIVE)
 
-// A raw tick count from the system. Guaranteed to increase.
+/// A raw tick count from the system. Guaranteed to increase.
 typedef unsigned long long BenchmarkTime;
 
-// Get the current system tick count. The unit varies from system to system.
+/// Get the current system tick count. The unit varies from system to system.
 BenchmarkTime GetBenchmarkTime();
 
-// Initialize the benchmark tracking system. Multiple things can be benchmarked
-// simultaneously. Each thing has its own 'id'. We allocate storage for ids
-// between 0~num_ids-1.
+/// Initialize the benchmark tracking system. Multiple things can be benchmarked
+/// simultaneously. Each thing has its own 'id'. We allocate storage for ids
+/// between 0~num_ids-1.
 void InitBenchmarks(int num_ids);
 
-// Empty all samples that have been collected with 'Benchmark'.
+/// Empty all samples that have been collected with 'Benchmark'.
 void ClearBenchmarks();
 
-// Set some details for how the data will be displayed in OutputBenchmarks().
+/// Set some details for how the data will be displayed in OutputBenchmarks().
 void SetBenchmarkDetails(int id, const char* name);
 
-// Dump an analysis of the samples to stdout.
+/// Dump an analysis of the samples to stdout.
 void OutputBenchmarks();
 
-// Create a benchmark sample. We can sample several things at once. The thing
-// we're sampling is specified by 'id'.
-// The sample is the time between creation and destruction of the Benchmark.
+/// @class Benchmark
+/// @brief Record the time for the scope of this variable.
+///
+/// Creates a benchmark sample. We can sample several things at once. The thing
+/// we're sampling is specified by 'id'.
+/// The sample is the time between creation and destruction of the Benchmark.
 class Benchmark {
  public:
   explicit Benchmark(int id) : id_(id), start_time_(GetBenchmarkTime()) {}

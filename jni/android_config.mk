@@ -13,7 +13,6 @@
 # limitations under the License.
 
 # Locations of 3rd party and FPL libraries.
-THIRD_PARTY_ROOT:=$(MOTIVE_DIR)/../../../../external
 FPL_ROOT:=$(MOTIVE_DIR)/../../libs
 # If the dependencies directory exists either as a subdirectory or as the
 # container of this project directory, assume the dependencies directory is
@@ -22,7 +21,6 @@ $(foreach dep_dir,$(wildcard $(MOTIVE_DIR)/dependencies) \
                   $(wildcard $(MOTIVE_DIR)/../../dependencies),\
   $(eval DEPENDENCIES_ROOT?=$(dep_dir)))
 ifneq ($(DEPENDENCIES_ROOT),)
-  THIRD_PARTY_ROOT:=$(DEPENDENCIES_ROOT)
   FPL_ROOT:=$(DEPENDENCIES_ROOT)
 endif
 
