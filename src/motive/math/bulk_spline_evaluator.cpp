@@ -66,7 +66,7 @@ void BulkSplineEvaluator::SetYRange(const Index index, const Range& valid_y,
 void BulkSplineEvaluator::SetSpline(const Index index,
                                     const SplinePlayback& playback) {
   Source& s = sources_[index];
-  s.spline = playback.spline;
+  s.spline = playback.splines[0];
   s.x_index = kInvalidSplineIndex;
   s.repeat = playback.repeat;
   InitCubic(index, playback.start_x);

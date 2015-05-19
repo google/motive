@@ -38,7 +38,7 @@ struct OvershootData {
   OvershootInit init;
 };
 
-class OvershootMotiveProcessor : public MotiveProcessor1f {
+class OvershootMotiveProcessor : public MotiveProcessorVector {
  public:
   virtual ~OvershootMotiveProcessor() {}
 
@@ -65,15 +65,15 @@ class OvershootMotiveProcessor : public MotiveProcessor1f {
   virtual int Priority() const { return 1; }
 
   // Accessors to allow the user to get and set simluation values.
-  virtual float Value(MotiveIndex index) const { return Data(index).value; }
-  virtual float Velocity(MotiveIndex index) const {
+  virtual float Value1f(MotiveIndex index) const { return Data(index).value; }
+  virtual float Velocity1f(MotiveIndex index) const {
     return Data(index).velocity;
   }
-  virtual float TargetValue(MotiveIndex index) const {
+  virtual float TargetValue1f(MotiveIndex index) const {
     return Data(index).target_value;
   }
-  virtual float TargetVelocity(MotiveIndex /*index*/) const { return 0.0f; }
-  virtual float Difference(MotiveIndex index) const {
+  virtual float TargetVelocity1f(MotiveIndex /*index*/) const { return 0.0f; }
+  virtual float Difference1f(MotiveIndex index) const {
     const OvershootData& d = Data(index);
     return d.init.Normalize(d.target_value - d.value);
   }

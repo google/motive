@@ -25,7 +25,8 @@ namespace motive {
 MotiveProcessor::~MotiveProcessor() {
   // Reset all of the Motivators that we're currently driving.
   // We don't want any of them to reference us after we've been destroyed.
-  for (MotiveIndex index = 0; index < index_allocator_.num_indices(); ++index) {
+  for (MotiveIndex index = 0; index < index_allocator_.num_indices();
+       index += Dimensions(index)) {
     if (motivators_[index] != nullptr) {
       RemoveMotivatorWithoutNotifying(index);
     }

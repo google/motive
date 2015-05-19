@@ -37,7 +37,7 @@ struct SmoothData {
   CompactSpline* local_spline;
 };
 
-class SmoothMotiveProcessor : public MotiveProcessor1f {
+class SmoothMotiveProcessor : public MotiveProcessorVector {
  public:
   virtual ~SmoothMotiveProcessor() {
     for (auto it = spline_pool_.begin(); it != spline_pool_.end(); ++it) {
@@ -54,19 +54,19 @@ class SmoothMotiveProcessor : public MotiveProcessor1f {
   virtual int Priority() const { return 0; }
 
   // Accessors to allow the user to get and set simluation values.
-  virtual float Value(MotiveIndex index) const {
+  virtual float Value1f(MotiveIndex index) const {
     return interpolator_.Y(index);
   }
-  virtual float Velocity(MotiveIndex index) const {
+  virtual float Velocity1f(MotiveIndex index) const {
     return interpolator_.Derivative(index);
   }
-  virtual float TargetValue(MotiveIndex index) const {
+  virtual float TargetValue1f(MotiveIndex index) const {
     return interpolator_.EndY(index);
   }
-  virtual float TargetVelocity(MotiveIndex index) const {
+  virtual float TargetVelocity1f(MotiveIndex index) const {
     return interpolator_.EndDerivative(index);
   }
-  virtual float Difference(MotiveIndex index) const {
+  virtual float Difference1f(MotiveIndex index) const {
     return interpolator_.YDifferenceToEnd(index);
   }
   virtual MotiveTime TargetTime(MotiveIndex index) const {
@@ -81,9 +81,9 @@ class SmoothMotiveProcessor : public MotiveProcessor1f {
     // current values with the values specified in the first node.
     const MotiveNode1f& node0 = t.Node(0);
     const bool override_current = node0.time == 0;
-    const float start_y = override_current ? node0.value : Value(index);
+    const float start_y = override_current ? node0.value : Value1f(index);
     const float start_derivative =
-        override_current ? node0.velocity : Velocity(index);
+        override_current ? node0.velocity : Velocity1f(index);
     const int start_node_index = override_current ? 1 : 0;
 
     // Ensure we have a local spline available, allocated from our pool of

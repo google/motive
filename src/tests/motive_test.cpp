@@ -31,10 +31,16 @@ using fpl::kHalfPi;
 using fpl::Range;
 using motive::MotiveEngine;
 using motive::Motivator1f;
+using motive::Motivator2f;
+using motive::Motivator3f;
+using motive::Motivator4f;
 using motive::MotivatorMatrix4f;
 using motive::MotiveTime;
 using motive::MotivatorInit;
 using motive::MotiveTarget1f;
+using motive::MotiveTarget2f;
+using motive::MotiveTarget3f;
+using motive::MotiveTarget4f;
 using motive::OvershootInit;
 using motive::SmoothInit;
 using motive::MatrixInit;
@@ -52,7 +58,9 @@ using motive::kScaleY;
 using motive::kScaleZ;
 using motive::kScaleUniformly;
 using mathfu::mat4;
+using mathfu::vec2;
 using mathfu::vec3;
+using mathfu::vec4;
 
 typedef mathfu::Matrix<float, 3> mat3;
 
@@ -61,8 +69,96 @@ static const MotiveTime kMaxTime = 10000;
 static const float kMatrixEpsilon = 0.00001f;
 static const float kAngleEpsilon = 0.01f;
 
+#define TEST_ALL_VECTOR_MOTIVATORS_F(MOTIVE_TEST_NAME) \
+  TEST_F(MotiveTests, MOTIVE_TEST_NAME##Test) {        \
+    MOTIVE_TEST_NAME<Motivator3f>(*this);              \
+    MOTIVE_TEST_NAME<Motivator4f>(*this);              \
+  }
+
+// For tests. Exact comparison.
+template <class T, int d>
+bool VectorEqual(const mathfu::Vector<T, d>& lhs,
+                 const mathfu::Vector<T, d>& rhs) {
+  for (int i = 0; i < d; ++i) {
+    if (lhs[i] != rhs[i]) return false;
+  }
+  return true;
+}
+bool VectorEqual(float lhs, float rhs) { return lhs == rhs; }
+
+// For tests. All elements of vector are within `precision` of each other.
+template <class T>
+bool VectorNear(const T& lhs, const T& rhs, const T& precision) {
+  const T diff = lhs - rhs;
+  return -precision <= diff && diff <= precision;
+}
+
+// For tests. All elements of vector are <=.
+template <class T, int d>
+bool operator<=(const mathfu::Vector<T, d>& lhs,
+                const mathfu::Vector<T, d>& rhs) {
+  for (int i = 0; i < d; ++i) {
+    if (lhs[i] > rhs[i]) return false;
+  }
+  return true;
+}
+
+// For tests. All elements of vector are >=.
+template <class T, int d>
+bool operator>=(const mathfu::Vector<T, d>& lhs,
+                const mathfu::Vector<T, d>& rhs) {
+  for (int i = 0; i < d; ++i) {
+    if (lhs[i] < rhs[i]) return false;
+  }
+  return true;
+}
+
 class MotiveTests : public ::testing::Test {
-protected:
+ public:
+  MotiveEngine& engine() { return engine_; }
+  OvershootInit& overshoot_angle_init() { return overshoot_angle_init_; }
+  OvershootInit& overshoot_percent_init() { return overshoot_percent_init_; }
+  SmoothInit& smooth_angle_init() { return smooth_angle_init_; }
+  SmoothInit& smooth_scalar_init() { return smooth_scalar_init_; }
+
+  template <class MotivatorT>
+  void InitMotivator(const MotivatorInit& init, float start_value,
+                     float start_velocity, float target_value,
+                     MotivatorT* motivator) {
+    typedef typename MotivatorT::TargetBuilder Tar;
+    typedef typename MotivatorT::ExT Vec;
+    motivator->InitializeWithTarget(
+        init, &engine_,
+        Tar::CurrentToTarget(Vec(start_value), Vec(start_velocity),
+                             Vec(target_value), Vec(0.0f), 1));
+  }
+
+  template <class MotivatorT>
+  void InitOvershootMotivator(MotivatorT* motivator) {
+    InitMotivator(overshoot_percent_init_, overshoot_percent_init_.Max(),
+                  overshoot_percent_init_.max_velocity(),
+                  overshoot_percent_init_.Max(), motivator);
+  }
+
+  template <class MotivatorT>
+  void InitOvershootMotivatorArray(MotivatorT* motivators, int len) {
+    for (int i = 0; i < len; ++i) {
+      InitOvershootMotivator(&motivators[i]);
+    }
+  }
+
+  template <class MotivatorT>
+  MotiveTime TimeToSettle(const MotivatorT& motivator,
+                          const Settled1f& settled) {
+    MotiveTime time = 0;
+    while (time < kMaxTime && !settled.Settled(motivator)) {
+      engine_.AdvanceFrame(kTimePerFrame);
+      time += kTimePerFrame;
+    }
+    return time;
+  }
+
+ protected:
   virtual void SetUp()
   {
     const Range angle_range(-3.14159265359f, 3.14159265359f);
@@ -101,37 +197,6 @@ protected:
   }
   virtual void TearDown() {}
 
-protected:
- void InitMotivator(const MotivatorInit& init, float start_value,
-                    float start_velocity, float target_value,
-                    Motivator1f* motivator) {
-   motivator->InitializeWithTarget(
-       init, &engine_, motive::CurrentToTarget1f(start_value, start_velocity,
-                                                 target_value, 0.0f, 1));
-  }
-
-  void InitOvershootMotivator(Motivator1f* motivator) {
-    InitMotivator(overshoot_percent_init_, overshoot_percent_init_.Max(),
-                  overshoot_percent_init_.max_velocity(),
-                  overshoot_percent_init_.Max(), motivator);
-  }
-
-  void InitOvershootMotivatorArray(Motivator1f* motivators, int len) {
-    for (int i = 0; i < len; ++i) {
-      InitOvershootMotivator(&motivators[i]);
-    }
-  }
-
-  MotiveTime TimeToSettle(const Motivator1f& motivator,
-                          const Settled1f& settled) {
-    MotiveTime time = 0;
-    while (time < kMaxTime && !settled.Settled(motivator)) {
-      engine_.AdvanceFrame(kTimePerFrame);
-      time += kTimePerFrame;
-    }
-    return time;
-  }
-
   MotiveEngine engine_;
   OvershootInit overshoot_angle_init_;
   OvershootInit overshoot_percent_init_;
@@ -140,70 +205,84 @@ protected:
 };
 
 // Ensure we wrap around from pi to -pi.
-TEST_F(MotiveTests, ModularMovement) {
-  Motivator1f motivator;
-  InitMotivator(overshoot_angle_init_, kPi, 0.001f, -kPi + 1.0f, &motivator);
-  engine_.AdvanceFrame(1);
+template <class MotivatorT>
+void ModularMovement(MotiveTests& t) {
+  typedef typename MotivatorT::ExT Vec;
+  const OvershootInit& overshoot = t.overshoot_angle_init();
+  MotivatorT motivator;
+  t.InitMotivator(overshoot, kPi, 0.001f, -kPi + 1.0f, &motivator);
+  t.engine().AdvanceFrame(1);
 
   // We expect the position to go up from +pi since it has positive velocity.
   // Since +pi is the max of the range, we expect the value to wrap down to -pi.
-  EXPECT_LE(motivator.Value(), 0.0f);
+  EXPECT_TRUE(motivator.Value() <= Vec(0.0f));
 }
+TEST_ALL_VECTOR_MOTIVATORS_F(ModularMovement)
 
 // Ensure the simulation settles on the target in a reasonable amount of time.
-TEST_F(MotiveTests, EventuallySettles) {
-  Motivator1f motivator;
-  InitMotivator(overshoot_angle_init_, 0.0f,
-                overshoot_angle_init_.max_velocity(), -kPi + 1.0f, &motivator);
+template <class MotivatorT>
+void EventuallySettles(MotiveTests& t) {
+  const OvershootInit& overshoot = t.overshoot_angle_init();
+  MotivatorT motivator;
+  t.InitMotivator(overshoot, 0.0f, overshoot.max_velocity(), -kPi + 1.0f,
+                  &motivator);
   const MotiveTime time_to_settle =
-      TimeToSettle(motivator, overshoot_angle_init_.at_target());
+      t.TimeToSettle(motivator, overshoot.at_target());
 
   // The simulation should complete in about half a second (time is in ms).
   // Checke that it doesn't finish too quickly nor too slowly.
   EXPECT_GT(time_to_settle, 0);
   EXPECT_LT(time_to_settle, 700);
 }
+TEST_ALL_VECTOR_MOTIVATORS_F(EventuallySettles)
 
 // Ensure the simulation settles when the target is the max bound in a modular
 // type. It will oscillate between the max and min bound a lot.
-TEST_F(MotiveTests, SettlesOnMax) {
-  Motivator1f motivator;
-  InitMotivator(overshoot_angle_init_, kPi,
-                overshoot_angle_init_.max_velocity(), kPi, &motivator);
+template <class MotivatorT>
+void SettlesOnMax(MotiveTests& t) {
+  MotivatorT motivator;
+  const OvershootInit& overshoot = t.overshoot_angle_init();
+  t.InitMotivator(overshoot, kPi, overshoot.max_velocity(), kPi, &motivator);
   const MotiveTime time_to_settle =
-      TimeToSettle(motivator, overshoot_angle_init_.at_target());
+      t.TimeToSettle(motivator, overshoot.at_target());
 
   // The simulation should complete in about half a second (time is in ms).
   // Checke that it doesn't finish too quickly nor too slowly.
   EXPECT_GT(time_to_settle, 0);
   EXPECT_LT(time_to_settle, 500);
 }
+TEST_ALL_VECTOR_MOTIVATORS_F(SettlesOnMax)
 
 // Ensure the simulation does not exceed the max bound, on constrants that
 // do not wrap around.
-TEST_F(MotiveTests, StaysWithinBound) {
-  Motivator1f motivator;
-  InitOvershootMotivator(&motivator);
-  engine_.AdvanceFrame(1);
+template <class MotivatorT>
+void StaysWithinBound(MotiveTests& t) {
+  typedef typename MotivatorT::ExT Vec;
+  MotivatorT motivator;
+  t.InitOvershootMotivator(&motivator);
+  t.engine().AdvanceFrame(1);
 
   // Even though we're at the bound and trying to travel beyond the bound,
   // the simulation should clamp our position to the bound.
-  EXPECT_EQ(motivator.Value(), overshoot_percent_init_.Max());
+  EXPECT_TRUE(
+      VectorEqual(motivator.Value(), Vec(t.overshoot_percent_init().Max())));
 }
+TEST_ALL_VECTOR_MOTIVATORS_F(StaysWithinBound)
 
 // Open up a hole in the data and then call Defragment() to close it.
-TEST_F(MotiveTests, Defragment) {
-  Motivator1f motivators[4];
+template <class MotivatorT>
+void Defragment(MotiveTests& t) {
+  MotivatorT motivators[4];
   const int len = static_cast<int>(MOTIVE_ARRAY_SIZE(motivators));
   for (int hole = 0; hole < len; ++hole) {
-    InitOvershootMotivatorArray(motivators, len);
+    t.InitOvershootMotivatorArray(motivators, len);
 
     // Invalidate motivator at index 'hole'.
     motivators[hole].Invalidate();
     EXPECT_FALSE(motivators[hole].Valid());
 
     // Defragment() is called at the start of AdvanceFrame.
-    engine_.AdvanceFrame(1);
+    t.engine().AdvanceFrame(1);
     EXPECT_FALSE(motivators[hole].Valid());
 
     // Compare the remaining motivators against each other.
@@ -215,93 +294,112 @@ TEST_F(MotiveTests, Defragment) {
 
       // All the motivators should be valid and have the same values.
       EXPECT_TRUE(motivators[i].Valid());
-      EXPECT_EQ(motivators[i].Value(), motivators[compare].Value());
-      EXPECT_EQ(motivators[i].Velocity(), motivators[compare].Velocity());
-      EXPECT_EQ(motivators[i].TargetValue(), motivators[compare].TargetValue());
+      EXPECT_TRUE(
+          VectorEqual(motivators[i].Value(), motivators[compare].Value()));
+      EXPECT_TRUE(VectorEqual(motivators[i].Velocity(),
+                              motivators[compare].Velocity()));
+      EXPECT_TRUE(VectorEqual(motivators[i].TargetValue(),
+                              motivators[compare].TargetValue()));
     }
   }
 }
+TEST_ALL_VECTOR_MOTIVATORS_F(Defragment)
 
 // Copy a valid motivator. Ensure original motivator gets invalidated.
-TEST_F(MotiveTests, CopyConstructor) {
-  Motivator1f orig_motivator;
-  InitOvershootMotivator(&orig_motivator);
+template <class MotivatorT>
+void CopyConstructor(MotiveTests& t) {
+  MotivatorT orig_motivator;
+  t.InitOvershootMotivator(&orig_motivator);
   EXPECT_TRUE(orig_motivator.Valid());
-  const float value = orig_motivator.Value();
+  const typename MotivatorT::ExT value = orig_motivator.Value();
 
-  Motivator1f new_motivator(orig_motivator);
+  MotivatorT new_motivator(orig_motivator);
   EXPECT_FALSE(orig_motivator.Valid());
   EXPECT_TRUE(new_motivator.Valid());
-  EXPECT_EQ(new_motivator.Value(), value);
+  EXPECT_TRUE(VectorEqual(new_motivator.Value(), value));
 }
+TEST_ALL_VECTOR_MOTIVATORS_F(CopyConstructor)
 
 // Copy an invalid motivator.
-TEST_F(MotiveTests, CopyConstructorInvalid) {
-  Motivator1f invalid_motivator;
+template <class MotivatorT>
+void CopyConstructorInvalid(MotiveTests& /*t*/) {
+  MotivatorT invalid_motivator;
   EXPECT_FALSE(invalid_motivator.Valid());
 
-  Motivator1f copy_of_invalid(invalid_motivator);
+  MotivatorT copy_of_invalid(invalid_motivator);
   EXPECT_FALSE(copy_of_invalid.Valid());
 }
+TEST_ALL_VECTOR_MOTIVATORS_F(CopyConstructorInvalid)
 
-TEST_F(MotiveTests, AssignmentOperator) {
-  Motivator1f orig_motivator;
-  InitOvershootMotivator(&orig_motivator);
+template <class MotivatorT>
+void AssignmentOperator(MotiveTests& t) {
+  MotivatorT orig_motivator;
+  t.InitOvershootMotivator(&orig_motivator);
   EXPECT_TRUE(orig_motivator.Valid());
-  const float value = orig_motivator.Value();
+  const typename MotivatorT::ExT value = orig_motivator.Value();
 
-  Motivator1f new_motivator;
+  MotivatorT new_motivator;
   new_motivator = orig_motivator;
   EXPECT_FALSE(orig_motivator.Valid());
   EXPECT_TRUE(new_motivator.Valid());
-  EXPECT_EQ(new_motivator.Value(), value);
+  EXPECT_TRUE(VectorEqual(new_motivator.Value(), value));
 }
+TEST_ALL_VECTOR_MOTIVATORS_F(AssignmentOperator)
 
-TEST_F(MotiveTests, VectorResize) {
+template <class MotivatorT>
+void VectorResize(MotiveTests& t) {
   static const int kStartSize = 4;
-  std::vector<Motivator1f> motivators(kStartSize);
+  std::vector<MotivatorT> motivators(kStartSize);
 
   // Create the motivators and ensure that they're valid.
   for (int i = 0; i < kStartSize; ++i) {
-    InitOvershootMotivator(&motivators[i]);
+    t.InitOvershootMotivator(&motivators[i]);
     EXPECT_TRUE(motivators[i].Valid());
   }
 
   // Expand the size of 'motivators'. This should force the array to be
   // reallocated and all motivators in the array to be moved.
-  const Motivator1f* orig_address = &motivators[0];
+  const MotivatorT* orig_address = &motivators[0];
   motivators.resize(kStartSize + 1);
-  const Motivator1f* new_address = &motivators[0];
+  const MotivatorT* new_address = &motivators[0];
   EXPECT_NE(orig_address, new_address);
 
   // All the move motivators should still be valid.
   for (int i = 0; i < kStartSize; ++i) {
-    InitOvershootMotivator(&motivators[i]);
+    t.InitOvershootMotivator(&motivators[i]);
     EXPECT_TRUE(motivators[i].Valid());
   }
 }
+TEST_ALL_VECTOR_MOTIVATORS_F(VectorResize)
 
-TEST_F(MotiveTests, SmoothModular) {
+template <class MotivatorT>
+void SmoothModular(MotiveTests& t) {
+  typedef typename MotivatorT::TargetBuilder Tar;
+  typedef typename MotivatorT::ExT Vec;
+
   static const float kMargin = 0.1f;
   static const MotiveTime kTime = 10;
   static const float kStart = kPi - kMargin;
   static const float kEnd = -kPi + kMargin;
-  Motivator1f angle(smooth_angle_init_, &engine_,
-                    motive::CurrentToTarget1f(kStart, 0.0f, kEnd, 0.0f, kTime));
+  MotivatorT angle(t.smooth_angle_init(), &t.engine(),
+                   Tar::CurrentToTarget(Vec(kStart), Vec(0.0f), Vec(kEnd),
+                                        Vec(0.0f), kTime));
 
   // The difference should be the short way around, across kPi.
-  EXPECT_NEAR(angle.Value(), kStart, kAngleEpsilon);
-  EXPECT_NEAR(angle.Difference(), 2.0f * kMargin, kAngleEpsilon);
+  EXPECT_TRUE(VectorNear(angle.Value(), Vec(kStart), Vec(kAngleEpsilon)));
+  EXPECT_TRUE(
+      VectorNear(angle.Difference(), Vec(2.0f * kMargin), Vec(kAngleEpsilon)));
 
   // Ensure that we're always near kPi, never near 0. We want to go the
   // short way around.
-  for (MotiveTime t = 0; t < kTime; ++t) {
-    EXPECT_TRUE(kStart - kAngleEpsilon <= angle.Value() ||
-                angle.Value() <= kEnd + kAngleEpsilon);
-    engine_.AdvanceFrame(1);
+  for (MotiveTime time = 0; time < kTime; ++time) {
+    EXPECT_TRUE(Vec(kStart - kAngleEpsilon) <= angle.Value() ||
+                angle.Value() <= Vec(kEnd + kAngleEpsilon));
+    t.engine().AdvanceFrame(1);
   }
-  EXPECT_NEAR(angle.Value(), kEnd, kAngleEpsilon);
+  EXPECT_TRUE(VectorNear(angle.Value(), Vec(kEnd), Vec(kAngleEpsilon)));
 }
+TEST_ALL_VECTOR_MOTIVATORS_F(SmoothModular)
 
 // Print matrices with columns vertically.
 static void PrintMatrix(const char* name, const mat4& m) {

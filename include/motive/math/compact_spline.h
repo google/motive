@@ -191,15 +191,66 @@ class CompactSpline {
   float x_granularity_;
 };
 
-/// @class SplinePlayback
+/// @class SplinePlaybackN
 /// @brief Parameters to specify how a spline should be traversed.
-struct SplinePlayback {
-  explicit SplinePlayback(const CompactSpline& spline, float start_x = 0.0f,
-                          bool repeat = false)
-      : spline(&spline), start_x(start_x), repeat(repeat) {}
+template <int kDimensionsT>
+struct SplinePlaybackN {
+  static const int kDimensions = kDimensionsT;
+
+  /// Initialize all channels with same spline.
+  /// Especially useful when kDimensions = 1, since there is only one channel.
+  explicit SplinePlaybackN(const CompactSpline& s, float start_x = 0.0f,
+                           bool repeat = false)
+      : start_x(start_x), repeat(repeat) {
+    for (int i = 0; i < kDimensions; ++i) {
+      splines[i] = &s;
+    }
+  }
+
+  /// Initialize each channel with its own spline.
+  /// @param s An array pointers to splines, of length kDimensions.
+  explicit SplinePlaybackN(const CompactSpline* s, float start_x = 0.0f,
+                           bool repeat = false)
+      : start_x(start_x), repeat(repeat) {
+    for (int i = 0; i < kDimensions; ++i) {
+      splines[i] = &s[i];
+    }
+  }
+
+  /// Initialize 2D spline playback.
+  SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
+                  float start_x = 0.0f, bool repeat = false)
+      : start_x(start_x), repeat(repeat) {
+    assert(kDimensions == 2);
+    splines[0] = &x;
+    splines[1] = &y;
+  }
+
+  /// Initialize 2D spline playback.
+  SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
+                  const CompactSpline& z, float start_x = 0.0f,
+                  bool repeat = false)
+      : start_x(start_x), repeat(repeat) {
+    assert(kDimensions == 3);
+    splines[0] = &x;
+    splines[1] = &y;
+    splines[2] = &z;
+  }
+
+  /// Initialize 2D spline playback.
+  SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
+                  const CompactSpline& z, const CompactSpline& w,
+                  float start_x = 0.0f, bool repeat = false)
+      : start_x(start_x), repeat(repeat) {
+    assert(kDimensions == 4);
+    splines[0] = &x;
+    splines[1] = &y;
+    splines[2] = &z;
+    splines[3] = &w;
+  }
 
   /// The spline to follow.
-  const CompactSpline* spline;
+  const CompactSpline* splines[kDimensions];
 
   /// The starting point from which to play.
   float start_x;
@@ -207,6 +258,12 @@ struct SplinePlayback {
   /// If true, start back at the beginning after we reach the end.
   bool repeat;
 };
+
+typedef SplinePlaybackN<1> SplinePlayback1f;
+typedef SplinePlaybackN<2> SplinePlayback2f;
+typedef SplinePlaybackN<3> SplinePlayback3f;
+typedef SplinePlaybackN<4> SplinePlayback4f;
+typedef SplinePlayback1f SplinePlayback;
 
 }  // namespace fpl
 

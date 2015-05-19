@@ -42,6 +42,11 @@ class ModularInit : public MotivatorInit {
   /// The derived type must call this constructor with it's MotivatorType
   /// identifier.
   /// @param type The kType parameter of the derived init class.
+  /// @param range The range we should clamp Motivator::Value() to. If you
+  ///              don't want to clamp, then leave as Range::Full().
+  /// @param modular Option to use modular arithmetic for Motivator::Value().
+  ///                If true, all values are wrapped around to stay within
+  ///                `range`.
   explicit ModularInit(MotivatorType type)
       : MotivatorInit(type), range_(fpl::Range::Full()), modular_(false) {}
   ModularInit(MotivatorType type, const fpl::Range& range, bool modular)
@@ -223,7 +228,7 @@ struct MatrixOperationInit {
       : init(&init), type(type), union_type(kUnionTarget), target(&target) {}
 
   MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init,
-                      const fpl::SplinePlayback& spline)
+                      const fpl::SplinePlayback1f& spline)
       : init(&init), type(type), union_type(kUnionSpline), spline(&spline) {}
 
   const MotivatorInit* init;
@@ -232,7 +237,7 @@ struct MatrixOperationInit {
   union {
     float initial_value;
     const MotiveTarget1f* target;
-    const fpl::SplinePlayback* spline;
+    const fpl::SplinePlayback1f* spline;
   };
 };
 
@@ -299,7 +304,7 @@ class MatrixInit : public MotivatorInit {
   /// Operation is driven by a 1-dimensional motivator, which is initialized
   /// to follow the predefined curve specified in `spline`.
   void AddOp(MatrixOperationType type, const MotivatorInit& init,
-             const fpl::SplinePlayback& spline) {
+             const fpl::SplinePlayback1f& spline) {
     ops_.push_back(MatrixOperationInit(type, init, spline));
   }
 
