@@ -100,9 +100,21 @@ class MotiveProcessor {
   ///                      `index`.
   void TransferMotivator(MotiveIndex index, Motivator* new_motivator);
 
-  /// Returns true if 'index' is currently driving an motivator.
+  /// Returns true if 'index' is currently driving a motivator. Does not do
+  /// any validity checking, however, like ValidMotivatorIndex() does.
+  /// @param index Reference into the MotiveProcessor's internal arrays.
+  bool IsMotivatorIndex(MotiveIndex index) const;
+
+  /// Returns true if 'index' is currently in a block of indices driven by
+  /// a motivator.
   /// @param index Reference into the MotiveProcessor's internal arrays.
   bool ValidIndex(MotiveIndex index) const;
+
+  /// Returns true if a Motivator is referencing this index.
+  /// That is, if this index is part of a block of indices
+  /// (for example a block of 3 indices referenced by a Motivator3f),
+  /// then this index is the *first* index in that block.
+  bool ValidMotivatorIndex(MotiveIndex index) const;
 
   /// Returns true if `index` is currently driving `motivator`.
   /// @param index Reference into the MotiveProcessor's internal arrays.
@@ -175,15 +187,15 @@ class MotiveProcessor {
   void Defragment() { index_allocator_.Defragment(); }
 
  private:
+  typedef fpl::IndexAllocator<MotiveIndex> MotiveIndexAllocator;
+  typedef MotiveIndexAllocator::IndexRange IndexRange;
+
   /// Don't notify derived class.
   void RemoveMotivatorWithoutNotifying(MotiveIndex index);
 
   /// Handle callbacks from IndexAllocator.
-  void MoveIndexBase(MotiveIndex old_index, MotiveIndex new_index);
+  void MoveIndexRangeBase(const IndexRange& source, MotiveIndex target);
   void SetNumIndicesBase(MotiveIndex num_indices);
-
-  typedef fpl::IndexAllocator<MotiveIndex, MotiveDimension>
-      MotiveIndexAllocator;
 
   /// Proxy callbacks from IndexAllocator into MotiveProcessor.
   class AllocatorCallbacks : public MotiveIndexAllocator::CallbackInterface {
@@ -192,8 +204,8 @@ class MotiveProcessor {
     virtual void SetNumIndices(MotiveIndex num_indices) {
       processor_->SetNumIndicesBase(num_indices);
     }
-    virtual void MoveIndex(MotiveIndex old_index, MotiveIndex new_index) {
-      processor_->MoveIndexBase(old_index, new_index);
+    virtual void MoveIndexRange(const IndexRange& source, MotiveIndex target) {
+      processor_->MoveIndexRangeBase(source, target);
     }
 
    private:
