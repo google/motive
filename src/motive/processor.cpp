@@ -47,12 +47,12 @@ void MotiveProcessor::VerifyInternalState() const {
   }
 }
 
-void MotiveProcessor::InitializeMotivator(const MotivatorInit& init,
-                                          MotiveEngine* engine,
-                                          Motivator* motivator) {
+void MotiveProcessor::InitializeMotivator(
+    const MotivatorInit& init, MotiveEngine* engine, Motivator* motivator,
+    MotiveDimension dimensions) {
   // Assign an 'index' to reference the new Motivator. All interactions between
   // the Motivator and MotiveProcessor use this 'index' to identify the data.
-  const MotiveIndex index = index_allocator_.Alloc();
+  const MotiveIndex index = index_allocator_.Alloc(dimensions);
 
   // Keep a pointer to the Motivator around. We may Defragment() the indices and
   // move the data around. We also need remove the Motivator when we're
@@ -63,7 +63,9 @@ void MotiveProcessor::InitializeMotivator(const MotivatorInit& init,
   motivator->Init(this, index);
 
   // Call the MotiveProcessor-specific initialization routine.
-  InitializeIndex(init, index, engine);
+  for (int i = 0; i < dimensions; ++i) {
+    InitializeIndex(init, index + i, engine);
+  }
 }
 
 // Don't notify derived classes. Useful in the destructor, since derived classes
@@ -84,7 +86,10 @@ void MotiveProcessor::RemoveMotivator(MotiveIndex index) {
   assert(ValidIndex(index));
 
   // Call the MotiveProcessor-specific remove routine.
-  RemoveIndex(index);
+  const int dimensions = Dimensions(index);
+  for (int i = 0; i < dimensions; ++i) {
+    RemoveIndex(index + i);
+  }
 
   // Need this version since the destructor can't call the pure virtual
   // RemoveIndex() above.
@@ -133,6 +138,17 @@ void MotiveProcessor::MoveIndexBase(MotiveIndex old_index,
   assert(motivators_[new_index] == nullptr &&
          motivators_[old_index] != nullptr);
 
+  // Assert the dimensions of these motivators match.
+  assert(Dimensions(new_index) == Dimensions(old_index));
+
+  // Assert the `motivators_` back references aren't specified
+  // for the extra dimensions.
+  const int dimensions = Dimensions(new_index);
+  for (int i = 1; i < dimensions; ++i) {
+    assert(motivators_[new_index + i] == nullptr &&
+           motivators_[old_index + i] == nullptr);
+  }
+
   // Reinitialize the motivator to point to the new index.
   Motivator* motivator = motivators_[old_index];
   motivator->Init(this, new_index);
@@ -142,7 +158,9 @@ void MotiveProcessor::MoveIndexBase(MotiveIndex old_index,
   motivators_[old_index] = nullptr;
 
   // Call derived class so the derived class can perform similar data movement.
-  MoveIndex(old_index, new_index);
+  for (int i = 0; i < dimensions; ++i) {
+    MoveIndex(old_index + i, new_index + i);
+  }
 }
 
 }  // namespace motive

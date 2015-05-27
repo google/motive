@@ -79,7 +79,7 @@ class MotiveProcessor {
   ///                  a reference to `motivator` in case it shuffles around
   ///                  internal data.
   void InitializeMotivator(const MotivatorInit& init, MotiveEngine* engine,
-                           Motivator* motivator);
+                           Motivator* motivator, MotiveDimension dimensions);
 
   /// Remove an motivator and return its index to the pile of allocatable
   /// indices.
@@ -124,15 +124,17 @@ class MotiveProcessor {
   /// a processor's MotivatorInit derivation.
   virtual MotivatorType Type() const = 0;
 
-  /// The number of floats (or doubles) being animated. For example, a position
-  /// in 3D space would return 3.
-  virtual int Dimensions() const = 0;
-
   /// The lower the number, the sooner the MotiveProcessor gets updated.
   /// Should never change. We want a static ordering of processors.
   /// Some MotiveProcessors use the output of other MotiveProcessors, so
   /// we impose a strict ordering here.
   virtual int Priority() const = 0;
+
+  /// The number of slots occupied in the MotiveProcessor. For example,
+  /// a position in 3D space would return 3. A single 4x4 matrix would return 1.
+  MotiveDimension Dimensions(MotiveIndex index) const {
+    return index_allocator_.CountForIndex(index);
+  }
 
   /// Ensure that the internal state is consistent. Call periodically when
   /// debugging problems where the internal state is corrupt.
@@ -180,9 +182,11 @@ class MotiveProcessor {
   void MoveIndexBase(MotiveIndex old_index, MotiveIndex new_index);
   void SetNumIndicesBase(MotiveIndex num_indices);
 
+  typedef fpl::IndexAllocator<MotiveIndex, MotiveDimension>
+      MotiveIndexAllocator;
+
   /// Proxy callbacks from IndexAllocator into MotiveProcessor.
-  class AllocatorCallbacks
-      : public fpl::IndexAllocator<MotiveIndex>::CallbackInterface {
+  class AllocatorCallbacks : public MotiveIndexAllocator::CallbackInterface {
    public:
     AllocatorCallbacks(MotiveProcessor* processor) : processor_(processor) {}
     virtual void SetNumIndices(MotiveIndex num_indices) {
@@ -216,7 +220,7 @@ class MotiveProcessor {
   /// When Defragment() is called, we empty this array by filling all the
   /// unused indices with the highest allocated indices. This reduces the total
   /// size of the data arrays.
-  fpl::IndexAllocator<MotiveIndex> index_allocator_;
+  MotiveIndexAllocator index_allocator_;
 };
 
 /// @class MotiveProcessor1f
@@ -224,8 +228,6 @@ class MotiveProcessor {
 /// That is, for MotiveProcessors that interface with Motivator1f's.
 class MotiveProcessor1f : public MotiveProcessor {
  public:
-  virtual int Dimensions() const { return 1; }
-
   // Get current motivator values from the processor.
   virtual float Value(MotiveIndex index) const = 0;
   virtual float Velocity(MotiveIndex index) const = 0;
@@ -246,8 +248,6 @@ class MotiveProcessor1f : public MotiveProcessor {
 /// That is, for MotiveProcessors that interface with MotivatorMatrix4f's.
 class MotiveProcessorMatrix4f : public MotiveProcessor {
  public:
-  virtual int Dimensions() const { return 16; }
-
   /// Get the current matrix value from the processor.
   virtual const mathfu::mat4& Value(MotiveIndex index) const = 0;
 
