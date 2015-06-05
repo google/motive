@@ -40,6 +40,11 @@ static const MotivatorType kMotivatorTypeInvalid = nullptr;
 typedef uint32_t MotiveIndex;
 static const MotiveIndex kMotiveIndexInvalid = static_cast<MotiveIndex>(-1);
 
+/// @typedef MotiveDimension
+/// Identify how many slots in the MotiveProcessor a Motivator occupies.
+/// A Motivator3f occupies three slots, for example.
+typedef int8_t MotiveDimension;
+
 /// @typedef MotiveChildIndex
 /// Motivators can have child components. For example, a matrix motivator is
 /// composed of a series of basic matrix operations. Each operation is a

@@ -18,6 +18,7 @@
 #include <assert.h>
 #include <math.h>
 
+#include "mathfu/constants.h"
 #include "mathfu/matrix.h"
 #include "mathfu/vector.h"
 #include "mathfu/glsl_mappings.h"
@@ -28,10 +29,32 @@
 
 namespace fpl {
 
+
+/// Describe a conversion from `Angle` to a 3D vector.
+/// Sweep from the first axis towards the second axis.
+/// For example, for kAngleToVectorXY,
+///     angle = 0 degrees   ==>  x-axis (1, 0, 0)
+///     angle = 90 degrees  ==>  y-axis (0, 1, 0)
+///     angle = 180 degrees ==>  negative x-axis (-1, 0, 0)
+///     angle = 90 degrees  ==>  negative y-axis (0, -1, 0)
+/// Note that we don't have to worry about handedness. No matter the handedness
+/// of the coordinate system, we always sweep from one axis towards the other.
+/// That is, the other axis is always at 90 degrees, never -90.
+enum AngleToVectorSystem {
+  kAngleToVectorXY,
+  kAngleToVectorXZ,
+  kAngleToVectorYZ,
+  kAngleToVectorYX,
+  kAngleToVectorZX,
+  kAngleToVectorZY,
+  kAngleToVectorCount
+};
+
 static const float kPi = static_cast<float>(M_PI);
 static const float kTwoPi = static_cast<float>(2.0 * M_PI);
 static const float kThreePi = static_cast<float>(3.0 * M_PI);
 static const float kHalfPi = static_cast<float>(M_PI_2);
+static const float kQuarterPi = static_cast<float>(0.5 * M_PI_2);
 static const float kDegreesToRadians = static_cast<float>(M_PI / 180.0);
 static const float kRadiansToDegrees = static_cast<float>(180.0 / M_PI);
 static const float kMaxUniqueAngle = kPi;
@@ -123,6 +146,33 @@ class Angle {
   /// Return the angle value in degrees. Value is in the range (-180,180].
   float ToDegrees() const { return kRadiansToDegrees * angle_; }
 
+  /// Returns a point on the unit circle corresponding to a sweep of `angle`
+  /// across the specified vector system.
+  mathfu::vec3 ToVectorSystem(const AngleToVectorSystem system) const {
+    switch(system) {
+      case kAngleToVectorXY: return ToXYVector();
+      case kAngleToVectorXZ: return ToXZVector();
+      case kAngleToVectorYZ: return ToYZVector();
+      case kAngleToVectorYX: return ToYXVector();
+      case kAngleToVectorZX: return ToZXVector();
+      case kAngleToVectorZY: return ToZYVector();
+      default: assert(false);
+    }
+    return mathfu::kZeros3f;
+  }
+
+  /// Returns a point on unit circle corresponding to a sweep of `angle`
+  /// degrees from the x-axis towards the y-axis.
+  ///   0     ==> ( 1,  0,  0)
+  ///   pi/2  ==> ( 0,  1,  0)
+  ///   pi    ==> (-1,  0,  0)
+  ///   3pi/2 ==> ( 0, -1,  0)
+  mathfu::vec3 ToXYVector() const {
+    float x, y;
+    ToVector(&x, &y);
+    return mathfu::vec3(x, y, 0.0f);
+  }
+
   /// Returns a point on unit circle corresponding to a sweep of `angle`
   /// degrees from the x-axis towards the z-axis.
   ///   0     ==> ( 1,  0,  0)
@@ -135,11 +185,103 @@ class Angle {
     return mathfu::vec3(x, 0.0f, z);
   }
 
+  /// Returns a point on unit circle corresponding to a sweep of `angle`
+  /// degrees from the y-axis towards the z-axis.
+  ///   0     ==> (0,  1,  0)
+  ///   pi/2  ==> (0,  0,  1)
+  ///   pi    ==> (0, -1,  0)
+  ///   3pi/2 ==> (0,  0, -1)
+  mathfu::vec3 ToYZVector() const {
+    float y, z;
+    ToVector(&y, &z);
+    return mathfu::vec3(0.0f, y, z);
+  }
+
+  /// Returns a point on unit circle corresponding to a sweep of `angle`
+  /// degrees from the y-axis towards the x-axis.
+  ///   0     ==> ( 0,  1,  0)
+  ///   pi/2  ==> ( 1,  0,  0)
+  ///   pi    ==> ( 0, -1,  0)
+  ///   3pi/2 ==> (-1,  0,  0)
+  mathfu::vec3 ToYXVector() const {
+    float x, y;
+    ToVector(&y, &x);
+    return mathfu::vec3(x, y, 0.0f);
+  }
+
+  /// Returns a point on unit circle corresponding to a sweep of `angle`
+  /// degrees from the z-axis towards the x-axis.
+  ///   0     ==> ( 0,  0,  1)
+  ///   pi/2  ==> ( 1,  0,  0)
+  ///   pi    ==> ( 0,  0, -1)
+  ///   3pi/2 ==> (-1,  0,  0)
+  mathfu::vec3 ToZXVector() const {
+    float x, z;
+    ToVector(&z, &x);
+    return mathfu::vec3(x, 0.0f, z);
+  }
+
+  /// Returns a point on unit circle corresponding to a sweep of `angle`
+  /// degrees from the z-axis towards the y-axis.
+  ///   0     ==> (0,  0,  1)
+  ///   pi/2  ==> (0,  1,  0)
+  ///   pi    ==> (0,  0, -1)
+  ///   3pi/2 ==> (0, -1,  0)
+  mathfu::vec3 ToZYVector() const {
+    float y, z;
+    ToVector(&z, &y);
+    return mathfu::vec3(0.0f, y, z);
+  }
+
+  /// Returns a point on the unit circle corresponding to a sweep of `angle`
+  /// across the specified vector system.
+  mathfu::mat3 ToRotationMatrix(const AngleToVectorSystem system) const {
+    switch(system) {
+      case kAngleToVectorXY: return ToXYRotationMatrix();
+      case kAngleToVectorXZ: return ToXZRotationMatrix();
+      case kAngleToVectorYZ: return ToYZRotationMatrix();
+      case kAngleToVectorYX: return ToYXRotationMatrix();
+      case kAngleToVectorZX: return ToZXRotationMatrix();
+      case kAngleToVectorZY: return ToZYRotationMatrix();
+      default: assert(false);
+    }
+    return mathfu::mat3();
+  }
+
+  /// Returns a matrix that rotates about the Z axis `angle` radians.
+  mathfu::mat3 ToXYRotationMatrix() const {
+    float x, y;
+    ToVector(&x, &y);
+    return mathfu::mat3(x, y, 0.0f, -y, x, 0.0f, 0.0f, 0.0f, 1.0f);
+  }
+
   /// Returns a matrix that rotates about the Y axis `angle` radians.
   mathfu::mat3 ToXZRotationMatrix() const {
     float x, z;
     ToVector(&x, &z);
     return mathfu::mat3(x, 0.0f, z, 0.0f, 1.0f, 0.0f, -z, 0.0f, x);
+  }
+
+  /// Returns a matrix that rotates about the X axis `angle` radians.
+  mathfu::mat3 ToYZRotationMatrix() const {
+    float y, z;
+    ToVector(&y, &z);
+    return mathfu::mat3(1.0f, 0.0f, 0.0f, 0.0f, y, z, 0.0f, -z, y);
+  }
+
+  /// Returns a matrix that rotates about the Z axis `-angle` radians.
+  mathfu::mat3 ToYXRotationMatrix() const {
+    return operator-().ToXYRotationMatrix();
+  }
+
+  /// Returns a matrix that rotates about the Y axis `-angle` radians.
+  mathfu::mat3 ToZXRotationMatrix() const {
+    return operator-().ToXZRotationMatrix();
+  }
+
+  /// Returns a matrix that rotates about the X axis `-angle` radians.
+  mathfu::mat3 ToZYRotationMatrix() const {
+    return operator-().ToYZRotationMatrix();
   }
 
   /// Check internal consistency. If class is functioning correctly, should
@@ -181,10 +323,56 @@ class Angle {
     return FromRadians(degrees * kDegreesToRadians);
   }
 
+  /// Returns a point on the unit circle corresponding to a sweep of `angle`
+  /// across the specified vector system.
+  static Angle FromVectorSystem(const mathfu::vec3& v,
+                                const AngleToVectorSystem system) {
+    switch(system) {
+      case kAngleToVectorXY: return FromXYVector(v);
+      case kAngleToVectorXZ: return FromXZVector(v);
+      case kAngleToVectorYZ: return FromYZVector(v);
+      case kAngleToVectorYX: return FromYXVector(v);
+      case kAngleToVectorZX: return FromZXVector(v);
+      case kAngleToVectorZY: return FromZYVector(v);
+      default: assert(false);
+    }
+    return Angle(0.0f);
+  }
+
+  /// Create from the x,y coordinates of a vector, using the system
+  /// described in ToXYVector().
+  static Angle FromXYVector(const mathfu::vec3& v) {
+    return Angle(ModIfNegativePi(atan2f(v[1], v[0])));
+  }
+
   /// Create from the x,z coordinates of a vector, using the system
   /// described in ToXZVector().
   static Angle FromXZVector(const mathfu::vec3& v) {
     return Angle(ModIfNegativePi(atan2f(v[2], v[0])));
+  }
+
+  /// Create from the y,z coordinates of a vector, using the system
+  /// described in ToYZVector().
+  static Angle FromYZVector(const mathfu::vec3& v) {
+    return Angle(ModIfNegativePi(atan2f(v[2], v[1])));
+  }
+
+  /// Create from the y,x coordinates of a vector, using the system
+  /// described in ToYXVector().
+  static Angle FromYXVector(const mathfu::vec3& v) {
+    return Angle(ModIfNegativePi(atan2f(v[0], v[1])));
+  }
+
+  /// Create from the z,x coordinates of a vector, using the system
+  /// described in ToZXVector().
+  static Angle FromZXVector(const mathfu::vec3& v) {
+    return Angle(ModIfNegativePi(atan2f(v[0], v[2])));
+  }
+
+  /// Create from the z,y coordinates of a vector, using the system
+  /// described in ToZYVector().
+  static Angle FromZYVector(const mathfu::vec3& v) {
+    return Angle(ModIfNegativePi(atan2f(v[1], v[2])));
   }
 
   /// Return true if 'angle' is within the valid range (-pi,pi], that is,
@@ -203,10 +391,16 @@ class Angle {
   FRIEND_TEST(AngleTests, ModIfNegativePi);
 #endif  // FPL_ANGLE_UNIT_TESTS
 
-  void ToVector(float* const x, float* const z) const {
+  /// Convert the angle into a 2D unit vector of the form
+  /// (`zero_axis`, `ninety_axis`).
+  /// When angle is 0 degrees, returns (1, 0), hence the name `zero_axis`.
+  /// When angle is 90 degrees, returns (0, 1), hence the name `ninety_axis`.
+  /// When angle is 180 degrees, returns (-1, 0).
+  /// When angle is -90 degrees, returns (0, -1).
+  void ToVector(float* const zero_axis, float* const ninety_axis) const {
     // TODO OPT: Call single function that calculates both cos and sin.
-    *x = cos(angle_);
-    *z = sin(angle_);
+    *zero_axis = cos(angle_);
+    *ninety_axis = sin(angle_);
   }
 
   // Take 'angle' in the range (-3pi,3pi] and return an equivalent angle in

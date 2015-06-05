@@ -47,10 +47,6 @@ class MotiveEngine;
 class Motivator {
  public:
   Motivator() : processor_(nullptr), index_(kMotiveIndexInvalid) {}
-  Motivator(const MotivatorInit& init, MotiveEngine* engine)
-      : processor_(nullptr), index_(kMotiveIndexInvalid) {
-    Initialize(init, engine);
-  }
 
   /// Allow Motivators to be copied.
   /// Transfer ownership of motivator to new motivator. Old motivator is reset
@@ -77,12 +73,6 @@ class Motivator {
   /// Remove ourselves from the MotiveProcessor when we're deleted.
   ~Motivator() { Invalidate(); }
 
-  /// Initialize this Motivator to the type specified in init.type.
-  /// @param init Defines the type and initial state of the Motivator.
-  /// @param engine The engine that will update this Motivator when
-  ///               engine->AdvanceFrame() is called.
-  void Initialize(const MotivatorInit& init, MotiveEngine* engine);
-
   /// Detatch this Motivator from its MotiveProcessor. Functions other than
   /// Initialize() and Valid() can no longer be called afterwards.
   void Invalidate() {
@@ -103,12 +93,28 @@ class Motivator {
   /// The Motivator's type is determined by the `init` param in Initialize().
   MotivatorType Type() const { return processor_->Type(); }
 
-  /// The number of floats (or doubles) that this Motivator is driving.
-  /// For example, if this Motivator is driving a 4x4 matrix,
-  /// then we will return 16 here.
-  int Dimensions() const { return processor_->Dimensions(); }
+  /// The number of basic values that this Motivator is driving. For example,
+  /// a 3D position would return 3, since it drives three floats. A single
+  /// 4x4 matrix would return 1, since it's driving one matrix. The basic
+  /// value is determined by the MotiveProcessor backing this motivator.
+  MotiveDimension Dimensions() const { return processor_->Dimensions(index_); }
 
  protected:
+  Motivator(const MotivatorInit& init, MotiveEngine* engine,
+            MotiveDimension dimensions)
+      : processor_(nullptr), index_(kMotiveIndexInvalid) {
+    InitializeWithDimension(init, engine, dimensions);
+  }
+
+  /// Initialize this Motivator to the type specified in init.type.
+  /// @param init Defines the type and initial state of the Motivator.
+  /// @param engine The engine that will update this Motivator when
+  ///               engine->AdvanceFrame() is called.
+  /// @param dimensions The number of slots to occupy. For example, a 3D
+  ///                   position would occupy three slots.
+  void InitializeWithDimension(const MotivatorInit& init, MotiveEngine* engine,
+                               MotiveDimension dimensions);
+
   /// The MotiveProcessor uses the functions below. It does not modify data
   /// directly.
   friend MotiveProcessor;
@@ -127,8 +133,7 @@ class Motivator {
   MotiveProcessor* processor_;
 
   /// An MotiveProcessor processes one MotivatorType, and hosts every Motivator
-  /// of
-  /// that type. The id here uniquely identifies this Motivator to the
+  /// of that type. The id here uniquely identifies this Motivator to the
   /// MotiveProcessor.
   MotiveIndex index_;
 };
@@ -148,14 +153,19 @@ class Motivator1f : public Motivator {
   /// Initialize to the type specified by `init`. Current and target values
   /// are not set.
   Motivator1f(const MotivatorInit& init, MotiveEngine* engine)
-      : Motivator(init, engine) {}
+      : Motivator(init, engine, 1) {}
 
   /// Initialize to the type specified by `init`. Set current and target values
   /// as specified by `t`.
   Motivator1f(const MotivatorInit& init, MotiveEngine* engine,
               const MotiveTarget1f& t)
-      : Motivator(init, engine) {
+      : Motivator(init, engine, 1) {
     SetTarget(t);
+  }
+
+  /// Initialize to the type specified by `init`.
+  void Initialize(const MotivatorInit& init, MotiveEngine* engine) {
+    InitializeWithDimension(init, engine, 1);
   }
 
   /// Initialize to the type specified by `init`. Set current and target values
@@ -244,7 +254,12 @@ class MotivatorMatrix4fTemplate : public Motivator {
  public:
   MotivatorMatrix4fTemplate() {}
   MotivatorMatrix4fTemplate(const MotivatorInit& init, MotiveEngine* engine)
-      : Motivator(init, engine) {}
+      : Motivator(init, engine, 1) {}
+
+  /// Initialize to the type specified by `init`.
+  void Initialize(const MotivatorInit& init, MotiveEngine* engine) {
+    InitializeWithDimension(init, engine, 1);
+  }
 
   /// Return the current value of the Motivator. The processor returns a
   /// vector-aligned matrix, so the cast should be valid for any user-defined

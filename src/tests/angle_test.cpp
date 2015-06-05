@@ -20,13 +20,18 @@
 
 #include <string>
 #include "motive/math/angle.h"
+#include "motive/common.h"
 #include "gtest/gtest.h"
 
 using fpl::Angle;
+using fpl::AngleToVectorSystem;
 using fpl::kPi;
 using fpl::kHalfPi;
+using fpl::kQuarterPi;
 using fpl::kMinUniqueAngle;
 using fpl::kMaxUniqueAngle;
+using mathfu::vec3;
+using mathfu::mat3;
 
 union FloatInt {
   float f;
@@ -34,6 +39,7 @@ union FloatInt {
 };
 
 static const float kAnglePrecision = 0.0000005f;
+static const float kUnitVectorPrecision = 0.0000005f;
 
 // When diff is +-1, returns the smallest float value that is different than f.
 // Note: You can construct examples where this function fails. But it works in
@@ -249,6 +255,157 @@ TEST_F(AngleTests, ClampWithZeroDiff) {
   const Angle max_diff(0.0f);
   // This tests a negative number clamped to the range.
   EXPECT_FLOAT_EQ(a.Clamp(center, max_diff).ToRadians(), center.ToRadians());
+}
+
+void TestToVectorSystem(const AngleToVectorSystem system, const int zero_axis,
+                        const int ninety_axis, const int ignored_axis) {
+  // Angle zero should translate to the zero axis.
+  const vec3 zero = Angle(0.0f).ToVectorSystem(system);
+  EXPECT_NEAR(zero[zero_axis], 1.0f, kUnitVectorPrecision);
+  EXPECT_NEAR(zero[ninety_axis], 0.0f, kUnitVectorPrecision);
+  EXPECT_NEAR(zero[ignored_axis], 0.0f, kUnitVectorPrecision);
+
+  // Angle 180 should translate to the negative zero axis.
+  const vec3 minus_zero = Angle(kPi).ToVectorSystem(system);
+  EXPECT_NEAR(minus_zero[zero_axis], -1.0f, kUnitVectorPrecision);
+  EXPECT_NEAR(minus_zero[ninety_axis], 0.0f, kUnitVectorPrecision);
+  EXPECT_NEAR(minus_zero[ignored_axis], 0.0f, kUnitVectorPrecision);
+
+  // Angle 90 should translate to the 90 axis.
+  const vec3 ninety = Angle(kHalfPi).ToVectorSystem(system);
+  EXPECT_NEAR(ninety[zero_axis], 0.0f, kUnitVectorPrecision);
+  EXPECT_NEAR(ninety[ninety_axis], 1.0f, kUnitVectorPrecision);
+  EXPECT_NEAR(ninety[ignored_axis], 0.0f, kUnitVectorPrecision);
+
+  // Angle -90 should translate to the -90 axis.
+  const vec3 minus_ninety = Angle(-kHalfPi).ToVectorSystem(system);
+  EXPECT_NEAR(minus_ninety[zero_axis], 0.0f, kUnitVectorPrecision);
+  EXPECT_NEAR(minus_ninety[ninety_axis], -1.0f, kUnitVectorPrecision);
+  EXPECT_NEAR(minus_ninety[ignored_axis], 0.0f, kUnitVectorPrecision);
+
+  // Angle 45 should translate to a unit vector between the 0 and 90 axes.
+  const vec3 forty_five = Angle(kQuarterPi).ToVectorSystem(system);
+  const float one_over_root_two = 1.0f / sqrt(2.0f);
+  EXPECT_NEAR(forty_five[zero_axis], one_over_root_two, kUnitVectorPrecision);
+  EXPECT_NEAR(forty_five[ninety_axis], one_over_root_two, kUnitVectorPrecision);
+  EXPECT_NEAR(forty_five[ignored_axis], 0.0f, kUnitVectorPrecision);
+}
+
+// Test conversions from angles to vectors.
+TEST_F(AngleTests, ToVectorSystem) {
+  TestToVectorSystem(fpl::kAngleToVectorXY, 0, 1, 2);
+  TestToVectorSystem(fpl::kAngleToVectorXZ, 0, 2, 1);
+  TestToVectorSystem(fpl::kAngleToVectorYZ, 1, 2, 0);
+  TestToVectorSystem(fpl::kAngleToVectorYX, 1, 0, 2);
+  TestToVectorSystem(fpl::kAngleToVectorZX, 2, 0, 1);
+  TestToVectorSystem(fpl::kAngleToVectorZY, 2, 1, 0);
+}
+
+static const float kIgnoredAxisValues[] = { 0.0f, 1.0f, -10.0f, 300000.0f };
+void TestFromVectorSystem(const AngleToVectorSystem system, const int zero_axis,
+                          const int ninety_axis, const int ignored_axis) {
+  for (size_t i = 0; i < MOTIVE_ARRAY_SIZE(kIgnoredAxisValues); ++i) {
+    // No matter what the ignored axis is, the returned value should be the
+    // same.
+    vec3 init_vector = mathfu::kZeros3f;
+    init_vector[ignored_axis] = kIgnoredAxisValues[i];
+
+    // Zero axis should convert to zero angle.
+    vec3 zero = init_vector;
+    zero[zero_axis] = 1.0f;
+    const Angle zero_angle = Angle::FromVectorSystem(zero, system);
+    EXPECT_NEAR(zero_angle.ToRadians(), 0.0f, kAnglePrecision);
+
+    // Ninety axis should convert to ninety angle.
+    vec3 ninety = init_vector;
+    ninety[ninety_axis] = 1.0f;
+    const Angle ninety_angle = Angle::FromVectorSystem(ninety, system);
+    EXPECT_NEAR(ninety_angle.ToRadians(), kHalfPi, kAnglePrecision);
+
+    // Negative zero axis should convert to 180 angle.
+    vec3 neg_zero = init_vector;
+    neg_zero[zero_axis] = -1.0f;
+    const Angle neg_zero_angle = Angle::FromVectorSystem(neg_zero, system);
+    EXPECT_NEAR(neg_zero_angle.ToRadians(), kPi, kAnglePrecision);
+
+    // Negative ninety axis should convert to -90 angle.
+    vec3 neg_ninety = init_vector;
+    neg_ninety[ninety_axis] = -1.0f;
+    const Angle neg_ninety_angle = Angle::FromVectorSystem(neg_ninety, system);
+    EXPECT_NEAR(neg_ninety_angle.ToRadians(), -kHalfPi, kAnglePrecision);
+
+    // Half way between zero and ninety axes should return 45 degree angle.
+    vec3 forty_five = init_vector;
+    const float one_over_root_two = 1.0f / sqrt(2.0f);
+    forty_five[zero_axis] = one_over_root_two;
+    forty_five[ninety_axis] = one_over_root_two;
+    const Angle forty_five_angle = Angle::FromVectorSystem(forty_five, system);
+    EXPECT_NEAR(forty_five_angle.ToRadians(), kQuarterPi, kAnglePrecision);
+  }
+}
+
+// Test conversions from angles to vectors.
+TEST_F(AngleTests, FromVectorSystem) {
+  TestFromVectorSystem(fpl::kAngleToVectorXY, 0, 1, 2);
+  TestFromVectorSystem(fpl::kAngleToVectorXZ, 0, 2, 1);
+  TestFromVectorSystem(fpl::kAngleToVectorYZ, 1, 2, 0);
+  TestFromVectorSystem(fpl::kAngleToVectorYX, 1, 0, 2);
+  TestFromVectorSystem(fpl::kAngleToVectorZX, 2, 0, 1);
+  TestFromVectorSystem(fpl::kAngleToVectorZY, 2, 1, 0);
+}
+
+void TestToRotationMatrix(const AngleToVectorSystem system, const int zero_axis,
+                          const int ninety_axis, const int ignored_axis) {
+  vec3 v;
+  v[zero_axis] = 1.0f;
+  v[ninety_axis] = 0.0f;
+  v[ignored_axis] = 3.0f;
+
+  // Angle zero should translate to the zero axis.
+  const mat3 zero_mat = Angle(0.0f).ToRotationMatrix(system);
+  const vec3 zero = zero_mat * v;
+  EXPECT_NEAR(zero[zero_axis], 1.0f, kUnitVectorPrecision);
+  EXPECT_NEAR(zero[ninety_axis], 0.0f, kUnitVectorPrecision);
+  EXPECT_NEAR(zero[ignored_axis], 3.0f, kUnitVectorPrecision);
+
+  // Angle 180 should translate to the negative zero axis.
+  const mat3 minus_zero_mat = Angle(kPi).ToRotationMatrix(system);
+  const vec3 minus_zero = minus_zero_mat * v;
+  EXPECT_NEAR(minus_zero[zero_axis], -1.0f, kUnitVectorPrecision);
+  EXPECT_NEAR(minus_zero[ninety_axis], 0.0f, kUnitVectorPrecision);
+  EXPECT_NEAR(minus_zero[ignored_axis], 3.0f, kUnitVectorPrecision);
+
+  // Angle 90 should translate to the 90 axis.
+  const mat3 ninety_mat = Angle(kHalfPi).ToRotationMatrix(system);
+  const vec3 ninety = ninety_mat * v;
+  EXPECT_NEAR(ninety[zero_axis], 0.0f, kUnitVectorPrecision);
+  EXPECT_NEAR(ninety[ninety_axis], 1.0f, kUnitVectorPrecision);
+  EXPECT_NEAR(ninety[ignored_axis], 3.0f, kUnitVectorPrecision);
+
+  // Angle -90 should translate to the -90 axis.
+  const mat3 minus_ninety_mat = Angle(-kHalfPi).ToRotationMatrix(system);
+  const vec3 minus_ninety = minus_ninety_mat * v;
+  EXPECT_NEAR(minus_ninety[zero_axis], 0.0f, kUnitVectorPrecision);
+  EXPECT_NEAR(minus_ninety[ninety_axis], -1.0f, kUnitVectorPrecision);
+  EXPECT_NEAR(minus_ninety[ignored_axis], 3.0f, kUnitVectorPrecision);
+
+  // Angle 45 should translate to a unit vector between the 0 and 90 axes.
+  const mat3 forty_five_mat = Angle(kQuarterPi).ToRotationMatrix(system);
+  const vec3 forty_five = forty_five_mat * v;
+  const float one_over_root_two = 1.0f / sqrt(2.0f);
+  EXPECT_NEAR(forty_five[zero_axis], one_over_root_two, kUnitVectorPrecision);
+  EXPECT_NEAR(forty_five[ninety_axis], one_over_root_two, kUnitVectorPrecision);
+  EXPECT_NEAR(forty_five[ignored_axis], 3.0f, kUnitVectorPrecision);
+}
+
+// Test conversions from angles to vectors.
+TEST_F(AngleTests, ToRotationMatrix) {
+  TestToRotationMatrix(fpl::kAngleToVectorXY, 0, 1, 2);
+  TestToRotationMatrix(fpl::kAngleToVectorXZ, 0, 2, 1);
+  TestToRotationMatrix(fpl::kAngleToVectorYZ, 1, 2, 0);
+  TestToRotationMatrix(fpl::kAngleToVectorYX, 1, 0, 2);
+  TestToRotationMatrix(fpl::kAngleToVectorZX, 2, 0, 1);
+  TestToRotationMatrix(fpl::kAngleToVectorZY, 2, 1, 0);
 }
 
 int main(int argc, char **argv) {
