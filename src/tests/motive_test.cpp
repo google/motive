@@ -68,6 +68,7 @@ static const MotiveTime kTimePerFrame = 10;
 static const MotiveTime kMaxTime = 10000;
 static const float kMatrixEpsilon = 0.00001f;
 static const float kAngleEpsilon = 0.01f;
+static const MotiveTime kTimeEpsilon = 1;
 
 #define TEST_ALL_VECTOR_MOTIVATORS_F(MOTIVE_TEST_NAME) \
   TEST_F(MotiveTests, MOTIVE_TEST_NAME##Test) {        \
@@ -578,6 +579,43 @@ TEST_F(MotiveTests, MatrixTranslateRotateScaleGoneWild) {
   TestMatrixMotivator(matrix_init, &engine_);
 }
 
+// Test the MotivatorVector::SplineTime() function.
+template <class MotivatorT>
+void SplineTime(MotiveTests& t) {
+  typedef typename MotivatorT::Spline Spline;
+
+  static const MotiveTime kStartTime = 500;
+  static const MotiveTime kDeltaTime = 1000;
+  static const MotiveTime kEndTime = 2000;
+  static_assert(kStartTime + 2 * kDeltaTime > kEndTime,
+                "two updates of kDeltaTime should wrap past kEndTime");
+
+  // Create a simple spline from time 0~kEndTime. The y-values don't really
+  // matter.
+  fpl::CompactSpline spline(Range(-1.0f, 1.0f), 1.0f, 3);
+  spline.AddNode(0.0f, -1.0f, 0.001f);
+  spline.AddNode(0.5f * kEndTime, 0.5f, 0.0f);
+  spline.AddNode(kEndTime, 1.0f, 0.001f);
+
+  // Create a motivator that plays `spline` from kStartTime, and repeats
+  // at the start when it reaches the end.
+  MotivatorT angle(t.smooth_angle_init(), &t.engine());
+  angle.SetSpline(Spline(spline, kStartTime, true));
+
+  // When we start, the spline time should be the same as the start time.
+  EXPECT_EQ(angle.SplineTime(), kStartTime);
+
+  // Since the playback rate is 1, we expect the spline time to advance with
+  // the delta time.
+  t.engine().AdvanceFrame(kDeltaTime);
+  EXPECT_EQ(angle.SplineTime(), kStartTime + kDeltaTime);
+
+  // Since repeat=true in SetSpline(), we expect to wrap around once we
+  // advance past kEndTime.
+  t.engine().AdvanceFrame(kDeltaTime);
+  EXPECT_EQ(angle.SplineTime(), (kStartTime + 2 * kDeltaTime) % kEndTime);
+}
+TEST_ALL_VECTOR_MOTIVATORS_F(SplineTime)
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

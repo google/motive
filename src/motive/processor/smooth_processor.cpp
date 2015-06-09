@@ -73,6 +73,9 @@ class SmoothMotiveProcessor : public MotiveProcessorVector {
     return static_cast<MotiveTime>(interpolator_.EndX(index) -
                                    interpolator_.X(index));
   }
+  virtual MotiveTime SplineTime(MotiveIndex index) const {
+    return static_cast<MotiveTime>(interpolator_.X(index));
+  }
 
   virtual void SetTarget(MotiveIndex index, const MotiveTarget1f& t) {
     SmoothData& d = Data(index);

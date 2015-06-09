@@ -238,6 +238,7 @@ class MotiveProcessor {
 class MotiveProcessorVector : public MotiveProcessor {
  public:
   virtual MotiveTime TargetTime(MotiveIndex index) const = 0;
+  virtual MotiveTime SplineTime(MotiveIndex /*index*/) const { return 0; }
 
   // At least one of SetTarget and SetSpline should be implemented by
   // the derived class. Otherwise, there will be no way to drive the Motivator

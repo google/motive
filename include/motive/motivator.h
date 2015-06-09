@@ -221,6 +221,15 @@ class MotivatorVectorTemplate : public Motivator {
   /// The unit of time is determined by the calling program.
   MotiveTime TargetTime() const { return Processor().TargetTime(index_); }
 
+  /// Returns the current time (i.e. the x-value) in the current spline.
+  /// If Motivator is not being driven by a spline, returns 0.
+  /// Whenever SetSpline() is called, this value will be reset to the
+  /// start_time specified in SplinePlayback. Every time
+  /// MotiveEngine::AdvanceFrame() is called, it will increment by
+  /// `delta_time` * `playback_rate`. If the SplinePlayback has repeat=true,
+  /// then SplineTime() will periodically loop back to time 0.
+  MotiveTime SplineTime() const { return Processor().SplineTime(index_); }
+
   /// Set the target and (optionally the current) motivator values.
   /// Use this call to procedurally drive the Motivator towards a specific
   /// target. The Motivator will transition smoothly to the new target.
