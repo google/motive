@@ -43,15 +43,17 @@ UpdateCubicXsAndGetMask_Neon:
 @    Parameters
 @  r0: *delta_x
 @  r1: *x_ends
-@  r2: num_xs
-@  r3: *xs
-@  [sp]: *masks ==> r4
+@  r2: *playback_rates
+@  r3: num_xs
+@  [sp]: *xs ==> r4
+@  [sp + 4]: *masks ==> r5
 @
 @  q15: kFirstByteTableIndices
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-  @ r4 <-- masks
+  @ r5 <-- masks
   ldr       r4, [sp]
+  ldr       r5, [sp, #4]
 
   @ q12 <-- delta_x splatted
   vld1.f32  {d24[], d25[]}, [r0]
@@ -62,29 +64,31 @@ UpdateCubicXsAndGetMask_Neon:
 
 .L_UpdateCubicXs_Loop:
   @ num_xs -= 4; sets the 'gt' flag used in 'bgt' below
-  subs      r2, r2, #4
+  subs      r3, r3, #4
 
   @ q8 <-- xs[i]
   @ q9 <-- x_ends[i], x_ends pointer += 4
-  vld1.f32  {d16, d17}, [r3:128]
+  @ q11 <-- playback_rate[i], playback_rate pointer += 4
+  vld1.f32  {d16, d17}, [r4:128]
   vld1.f32  {d18, d19}, [r1:128]!
+  vld1.f32  {d22, d23}, [r2:128]!
 
-  @ q8 <-- q8 + q11 = xs[i] + x_delta
-  vadd.f32  q8, q8, q12
+  @ q8 <-- xs[i] + x_delta * playback_rate[i]
+  vmla.f32  q8, q12, q11
 
   @ create comparison mask: 0xFFFFFFFF or 0x00000000.
   @ q10 <-- q8 > q9 = xs[i] > x_ends[i] (mask)
   vcgt.f32  q10, q8, q9
 
   @ xs[i] <-- updated value: xs[i] + delta_x,  xs pointer += 4
-  vst1.f32  {d16, d17}, [r3:128]!
+  vst1.f32  {d16, d17}, [r4:128]!
 
   @ pack mask into 4-byte word.
   @ q10[0][1][2][3] <-- q10[0][4][8][12] (byte indices into q10)
   vtbl.8    d20, {d20, d21}, d30
 
   @ mask[i] <-- q10[0][1][2][3] (write one word), mask pointer += 4
-  vst1.32   {d20[0]}, [r4:32]!
+  vst1.32   {d20[0]}, [r5:32]!
 
   @ continue loop if iterations still remain.
   bgt       .L_UpdateCubicXs_Loop

@@ -29,6 +29,7 @@
 using fpl::kPi;
 using fpl::kHalfPi;
 using fpl::Range;
+using fpl::CompactSpline;
 using motive::MotiveEngine;
 using motive::Motivator1f;
 using motive::Motivator2f;
@@ -117,10 +118,11 @@ bool operator>=(const mathfu::Vector<T, d>& lhs,
 class MotiveTests : public ::testing::Test {
  public:
   MotiveEngine& engine() { return engine_; }
-  OvershootInit& overshoot_angle_init() { return overshoot_angle_init_; }
-  OvershootInit& overshoot_percent_init() { return overshoot_percent_init_; }
-  SmoothInit& smooth_angle_init() { return smooth_angle_init_; }
-  SmoothInit& smooth_scalar_init() { return smooth_scalar_init_; }
+  const OvershootInit& overshoot_angle_init() const { return overshoot_angle_init_; }
+  const OvershootInit& overshoot_percent_init() const { return overshoot_percent_init_; }
+  const SmoothInit& smooth_angle_init() const { return smooth_angle_init_; }
+  const SmoothInit& smooth_scalar_init() const { return smooth_scalar_init_; }
+  const CompactSpline& simple_spline() const { return simple_spline_; }
 
   template <class MotivatorT>
   void InitMotivator(const MotivatorInit& init, float start_value,
@@ -195,6 +197,14 @@ class MotiveTests : public ::testing::Test {
 
     smooth_scalar_init_.set_modular(false);
     smooth_scalar_init_.set_range(Range(-100.0f, 100.0f));
+
+    // Create a simple spline from time 0~kEndTime. The y-values don't really
+    // matter.
+    const float kSimpleSplineEndTime = 1000;
+    simple_spline_.Init(Range(-1.0f, 1.0f), 1.0f, 3);
+    simple_spline_.AddNode(0.0f, -1.0f, 0.001f);
+    simple_spline_.AddNode(0.5f * kSimpleSplineEndTime, 0.5f, 0.0f);
+    simple_spline_.AddNode(kSimpleSplineEndTime, 1.0f, 0.001f);
   }
   virtual void TearDown() {}
 
@@ -203,6 +213,7 @@ class MotiveTests : public ::testing::Test {
   OvershootInit overshoot_percent_init_;
   SmoothInit smooth_angle_init_;
   SmoothInit smooth_scalar_init_;
+  CompactSpline simple_spline_;
 };
 
 // Ensure we wrap around from pi to -pi.
@@ -584,18 +595,14 @@ template <class MotivatorT>
 void SplineTime(MotiveTests& t) {
   typedef typename MotivatorT::Spline Spline;
 
-  static const MotiveTime kStartTime = 500;
-  static const MotiveTime kDeltaTime = 1000;
-  static const MotiveTime kEndTime = 2000;
-  static_assert(kStartTime + 2 * kDeltaTime > kEndTime,
-                "two updates of kDeltaTime should wrap past kEndTime");
+  static const MotiveTime kStartTime = 250;
+  static const MotiveTime kDeltaTime = 500;
 
-  // Create a simple spline from time 0~kEndTime. The y-values don't really
-  // matter.
-  fpl::CompactSpline spline(Range(-1.0f, 1.0f), 1.0f, 3);
-  spline.AddNode(0.0f, -1.0f, 0.001f);
-  spline.AddNode(0.5f * kEndTime, 0.5f, 0.0f);
-  spline.AddNode(kEndTime, 1.0f, 0.001f);
+  const fpl::CompactSpline& spline = t.simple_spline();
+  const MotiveTime end_time = static_cast<MotiveTime>(spline.EndX());
+
+  // Two updates of kDeltaTime should wrap past end_time.
+  assert(kStartTime + 2 * kDeltaTime > end_time);
 
   // Create a motivator that plays `spline` from kStartTime, and repeats
   // at the start when it reaches the end.
@@ -611,11 +618,38 @@ void SplineTime(MotiveTests& t) {
   EXPECT_EQ(angle.SplineTime(), kStartTime + kDeltaTime);
 
   // Since repeat=true in SetSpline(), we expect to wrap around once we
-  // advance past kEndTime.
+  // advance past end_time.
   t.engine().AdvanceFrame(kDeltaTime);
-  EXPECT_EQ(angle.SplineTime(), (kStartTime + 2 * kDeltaTime) % kEndTime);
+  EXPECT_EQ(angle.SplineTime(), (kStartTime + 2 * kDeltaTime) % end_time);
 }
 TEST_ALL_VECTOR_MOTIVATORS_F(SplineTime)
+
+// Test the MotivatorVector::SplineTime() function.
+template <class MotivatorT>
+void PlaybackRate(MotiveTests& t) {
+  typedef typename MotivatorT::Spline Spline;
+
+  static const MotiveTime kDeltaTime = 500;
+  static const float kPlaybackRates[] = { 0.0f, 0.5f, 1.0f, 2.0f };
+  const fpl::CompactSpline& spline = t.simple_spline();
+  const MotiveTime end_time = static_cast<MotiveTime>(spline.EndX());
+
+  // Create a motivator that plays `spline` from kStartTime, and repeats
+  // at the start when it reaches the end.
+  MotivatorT angle(t.smooth_angle_init(), &t.engine());
+
+  for (size_t i = 0; i < MOTIVE_ARRAY_SIZE(kPlaybackRates); ++i) {
+    const float playback_rate = kPlaybackRates[i];
+    angle.SetSpline(Spline(spline, 0.0f, true, playback_rate));
+
+    // Since the playback rate is 1, we expect the spline time to advance with
+    // the delta time.
+    t.engine().AdvanceFrame(kDeltaTime);
+    EXPECT_EQ(angle.SplineTime(),
+              static_cast<MotiveTime>(kDeltaTime * playback_rate) % end_time);
+  }
+}
+TEST_ALL_VECTOR_MOTIVATORS_F(PlaybackRate)
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

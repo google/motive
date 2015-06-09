@@ -268,6 +268,8 @@ class MotiveProcessorVector : public MotiveProcessor {
   virtual void SetSpline(MotiveIndex index, const fpl::SplinePlayback4f& s) {
     SetSplinesSeparately(index, s);
   }
+  virtual void SetSplinePlaybackRate(MotiveIndex /*index*/,
+                                     float /*playback_rate*/) {}
 
  protected:
   template <class MoTarget>
@@ -281,7 +283,8 @@ class MotiveProcessorVector : public MotiveProcessor {
   void SetSplinesSeparately(MotiveIndex index, const Playback& s) {
     for (int i = 0; i < Playback::kDimensions; ++i) {
       SetSpline(index + i,
-                fpl::SplinePlayback1f(*s.splines[i], s.start_x, s.repeat));
+                fpl::SplinePlayback1f(*s.splines[i], s.start_x, s.repeat,
+                                      s.playback_rate));
     }
   }
 

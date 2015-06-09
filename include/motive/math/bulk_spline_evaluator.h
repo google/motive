@@ -67,6 +67,16 @@ class BulkSplineEvaluator {
   /// The Y() and Derivative() values are immediately available.
   void SetSpline(const Index index, const SplinePlayback& s);
 
+  /// Set conversion rate from AdvanceFrame's delta_x to the speed at which
+  /// we traverse the spline.
+  ///     0   ==> paused
+  ///     0.5 ==> half speed (slow motion)
+  ///     1   ==> authored speed
+  ///     2   ==> double speed (fast forward)
+  void SetPlaybackRate(const Index index, float playback_rate) {
+    playback_rates_[index] = playback_rate;
+  }
+
   /// Increment x and update the Y() and Derivative() values for all indices.
   /// Process all indices in bulk to efficiently traverse memory and allow SIMD
   /// instructions to be effective.
@@ -218,6 +228,13 @@ class BulkSplineEvaluator {
 
   /// The last valid x value in `cubics_`.
   std::vector<float> cubic_x_ends_;
+
+  /// Speed at which time flows, relative to the spline's authored rate.
+  ///     0   ==> paused
+  ///     0.5 ==> half speed (slow motion)
+  ///     1   ==> authored speed
+  ///     2   ==> double speed (fast forward)
+  std::vector<float> playback_rates_;
 
   /// Currently active segment of sources_.spline.
   /// Instantiated from

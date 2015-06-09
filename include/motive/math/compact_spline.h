@@ -200,8 +200,8 @@ struct SplinePlaybackN {
   /// Initialize all channels with same spline.
   /// Especially useful when kDimensions = 1, since there is only one channel.
   explicit SplinePlaybackN(const CompactSpline& s, float start_x = 0.0f,
-                           bool repeat = false)
-      : start_x(start_x), repeat(repeat) {
+                           bool repeat = false, float playback_rate = 1.0f)
+      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
     for (int i = 0; i < kDimensions; ++i) {
       splines[i] = &s;
     }
@@ -210,8 +210,8 @@ struct SplinePlaybackN {
   /// Initialize each channel with its own spline.
   /// @param s An array pointers to splines, of length kDimensions.
   explicit SplinePlaybackN(const CompactSpline* s, float start_x = 0.0f,
-                           bool repeat = false)
-      : start_x(start_x), repeat(repeat) {
+                           bool repeat = false, float playback_rate = 1.0f)
+      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
     for (int i = 0; i < kDimensions; ++i) {
       splines[i] = &s[i];
     }
@@ -219,8 +219,9 @@ struct SplinePlaybackN {
 
   /// Initialize 2D spline playback.
   SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
-                  float start_x = 0.0f, bool repeat = false)
-      : start_x(start_x), repeat(repeat) {
+                  float start_x = 0.0f, bool repeat = false,
+                  float playback_rate = 1.0f)
+      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
     assert(kDimensions == 2);
     splines[0] = &x;
     splines[1] = &y;
@@ -229,8 +230,8 @@ struct SplinePlaybackN {
   /// Initialize 2D spline playback.
   SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
                   const CompactSpline& z, float start_x = 0.0f,
-                  bool repeat = false)
-      : start_x(start_x), repeat(repeat) {
+                  bool repeat = false, float playback_rate = 1.0f)
+      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
     assert(kDimensions == 3);
     splines[0] = &x;
     splines[1] = &y;
@@ -240,8 +241,9 @@ struct SplinePlaybackN {
   /// Initialize 2D spline playback.
   SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
                   const CompactSpline& z, const CompactSpline& w,
-                  float start_x = 0.0f, bool repeat = false)
-      : start_x(start_x), repeat(repeat) {
+                  float start_x = 0.0f, bool repeat = false,
+                  float playback_rate = 1.0f)
+      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
     assert(kDimensions == 4);
     splines[0] = &x;
     splines[1] = &y;
@@ -254,6 +256,14 @@ struct SplinePlaybackN {
 
   /// The starting point from which to play.
   float start_x;
+
+  /// The playback rate of the spline. Scales `delta_time` of the update to
+  /// to x-axis of `splines`.
+  ///     0   ==> paused
+  ///     0.5 ==> half speed (slow motion)
+  ///     1   ==> authored speed
+  ///     2   ==> double speed (fast forward)
+  float playback_rate;
 
   /// If true, start back at the beginning after we reach the end.
   bool repeat;

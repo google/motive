@@ -249,6 +249,15 @@ class MotivatorVectorTemplate : public Motivator {
   ///          end of the spline is reached.
   void SetSpline(const Spline& s) { Processor().SetSpline(index_, s); }
 
+  /// Set rate at which we consume the spline set in SetSpline().
+  ///     0   ==> paused
+  ///     0.5 ==> half speed (slow motion)
+  ///     1   ==> authored speed
+  ///     2   ==> double speed (fast forward)
+  void SetSplinePlaybackRate(float playback_rate) {
+    Processor().SetSplinePlaybackRate(index_, playback_rate);
+  }
+
  private:
   MotiveProcessorVector& Processor() {
     return *static_cast<MotiveProcessorVector*>(processor_);
