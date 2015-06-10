@@ -131,7 +131,10 @@ class SmoothMotiveProcessor : public MotiveProcessorVector {
   }
 
   virtual void SetSplinePlaybackRate(MotiveIndex index, float playback_rate) {
-    interpolator_.SetPlaybackRate(index, playback_rate);
+    const MotiveIndex end_index = index + Dimensions(index);
+    for (MotiveIndex i = index; i < end_index; ++i) {
+      interpolator_.SetPlaybackRate(i, playback_rate);
+    }
   }
 
  protected:

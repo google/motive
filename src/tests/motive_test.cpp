@@ -95,6 +95,16 @@ bool VectorNear(const T& lhs, const T& rhs, const T& precision) {
   return -precision <= diff && diff <= precision;
 }
 
+// For tests. All elements of vector are exactly the same.
+template <class T, int d>
+bool VectorUniform(const mathfu::Vector<T, d>& v) {
+  for (int i = 1; i < d; ++i) {
+    if (v[i] != v[0]) return false;
+  }
+  return true;
+}
+bool VectorUniform(float /*v*/) { return true; }
+
 // For tests. All elements of vector are <=.
 template <class T, int d>
 bool operator<=(const mathfu::Vector<T, d>& lhs,
@@ -629,8 +639,9 @@ template <class MotivatorT>
 void PlaybackRate(MotiveTests& t) {
   typedef typename MotivatorT::Spline Spline;
 
-  static const MotiveTime kDeltaTime = 500;
+  static const MotiveTime kDeltaTime = 10;
   static const float kPlaybackRates[] = { 0.0f, 0.5f, 1.0f, 2.0f };
+  static const float kMidPlaybackRateOffset = 0.1f;
   const fpl::CompactSpline& spline = t.simple_spline();
   const MotiveTime end_time = static_cast<MotiveTime>(spline.EndX());
 
@@ -647,6 +658,18 @@ void PlaybackRate(MotiveTests& t) {
     t.engine().AdvanceFrame(kDeltaTime);
     EXPECT_EQ(angle.SplineTime(),
               static_cast<MotiveTime>(kDeltaTime * playback_rate) % end_time);
+    EXPECT_TRUE(VectorUniform(angle.Value()));
+
+    // Change the playback rate mid-playback.
+    const MotiveTime mid_spline_time = angle.SplineTime();
+    const float mid_playback_rate = playback_rate + kMidPlaybackRateOffset;
+    angle.SetSplinePlaybackRate(mid_playback_rate);
+    t.engine().AdvanceFrame(kDeltaTime);
+    EXPECT_EQ(angle.SplineTime(),
+              (mid_spline_time +
+               static_cast<MotiveTime>(kDeltaTime * mid_playback_rate)) %
+                  end_time);
+    EXPECT_TRUE(VectorUniform(angle.Value()));
   }
 }
 TEST_ALL_VECTOR_MOTIVATORS_F(PlaybackRate)
