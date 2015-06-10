@@ -245,6 +245,53 @@ float CompactSpline::NodeDerivative(const CompactSplineIndex index) const {
   return nodes_[index].Derivative();
 }
 
+float CompactSpline::YCalculatedSlowly(const float x) const {
+  const CompactSplineIndex index = IndexForX(x, 0);
+
+  // Handle cases where `x` is outside the spline's domain.
+  if (index == kBeforeSplineIndex) return StartY();
+  if (index == kAfterSplineIndex) return EndY();
+
+  // Create the cubic curve for `index` and evaluate it.
+  const CubicCurve cubic(CreateCubicInit(index));
+  const float cubic_x = x - NodeX(index);
+  const float y = cubic.Evaluate(cubic_x);
+  return y;
+}
+
+void CompactSpline::Ys(const float start_x, const float delta_x,
+                       const int num_ys, float* ys) const {
+  // Use the BulkSplineEvaluator even though we're only evaluating one spline.
+  // Still faster, since it doesn't have to recreate the cubic for every x.
+  BulkYs(this, 1, start_x, delta_x, num_ys, ys);
+}
+
+// static
+void CompactSpline::BulkYs(const CompactSpline* const splines,
+                           const int num_splines, const float start_x,
+                           const float delta_x, const size_t num_ys,
+                           float* ys) {
+  BulkSplineEvaluator evaluator;
+
+  // Initialize the evaluator with the splines.
+  // Note that we set `repeat` = false, so that we can accurately get the last
+  // value in the spline.
+  evaluator.SetNumIndices(num_splines);
+  SplinePlayback playback(nullptr, start_x);
+  for (int i = 0; i < num_splines; ++i) {
+    playback.splines[0] = &splines[i];
+    evaluator.SetSpline(i, playback);
+  }
+
+  // Grab y values, then advance spline evaluation by delta_x.
+  // Repeat num_ys times.
+  const float* end_y = &ys[num_splines * num_ys];
+  for (float* y = ys; y < end_y; y += num_splines) {
+    evaluator.Ys(0, num_splines, y);
+    evaluator.AdvanceFrame(delta_x);
+  }
+}
+
 Range CompactSpline::RangeX(const CompactSplineIndex index) const {
   if (index == kBeforeSplineIndex)
     // Return StartX() for the start of the range instead of -inf.
@@ -325,6 +372,11 @@ CompactSplineIndex CompactSpline::BinarySearchIndexForX(
 
   // We return the lower index: x is in the segment bt 'index' and 'index' + 1.
   return static_cast<CompactSplineIndex>(low);
+}
+
+/// Returns the number of nodes in this spline.
+CompactSplineIndex CompactSpline::NumNodes() const {
+  return static_cast<CompactSplineIndex>(nodes_.size());
 }
 
 CubicInit CompactSpline::CreateCubicInit(const CompactSplineIndex index) const {
