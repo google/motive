@@ -148,6 +148,19 @@ class CompactSpline {
   Range RangeX() const { return Range(StartX(), EndX()); }
   const Range& RangeY() const { return y_range_; }
 
+  /// Evaluate spline at `x`. This function is somewhat slow because it
+  /// must find the node for `x` and create the cubic before the returned
+  /// y can be evaluated.
+  /// If calling from inside a loop, replace the loop with one call to Ys(),
+  /// which is significantly faster.
+  float YCalculatedSlowly(const float x) const;
+
+  /// Fast evaluation of a subset of the x-domain of the spline.
+  /// Spline is evaluated from `start_x` and subsequent intervals of `delta_x`.
+  /// Evaluated values are returned in `ys`.
+  void Ys(const float start_x, const float delta_x, const int num_ys,
+          float* ys) const;
+
   /// The start and end x-values covered by the segment after `index`.
   Range RangeX(const CompactSplineIndex index) const;
 
@@ -156,9 +169,36 @@ class CompactSpline {
   /// or kAfterSplineIndex.
   CubicInit CreateCubicInit(const CompactSplineIndex index) const;
 
+  /// Returns the number of nodes in this spline.
+  CompactSplineIndex NumNodes() const;
+
   /// Recommend a granularity given a maximal-x value. We want to have the
   /// most precise granularity when quantizing x's.
   static float RecommendXGranularity(const float max_x);
+
+  /// Fast evaluation of several splines.
+  /// @param splines input splines of length `num_splines`.
+  /// @param num_splines number of splines to evaluate.
+  /// @param start_x starting point for every spline.
+  /// @param delta_x increment for each
+  /// @param ys two dimensional output array, ys[num_ys][num_splines].
+  ///           ys[0] are `splines` evaluated at start_x.
+  ///           ys[num_ys - 1] are `splines` evaluated at
+  ///           start_x + delta_x * num_ys.
+  static void BulkYs(const CompactSpline* const splines, const int num_splines,
+                     const float start_x, const float delta_x,
+                     const size_t num_ys, float* ys);
+
+  /// Fast evaluation of several splines, with mathfu::VectorPacked interface.
+  /// Useful for evaluate three splines which together form a mathfu::vec3,
+  /// for instance.
+  template <int kDimensions>
+  static void BulkYs(const CompactSpline* const splines, const float start_x,
+                     const float delta_x, const size_t num_ys,
+                     mathfu::VectorPacked<float, kDimensions>* ys) {
+    BulkYs(splines, kDimensions, start_x, delta_x, num_ys,
+           reinterpret_cast<float*>(ys));
+  }
 
  private:
   CompactSplineIndex LastNodeIndex() const;

@@ -93,6 +93,13 @@ class BulkSplineEvaluator {
   /// Return the current y value for the spline at `index`.
   float Y(const Index index) const { return ys_[index]; }
 
+  /// Return the current y value for spline indices
+  /// `index` ~ `index + count - 1`.
+  void Ys(const Index index, const Index count, float* ys) const {
+    assert(Valid(index) && Valid(index + count - 1));
+    memcpy(ys, &ys_[index], sizeof(ys[0]) * count);
+  }
+
   /// Return the current slope for the spline at `index`.
   float Derivative(const Index index) const {
     return Cubic(index).Derivative(cubic_xs_[index]);

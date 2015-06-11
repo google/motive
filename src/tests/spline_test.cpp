@@ -33,6 +33,7 @@ using fpl::kPi;
 using mathfu::vec2;
 using mathfu::vec2i;
 using mathfu::vec3;
+using mathfu::vec3_packed;
 
 // Print the curves in a format that can be cut-and-paste into a spreadsheet.
 // Working in a spreadsheet is nice because of the graphing features.
@@ -62,6 +63,7 @@ static const float kFixedPointEpsilon = 0.02f;
 static const float kDerivativePrecision = 0.01f;
 static const float kSecondDerivativePrecision = 0.26f;
 static const float kThirdDerivativePrecision = 6.0f;
+static const float kNodeYPrecision = 0.0001f;
 static const float kXGranularityScale = 0.01f;
 static const Range kAngleRange(-kPi, kPi);
 
@@ -333,6 +335,79 @@ TEST_F(SplineTests, ModularWrapAround) {
   const int num_points = static_cast<int>(d.points.size());
   for (int i = 0; i < num_points; ++i) {
     EXPECT_TRUE(Angle::IsAngleInRange(d.points[i].y()));
+  }
+}
+
+// YCalculatedSlowly should return the key-point Y values at key-point X values.
+TEST_F(SplineTests, YSlowAtNodes) {
+  for (CompactSplineIndex i = 0; i < short_spline_.NumNodes(); ++i) {
+    EXPECT_NEAR(short_spline_.NodeY(i),
+                short_spline_.YCalculatedSlowly(short_spline_.NodeX(i)),
+                kNodeYPrecision);
+  }
+}
+
+// BulkYs should return the proper start and end values.
+TEST_F(SplineTests, BulkYsStartAndEnd) {
+  static const int kMaxBulkYs = 5;
+
+  // Get bulk data at several delta_xs, but always starting at the start of the
+  // spline and ending at the end of the spline.
+  // Then compare returned `ys` with start end end values of spline.
+  for (size_t num_ys = 2; num_ys < kMaxBulkYs; ++num_ys) {
+    float ys[kMaxBulkYs];
+    CompactSpline::BulkYs(&short_spline_, 1, 0.0f,
+                          short_spline_.EndX() / (num_ys - 1), num_ys, ys);
+
+    EXPECT_NEAR(short_spline_.StartY(), ys[0], kNodeYPrecision);
+    EXPECT_NEAR(short_spline_.EndY(), ys[num_ys - 1], kNodeYPrecision);
+  }
+}
+
+// BulkYs should return the proper start and end values.
+TEST_F(SplineTests, BulkYsVsSlowYs) {
+  static const int kMaxBulkYs = 15;
+
+  // Get bulk data at several delta_xs, but always starting at the start of the
+  // spline and ending at the end of the spline.
+  // Then compare returned `ys` with start end end values of spline.
+  for (size_t num_ys = 2; num_ys < kMaxBulkYs; ++num_ys) {
+    // Collect `num_ys` evenly-spaced samples from short_spline_.
+    float ys[kMaxBulkYs];
+    const float delta_x = short_spline_.EndX() / (num_ys - 1);
+    CompactSpline::BulkYs(&short_spline_, 1, 0.0f, delta_x, num_ys, ys);
+
+    // Compare bulk samples to slowly calcuated samples.
+    float x = 0.0f;
+    for (size_t j = 0; j < num_ys; ++j) {
+      EXPECT_NEAR(short_spline_.YCalculatedSlowly(x), ys[j], kNodeYPrecision);
+      x += delta_x;
+    }
+  }
+}
+
+// BulkYs should return the proper start and end values.
+TEST_F(SplineTests, BulkYsVec3) {
+  static const int kDimensions = 3;
+  static const int kNumYs = 16;
+
+  // Make three copies of the spline data.
+  CompactSpline splines[kDimensions];
+  for (size_t d = 0; d < kDimensions; ++d) {
+    splines[d] = short_spline_;
+  }
+
+  // Collect `num_ys` evenly-spaced samples from short_spline_.
+  vec3_packed ys[kNumYs];
+  memset(ys, 0xFF, sizeof(ys));
+  const float delta_x = short_spline_.EndX() / (kNumYs - 1);
+  CompactSpline::BulkYs<3>(splines, 0.0f, delta_x, kNumYs, ys);
+
+  // Ensure all the values are being calculated.
+  for (int j = 0; j < kNumYs; ++j) {
+    const vec3 y(ys[j]);
+    EXPECT_EQ(y.x(), y.y());
+    EXPECT_EQ(y.y(), y.z());
   }
 }
 
