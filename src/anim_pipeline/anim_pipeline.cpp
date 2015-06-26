@@ -262,8 +262,6 @@ class FlatAnim {
 
   /// @brief Collapse multiple channels into one, when possible.
   void PruneChannels() {
-    if (channels_.size() < 3) return;
-
     // Iterate from the end to minimize the cost of the erase operations.
     for (FlatChannelId ch = static_cast<FlatChannelId>(channels_.size() - 1);
          ch >= 0; ch--) {
@@ -614,6 +612,17 @@ class FbxAnimParser {
     // Exit if the import failed.
     if (!import_status) return false;
 
+    // Convert to our exported co-ordinate system: z-up, y-front, right-handed.
+    const FbxAxisSystem export_axes(FbxAxisSystem::EUpVector::eZAxis,
+                                    FbxAxisSystem::EFrontVector::eParityOdd,
+                                    FbxAxisSystem::eRightHanded);
+    export_axes.ConvertScene(scene_);
+
+    // Get global scale from the internal units.
+    global_scale_ =
+        scene_->GetGlobalSettings().GetSystemUnit().GetScaleFactor();
+    log_.Log(kLogInfo, "Scene scale factor is %f\n", global_scale_);
+
     // Remember the source file name so we can search for textures nearby.
     anim_file_name_ = std::string(file_name);
     return true;
@@ -653,12 +662,13 @@ class FbxAnimParser {
     return static_cast<FlatTime>(milliseconds);
   }
 
-  static FlatVal FbxToFlatValue(const float x, const MatrixOperationType op) {
-    return motive::RotateOp(op) ? Angle::FromDegrees(x).ToRadians() : x;
+  FlatVal FbxToFlatValue(const float x, const MatrixOperationType op) const {
+    return motive::RotateOp(op) ? Angle::FromDegrees(x).ToRadians() :
+           motive::ScaleOp(op) ? global_scale_ * x : x;
   }
 
-  static FlatDerivative FbxToFlatDerivative(const float d,
-                                            const MatrixOperationType op) {
+  FlatDerivative FbxToFlatDerivative(const float d,
+                                     const MatrixOperationType op) const {
     // The FBX derivative appears to be in units of seconds.
     // The FlatBuffer file format is in units of milliseconds.
     const float d_time_scaled = d / 1000.0f;
@@ -768,7 +778,7 @@ class FbxAnimParser {
               FbxToFlatValue(anim_node->GetChannelValue(channel, 0.0f), op);
           out->AddConstant(channel_id, const_value);
           log_.Log(kLogInfo, "Processing channel %d (`%s`): constant %f\n",
-                   channel, channel_name.c_str(), const_value);
+                   channel_id, channel_name.c_str(), const_value);
           continue;
         }
 
@@ -779,11 +789,11 @@ class FbxAnimParser {
           log_.Log(kLogWarning,
                    "Channel %d (`%s`) has %d curves."
                    " Only using the first one.\n",
-                   channel, channel_name.c_str(), num_curves);
+                   channel_id, channel_name.c_str(), num_curves);
         }
 
         // For every key in the curve, log data to `out`.
-        log_.Log(kLogInfo, "Processing channel %d (`%s`): curve\n", channel,
+        log_.Log(kLogInfo, "Processing channel %d (`%s`): curve\n", channel_id,
                  channel_name.c_str());
         FbxAnimCurve* curve = anim_node->GetCurve(channel);
         GatherFlatAnimCurve(channel_id, curve, op, out);
@@ -800,6 +810,11 @@ class FbxAnimParser {
 
   // Hold the FBX file data.
   FbxScene* scene_;
+
+  // Distance scale for the entire scene. We need to multiply by this in order
+  // to return to the authored units. Some programs like Maya store everything
+  // in cm, even if you author it as m.
+  double global_scale_;
 
   // Name of source mesh file. Used to search for textures, when the textures
   // are not found in their referenced location.
