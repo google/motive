@@ -247,6 +247,13 @@ template <int kDimensionsT>
 struct SplinePlaybackN {
   static const int kDimensions = kDimensionsT;
 
+  /// Default constructor. Initializes to invalid values.
+  SplinePlaybackN() : start_x(-1.0f), playback_rate(-1.0f), repeat(false) {
+    for (int i = 0; i < kDimensions; ++i) {
+      splines[i] = nullptr;
+    }
+  }
+
   /// Initialize all channels with same spline.
   /// Especially useful when kDimensions = 1, since there is only one channel.
   explicit SplinePlaybackN(const CompactSpline& s, float start_x = 0.0f,

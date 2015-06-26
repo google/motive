@@ -24,10 +24,16 @@ namespace motive {
 /// @brief Animation for a MatrixMotivator.
 class MatrixAnim {
  public:
-  // For construction.
-  fpl::CompactSpline& AllocSpline() {
-    splines_.resize(splines_.size() + 1);
-    return splines_.back();
+  struct Spline {
+    fpl::CompactSpline spline;
+    SmoothInit init;
+    fpl::SplinePlayback playback;
+  };
+
+  // For construction. Allocate storage for spline data.
+  Spline* Construct(int num_splines) {
+    splines_.resize(num_splines);
+    return &splines_[0];
   }
 
   // Non-const version is for construction.
@@ -43,7 +49,7 @@ class MatrixAnim {
   MatrixInit init_;
 
   /// Hold spline animation data that is referenced by `init_`.
-  std::vector<fpl::CompactSpline> splines_;
+  std::vector<Spline> splines_;
 };
 
 }  // namespace motive
