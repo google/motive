@@ -353,8 +353,23 @@ void CopyConstructorInvalid(MotiveTests& /*t*/) {
 }
 TEST_ALL_VECTOR_MOTIVATORS_F(CopyConstructorInvalid)
 
+// Test operator=() of an invalid motivator to another invalid motivator.
 template <class MotivatorT>
-void AssignmentOperator(MotiveTests& t) {
+void AssignmentOperatorInvalidToInvalid(MotiveTests& /*t*/) {
+  MotivatorT orig_motivator;
+  MotivatorT new_motivator;
+  EXPECT_FALSE(orig_motivator.Valid());
+  EXPECT_FALSE(orig_motivator.Valid());
+
+  new_motivator = orig_motivator;
+  EXPECT_FALSE(orig_motivator.Valid());
+  EXPECT_FALSE(new_motivator.Valid());
+}
+TEST_ALL_VECTOR_MOTIVATORS_F(AssignmentOperatorInvalidToInvalid)
+
+// Test operator=() of a valid motivator to an invalid motivator.
+template <class MotivatorT>
+void AssignmentOperatorValidToInvalid(MotiveTests& t) {
   MotivatorT orig_motivator;
   t.InitOvershootMotivator(&orig_motivator);
   EXPECT_TRUE(orig_motivator.Valid());
@@ -366,7 +381,55 @@ void AssignmentOperator(MotiveTests& t) {
   EXPECT_TRUE(new_motivator.Valid());
   EXPECT_TRUE(VectorEqual(new_motivator.Value(), value));
 }
-TEST_ALL_VECTOR_MOTIVATORS_F(AssignmentOperator)
+TEST_ALL_VECTOR_MOTIVATORS_F(AssignmentOperatorValidToInvalid)
+
+// Test operator=() of an invalid motivator to a valid motivator.
+template <class MotivatorT>
+void AssignmentOperatorInvalidToValid(MotiveTests& t) {
+  MotivatorT orig_motivator;
+  EXPECT_FALSE(orig_motivator.Valid());
+
+  MotivatorT new_motivator;
+  t.InitOvershootMotivator(&new_motivator);
+  const typename MotivatorT::ExT value = new_motivator.Value();
+
+  new_motivator = orig_motivator;
+
+  EXPECT_FALSE(orig_motivator.Valid());
+  EXPECT_FALSE(new_motivator.Valid());
+}
+TEST_ALL_VECTOR_MOTIVATORS_F(AssignmentOperatorInvalidToValid)
+
+// Test operator=() of a valid motivator to another valid motivator.
+template <class MotivatorT>
+void AssignmentOperatorValidToValid(MotiveTests& t) {
+  typedef typename MotivatorT::TargetBuilder Tar;
+  typedef typename MotivatorT::ExT Vec;
+
+  MotivatorT orig_motivator;
+  t.InitOvershootMotivator(&orig_motivator);
+  EXPECT_TRUE(orig_motivator.Valid());
+  const typename MotivatorT::ExT orig_value = orig_motivator.Value();
+
+  MotivatorT new_motivator;
+  new_motivator.InitializeWithTarget(
+      t.overshoot_angle_init(), &t.engine(),
+      Tar::Current(Vec(orig_value + 1)));
+  EXPECT_TRUE(new_motivator.Valid());
+  const typename MotivatorT::ExT new_value = new_motivator.Value();
+
+  // Give orig and new different values.
+  EXPECT_FALSE(VectorEqual(new_value, orig_value));
+
+  new_motivator = orig_motivator;
+
+  // After the assignment, new should have the orig value.
+  EXPECT_FALSE(orig_motivator.Valid());
+  EXPECT_TRUE(new_motivator.Valid());
+  EXPECT_TRUE(VectorEqual(new_motivator.Value(), orig_value));
+}
+TEST_ALL_VECTOR_MOTIVATORS_F(AssignmentOperatorValidToValid)
+
 
 template <class MotivatorT>
 void VectorResize(MotiveTests& t) {

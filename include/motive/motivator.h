@@ -66,7 +66,9 @@ class Motivator {
   /// See the copy constructor for details.
   Motivator& operator=(const Motivator& original) {
     Invalidate();
-    original.processor_->TransferMotivator(original.index_, this);
+    if (original.processor_ != nullptr) {
+      original.processor_->TransferMotivator(original.index_, this);
+    }
     return *this;
   }
 
