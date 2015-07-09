@@ -69,7 +69,6 @@ static const MotiveTime kTimePerFrame = 10;
 static const MotiveTime kMaxTime = 10000;
 static const float kMatrixEpsilon = 0.00001f;
 static const float kAngleEpsilon = 0.01f;
-static const MotiveTime kTimeEpsilon = 1;
 
 #define TEST_ALL_VECTOR_MOTIVATORS_F(MOTIVE_TEST_NAME) \
   TEST_F(MotiveTests, MOTIVE_TEST_NAME##Test) {        \
@@ -87,13 +86,6 @@ bool VectorEqual(const mathfu::Vector<T, d>& lhs,
   return true;
 }
 bool VectorEqual(float lhs, float rhs) { return lhs == rhs; }
-
-// For tests. All elements of vector are within `precision` of each other.
-template <class T>
-bool VectorNear(const T& lhs, const T& rhs, const T& precision) {
-  const T diff = lhs - rhs;
-  return -precision <= diff && diff <= precision;
-}
 
 // For tests. All elements of vector are exactly the same.
 template <class T, int d>
@@ -124,6 +116,14 @@ bool operator>=(const mathfu::Vector<T, d>& lhs,
   }
   return true;
 }
+
+// For tests. All elements of vector are within `precision` of each other.
+template <class T>
+bool VectorNear(const T& lhs, const T& rhs, const T& precision) {
+  const T diff = lhs - rhs;
+  return -precision <= diff && diff <= precision;
+}
+
 
 class MotiveTests : public ::testing::Test {
  public:
@@ -391,7 +391,6 @@ void AssignmentOperatorInvalidToValid(MotiveTests& t) {
 
   MotivatorT new_motivator;
   t.InitOvershootMotivator(&new_motivator);
-  const typename MotivatorT::ExT value = new_motivator.Value();
 
   new_motivator = orig_motivator;
 
