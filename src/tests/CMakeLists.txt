@@ -38,7 +38,7 @@ string(REPLACE "-Wshadow" "" cxx_default "${cxx_default}")
 string(REPLACE "-Wextra" "" cxx_default "${cxx_default}")
 
 # This is the directory into which the executables are built.
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../bin)
 
 include_directories(${GUNIT_INCDIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}
