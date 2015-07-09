@@ -3,8 +3,8 @@ libs/
 obj/
 bin/flatc
 bin/flathash
-src/tests/*_test
-src/samples/*_sample
+bin/*_test
+bin/*_sample
 *.bin
 *.a
 benchmarker/apks/
