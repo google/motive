@@ -74,6 +74,17 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
   MatrixInit& init = anim->init();
   init.Clear(params.ops()->size());
 
+  // Count the number of splines.
+  int num_splines = 0;
+  for (auto op = params.ops()->begin(); op != params.ops()->end(); ++op) {
+    if (op->value_type() == MatrixOpValueFb_CompactSplineFb) num_splines++;
+  }
+
+  // Initialize the output structure with the correct number of splines.
+  MatrixAnim::Spline* splines = anim->Construct(num_splines);
+
+  // Loop through each op, adding to the MatrixAnim init params.
+  int spline_idx = 0;
   for (auto op = params.ops()->begin(); op != params.ops()->end(); ++op) {
     const MatrixOperationType op_type =
         static_cast<MatrixOperationType>(op->type());
@@ -82,20 +93,25 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
       case MatrixOpValueFb_CompactSplineFb: {
         const CompactSplineFb* spline_fb =
             reinterpret_cast<const CompactSplineFb*>(op->value());
-        fpl::CompactSpline& spline = anim->AllocSpline();
+        MatrixAnim::Spline& s = splines[spline_idx++];
 
-        fpl::Range y_range(spline_fb->y_range_start(),
-                           spline_fb->y_range_end());
-        spline.Init(y_range, spline_fb->x_granularity(),
+        // Copy the spline data into s.spline.
+        // TODO: modify CompactSpline so we can just point at spline data
+        //       instead of copying it.
+        const fpl::Range y_range(spline_fb->y_range_start(),
+                                 spline_fb->y_range_end());
+        s.spline.Init(y_range, spline_fb->x_granularity(),
                     spline_fb->nodes()->size());
         for (auto n = spline_fb->nodes()->begin();
              n != spline_fb->nodes()->end(); ++n) {
-          spline.AddNodeVerbatim(n->x(), n->y(), n->angle());
+          s.spline.AddNodeVerbatim(n->x(), n->y(), n->angle());
         }
 
-        init.AddOp(op_type,
-                   SmoothInit(y_range, spline_fb->modular_arithmetic()),
-                   fpl::SplinePlayback(spline));
+        // Hold `init` and `playback` data in structures that won't disappear,
+        // since these are referenced by pointer.
+        s.init = SmoothInit(y_range, spline_fb->modular_arithmetic());
+        s.playback = fpl::SplinePlayback(s.spline, 0.0f, true);
+        init.AddOp(op_type, s.init, s.playback);
         break;
       }
 
