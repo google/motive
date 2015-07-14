@@ -67,7 +67,7 @@ MotiveProcessor* MotiveEngine::Processor(MotivatorType type) {
   ProcessorDetails details;
   details.processor = fns.create();
   details.benchmark_id = kBenchmarkIdOfFirstProcessor +
-                         sorted_processors_.size();
+                         static_cast<int>(sorted_processors_.size());
   mapped_processors_.insert(ProcessorPair(type, details.processor));
   sorted_processors_.insert(details);
 
