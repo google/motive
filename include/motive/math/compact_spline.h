@@ -119,6 +119,11 @@ class CompactSpline {
   void AddNode(const float x, const float y, const float derivative,
                const CompactSplineAddMethod method = kEnsureCubicWellBehaved);
 
+  /// Add values without converting them. Useful when initializing from
+  /// precalculated data.
+  void AddNodeVerbatim(const CompactSplineXGrain x, const CompactSplineYRung y,
+                       const CompactSplineAngle angle);
+
   /// Remove all nodes from the spline.
   void Clear();
 
@@ -148,6 +153,19 @@ class CompactSpline {
   Range RangeX() const { return Range(StartX(), EndX()); }
   const Range& RangeY() const { return y_range_; }
 
+  /// Evaluate spline at `x`. This function is somewhat slow because it
+  /// must find the node for `x` and create the cubic before the returned
+  /// y can be evaluated.
+  /// If calling from inside a loop, replace the loop with one call to Ys(),
+  /// which is significantly faster.
+  float YCalculatedSlowly(const float x) const;
+
+  /// Fast evaluation of a subset of the x-domain of the spline.
+  /// Spline is evaluated from `start_x` and subsequent intervals of `delta_x`.
+  /// Evaluated values are returned in `ys`.
+  void Ys(const float start_x, const float delta_x, const int num_ys,
+          float* ys) const;
+
   /// The start and end x-values covered by the segment after `index`.
   Range RangeX(const CompactSplineIndex index) const;
 
@@ -156,9 +174,41 @@ class CompactSpline {
   /// or kAfterSplineIndex.
   CubicInit CreateCubicInit(const CompactSplineIndex index) const;
 
+  /// Returns the number of nodes in this spline.
+  CompactSplineIndex NumNodes() const;
+
+  /// Return const versions of internal values. For serialization.
+  const CompactSplineNode* nodes() const;
+  const Range& y_range() const { return y_range_; }
+  float x_granularity() const { return x_granularity_; }
+
   /// Recommend a granularity given a maximal-x value. We want to have the
   /// most precise granularity when quantizing x's.
   static float RecommendXGranularity(const float max_x);
+
+  /// Fast evaluation of several splines.
+  /// @param splines input splines of length `num_splines`.
+  /// @param num_splines number of splines to evaluate.
+  /// @param start_x starting point for every spline.
+  /// @param delta_x increment for each
+  /// @param ys two dimensional output array, ys[num_ys][num_splines].
+  ///           ys[0] are `splines` evaluated at start_x.
+  ///           ys[num_ys - 1] are `splines` evaluated at
+  ///           start_x + delta_x * num_ys.
+  static void BulkYs(const CompactSpline* const splines, const int num_splines,
+                     const float start_x, const float delta_x,
+                     const size_t num_ys, float* ys);
+
+  /// Fast evaluation of several splines, with mathfu::VectorPacked interface.
+  /// Useful for evaluate three splines which together form a mathfu::vec3,
+  /// for instance.
+  template <int kDimensions>
+  static void BulkYs(const CompactSpline* const splines, const float start_x,
+                     const float delta_x, const size_t num_ys,
+                     mathfu::VectorPacked<float, kDimensions>* ys) {
+    BulkYs(splines, kDimensions, start_x, delta_x, num_ys,
+           reinterpret_cast<float*>(ys));
+  }
 
  private:
   CompactSplineIndex LastNodeIndex() const;
@@ -191,22 +241,96 @@ class CompactSpline {
   float x_granularity_;
 };
 
-/// @class SplinePlayback
+/// @class SplinePlaybackN
 /// @brief Parameters to specify how a spline should be traversed.
-struct SplinePlayback {
-  explicit SplinePlayback(const CompactSpline& spline, float start_x = 0.0f,
-                          bool repeat = false)
-      : spline(&spline), start_x(start_x), repeat(repeat) {}
+template <int kDimensionsT>
+struct SplinePlaybackN {
+  static const int kDimensions = kDimensionsT;
+
+  /// Default constructor. Initializes to invalid values.
+  SplinePlaybackN() : start_x(-1.0f), playback_rate(-1.0f), repeat(false) {
+    for (int i = 0; i < kDimensions; ++i) {
+      splines[i] = nullptr;
+    }
+  }
+
+  /// Initialize all channels with same spline.
+  /// Especially useful when kDimensions = 1, since there is only one channel.
+  explicit SplinePlaybackN(const CompactSpline& s, float start_x = 0.0f,
+                           bool repeat = false, float playback_rate = 1.0f)
+      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
+    for (int i = 0; i < kDimensions; ++i) {
+      splines[i] = &s;
+    }
+  }
+
+  /// Initialize each channel with its own spline.
+  /// @param s An array pointers to splines, of length kDimensions.
+  explicit SplinePlaybackN(const CompactSpline* s, float start_x = 0.0f,
+                           bool repeat = false, float playback_rate = 1.0f)
+      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
+    for (int i = 0; i < kDimensions; ++i) {
+      splines[i] = &s[i];
+    }
+  }
+
+  /// Initialize 2D spline playback.
+  SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
+                  float start_x = 0.0f, bool repeat = false,
+                  float playback_rate = 1.0f)
+      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
+    assert(kDimensions == 2);
+    splines[0] = &x;
+    splines[1] = &y;
+  }
+
+  /// Initialize 3D spline playback.
+  SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
+                  const CompactSpline& z, float start_x = 0.0f,
+                  bool repeat = false, float playback_rate = 1.0f)
+      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
+    assert(kDimensions == 3);
+    splines[0] = &x;
+    splines[1] = &y;
+    splines[2] = &z;
+  }
+
+  /// Initialize 4D spline playback.
+  SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
+                  const CompactSpline& z, const CompactSpline& w,
+                  float start_x = 0.0f, bool repeat = false,
+                  float playback_rate = 1.0f)
+      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
+    assert(kDimensions == 4);
+    splines[0] = &x;
+    splines[1] = &y;
+    splines[2] = &z;
+    splines[3] = &w;
+  }
 
   /// The spline to follow.
-  const CompactSpline* spline;
+  const CompactSpline* splines[kDimensions];
 
   /// The starting point from which to play.
   float start_x;
 
+  /// The playback rate of the spline. Scales `delta_time` of the update to
+  /// to x-axis of `splines`.
+  ///     0   ==> paused
+  ///     0.5 ==> half speed (slow motion)
+  ///     1   ==> authored speed
+  ///     2   ==> double speed (fast forward)
+  float playback_rate;
+
   /// If true, start back at the beginning after we reach the end.
   bool repeat;
 };
+
+typedef SplinePlaybackN<1> SplinePlayback1f;
+typedef SplinePlaybackN<2> SplinePlayback2f;
+typedef SplinePlaybackN<3> SplinePlayback3f;
+typedef SplinePlaybackN<4> SplinePlayback4f;
+typedef SplinePlayback1f SplinePlayback;
 
 }  // namespace fpl
 

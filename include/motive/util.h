@@ -39,8 +39,16 @@ struct Settled1f {
   }
 
   /// Return true if `motivator` is "at the target" and "stopped".
-  bool Settled(const Motivator1f& motivator) const {
-    return Settled(motivator.Difference(), motivator.Velocity());
+  template <class Motivator>
+  bool Settled(const Motivator& motivator) const {
+    const typename Motivator::InT diff =
+        Motivator::C::From(motivator.Difference());
+    const typename Motivator::InT vel =
+        Motivator::C::From(motivator.Velocity());
+    for (int i = 0; i < Motivator::kDimensions; ++i) {
+      if (!Settled(diff[i], vel[i])) return false;
+    }
+    return true;
   }
 
   /// Consider ourselves "at the target" if the absolute difference between
@@ -50,6 +58,12 @@ struct Settled1f {
   /// Consider ourselves "stopped" if the absolute velocity is less than this.
   float max_velocity;
 };
+
+template <>
+inline bool Settled1f::Settled<Motivator1f>(
+    const Motivator1f& motivator) const {
+  return Settled(motivator.Difference(), motivator.Velocity());
+}
 
 /// If `motivator` is "at the target" and "stopped" give it a boost in
 /// `direction`.

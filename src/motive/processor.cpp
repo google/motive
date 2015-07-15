@@ -15,12 +15,18 @@
 #include "motive/processor.h"
 #include "motive/motivator.h"
 
+// Define this to 0 in the build file to disable sanity checks.
+#ifndef MOTIVE_VERIFY_INTERNAL_STATE
+#define MOTIVE_VERIFY_INTERNAL_STATE 1
+#endif
+
 namespace motive {
 
 MotiveProcessor::~MotiveProcessor() {
   // Reset all of the Motivators that we're currently driving.
   // We don't want any of them to reference us after we've been destroyed.
-  for (MotiveIndex index = 0; index < index_allocator_.num_indices(); ++index) {
+  for (MotiveIndex index = 0; index < index_allocator_.num_indices();
+       index += Dimensions(index)) {
     if (motivators_[index] != nullptr) {
       RemoveMotivatorWithoutNotifying(index);
     }
@@ -31,20 +37,31 @@ MotiveProcessor::~MotiveProcessor() {
 }
 
 void MotiveProcessor::VerifyInternalState() const {
+#if MOTIVE_VERIFY_INTERNAL_STATE
+  // Check the validity of the IndexAllocator.
+  index_allocator_.VerifyInternalState();
+
   // Check the validity of each Motivator.
   MotiveIndex len = static_cast<MotiveIndex>(motivators_.size());
-  for (MotiveIndex i = 0; i < len; ++i) {
+  for (MotiveIndex i = 0; i < len; i += Dimensions(i)) {
     // If a Motivator is nullptr, its index should not be allocated.
     assert((motivators_[i] == nullptr && !index_allocator_.ValidIndex(i)) ||
            motivators_[i]->Valid());
 
     if (motivators_[i] == nullptr) continue;
 
+    // All back pointers for a motivator should be the same.
+    const MotiveDimension dimensions = Dimensions(i);
+    for (MotiveIndex j = i + 1; j < i + dimensions; ++j) {
+      assert(motivators_[i] == motivators_[j]);
+    }
+
     // A Motivator should be referenced once.
-    for (MotiveIndex j = i + 1; j < len; ++j) {
+    for (MotiveIndex j = i + dimensions; j < len; j += Dimensions(j)) {
       assert(motivators_[i] != motivators_[j]);
     }
   }
+#endif  // MOTIVE_VERIFY_INTERNAL_STATE
 }
 
 void MotiveProcessor::InitializeMotivator(
@@ -57,15 +74,19 @@ void MotiveProcessor::InitializeMotivator(
   // Keep a pointer to the Motivator around. We may Defragment() the indices and
   // move the data around. We also need remove the Motivator when we're
   // destroyed.
-  motivators_[index] = motivator;
+  for (MotiveDimension i = 0; i < dimensions; ++i) {
+    motivators_[index + i] = motivator;
+  }
 
   // Initialize the motivator to point at our MotiveProcessor.
   motivator->Init(this, index);
 
   // Call the MotiveProcessor-specific initialization routine.
-  for (int i = 0; i < dimensions; ++i) {
+  for (MotiveDimension i = 0; i < dimensions; ++i) {
     InitializeIndex(init, index + i, engine);
   }
+
+  VerifyInternalState();
 }
 
 // Don't notify derived classes. Useful in the destructor, since derived classes
@@ -75,7 +96,10 @@ void MotiveProcessor::RemoveMotivatorWithoutNotifying(MotiveIndex index) {
   motivators_[index]->Reset();
 
   // Ensure we no longer reference the Motivator.
-  motivators_[index] = nullptr;
+  const MotiveDimension dimensions = Dimensions(index);
+  for (MotiveDimension i = 0; i < dimensions; ++i) {
+    motivators_[index + i] = nullptr;
+  }
 
   // Recycle 'index'. It will be used in the next allocation, or back-filled in
   // the next call to Defragment().
@@ -83,22 +107,24 @@ void MotiveProcessor::RemoveMotivatorWithoutNotifying(MotiveIndex index) {
 }
 
 void MotiveProcessor::RemoveMotivator(MotiveIndex index) {
-  assert(ValidIndex(index));
+  assert(ValidMotivatorIndex(index));
 
   // Call the MotiveProcessor-specific remove routine.
-  const int dimensions = Dimensions(index);
-  for (int i = 0; i < dimensions; ++i) {
+  const MotiveDimension dimensions = Dimensions(index);
+  for (MotiveDimension i = 0; i < dimensions; ++i) {
     RemoveIndex(index + i);
   }
 
   // Need this version since the destructor can't call the pure virtual
   // RemoveIndex() above.
   RemoveMotivatorWithoutNotifying(index);
+
+  VerifyInternalState();
 }
 
 void MotiveProcessor::TransferMotivator(MotiveIndex index,
                                         Motivator* new_motivator) {
-  assert(ValidIndex(index));
+  assert(ValidMotivatorIndex(index));
 
   // Ensure old Motivator does not reference us anymore. Only one Motivator is
   // allowed to reference 'index'.
@@ -109,13 +135,27 @@ void MotiveProcessor::TransferMotivator(MotiveIndex index,
   new_motivator->Init(this, index);
 
   // Update our reference to the unique Motivator that references 'index'.
-  motivators_[index] = new_motivator;
+  const MotiveDimension dimensions = Dimensions(index);
+  for (MotiveDimension i = 0; i < dimensions; ++i) {
+    motivators_[index + i] = new_motivator;
+  }
+
+  VerifyInternalState();
+}
+
+bool MotiveProcessor::IsMotivatorIndex(MotiveIndex index) const {
+  return motivators_[index] != nullptr &&
+         (index == 0 || motivators_[index - 1] != motivators_[index]);
 }
 
 bool MotiveProcessor::ValidIndex(MotiveIndex index) const {
   return index < index_allocator_.num_indices() &&
          motivators_[index] != nullptr &&
          motivators_[index]->Processor() == this;
+}
+
+bool MotiveProcessor::ValidMotivatorIndex(MotiveIndex index) const {
+  return ValidIndex(index) && IsMotivatorIndex(index);
 }
 
 void MotiveProcessor::SetNumIndicesBase(MotiveIndex num_indices) {
@@ -132,34 +172,27 @@ void MotiveProcessor::SetNumIndicesBase(MotiveIndex num_indices) {
   SetNumIndices(num_indices);
 }
 
-void MotiveProcessor::MoveIndexBase(MotiveIndex old_index,
-                                    MotiveIndex new_index) {
-  // Assert we're moving something valid onto something invalid.
-  assert(motivators_[new_index] == nullptr &&
-         motivators_[old_index] != nullptr);
-
-  // Assert the dimensions of these motivators match.
-  assert(Dimensions(new_index) == Dimensions(old_index));
-
-  // Assert the `motivators_` back references aren't specified
-  // for the extra dimensions.
-  const int dimensions = Dimensions(new_index);
-  for (int i = 1; i < dimensions; ++i) {
-    assert(motivators_[new_index + i] == nullptr &&
-           motivators_[old_index + i] == nullptr);
+void MotiveProcessor::MoveIndexRangeBase(const IndexRange& source,
+                                         MotiveIndex target) {
+  // Reinitialize the motivators to point to the new index.
+  const MotiveIndex index_diff = target - source.start();
+  for (MotiveIndex i = source.start(); i < source.end(); i += Dimensions(i)) {
+    motivators_[i]->Init(this, i + index_diff);
   }
 
-  // Reinitialize the motivator to point to the new index.
-  Motivator* motivator = motivators_[old_index];
-  motivator->Init(this, new_index);
+  // Reinitialize the motivator pointers.
+  for (MotiveIndex i = source.start(); i < source.end(); ++i) {
+    // Assert we're moving something valid onto something invalid.
+    assert(motivators_[i] != nullptr && motivators_[i + index_diff] == nullptr);
 
-  // Swap the pointer values stored at indices.
-  motivators_[new_index] = motivator;
-  motivators_[old_index] = nullptr;
+    // Tell derivated class about the move.
+    // TODO OPT: Change MoveIndex() to have the same signature as
+    //           MoveIndexRange() to avoid the function call overhead.
+    MoveIndex(i, i + index_diff);
 
-  // Call derived class so the derived class can perform similar data movement.
-  for (int i = 0; i < dimensions; ++i) {
-    MoveIndex(old_index + i, new_index + i);
+    // Move our internal data too.
+    motivators_[i + index_diff] = motivators_[i];
+    motivators_[i] = nullptr;
   }
 }
 

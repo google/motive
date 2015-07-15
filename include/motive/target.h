@@ -16,6 +16,7 @@
 #define MOTIVE_TARGET_H
 
 #include "motive/math/range.h"
+#include "motive/math/vector_converter.h"
 
 namespace motive {
 
@@ -132,6 +133,58 @@ class MotiveTarget1f {
   MotiveNode1f nodes_[kMaxNodes];
 };
 
+// N-dimensional MotiveTargets are simply arrays of 1-dimensional MotiveTargets.
+template <int kDimensionsT>
+class MotiveTargetN {
+ public:
+  static const int kDimensions = kDimensionsT;
+
+  const MotiveTarget1f& operator[](int i) const {
+    assert(0 <= i && i < kDimensions);
+    return targets_[i];
+  }
+
+  MotiveTarget1f& operator[](int i) {
+    assert(0 <= i && i < kDimensions);
+    return targets_[i];
+  }
+
+ private:
+  /// Each dimension gets its own target, that can be accessed with [].
+  /// Note that the 'time' values do not have to correspond between dimensions.
+  /// When using static constructor functions like `Current()` or `Target()`
+  /// all the times will be the same, but in general, we want to allow each
+  /// dimension to specify time independently. This will lead to maximal
+  /// compression. There's no reason why the x, y, and z channels should act
+  /// similarly.
+  MotiveTarget1f targets_[kDimensions];
+};
+
+typedef MotiveTargetN<2> MotiveTarget2f;
+typedef MotiveTargetN<3> MotiveTarget3f;
+typedef MotiveTargetN<4> MotiveTarget4f;
+
+template <int>
+struct MotiveTargetT {
+  typedef void type;
+};
+template <>
+struct MotiveTargetT<1> {
+  typedef MotiveTarget1f type;
+};
+template <>
+struct MotiveTargetT<2> {
+  typedef MotiveTarget2f type;
+};
+template <>
+struct MotiveTargetT<3> {
+  typedef MotiveTarget3f type;
+};
+template <>
+struct MotiveTargetT<4> {
+  typedef MotiveTarget4f type;
+};
+
 /// Set the Motivator's current values. Target values are reset to be the same
 /// as the new current values.
 inline MotiveTarget1f Current1f(float current_value,
@@ -193,6 +246,138 @@ inline MotiveTarget1f CurrentToTargetToTarget1f(
       MotiveNode1f(target_value, target_velocity, target_time),
       MotiveNode1f(third_value, third_velocity, third_time));
 }
+
+/// Utility functions to construct MotiveTargets of dimension >= 2.
+template <class VectorConverter, int kDimensionsT>
+class MotiveTargetBuilderTemplate {
+  typedef VectorConverter C;
+
+ public:
+  static const int kDimensions = kDimensionsT;
+  typedef
+      typename fpl::ExternalVectorT<VectorConverter, kDimensionsT>::type ExT;
+  typedef typename fpl::InternalVectorT<kDimensionsT>::type InT;
+  typedef typename MotiveTargetT<kDimensionsT>::type MotiveTarget;
+  typedef const ExT& ExIn;
+
+  /// Set the Motivator's current values. Target values are reset to be the same
+  /// as the new current values.
+  static MotiveTarget Current(ExIn current_value,
+                              ExIn current_velocity = ExT(0.0f)) {
+    const InT current_value_in = C::From(current_value);
+    const InT current_velocity_in = C::From(current_velocity);
+
+    MotiveTarget t;
+    for (int i = 0; i < kDimensions; ++i) {
+      t[i] = Current1f(current_value_in[i], current_velocity_in[i]);
+    }
+    return t;
+  }
+
+  /// Keep the Motivator's current values, but set the Motivator's target
+  /// values. If Motivator uses modular arithmetic, traverse from the current
+  /// to the target according to 'direction'.
+  static MotiveTarget Target(
+      ExIn target_value, ExIn target_velocity, MotiveTime target_time,
+      fpl::ModularDirection direction = fpl::kDirectionClosest) {
+    const InT target_value_in = C::From(target_value);
+    const InT target_velocity_in = C::From(target_velocity);
+
+    MotiveTarget t;
+    for (int i = 0; i < kDimensions; ++i) {
+      t[i] = Target1f(target_value_in[i], target_velocity_in[i], target_time,
+                      direction);
+    }
+    return t;
+  }
+
+  /// Set both the current and target values for an Motivator.
+  static MotiveTarget CurrentToTarget(
+      ExIn current_value, ExIn current_velocity, ExIn target_value,
+      ExIn target_velocity, MotiveTime target_time,
+      fpl::ModularDirection direction = fpl::kDirectionClosest) {
+    const InT current_value_in = C::From(current_value);
+    const InT current_velocity_in = C::From(current_velocity);
+    const InT target_value_in = C::From(target_value);
+    const InT target_velocity_in = C::From(target_velocity);
+
+    MotiveTarget t;
+    for (int i = 0; i < kDimensions; ++i) {
+      t[i] = CurrentToTarget1f(current_value_in[i], current_velocity_in[i],
+                               target_value_in[i], target_velocity_in[i],
+                               target_time, direction);
+    }
+    return t;
+  }
+
+  /// Move from the current value to the target value at a constant speed.
+  static MotiveTarget CurrentToTargetConstVelocity(ExIn current_value,
+                                                   ExIn target_value,
+                                                   MotiveTime target_time) {
+    const InT current_value_in = C::From(current_value);
+    const InT target_value_in = C::From(target_value);
+
+    // TODO OPT: Do the math using the vector types.
+    MotiveTarget t;
+    for (int i = 0; i < kDimensions; ++i) {
+      t[i] = CurrentToTargetConstVelocity1f(current_value_in[i],
+                                            target_value_in[i], target_time);
+    }
+    return t;
+  }
+};
+
+/// Utility functions to construct MotiveTarget1fs.
+template <class VectorConverter>
+class MotiveTargetBuilderTemplate<VectorConverter, 1> {
+ public:
+  static const int kDimensions = 1;
+  typedef float ExT;
+  typedef float InT;
+  typedef MotiveTarget1f MotiveTarget;
+  typedef float ExIn;
+
+  static MotiveTarget Current(ExIn current_value,
+                              ExIn current_velocity = ExT(0.0f)) {
+    return Current1f(current_value, current_velocity);
+  }
+
+  static MotiveTarget Target(
+      ExIn target_value, ExIn target_velocity, MotiveTime target_time,
+      fpl::ModularDirection direction = fpl::kDirectionClosest) {
+    return Target1f(target_value, target_velocity, target_time, direction);
+  }
+
+  static MotiveTarget CurrentToTarget(
+      ExIn current_value, ExIn current_velocity, ExIn target_value,
+      ExIn target_velocity, MotiveTime target_time,
+      fpl::ModularDirection direction = fpl::kDirectionClosest) {
+    return CurrentToTarget1f(current_value, current_velocity, target_value,
+                             target_velocity, target_time, direction);
+  }
+
+  static MotiveTarget CurrentToTargetConstVelocity(ExIn current_value,
+                                                   ExIn target_value,
+                                                   MotiveTime target_time) {
+    return CurrentToTargetConstVelocity1f(current_value, target_value,
+                                          target_time);
+  }
+};
+
+// Typedefs to make it easy to construct MotiveTargets with dimension >= 2.
+//
+// For example, to create a MotiveTarget2f that sets both the current and
+// future values, you could use this syntax.
+//
+//     Mo2f::CurrentToTarget(vec2(0,1), vec2(0,0), vec2(2,3), vec2(1,1), 100);
+//
+// These classes use mathfu types in their external API. If you have your own
+// vector types, create your own VectorConverter and your own typedefs.
+//
+typedef MotiveTargetBuilderTemplate<fpl::PassThroughVectorConverter, 1> Tar1f;
+typedef MotiveTargetBuilderTemplate<fpl::PassThroughVectorConverter, 2> Tar2f;
+typedef MotiveTargetBuilderTemplate<fpl::PassThroughVectorConverter, 3> Tar3f;
+typedef MotiveTargetBuilderTemplate<fpl::PassThroughVectorConverter, 4> Tar4f;
 
 }  // namespace motive
 

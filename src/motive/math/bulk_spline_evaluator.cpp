@@ -41,6 +41,7 @@ void BulkSplineEvaluator::SetNumIndices(const Index num_indices) {
   y_ranges_.resize(num_indices);
   cubic_xs_.resize(num_indices, 0.0f);
   cubic_x_ends_.resize(num_indices, 0.0f);
+  playback_rates_.resize(num_indices, 1.0f);
   cubics_.resize(num_indices);
   ys_.resize(num_indices, 0.0f);
   scratch_.resize(num_indices, 0);
@@ -52,6 +53,7 @@ void BulkSplineEvaluator::MoveIndex(const Index old_index,
   y_ranges_[new_index] = y_ranges_[old_index];
   cubic_xs_[new_index] = cubic_xs_[old_index];
   cubic_x_ends_[new_index] = cubic_x_ends_[old_index];
+  playback_rates_[new_index] = playback_rates_[old_index];
   cubics_[new_index] = cubics_[old_index];
   ys_[new_index] = ys_[old_index];
 }
@@ -66,9 +68,10 @@ void BulkSplineEvaluator::SetYRange(const Index index, const Range& valid_y,
 void BulkSplineEvaluator::SetSpline(const Index index,
                                     const SplinePlayback& playback) {
   Source& s = sources_[index];
-  s.spline = playback.spline;
+  s.spline = playback.splines[0];
   s.x_index = kInvalidSplineIndex;
   s.repeat = playback.repeat;
+  playback_rates_[index] = playback.playback_rate;
   InitCubic(index, playback.start_x);
   EvaluateIndex(index);
 }
@@ -80,7 +83,7 @@ void BulkSplineEvaluator::UpdateCubicXsAndGetMask_C(const float delta_x,
   float* xs = &cubic_xs_.front();
 
   for (int i = 0; i < num_xs; ++i) {
-    xs[i] += delta_x;
+    xs[i] += delta_x * playback_rates_[i];
     masks[i] = xs[i] > x_ends[i] ? 0xFF : 0x00;
   }
 }
@@ -128,7 +131,7 @@ size_t BulkSplineEvaluator::UpdateCubicXs_OneStep(const float delta_x,
 
   for (Index i = 0; i < num_indices; ++i) {
     // Increment each cubic x value by delta_x.
-    cubic_xs_[i] += delta_x;
+    cubic_xs_[i] += delta_x * playback_rates_[i];
 
     // When x has gone past the end of the cubic, it should be reinitialized.
     if (cubic_xs_[i] > cubic_x_ends_[i]) {
@@ -151,15 +154,18 @@ void BulkSplineEvaluator::InitCubic(const Index index, const float start_x) {
     new_start_x -= s.spline->LengthX();
     x_index = s.spline->IndexForX(new_start_x, 0);
   }
+
+  // Update the x values for the new index.
+  const Range x_range = s.spline->RangeX(x_index);
+  cubic_xs_[index] = new_start_x - x_range.start();
+
+  // If the index hasn't changed (perhaps we've wrapped around all the way to
+  // the current index), then we don't have to recreate the cubic.
   if (s.x_index == x_index) return;
   s.x_index = x_index;
 
-  // Update the values related to x.
-  const Range x_range = s.spline->RangeX(x_index);
-  cubic_xs_[index] = new_start_x - x_range.start();
-  cubic_x_ends_[index] = x_range.Length();
-
   // Initialize the cubic to interpolate the new spline segment.
+  cubic_x_ends_[index] = x_range.Length();
   CubicCurve& c = cubics_[index];
   const CubicInit init = s.spline->CreateCubicInit(x_index);
   c.Init(init);

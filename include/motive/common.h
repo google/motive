@@ -37,13 +37,15 @@ static const MotivatorType kMotivatorTypeInvalid = nullptr;
 /// The MotiveIndex identifies an Motivator inside a MotiveProcessor. The
 /// MotiveProcessor holds all Motivators of its type. Calls to Motivators are
 /// proxied to the MotiveProcessor, along with their MotiveIndex.
-typedef uint32_t MotiveIndex;
+typedef int32_t MotiveIndex;
 static const MotiveIndex kMotiveIndexInvalid = static_cast<MotiveIndex>(-1);
 
 /// @typedef MotiveDimension
 /// Identify how many slots in the MotiveProcessor a Motivator occupies.
-/// A Motivator3f occupies three slots, for example.
-typedef int8_t MotiveDimension;
+/// A Motivator3f occupies three slots, for example. Arithmetic is mixed
+/// between MotiveIndex and MotiveDimension in fpl::IndexAllocator, so they
+/// should be the same type.
+typedef MotiveIndex MotiveDimension;
 
 /// @typedef MotiveChildIndex
 /// Motivators can have child components. For example, a matrix motivator is

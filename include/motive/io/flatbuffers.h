@@ -23,6 +23,8 @@ class SmoothInit;
 struct SmoothParameters;
 struct Settled1f;
 struct Settled1fParameters;
+class MatrixAnim;
+struct MatrixAnimFb;
 
 /// Convert from FlatBuffer params to Motive init, for Overshoot.
 void OvershootInitFromFlatBuffers(const OvershootParameters& params,
@@ -35,6 +37,9 @@ void SmoothInitFromFlatBuffers(const SmoothParameters& params,
 /// Convert from FlatBuffer params to Motive Settled1f.
 void Settled1fFromFlatBuffers(const Settled1fParameters& params,
                               Settled1f* settled);
+
+/// Convert from FlatBuffer params to Motive MatrixAnim.
+void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim);
 
 }  // namespace motive
 

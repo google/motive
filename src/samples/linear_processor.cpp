@@ -17,7 +17,7 @@
 #include "motive/math/curve.h"
 
 using motive::MotivatorInit;
-using motive::MotiveProcessor1f;
+using motive::MotiveProcessorVector;
 using motive::MotiveEngine;
 using motive::MotiveIndex;
 using motive::MotiveTime;
@@ -48,7 +48,7 @@ class LinearInit : public MotivatorInit {
 
 
 //! [Own Processor LinearMotiveProcessor]
-class LinearMotiveProcessor : public MotiveProcessor1f {
+class LinearMotiveProcessor : public MotiveProcessorVector {
  public:
   virtual ~LinearMotiveProcessor() {}
 
@@ -77,19 +77,19 @@ class LinearMotiveProcessor : public MotiveProcessor1f {
   virtual int Priority() const { return 0; }
 
   // Accessors to allow the user to get and set simulation values.
-  virtual float Value(MotiveIndex index) const { return Data(index).value; }
-  virtual float Velocity(MotiveIndex index) const {
+  virtual float Value1f(MotiveIndex index) const { return Data(index).value; }
+  virtual float Velocity1f(MotiveIndex index) const {
     const LinearData& d = Data(index);
     return d.target_time <= 0.0f ? 0.0f
         : (d.target_value - d.value) / d.target_time;
   }
-  virtual float TargetValue(MotiveIndex index) const {
+  virtual float TargetValue1f(MotiveIndex index) const {
     return Data(index).target_value;
   }
-  virtual float TargetVelocity(MotiveIndex index) const {
+  virtual float TargetVelocity1f(MotiveIndex index) const {
     (void)index; return 0.0f;
   }
-  virtual float Difference(MotiveIndex index) const {
+  virtual float Difference1f(MotiveIndex index) const {
     const LinearData& d = Data(index);
     return d.target_value - d.value;
   }

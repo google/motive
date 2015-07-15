@@ -32,7 +32,20 @@ enum MatrixOperationType {
   kScaleY,
   kScaleZ,
   kScaleUniformly,
+  kNumMatrixOperationTypes
 };
+
+inline bool RotateOp(MatrixOperationType op) {
+  return kRotateAboutX <= op && op <= kRotateAboutZ;
+}
+
+inline bool TranslateOp(MatrixOperationType op) {
+  return kTranslateX <= op && op <= kTranslateZ;
+}
+
+inline bool ScaleOp(MatrixOperationType op) {
+  return kScaleX <= op && op <= kScaleUniformly;
+}
 
 /// @class ModularInit
 /// Base-class for OvershootInit and SmoothInit. Holds parameters related
@@ -42,6 +55,11 @@ class ModularInit : public MotivatorInit {
   /// The derived type must call this constructor with it's MotivatorType
   /// identifier.
   /// @param type The kType parameter of the derived init class.
+  /// @param range The range we should clamp Motivator::Value() to. If you
+  ///              don't want to clamp, then leave as Range::Full().
+  /// @param modular Option to use modular arithmetic for Motivator::Value().
+  ///                If true, all values are wrapped around to stay within
+  ///                `range`.
   explicit ModularInit(MotivatorType type)
       : MotivatorInit(type), range_(fpl::Range::Full()), modular_(false) {}
   ModularInit(MotivatorType type, const fpl::Range& range, bool modular)
@@ -223,7 +241,7 @@ struct MatrixOperationInit {
       : init(&init), type(type), union_type(kUnionTarget), target(&target) {}
 
   MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init,
-                      const fpl::SplinePlayback& spline)
+                      const fpl::SplinePlayback1f& spline)
       : init(&init), type(type), union_type(kUnionSpline), spline(&spline) {}
 
   const MotivatorInit* init;
@@ -232,7 +250,7 @@ struct MatrixOperationInit {
   union {
     float initial_value;
     const MotiveTarget1f* target;
-    const fpl::SplinePlayback* spline;
+    const fpl::SplinePlayback1f* spline;
   };
 };
 
@@ -259,15 +277,23 @@ class MatrixInit : public MotivatorInit {
   MOTIVE_INTERFACE();
   typedef std::vector<MatrixOperationInit> OpVector;
 
+  // Guess at the number of operations we'll have. Better to high-ball a little
+  // so that we don't have to reallocate the `ops_` vector.
+  static const int kDefaultExpectedNumOps = 8;
+
   /// By default expect a relatively high number of ops. Cost for allocating
   /// a bit too much temporary memory is small compared to cost of reallocating
   /// that memory.
-  explicit MatrixInit(int expected_num_ops = 8) : MotivatorInit(kType) {
+  explicit MatrixInit(int expected_num_ops = kDefaultExpectedNumOps)
+      : MotivatorInit(kType) {
     ops_.reserve(expected_num_ops);
   }
 
   /// Remove all matrix operations from the sequence.
-  void Clear() { ops_.clear(); }
+  void Clear(int expected_num_ops = kDefaultExpectedNumOps) {
+    ops_.clear();
+    ops_.reserve(expected_num_ops);
+  }
 
   /// Operation is constant. For example, use to put something flat on the
   /// ground, with 'type' = kRotateAboutX and 'const_value' = pi/2.
@@ -299,7 +325,7 @@ class MatrixInit : public MotivatorInit {
   /// Operation is driven by a 1-dimensional motivator, which is initialized
   /// to follow the predefined curve specified in `spline`.
   void AddOp(MatrixOperationType type, const MotivatorInit& init,
-             const fpl::SplinePlayback& spline) {
+             const fpl::SplinePlayback1f& spline) {
     ops_.push_back(MatrixOperationInit(type, init, spline));
   }
 

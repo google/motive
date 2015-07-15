@@ -1,9 +1,10 @@
 # Binary
 libs/
-bin/
 obj/
-src/tests/*_test
-src/samples/*_sample
+bin/flatc
+bin/flathash
+bin/*_test
+bin/*_sample
 *.bin
 *.a
 benchmarker/apks/
