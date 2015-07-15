@@ -1,3 +1,4 @@
+<!-- HTML header for doxygen 1.8.6-->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -21,6 +22,8 @@
   $(document).ready(function() { searchBox.OnSelectItem(0); });
 </script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
+<link href="style.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -102,7 +105,7 @@ $(document).ready(function(){initNavTree('motive_guide_motivators.html','');});
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><h1>Overview</h1>
-<p>A <code>Motivator</code> is an animated variable. There are currently two kinds: <code>Motivator1f</code>&ndash;which animates a single <code>float</code>, and <code>MotivatorMatrix4f</code>&ndash;which animates a 4x4 matrix of <code>floats</code>.</p>
+<p>A <code>Motivator</code> is an animated variable. There are currently two kinds: <code><a class="el" href="class_motivator1f.html" title="Drive a single float value towards a target, or along a spline. ">Motivator1f</a></code>&ndash;which animates a single <code>float</code>, and <code>MotivatorMatrix4f</code>&ndash;which animates a 4x4 matrix of <code>floats</code>.</p>
 <p>One <code>Motivator</code> can drive another. For example, a series of <code>Motivator1fs</code> can drive the rotations, translations, and scales that compose a <code>MotivatorMatrix4f</code>.</p>
 <p>Internally, a <code>Motivator</code> is a simple reference into a <code>MotiveProcessor</code>. The <code>MotiveProcessor</code> holds all the data and does all the animating. At any time, the <code>Motivator</code> can be reinitialized to use a different animation algorithm from a different <code>MotiveProcessor</code>. The external API remains the same, no matter what <code>MotiveProcessor</code> is backing a <code>Motivator</code>, although not all <code>MotiveProcessors</code> implement all API features.</p>
 <h1><a class="anchor" id="motive_guide_motivator_example"></a>
@@ -152,7 +155,7 @@ y = -179.489014
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-ga('create', 'UA-46159502-1', 'google.github.io');
+ga('create', 'UA-49880327-7', 'google.github.io');
 ga('send', 'pageview');
 </script>
 </body>

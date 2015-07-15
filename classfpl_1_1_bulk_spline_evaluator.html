@@ -1,3 +1,4 @@
+<!-- HTML header for doxygen 1.8.6-->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -21,6 +22,8 @@
   $(document).ready(function() { searchBox.OnSelectItem(0); });
 </script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
+<link href="style.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -144,8 +147,10 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:aa54325925817cb80f8421cd7c2e7015f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5096b6b62d1424e4006de548863fdd99"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_bulk_spline_evaluator.html#a5096b6b62d1424e4006de548863fdd99">SetYRange</a> (const Index index, const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;valid_y, const bool modular_arithmetic)</td></tr>
 <tr class="separator:a5096b6b62d1424e4006de548863fdd99"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3c02a40d5c32e2c6bb502dc61988663a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_bulk_spline_evaluator.html#a3c02a40d5c32e2c6bb502dc61988663a">SetSpline</a> (const Index index, const <a class="el" href="structfpl_1_1_spline_playback.html">SplinePlayback</a> &amp;s)</td></tr>
+<tr class="memitem:a3c02a40d5c32e2c6bb502dc61988663a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_bulk_spline_evaluator.html#a3c02a40d5c32e2c6bb502dc61988663a">SetSpline</a> (const Index index, const <a class="el" href="structfpl_1_1_spline_playback_n.html">SplinePlayback</a> &amp;s)</td></tr>
 <tr class="separator:a3c02a40d5c32e2c6bb502dc61988663a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb30809d3608a6216b9dac551ee83d02"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_bulk_spline_evaluator.html#abb30809d3608a6216b9dac551ee83d02">SetPlaybackRate</a> (const Index index, float playback_rate)</td></tr>
+<tr class="separator:abb30809d3608a6216b9dac551ee83d02"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a702aff44f3020ae0bfb5fa0ace533522"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_bulk_spline_evaluator.html#a702aff44f3020ae0bfb5fa0ace533522">AdvanceFrame</a> (const float delta_x)</td></tr>
 <tr class="separator:a702aff44f3020ae0bfb5fa0ace533522"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aac6bf7c6562ac9689bfcfaf70f64b59a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aac6bf7c6562ac9689bfcfaf70f64b59a"></a>
@@ -160,6 +165,8 @@ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cla
 float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_bulk_spline_evaluator.html#afaf2ad5c46c6e59fe690778e52b3196d">Y</a> (const Index index) const </td></tr>
 <tr class="memdesc:afaf2ad5c46c6e59fe690778e52b3196d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the current y value for the spline at <code>index</code>. <br/></td></tr>
 <tr class="separator:afaf2ad5c46c6e59fe690778e52b3196d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeeb8183756efec159f0eb7c280fcea9e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_bulk_spline_evaluator.html#aeeb8183756efec159f0eb7c280fcea9e">Ys</a> (const Index index, const Index count, float *ys) const </td></tr>
+<tr class="separator:aeeb8183756efec159f0eb7c280fcea9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a40328cb9d62d8bbb1bbc63b7771c7a47"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a40328cb9d62d8bbb1bbc63b7771c7a47"></a>
 float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_bulk_spline_evaluator.html#a40328cb9d62d8bbb1bbc63b7771c7a47">Derivative</a> (const Index index) const </td></tr>
 <tr class="memdesc:a40328cb9d62d8bbb1bbc63b7771c7a47"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the current slope for the spline at <code>index</code>. <br/></td></tr>
@@ -359,6 +366,41 @@ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cla
 
 </div>
 </div>
+<a class="anchor" id="abb30809d3608a6216b9dac551ee83d02"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fpl::BulkSplineEvaluator::SetPlaybackRate </td>
+          <td>(</td>
+          <td class="paramtype">const Index&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>playback_rate</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Set conversion rate from AdvanceFrame's delta_x to the speed at which we traverse the spline. 0 ==&gt; paused 0.5 ==&gt; half speed (slow motion) 1 ==&gt; authored speed 2 ==&gt; double speed (fast forward) </p>
+
+</div>
+</div>
 <a class="anchor" id="a3c02a40d5c32e2c6bb502dc61988663a"></a>
 <div class="memitem">
 <div class="memproto">
@@ -372,7 +414,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cla
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structfpl_1_1_spline_playback.html">SplinePlayback</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="structfpl_1_1_spline_playback_n.html">SplinePlayback</a> &amp;&#160;</td>
           <td class="paramname"><em>s</em>&#160;</td>
         </tr>
         <tr>
@@ -444,6 +486,47 @@ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cla
 
 </div>
 </div>
+<a class="anchor" id="aeeb8183756efec159f0eb7c280fcea9e"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fpl::BulkSplineEvaluator::Ys </td>
+          <td>(</td>
+          <td class="paramtype">const Index&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Index&#160;</td>
+          <td class="paramname"><em>count</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float *&#160;</td>
+          <td class="paramname"><em>ys</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return the current y value for spline indices <code>index</code> ~ <code>index + count - 1</code>. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="bulk__spline__evaluator_8h_source.html">bulk_spline_evaluator.h</a></li>
 </ul>
@@ -455,7 +538,7 @@ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cla
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-ga('create', 'UA-46159502-1', 'google.github.io');
+ga('create', 'UA-49880327-7', 'google.github.io');
 ga('send', 'pageview');
 </script>
 </body>

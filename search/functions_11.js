@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['x',['X',['../classfpl_1_1_bulk_spline_evaluator.html#a53385988f9194242b6b839f5c1e5e749',1,'fpl::BulkSplineEvaluator']]]
+  ['wrapangle',['WrapAngle',['../classfpl_1_1_angle.html#a95e29a58b2bfd1b176e291868801c442',1,'fpl::Angle']]]
 ];

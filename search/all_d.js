@@ -10,7 +10,7 @@ var searchData=
   ['reliablediscriminant',['ReliableDiscriminant',['../classfpl_1_1_quadratic_curve.html#ad720b91b59b58bdf05a07252fb7e6136',1,'fpl::QuadraticCurve']]],
   ['removeindex',['RemoveIndex',['../classmotive_1_1_motive_processor.html#aefa1edd3411d921b3fcc28c675aa62dd',1,'motive::MotiveProcessor']]],
   ['removemotivator',['RemoveMotivator',['../classmotive_1_1_motive_processor.html#a45b83466165a7046fd558e1c1a8dbc2e',1,'motive::MotiveProcessor']]],
-  ['repeat',['repeat',['../structfpl_1_1_spline_playback.html#ae3006a6d7734453294332d20b9512741',1,'fpl::SplinePlayback']]],
+  ['repeat',['repeat',['../structfpl_1_1_spline_playback_n.html#a0457971281757753c05d7761f7e395a6',1,'fpl::SplinePlaybackN']]],
   ['reset',['Reset',['../classmotive_1_1_motive_engine.html#a585ef9466764c0c6a176c27fa8d0ec1f',1,'motive::MotiveEngine::Reset()'],['../classmotive_1_1_motive_target1f.html#a44db9d6ae4dc487c1026f80c332292c8',1,'motive::MotiveTarget1f::Reset()']]],
   ['revision',['revision',['../structmotive_1_1_motive_version.html#a31dfa758bf5490c8c8f0e79852fcf24e',1,'motive::MotiveVersion']]],
   ['roots',['Roots',['../classfpl_1_1_quadratic_curve.html#a3b4b15d7ab5cf0690c70756b286710d6',1,'fpl::QuadraticCurve']]],

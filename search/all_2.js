@@ -8,7 +8,7 @@ var searchData=
   ['clampdelta',['ClampDelta',['../classmotive_1_1_overshoot_init.html#a8b0085c1f6ff75a117d7ba55c47f7cc4',1,'motive::OvershootInit']]],
   ['clampvalue',['ClampValue',['../classmotive_1_1_modular_init.html#a3a42516b02d60a3da4a16936380908c9',1,'motive::ModularInit']]],
   ['clampvelocity',['ClampVelocity',['../classmotive_1_1_overshoot_init.html#a79ef0f23546efefa467f41c17e342601',1,'motive::OvershootInit']]],
-  ['clear',['Clear',['../classmotive_1_1_matrix_init.html#a36215402908f99b9d9e132ffb165d051',1,'motive::MatrixInit::Clear()'],['../classfpl_1_1_compact_spline.html#a61f1d3a3986d04f7069aee9281d8d100',1,'fpl::CompactSpline::Clear()']]],
+  ['clear',['Clear',['../classmotive_1_1_matrix_init.html#aa55609251ce610b4ad144e10dfe5a094',1,'motive::MatrixInit::Clear()'],['../classfpl_1_1_compact_spline.html#a61f1d3a3986d04f7069aee9281d8d100',1,'fpl::CompactSpline::Clear()']]],
   ['coeff',['Coeff',['../classfpl_1_1_quadratic_curve.html#ab1640e567fe2f76db8aad550a9e3afc5',1,'fpl::QuadraticCurve::Coeff()'],['../classfpl_1_1_cubic_curve.html#a99bab97ce3d2b4b15e72f5e9c3411acf',1,'fpl::CubicCurve::Coeff()']]],
   ['compactspline',['CompactSpline',['../classfpl_1_1_compact_spline.html',1,'fpl']]],
   ['compactspline',['CompactSpline',['../classfpl_1_1_compact_spline.html#a4cb8136e658bb5402c827ddbc2a926c5',1,'fpl::CompactSpline']]],
@@ -18,5 +18,8 @@ var searchData=
   ['cubic',['Cubic',['../classfpl_1_1_bulk_spline_evaluator.html#adcb17bbb726247c7fd2b11befcd0f61e',1,'fpl::BulkSplineEvaluator']]],
   ['cubiccurve',['CubicCurve',['../classfpl_1_1_cubic_curve.html',1,'fpl']]],
   ['cubicinit',['CubicInit',['../structfpl_1_1_cubic_init.html',1,'fpl']]],
-  ['cubicx',['CubicX',['../classfpl_1_1_bulk_spline_evaluator.html#a8ff3331069595369cfaeadc8be1ec52c',1,'fpl::BulkSplineEvaluator']]]
+  ['cubicx',['CubicX',['../classfpl_1_1_bulk_spline_evaluator.html#a8ff3331069595369cfaeadc8be1ec52c',1,'fpl::BulkSplineEvaluator']]],
+  ['current',['Current',['../classmotive_1_1_motive_target_builder_template.html#a3fae83ec7c6690a5da65cec860644ac1',1,'motive::MotiveTargetBuilderTemplate']]],
+  ['currenttotarget',['CurrentToTarget',['../classmotive_1_1_motive_target_builder_template.html#a2b0adf20348269110c242ad60d3dc3ba',1,'motive::MotiveTargetBuilderTemplate']]],
+  ['currenttotargetconstvelocity',['CurrentToTargetConstVelocity',['../classmotive_1_1_motive_target_builder_template.html#a94735c40bcb071f8d4e9d746bfa01fa0',1,'motive::MotiveTargetBuilderTemplate']]]
 ];

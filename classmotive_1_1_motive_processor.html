@@ -1,3 +1,4 @@
+<!-- HTML header for doxygen 1.8.6-->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -21,6 +22,8 @@
   $(document).ready(function() { searchBox.OnSelectItem(0); });
 </script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
+<link href="style.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -131,8 +134,8 @@ Inheritance diagram for motive::MotiveProcessor:</div>
  <div class="center">
   <img src="classmotive_1_1_motive_processor.png" usemap="#motive::MotiveProcessor_map" alt=""/>
   <map id="motive::MotiveProcessor_map" name="motive::MotiveProcessor_map">
-<area href="classmotive_1_1_motive_processor1f.html" title="Interface for motivator types that drive a single float value. That is, for MotiveProcessors that int..." alt="motive::MotiveProcessor1f" shape="rect" coords="0,56,196,80"/>
-<area href="classmotive_1_1_motive_processor_matrix4f.html" title="Interface for motivator types that drive a 4x4 float matrix. That is, for MotiveProcessors that inter..." alt="motive::MotiveProcessorMatrix4f" shape="rect" coords="206,56,402,80"/>
+<area href="classmotive_1_1_motive_processor_matrix4f.html" title="Interface for motivator types that drive a 4x4 float matrix. That is, for MotiveProcessors that inter..." alt="motive::MotiveProcessorMatrix4f" shape="rect" coords="0,56,196,80"/>
+<area href="classmotive_1_1_motive_processor_vector.html" title="Interface for motivator types that drive a single float value. That is, for MotiveProcessors that int..." alt="motive::MotiveProcessorVector" shape="rect" coords="206,56,402,80"/>
 </map>
  </div></div>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -140,29 +143,33 @@ Inheritance diagram for motive::MotiveProcessor:</div>
 <p>Each derivation of <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a> is one animation algorithm. It holds all the data for all Motivators that are currently using that animation algorithm.</p>
 <p>We pool the processing for potential optimization opportunities. We may have hundreds of smoothly-interpolating one-dimensional Motivators, for example. It's nice to be able to update those 4 or 8 or 16 at a time using SIMD. And it's nice to have the data gathered in one spot if we want to use multiple threads.</p>
 <p>MotiveProcessors exists in the internal API. For the external API, please see <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a>.</p>
-<p>Users can create their own <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> algorithms by deriving from <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>. MotiveProcessors must have a factory that's registered with the <a class="el" href="classmotive_1_1_motive_engine.html" title="Hold and update all animation data. ">MotiveEngine</a> (please see <a class="el" href="classmotive_1_1_motive_engine.html" title="Hold and update all animation data. ">MotiveEngine</a> for details). Once registered, you can use your new <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> algorithm by calling <a class="el" href="classmotive_1_1_motivator.html#aa00afc2f4d1b36787166d4ff96292840">Motivator::Initialize()</a> with Init::type set to your <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>'s MotivatorType.</p>
+<p>Users can create their own <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> algorithms by deriving from <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>. MotiveProcessors must have a factory that's registered with the <a class="el" href="classmotive_1_1_motive_engine.html" title="Hold and update all animation data. ">MotiveEngine</a> (please see <a class="el" href="classmotive_1_1_motive_engine.html" title="Hold and update all animation data. ">MotiveEngine</a> for details). Once registered, you can use your new <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> algorithm by calling Motivator::Initialize() with Init::type set to your <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>'s MotivatorType.</p>
 <p>MotiveProcessors run on mathfu types. Please see the specializations below for MotiveProcessors of various dimensions. </p>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a962acea201d6d550cce3dab2efda7f67"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a962acea201d6d550cce3dab2efda7f67">InitializeMotivator</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, <a class="el" href="classmotive_1_1_motivator.html">Motivator</a> *motivator)</td></tr>
-<tr class="separator:a962acea201d6d550cce3dab2efda7f67"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adcf9210a521a6892eea08f5d38f07e64"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#adcf9210a521a6892eea08f5d38f07e64">InitializeMotivator</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, <a class="el" href="classmotive_1_1_motivator.html">Motivator</a> *motivator, MotiveDimension dimensions)</td></tr>
+<tr class="separator:adcf9210a521a6892eea08f5d38f07e64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a45b83466165a7046fd558e1c1a8dbc2e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a45b83466165a7046fd558e1c1a8dbc2e">RemoveMotivator</a> (MotiveIndex index)</td></tr>
 <tr class="separator:a45b83466165a7046fd558e1c1a8dbc2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ebc43fb42afb52077299e83697a2de7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a1ebc43fb42afb52077299e83697a2de7">TransferMotivator</a> (MotiveIndex index, <a class="el" href="classmotive_1_1_motivator.html">Motivator</a> *new_motivator)</td></tr>
 <tr class="separator:a1ebc43fb42afb52077299e83697a2de7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e2e72b84ae836012ee914db015e7a5b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a4e2e72b84ae836012ee914db015e7a5b">IsMotivatorIndex</a> (MotiveIndex index) const </td></tr>
+<tr class="separator:a4e2e72b84ae836012ee914db015e7a5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60e0309b59829453a06bdd98226a6be8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a60e0309b59829453a06bdd98226a6be8">ValidIndex</a> (MotiveIndex index) const </td></tr>
 <tr class="separator:a60e0309b59829453a06bdd98226a6be8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae9c2033a34742fa3a9d08d6ad096cbaf"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#ae9c2033a34742fa3a9d08d6ad096cbaf">ValidMotivatorIndex</a> (MotiveIndex index) const </td></tr>
+<tr class="separator:ae9c2033a34742fa3a9d08d6ad096cbaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af68018167e12d8546a00bfa7273a6e82"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#af68018167e12d8546a00bfa7273a6e82">ValidMotivator</a> (MotiveIndex index, const <a class="el" href="classmotive_1_1_motivator.html">Motivator</a> *motivator) const </td></tr>
 <tr class="separator:af68018167e12d8546a00bfa7273a6e82"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a117b40b073a24876e52325caa1ee1f52"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a117b40b073a24876e52325caa1ee1f52">AdvanceFrame</a> (MotiveTime delta_time)=0</td></tr>
 <tr class="separator:a117b40b073a24876e52325caa1ee1f52"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aee36c02d33c7737a32196c3ac518da7f"><td class="memItemLeft" align="right" valign="top">virtual MotivatorType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#aee36c02d33c7737a32196c3ac518da7f">Type</a> () const =0</td></tr>
 <tr class="separator:aee36c02d33c7737a32196c3ac518da7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0182a8fff96258b953f45a368c0935b9"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a0182a8fff96258b953f45a368c0935b9">Dimensions</a> () const =0</td></tr>
-<tr class="separator:a0182a8fff96258b953f45a368c0935b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a358fddcc69dbd98a7d8f10e3a0784370"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a358fddcc69dbd98a7d8f10e3a0784370">Priority</a> () const =0</td></tr>
 <tr class="separator:a358fddcc69dbd98a7d8f10e3a0784370"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae094019d539a02fe2790331d00041dc6"><td class="memItemLeft" align="right" valign="top">MotiveDimension&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#ae094019d539a02fe2790331d00041dc6">Dimensions</a> (MotiveIndex index) const </td></tr>
+<tr class="separator:ae094019d539a02fe2790331d00041dc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac0ba78dcde1444a1c5b4640156c1380f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#ac0ba78dcde1444a1c5b4640156c1380f">VerifyInternalState</a> () const </td></tr>
 <tr class="separator:ac0ba78dcde1444a1c5b4640156c1380f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -236,7 +243,7 @@ Protected Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a0182a8fff96258b953f45a368c0935b9"></a>
+<a class="anchor" id="ae094019d539a02fe2790331d00041dc6"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -244,21 +251,20 @@ Protected Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual int motive::MotiveProcessor::Dimensions </td>
+          <td class="memname">MotiveDimension motive::MotiveProcessor::Dimensions </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">MotiveIndex&#160;</td>
+          <td class="paramname"><em>index</em></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>The number of floats (or doubles) being animated. For example, a position in 3D space would return 3. </p>
-
-<p>Implemented in <a class="el" href="classmotive_1_1_motive_processor_matrix4f.html#ac45f934a16287bdbfa276c1afd770af9">motive::MotiveProcessorMatrix4f</a>, and <a class="el" href="classmotive_1_1_motive_processor1f.html#a4cfd831c832da316104fedd814d9e581">motive::MotiveProcessor1f</a>.</p>
+<p>The number of slots occupied in the <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>. For example, a position in 3D space would return 3. A single 4x4 matrix would return 1. </p>
 
 </div>
 </div>
@@ -303,7 +309,7 @@ Protected Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a962acea201d6d550cce3dab2efda7f67"></a>
+<a class="anchor" id="adcf9210a521a6892eea08f5d38f07e64"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -323,7 +329,13 @@ Protected Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="classmotive_1_1_motivator.html">Motivator</a> *&#160;</td>
-          <td class="paramname"><em>motivator</em>&#160;</td>
+          <td class="paramname"><em>motivator</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">MotiveDimension&#160;</td>
+          <td class="paramname"><em>dimensions</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -333,12 +345,35 @@ Protected Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Instantiate motivator data inside the <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>, and initialize <code>motivator</code> as a reference to that data.</p>
-<p>This function should only be called by <a class="el" href="classmotive_1_1_motivator.html#aa00afc2f4d1b36787166d4ff96292840">Motivator::Initialize()</a>.</p>
+<p>This function should only be called by Motivator::Initialize().</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">init</td><td>The initialization parameters for the <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a>. Each <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a> has its own derivation of <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a>, and InitializeMotivator will only ever be called with that derivation. </td></tr>
     <tr><td class="paramname">engine</td><td>The owner of all the MotiveProcessors. An engine holds at most one of any type of <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>. The engine can be used to create child Motivators that drive <code>motivator</code>. </td></tr>
     <tr><td class="paramname">motivator</td><td>The <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> that is initialized to reference into This <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>. The <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a> also keeps a reference to <code>motivator</code> in case it shuffles around internal data. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a4e2e72b84ae836012ee914db015e7a5b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool motive::MotiveProcessor::IsMotivatorIndex </td>
+          <td>(</td>
+          <td class="paramtype">MotiveIndex&#160;</td>
+          <td class="paramname"><em>index</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Returns true if 'index' is currently driving a motivator. Does not do any validity checking, however, like <a class="el" href="classmotive_1_1_motive_processor.html#ae9c2033a34742fa3a9d08d6ad096cbaf">ValidMotivatorIndex()</a> does. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">index</td><td>Reference into the <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>'s internal arrays. </td></tr>
   </table>
   </dd>
 </dl>
@@ -550,7 +585,7 @@ Protected Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Returns true if 'index' is currently driving an motivator. </p>
+<p>Returns true if 'index' is currently in a block of indices driven by a motivator. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">index</td><td>Reference into the <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>'s internal arrays. </td></tr>
@@ -602,6 +637,23 @@ Protected Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ae9c2033a34742fa3a9d08d6ad096cbaf"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool motive::MotiveProcessor::ValidMotivatorIndex </td>
+          <td>(</td>
+          <td class="paramtype">MotiveIndex&#160;</td>
+          <td class="paramname"><em>index</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Returns true if a <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> is referencing this index. That is, if this index is part of a block of indices (for example a block of 3 indices referenced by a Motivator3f), then this index is the <em>first</em> index in that block. </p>
+
+</div>
+</div>
 <a class="anchor" id="ac0ba78dcde1444a1c5b4640156c1380f"></a>
 <div class="memitem">
 <div class="memproto">
@@ -629,7 +681,7 @@ Protected Member Functions</h2></td></tr>
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-ga('create', 'UA-46159502-1', 'google.github.io');
+ga('create', 'UA-49880327-7', 'google.github.io');
 ga('send', 'pageview');
 </script>
 </body>

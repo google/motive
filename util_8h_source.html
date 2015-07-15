@@ -1,3 +1,4 @@
+<!-- HTML header for doxygen 1.8.6-->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -21,6 +22,8 @@
   $(document).ready(function() { searchBox.OnSelectItem(0); });
 </script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
+<link href="style.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -153,47 +156,59 @@ $(document).ready(function(){initNavTree('util_8h_source.html','');});
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  }</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment"></span></div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">  /// Return true if `motivator` is &quot;at the target&quot; and &quot;stopped&quot;.</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno"><a class="line" href="structmotive_1_1_settled1f.html#abcf8d1559b099fcdd04bfc3ee003736c">   42</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="structmotive_1_1_settled1f.html#abcf8d1559b099fcdd04bfc3ee003736c">Settled</a>(<span class="keyword">const</span> <a class="code" href="classmotive_1_1_motivator1f.html">Motivator1f</a>&amp; motivator)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="structmotive_1_1_settled1f.html#a27f91fd3018d8135d43feb7e17254a09">Settled</a>(motivator.<a class="code" href="classmotive_1_1_motivator1f.html#ac40bed167cb4317827d3ec2eaa5127e8">Difference</a>(), motivator.<a class="code" href="classmotive_1_1_motivator1f.html#a932f3295148d9e8322ce39ac17b69ee7">Velocity</a>());</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;  }</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">  /// Consider ourselves &quot;at the target&quot; if the absolute difference between</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">  /// the value and the target is less than this.</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno"><a class="line" href="structmotive_1_1_settled1f.html#a4cf5116f7e4e3c7f9eb0b79884ce0338">   48</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">float</span> <a class="code" href="structmotive_1_1_settled1f.html#a4cf5116f7e4e3c7f9eb0b79884ce0338">max_difference</a>;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment">  /// Consider ourselves &quot;stopped&quot; if the absolute velocity is less than this.</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno"><a class="line" href="structmotive_1_1_settled1f.html#a4a2910dff55546a4bbaa7d74911e8961">   51</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">float</span> <a class="code" href="structmotive_1_1_settled1f.html#a4a2910dff55546a4bbaa7d74911e8961">max_velocity</a>;</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;};</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment"></span>  <span class="keyword">template</span> &lt;<span class="keyword">class</span> Motivator&gt;</div>
+<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="structmotive_1_1_settled1f.html#a1f43ca93232957a01074f0c1056f0a4f">   43</a></span>&#160;  <span class="keywordtype">bool</span> <a class="code" href="structmotive_1_1_settled1f.html#a1f43ca93232957a01074f0c1056f0a4f">Settled</a>(<span class="keyword">const</span> <a class="code" href="classmotive_1_1_motivator.html">Motivator</a>&amp; motivator)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keyword">const</span> <span class="keyword">typename</span> Motivator::InT diff =</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        Motivator::C::From(motivator.Difference());</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keyword">const</span> <span class="keyword">typename</span> Motivator::InT vel =</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;        Motivator::C::From(motivator.Velocity());</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; Motivator::kDimensions; ++i) {</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;      <span class="keywordflow">if</span> (!<a class="code" href="structmotive_1_1_settled1f.html#a27f91fd3018d8135d43feb7e17254a09">Settled</a>(diff[i], vel[i])) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    }</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  }</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment">/// If `motivator` is &quot;at the target&quot; and &quot;stopped&quot; give it a boost in</span></div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">/// `direction`.</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">///</span></div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment">/// A little boost is useful to demonstrate responsiveness to user input,</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">/// even when you can&#39;t logically change to a new state. A slight boost that</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment">/// then settles back to its original value (via an OvershootMotivator, for</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="comment">/// example) looks and feels correct.</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment"></span><span class="keyword">inline</span> <span class="keywordtype">void</span> Twitch(TwitchDirection direction, <span class="keywordtype">float</span> velocity,</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;                   <span class="keyword">const</span> <a class="code" href="structmotive_1_1_settled1f.html">Settled1f</a>&amp; settled, <a class="code" href="classmotive_1_1_motivator1f.html">Motivator1f</a>* motivator) {</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;  <span class="keywordflow">if</span> (direction != kTwitchDirectionNone &amp;&amp; settled.<a class="code" href="structmotive_1_1_settled1f.html#a27f91fd3018d8135d43feb7e17254a09">Settled</a>(*motivator)) {</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    motivator-&gt;<a class="code" href="classmotive_1_1_motivator1f.html#a2dc8309dca988ab1f27820f5ef445094">SetTarget</a>(Current1f(</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;        motivator-&gt;<a class="code" href="classmotive_1_1_motivator1f.html#a6ba39ece3293324032bfb841a1c9b106">Value</a>(),</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;        direction == kTwitchDirectionPositive ? velocity : -velocity));</div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;  }</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;}</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;}  <span class="comment">// namespace motive</span></div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="preprocessor">#endif  // MOTIVE_UTIL_H_</span></div>
-<div class="ttc" id="classmotive_1_1_motivator1f_html"><div class="ttname"><a href="classmotive_1_1_motivator1f.html">motive::Motivator1f</a></div><div class="ttdoc">Drive a single float value towards a target, or along a spline. </div><div class="ttdef"><b>Definition:</b> motivator.h:142</div></div>
-<div class="ttc" id="classmotive_1_1_motivator1f_html_a6ba39ece3293324032bfb841a1c9b106"><div class="ttname"><a href="classmotive_1_1_motivator1f.html#a6ba39ece3293324032bfb841a1c9b106">motive::Motivator1f::Value</a></div><div class="ttdeci">float Value() const </div><div class="ttdef"><b>Definition:</b> motivator.h:172</div></div>
-<div class="ttc" id="classmotive_1_1_motivator1f_html_a932f3295148d9e8322ce39ac17b69ee7"><div class="ttname"><a href="classmotive_1_1_motivator1f.html#a932f3295148d9e8322ce39ac17b69ee7">motive::Motivator1f::Velocity</a></div><div class="ttdeci">float Velocity() const </div><div class="ttdef"><b>Definition:</b> motivator.h:177</div></div>
-<div class="ttc" id="structmotive_1_1_settled1f_html_a4a2910dff55546a4bbaa7d74911e8961"><div class="ttname"><a href="structmotive_1_1_settled1f.html#a4a2910dff55546a4bbaa7d74911e8961">motive::Settled1f::max_velocity</a></div><div class="ttdeci">float max_velocity</div><div class="ttdoc">Consider ourselves &quot;stopped&quot; if the absolute velocity is less than this. </div><div class="ttdef"><b>Definition:</b> util.h:51</div></div>
-<div class="ttc" id="classmotive_1_1_motivator1f_html_ac40bed167cb4317827d3ec2eaa5127e8"><div class="ttname"><a href="classmotive_1_1_motivator1f.html#ac40bed167cb4317827d3ec2eaa5127e8">motive::Motivator1f::Difference</a></div><div class="ttdeci">float Difference() const </div><div class="ttdef"><b>Definition:</b> motivator.h:191</div></div>
-<div class="ttc" id="classmotive_1_1_motivator1f_html_a2dc8309dca988ab1f27820f5ef445094"><div class="ttname"><a href="classmotive_1_1_motivator1f.html#a2dc8309dca988ab1f27820f5ef445094">motive::Motivator1f::SetTarget</a></div><div class="ttdeci">void SetTarget(const MotiveTarget1f &amp;t)</div><div class="ttdef"><b>Definition:</b> motivator.h:208</div></div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment">  /// Consider ourselves &quot;at the target&quot; if the absolute difference between</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment">  /// the value and the target is less than this.</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno"><a class="line" href="structmotive_1_1_settled1f.html#a4cf5116f7e4e3c7f9eb0b79884ce0338">   56</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">float</span> <a class="code" href="structmotive_1_1_settled1f.html#a4cf5116f7e4e3c7f9eb0b79884ce0338">max_difference</a>;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">  /// Consider ourselves &quot;stopped&quot; if the absolute velocity is less than this.</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno"><a class="line" href="structmotive_1_1_settled1f.html#a4a2910dff55546a4bbaa7d74911e8961">   59</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">float</span> <a class="code" href="structmotive_1_1_settled1f.html#a4a2910dff55546a4bbaa7d74911e8961">max_velocity</a>;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;};</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="keyword">template</span> &lt;&gt;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="keyword">inline</span> <span class="keywordtype">bool</span> Settled1f::Settled&lt;Motivator1f&gt;(</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keyword">const</span> <a class="code" href="classmotive_1_1_motivator_vector_template.html">Motivator1f</a>&amp; motivator) <span class="keyword">const</span> {</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;  <span class="keywordflow">return</span> Settled(motivator.Difference(), motivator.Velocity());</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;}</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment">/// If `motivator` is &quot;at the target&quot; and &quot;stopped&quot; give it a boost in</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">/// `direction`.</span></div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment">///</span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="comment">/// A little boost is useful to demonstrate responsiveness to user input,</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment">/// even when you can&#39;t logically change to a new state. A slight boost that</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment">/// then settles back to its original value (via an OvershootMotivator, for</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment">/// example) looks and feels correct.</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="comment"></span><span class="keyword">inline</span> <span class="keywordtype">void</span> Twitch(TwitchDirection direction, <span class="keywordtype">float</span> velocity,</div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;                   <span class="keyword">const</span> Settled1f&amp; settled, <a class="code" href="class_motivator1f.html">Motivator1f</a>* motivator) {</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  <span class="keywordflow">if</span> (direction != kTwitchDirectionNone &amp;&amp; settled.Settled(*motivator)) {</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    motivator-&gt;SetTarget(Current1f(</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;        motivator-&gt;Value(),</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;        direction == kTwitchDirectionPositive ? velocity : -velocity));</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  }</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;}</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;}  <span class="comment">// namespace motive</span></div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="preprocessor">#endif  // MOTIVE_UTIL_H_</span></div>
+<div class="ttc" id="structmotive_1_1_settled1f_html_a1f43ca93232957a01074f0c1056f0a4f"><div class="ttname"><a href="structmotive_1_1_settled1f.html#a1f43ca93232957a01074f0c1056f0a4f">motive::Settled1f::Settled</a></div><div class="ttdeci">bool Settled(const Motivator &amp;motivator) const </div><div class="ttdoc">Return true if motivator is &quot;at the target&quot; and &quot;stopped&quot;. </div><div class="ttdef"><b>Definition:</b> util.h:43</div></div>
+<div class="ttc" id="structmotive_1_1_settled1f_html_a4a2910dff55546a4bbaa7d74911e8961"><div class="ttname"><a href="structmotive_1_1_settled1f.html#a4a2910dff55546a4bbaa7d74911e8961">motive::Settled1f::max_velocity</a></div><div class="ttdeci">float max_velocity</div><div class="ttdoc">Consider ourselves &quot;stopped&quot; if the absolute velocity is less than this. </div><div class="ttdef"><b>Definition:</b> util.h:59</div></div>
+<div class="ttc" id="classmotive_1_1_motivator_vector_template_html"><div class="ttname"><a href="classmotive_1_1_motivator_vector_template.html">motive::MotivatorVectorTemplate</a></div><div class="ttdef"><b>Definition:</b> motivator.h:150</div></div>
 <div class="ttc" id="structmotive_1_1_settled1f_html_a27f91fd3018d8135d43feb7e17254a09"><div class="ttname"><a href="structmotive_1_1_settled1f.html#a27f91fd3018d8135d43feb7e17254a09">motive::Settled1f::Settled</a></div><div class="ttdeci">bool Settled(float dist, float velocity) const </div><div class="ttdef"><b>Definition:</b> util.h:37</div></div>
 <div class="ttc" id="structmotive_1_1_settled1f_html"><div class="ttname"><a href="structmotive_1_1_settled1f.html">motive::Settled1f</a></div><div class="ttdoc">Helper to determine if we&#39;re &quot;at the target&quot; and &quot;stopped&quot;. </div><div class="ttdef"><b>Definition:</b> util.h:32</div></div>
-<div class="ttc" id="structmotive_1_1_settled1f_html_a4cf5116f7e4e3c7f9eb0b79884ce0338"><div class="ttname"><a href="structmotive_1_1_settled1f.html#a4cf5116f7e4e3c7f9eb0b79884ce0338">motive::Settled1f::max_difference</a></div><div class="ttdeci">float max_difference</div><div class="ttdef"><b>Definition:</b> util.h:48</div></div>
-<div class="ttc" id="structmotive_1_1_settled1f_html_abcf8d1559b099fcdd04bfc3ee003736c"><div class="ttname"><a href="structmotive_1_1_settled1f.html#abcf8d1559b099fcdd04bfc3ee003736c">motive::Settled1f::Settled</a></div><div class="ttdeci">bool Settled(const Motivator1f &amp;motivator) const </div><div class="ttdoc">Return true if motivator is &quot;at the target&quot; and &quot;stopped&quot;. </div><div class="ttdef"><b>Definition:</b> util.h:42</div></div>
+<div class="ttc" id="classmotive_1_1_motivator_html"><div class="ttname"><a href="classmotive_1_1_motivator.html">motive::Motivator</a></div><div class="ttdoc">Drives a value towards a target value, or along a path. </div><div class="ttdef"><b>Definition:</b> motivator.h:47</div></div>
+<div class="ttc" id="class_motivator1f_html"><div class="ttname"><a href="class_motivator1f.html">Motivator1f</a></div><div class="ttdoc">Drive a single float value towards a target, or along a spline. </div></div>
+<div class="ttc" id="structmotive_1_1_settled1f_html_a4cf5116f7e4e3c7f9eb0b79884ce0338"><div class="ttname"><a href="structmotive_1_1_settled1f.html#a4cf5116f7e4e3c7f9eb0b79884ce0338">motive::Settled1f::max_difference</a></div><div class="ttdeci">float max_difference</div><div class="ttdef"><b>Definition:</b> util.h:56</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->
@@ -202,7 +217,7 @@ $(document).ready(function(){initNavTree('util_8h_source.html','');});
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-ga('create', 'UA-46159502-1', 'google.github.io');
+ga('create', 'UA-49880327-7', 'google.github.io');
 ga('send', 'pageview');
 </script>
 </body>

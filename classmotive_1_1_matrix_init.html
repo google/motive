@@ -1,3 +1,4 @@
+<!-- HTML header for doxygen 1.8.6-->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -21,6 +22,8 @@
   $(document).ready(function() { searchBox.OnSelectItem(0); });
 </script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
+<link href="style.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -114,6 +117,7 @@ $(document).ready(function(){initNavTree('classmotive_1_1_matrix_init.html','');
   <div class="summary">
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="classmotive_1_1_matrix_init-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">motive::MatrixInit Class Reference</div>  </div>
@@ -153,12 +157,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aee1a555f8228acc521829ae5e35419b9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aee1a555f8228acc521829ae5e35419b9"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>MOTIVE_INTERFACE</b> ()</td></tr>
 <tr class="separator:aee1a555f8228acc521829ae5e35419b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad82e9a621192bb0f7a460cd05f9723b8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_init.html#ad82e9a621192bb0f7a460cd05f9723b8">MatrixInit</a> (int expected_num_ops=8)</td></tr>
-<tr class="separator:ad82e9a621192bb0f7a460cd05f9723b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a36215402908f99b9d9e132ffb165d051"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a36215402908f99b9d9e132ffb165d051"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_init.html#a36215402908f99b9d9e132ffb165d051">Clear</a> ()</td></tr>
-<tr class="memdesc:a36215402908f99b9d9e132ffb165d051"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove all matrix operations from the sequence. <br/></td></tr>
-<tr class="separator:a36215402908f99b9d9e132ffb165d051"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add1d611cd427066055d61b65cc8791cb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_init.html#add1d611cd427066055d61b65cc8791cb">MatrixInit</a> (int expected_num_ops=kDefaultExpectedNumOps)</td></tr>
+<tr class="separator:add1d611cd427066055d61b65cc8791cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa55609251ce610b4ad144e10dfe5a094"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa55609251ce610b4ad144e10dfe5a094"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_init.html#aa55609251ce610b4ad144e10dfe5a094">Clear</a> (int expected_num_ops=kDefaultExpectedNumOps)</td></tr>
+<tr class="memdesc:aa55609251ce610b4ad144e10dfe5a094"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove all matrix operations from the sequence. <br/></td></tr>
+<tr class="separator:aa55609251ce610b4ad144e10dfe5a094"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a154976329e2fb0b6894b2763e7b4d78f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_init.html#a154976329e2fb0b6894b2763e7b4d78f">AddOp</a> (MatrixOperationType type, float const_value)</td></tr>
 <tr class="separator:a154976329e2fb0b6894b2763e7b4d78f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afa79443fe11919db3fa01ab0bfb4e4c1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_init.html#afa79443fe11919db3fa01ab0bfb4e4c1">AddOp</a> (MatrixOperationType type, const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init)</td></tr>
@@ -167,8 +171,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="separator:a8fc9b4de4cab8e52ed24c2933b9f67cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa5a714d2f4c3d6b11f78e7e25373121f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_init.html#aa5a714d2f4c3d6b11f78e7e25373121f">AddOp</a> (MatrixOperationType type, const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, const <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> &amp;target)</td></tr>
 <tr class="separator:aa5a714d2f4c3d6b11f78e7e25373121f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9251465a017ae2bfe4dc109965a77bda"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_init.html#a9251465a017ae2bfe4dc109965a77bda">AddOp</a> (MatrixOperationType type, const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, const <a class="el" href="structfpl_1_1_spline_playback.html">fpl::SplinePlayback</a> &amp;spline)</td></tr>
-<tr class="separator:a9251465a017ae2bfe4dc109965a77bda"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a17eb26deb415ac5d97413214e304ae"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_init.html#a1a17eb26deb415ac5d97413214e304ae">AddOp</a> (MatrixOperationType type, const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, const <a class="el" href="structfpl_1_1_spline_playback_n.html">fpl::SplinePlayback1f</a> &amp;spline)</td></tr>
+<tr class="separator:a1a17eb26deb415ac5d97413214e304ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acec9f6d835f01c2bc0100ec7f6603186"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acec9f6d835f01c2bc0100ec7f6603186"></a>
 const OpVector &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>ops</b> () const </td></tr>
 <tr class="separator:acec9f6d835f01c2bc0100ec7f6603186"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -183,9 +187,15 @@ MotivatorType&#160;</td><td class="memItemRight" valign="bottom"><b>type</b> () 
 <tr class="memitem:a2dccaa228badd16290ad8ce063045b9e inherit pub_methods_classmotive_1_1_motivator_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2dccaa228badd16290ad8ce063045b9e"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_type</b> (MotivatorType type)</td></tr>
 <tr class="separator:a2dccaa228badd16290ad8ce063045b9e inherit pub_methods_classmotive_1_1_motivator_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:a8704be0f3a99c4e7f3bd20620b1f7965"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8704be0f3a99c4e7f3bd20620b1f7965"></a>
+static const int&#160;</td><td class="memItemRight" valign="bottom"><b>kDefaultExpectedNumOps</b> = 8</td></tr>
+<tr class="separator:a8704be0f3a99c4e7f3bd20620b1f7965"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="ad82e9a621192bb0f7a460cd05f9723b8"></a>
+<a class="anchor" id="add1d611cd427066055d61b65cc8791cb"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -196,7 +206,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_type</b> (Motivat
           <td class="memname">motive::MatrixInit::MatrixInit </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>expected_num_ops</em> = <code>8</code></td><td>)</td>
+          <td class="paramname"><em>expected_num_ops</em> = <code>kDefaultExpectedNumOps</code></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -363,7 +373,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_type</b> (Motivat
 
 </div>
 </div>
-<a class="anchor" id="a9251465a017ae2bfe4dc109965a77bda"></a>
+<a class="anchor" id="a1a17eb26deb415ac5d97413214e304ae"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -385,7 +395,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_type</b> (Motivat
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="structfpl_1_1_spline_playback.html">fpl::SplinePlayback</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="structfpl_1_1_spline_playback_n.html">fpl::SplinePlayback1f</a> &amp;&#160;</td>
           <td class="paramname"><em>spline</em>&#160;</td>
         </tr>
         <tr>
@@ -415,7 +425,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_type</b> (Motivat
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-ga('create', 'UA-46159502-1', 'google.github.io');
+ga('create', 'UA-49880327-7', 'google.github.io');
 ga('send', 'pageview');
 </script>
 </body>

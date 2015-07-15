@@ -1,3 +1,4 @@
+<!-- HTML header for doxygen 1.8.6-->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -21,6 +22,8 @@
   $(document).ready(function() { searchBox.OnSelectItem(0); });
 </script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
+<link href="style.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -144,6 +147,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:aab75d3119edaf091402e2c49284bec9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8cf74846c2624dae3a9f12b97ce46a1c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a8cf74846c2624dae3a9f12b97ce46a1c">AddNode</a> (const float x, const float y, const float derivative, const CompactSplineAddMethod method=kEnsureCubicWellBehaved)</td></tr>
 <tr class="separator:a8cf74846c2624dae3a9f12b97ce46a1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94e86e83ccea699a5f29be6849f377c1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a94e86e83ccea699a5f29be6849f377c1">AddNodeVerbatim</a> (const CompactSplineXGrain x, const CompactSplineYRung y, const CompactSplineAngle angle)</td></tr>
+<tr class="separator:a94e86e83ccea699a5f29be6849f377c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a61f1d3a3986d04f7069aee9281d8d100"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a61f1d3a3986d04f7069aee9281d8d100"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a61f1d3a3986d04f7069aee9281d8d100">Clear</a> ()</td></tr>
 <tr class="memdesc:a61f1d3a3986d04f7069aee9281d8d100"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove all nodes from the spline. <br/></td></tr>
@@ -186,17 +191,40 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>LengthX</b> () const
 <tr class="memitem:a755e6b713e9ffdb1bcbd45092455d6cd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a755e6b713e9ffdb1bcbd45092455d6cd"></a>
 const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>RangeY</b> () const </td></tr>
 <tr class="separator:a755e6b713e9ffdb1bcbd45092455d6cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27ff7004f4d0731a76473d03cce63433"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a27ff7004f4d0731a76473d03cce63433">YCalculatedSlowly</a> (const float x) const </td></tr>
+<tr class="separator:a27ff7004f4d0731a76473d03cce63433"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35557f167ad0bc32118c682d4ebf3bb1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a35557f167ad0bc32118c682d4ebf3bb1">Ys</a> (const float start_x, const float delta_x, const int num_ys, float *ys) const </td></tr>
+<tr class="separator:a35557f167ad0bc32118c682d4ebf3bb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b077aa3b63addb635a6e7a16d6a91f6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8b077aa3b63addb635a6e7a16d6a91f6"></a>
 <a class="el" href="classfpl_1_1_range_t.html">Range</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a8b077aa3b63addb635a6e7a16d6a91f6">RangeX</a> (const CompactSplineIndex index) const </td></tr>
 <tr class="memdesc:a8b077aa3b63addb635a6e7a16d6a91f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">The start and end x-values covered by the segment after <code>index</code>. <br/></td></tr>
 <tr class="separator:a8b077aa3b63addb635a6e7a16d6a91f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a959587439623ef16bfa54b6eeb1f675b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structfpl_1_1_cubic_init.html">CubicInit</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a959587439623ef16bfa54b6eeb1f675b">CreateCubicInit</a> (const CompactSplineIndex index) const </td></tr>
 <tr class="separator:a959587439623ef16bfa54b6eeb1f675b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab09b019aacb74fb576f5fd2c4e7e9b4d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab09b019aacb74fb576f5fd2c4e7e9b4d"></a>
+CompactSplineIndex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#ab09b019aacb74fb576f5fd2c4e7e9b4d">NumNodes</a> () const </td></tr>
+<tr class="memdesc:ab09b019aacb74fb576f5fd2c4e7e9b4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of nodes in this spline. <br/></td></tr>
+<tr class="separator:ab09b019aacb74fb576f5fd2c4e7e9b4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08248af1541b61b918c9f9284ab60632"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a08248af1541b61b918c9f9284ab60632"></a>
+const CompactSplineNode *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a08248af1541b61b918c9f9284ab60632">nodes</a> () const </td></tr>
+<tr class="memdesc:a08248af1541b61b918c9f9284ab60632"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return const versions of internal values. For serialization. <br/></td></tr>
+<tr class="separator:a08248af1541b61b918c9f9284ab60632"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7179d224c2f608d1dea77a8b7f83096e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7179d224c2f608d1dea77a8b7f83096e"></a>
+const <a class="el" href="classfpl_1_1_range_t.html">Range</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>y_range</b> () const </td></tr>
+<tr class="separator:a7179d224c2f608d1dea77a8b7f83096e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6dfe8ee950e8e01e8c4b2ca8f34b7da0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6dfe8ee950e8e01e8c4b2ca8f34b7da0"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>x_granularity</b> () const </td></tr>
+<tr class="separator:a6dfe8ee950e8e01e8c4b2ca8f34b7da0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a169bcfb33bea4168a443225d03ba12e2"><td class="memItemLeft" align="right" valign="top">static float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a169bcfb33bea4168a443225d03ba12e2">RecommendXGranularity</a> (const float max_x)</td></tr>
 <tr class="separator:a169bcfb33bea4168a443225d03ba12e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a079e5b7d2483167cf438ce811b897424"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a079e5b7d2483167cf438ce811b897424">BulkYs</a> (const <a class="el" href="classfpl_1_1_compact_spline.html">CompactSpline</a> *const splines, const int num_splines, const float start_x, const float delta_x, const size_t num_ys, float *ys)</td></tr>
+<tr class="separator:a079e5b7d2483167cf438ce811b897424"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1dcb9b7d9b1afd799d6cb6cb8a289478"><td class="memTemplParams" colspan="2">template&lt;int kDimensions&gt; </td></tr>
+<tr class="memitem:a1dcb9b7d9b1afd799d6cb6cb8a289478"><td class="memTemplItemLeft" align="right" valign="top">static void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classfpl_1_1_compact_spline.html#a1dcb9b7d9b1afd799d6cb6cb8a289478">BulkYs</a> (const <a class="el" href="classfpl_1_1_compact_spline.html">CompactSpline</a> *const splines, const float start_x, const float delta_x, const size_t num_ys, mathfu::VectorPacked&lt; float, kDimensions &gt; *ys)</td></tr>
+<tr class="separator:a1dcb9b7d9b1afd799d6cb6cb8a289478"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a4cb8136e658bb5402c827ddbc2a926c5"></a>
@@ -261,6 +289,163 @@ Static Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="a94e86e83ccea699a5f29be6849f377c1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fpl::CompactSpline::AddNodeVerbatim </td>
+          <td>(</td>
+          <td class="paramtype">const CompactSplineXGrain&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const CompactSplineYRung&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const CompactSplineAngle&#160;</td>
+          <td class="paramname"><em>angle</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Add values without converting them. Useful when initializing from precalculated data. </p>
+
+</div>
+</div>
+<a class="anchor" id="a079e5b7d2483167cf438ce811b897424"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void fpl::CompactSpline::BulkYs </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classfpl_1_1_compact_spline.html">CompactSpline</a> *const&#160;</td>
+          <td class="paramname"><em>splines</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const int&#160;</td>
+          <td class="paramname"><em>num_splines</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>start_x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>delta_x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const size_t&#160;</td>
+          <td class="paramname"><em>num_ys</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float *&#160;</td>
+          <td class="paramname"><em>ys</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Fast evaluation of several splines. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">splines</td><td>input splines of length <code>num_splines</code>. </td></tr>
+    <tr><td class="paramname">num_splines</td><td>number of splines to evaluate. </td></tr>
+    <tr><td class="paramname">start_x</td><td>starting point for every spline. </td></tr>
+    <tr><td class="paramname">delta_x</td><td>increment for each </td></tr>
+    <tr><td class="paramname">ys</td><td>two dimensional output array, ys[num_ys][num_splines]. ys[0] are <code>splines</code> evaluated at start_x. ys[num_ys - 1] are <code>splines</code> evaluated at start_x + delta_x * num_ys. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a1dcb9b7d9b1afd799d6cb6cb8a289478"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;int kDimensions&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void fpl::CompactSpline::BulkYs </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classfpl_1_1_compact_spline.html">CompactSpline</a> *const&#160;</td>
+          <td class="paramname"><em>splines</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>start_x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>delta_x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const size_t&#160;</td>
+          <td class="paramname"><em>num_ys</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">mathfu::VectorPacked&lt; float, kDimensions &gt; *&#160;</td>
+          <td class="paramname"><em>ys</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Fast evaluation of several splines, with mathfu::VectorPacked interface. Useful for evaluate three splines which together form a mathfu::vec3, for instance. </p>
 
 </div>
 </div>
@@ -381,6 +566,62 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a27ff7004f4d0731a76473d03cce63433"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float fpl::CompactSpline::YCalculatedSlowly </td>
+          <td>(</td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>x</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Evaluate spline at <code>x</code>. This function is somewhat slow because it must find the node for <code>x</code> and create the cubic before the returned y can be evaluated. If calling from inside a loop, replace the loop with one call to <a class="el" href="classfpl_1_1_compact_spline.html#a35557f167ad0bc32118c682d4ebf3bb1">Ys()</a>, which is significantly faster. </p>
+
+</div>
+</div>
+<a class="anchor" id="a35557f167ad0bc32118c682d4ebf3bb1"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void fpl::CompactSpline::Ys </td>
+          <td>(</td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>start_x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>delta_x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const int&#160;</td>
+          <td class="paramname"><em>num_ys</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float *&#160;</td>
+          <td class="paramname"><em>ys</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Fast evaluation of a subset of the x-domain of the spline. Spline is evaluated from <code>start_x</code> and subsequent intervals of <code>delta_x</code>. Evaluated values are returned in <code>ys</code>. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="compact__spline_8h_source.html">compact_spline.h</a></li>
 </ul>
@@ -392,7 +633,7 @@ Static Public Member Functions</h2></td></tr>
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-ga('create', 'UA-46159502-1', 'google.github.io');
+ga('create', 'UA-49880327-7', 'google.github.io');
 ga('send', 'pageview');
 </script>
 </body>

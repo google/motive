@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['settled1f',['Settled1f',['../structmotive_1_1_settled1f.html',1,'motive']]],
-  ['smoothinit',['SmoothInit',['../classmotive_1_1_smooth_init.html',1,'motive']]],
-  ['splineplayback',['SplinePlayback',['../structfpl_1_1_spline_playback.html',1,'fpl']]]
+  ['quadraticcurve',['QuadraticCurve',['../classfpl_1_1_quadratic_curve.html',1,'fpl']]],
+  ['quadraticinitwithstartderivative',['QuadraticInitWithStartDerivative',['../structfpl_1_1_quadratic_init_with_start_derivative.html',1,'fpl']]]
 ];

@@ -5,6 +5,9 @@ var classfpl_1_1_compact_spline =
     [ "CompactSpline", "classfpl_1_1_compact_spline.html#a4cb8136e658bb5402c827ddbc2a926c5", null ],
     [ "~CompactSpline", "classfpl_1_1_compact_spline.html#ad5850d44364697b84d640bf7771768f8", null ],
     [ "AddNode", "classfpl_1_1_compact_spline.html#a8cf74846c2624dae3a9f12b97ce46a1c", null ],
+    [ "AddNodeVerbatim", "classfpl_1_1_compact_spline.html#a94e86e83ccea699a5f29be6849f377c1", null ],
+    [ "BulkYs", "classfpl_1_1_compact_spline.html#a079e5b7d2483167cf438ce811b897424", null ],
+    [ "BulkYs", "classfpl_1_1_compact_spline.html#a1dcb9b7d9b1afd799d6cb6cb8a289478", null ],
     [ "Clear", "classfpl_1_1_compact_spline.html#a61f1d3a3986d04f7069aee9281d8d100", null ],
     [ "CreateCubicInit", "classfpl_1_1_compact_spline.html#a959587439623ef16bfa54b6eeb1f675b", null ],
     [ "EndDerivative", "classfpl_1_1_compact_spline.html#aa6eeb9caf11d7ab86e32994f8f62a2c9", null ],
@@ -14,8 +17,10 @@ var classfpl_1_1_compact_spline =
     [ "Init", "classfpl_1_1_compact_spline.html#aab75d3119edaf091402e2c49284bec9b", null ],
     [ "LengthX", "classfpl_1_1_compact_spline.html#a884868c6f8d7c68b68b066d460061587", null ],
     [ "NodeDerivative", "classfpl_1_1_compact_spline.html#a55d789387f5bbb3c23d12e5f55e2933d", null ],
+    [ "nodes", "classfpl_1_1_compact_spline.html#a08248af1541b61b918c9f9284ab60632", null ],
     [ "NodeX", "classfpl_1_1_compact_spline.html#a6490bdaccafd6d3e7c3fc812b9b18c9e", null ],
     [ "NodeY", "classfpl_1_1_compact_spline.html#acaf844a61310689db66d190e16384a2a", null ],
+    [ "NumNodes", "classfpl_1_1_compact_spline.html#ab09b019aacb74fb576f5fd2c4e7e9b4d", null ],
     [ "operator=", "classfpl_1_1_compact_spline.html#aef8c197c973c1a14aa6bf6b98df7b2fe", null ],
     [ "RangeX", "classfpl_1_1_compact_spline.html#ad82f57bf08c801be7140921023142182", null ],
     [ "RangeX", "classfpl_1_1_compact_spline.html#a8b077aa3b63addb635a6e7a16d6a91f6", null ],
@@ -23,5 +28,9 @@ var classfpl_1_1_compact_spline =
     [ "RecommendXGranularity", "classfpl_1_1_compact_spline.html#a169bcfb33bea4168a443225d03ba12e2", null ],
     [ "StartDerivative", "classfpl_1_1_compact_spline.html#a8a423eacdae295c2ae0bc27a4b759292", null ],
     [ "StartX", "classfpl_1_1_compact_spline.html#aa02c25fa42695b179e4d17f8afe25012", null ],
-    [ "StartY", "classfpl_1_1_compact_spline.html#a240b72678aa36d2d234fd4661fe47874", null ]
+    [ "StartY", "classfpl_1_1_compact_spline.html#a240b72678aa36d2d234fd4661fe47874", null ],
+    [ "x_granularity", "classfpl_1_1_compact_spline.html#a6dfe8ee950e8e01e8c4b2ca8f34b7da0", null ],
+    [ "y_range", "classfpl_1_1_compact_spline.html#a7179d224c2f608d1dea77a8b7f83096e", null ],
+    [ "YCalculatedSlowly", "classfpl_1_1_compact_spline.html#a27ff7004f4d0731a76473d03cce63433", null ],
+    [ "Ys", "classfpl_1_1_compact_spline.html#a35557f167ad0bc32118c682d4ebf3bb1", null ]
 ];

@@ -1,6 +1,7 @@
 var files =
 [
     [ "angle.h", "angle_8h_source.html", null ],
+    [ "anim.h", "anim_8h_source.html", null ],
     [ "benchmark.h", "benchmark_8h_source.html", null ],
     [ "bulk_spline_evaluator.h", "bulk__spline__evaluator_8h_source.html", null ],
     [ "common.h", "common_8h_source.html", null ],
@@ -14,7 +15,9 @@ var files =
     [ "optimizations.h", "optimizations_8h_source.html", null ],
     [ "processor.h", "processor_8h_source.html", null ],
     [ "range.h", "range_8h_source.html", null ],
+    [ "spline_util.h", "spline__util_8h_source.html", null ],
     [ "target.h", "target_8h_source.html", null ],
     [ "util.h", "util_8h_source.html", null ],
+    [ "vector_converter.h", "vector__converter_8h_source.html", null ],
     [ "version.h", "version_8h_source.html", null ]
 ];

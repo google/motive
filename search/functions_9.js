@@ -1,11 +1,11 @@
 var searchData=
 [
-  ['operator_2a',['operator*',['../classfpl_1_1_range_t.html#a842da86571b2ffd6caec7e54063c4cd8',1,'fpl::RangeT']]],
-  ['operator_2a_3d',['operator*=',['../classfpl_1_1_angle.html#af80834e7e75434e7253bd64c307cce38',1,'fpl::Angle']]],
-  ['operator_2b_3d',['operator+=',['../classfpl_1_1_angle.html#abae6829931ffd29e52ccf12cebcae68a',1,'fpl::Angle']]],
-  ['operator_2d',['operator-',['../classfpl_1_1_angle.html#a750e9fd06e60eda9881a8d9da43d889a',1,'fpl::Angle']]],
-  ['operator_2d_3d',['operator-=',['../classfpl_1_1_angle.html#a12b6fc44d57883d63bb555764ed8b81f',1,'fpl::Angle']]],
-  ['operator_2f_3d',['operator/=',['../classfpl_1_1_angle.html#ad7c45bdf056a1e92d5042baf6fef4822',1,'fpl::Angle']]],
-  ['operator_3d',['operator=',['../classmotive_1_1_motivator.html#a34deb14e2560fe19082c498dac6854ce',1,'motive::Motivator']]],
-  ['operator_3d_3d',['operator==',['../classfpl_1_1_quadratic_curve.html#a979e6616c8e76b8d3502d3e41465e828',1,'fpl::QuadraticCurve::operator==()'],['../classfpl_1_1_cubic_curve.html#a9ee354ead2ed16a104e0d548d73a9105',1,'fpl::CubicCurve::operator==()'],['../classfpl_1_1_range_t.html#a4074e43599d136bfecd11a8d03021d0a',1,'fpl::RangeT::operator==()']]]
+  ['nexty',['NextY',['../classfpl_1_1_bulk_spline_evaluator.html#a381ace4e154797093c9b22d8376e2cc3',1,'fpl::BulkSplineEvaluator']]],
+  ['node',['Node',['../classmotive_1_1_motive_target1f.html#ad18523938eed11896ff4ed368601e701',1,'motive::MotiveTarget1f']]],
+  ['nodes',['nodes',['../classfpl_1_1_compact_spline.html#a08248af1541b61b918c9f9284ab60632',1,'fpl::CompactSpline']]],
+  ['normalize',['Normalize',['../classmotive_1_1_modular_init.html#af1f210390644301a13b4e121cc86ec94',1,'motive::ModularInit::Normalize()'],['../classfpl_1_1_range_t.html#aa070d4d86edf9bdcf6caf80b5b2c7061',1,'fpl::RangeT::Normalize()']]],
+  ['normalizewildvalue',['NormalizeWildValue',['../classmotive_1_1_modular_init.html#a0690cf92b8851770349e56c3f57d6028',1,'motive::ModularInit::NormalizeWildValue()'],['../classfpl_1_1_range_t.html#a9f32a6399a268159367e09c7f4a0c6f9',1,'fpl::RangeT::NormalizeWildValue()']]],
+  ['normalizey',['NormalizeY',['../classfpl_1_1_bulk_spline_evaluator.html#a1dfc5a0545b5dad408a20bf515541c14',1,'fpl::BulkSplineEvaluator']]],
+  ['numcoeff',['NumCoeff',['../classfpl_1_1_quadratic_curve.html#a7603be49c1bb6915a181d6b98295b515',1,'fpl::QuadraticCurve::NumCoeff()'],['../classfpl_1_1_cubic_curve.html#a5ef44941428a2a0f79a28c8f24ec5cc9',1,'fpl::CubicCurve::NumCoeff()']]],
+  ['numnodes',['NumNodes',['../classfpl_1_1_compact_spline.html#ab09b019aacb74fb576f5fd2c4e7e9b4d',1,'fpl::CompactSpline']]]
 ];

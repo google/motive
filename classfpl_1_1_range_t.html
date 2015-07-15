@@ -1,3 +1,4 @@
+<!-- HTML header for doxygen 1.8.6-->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -21,6 +22,8 @@
   $(document).ready(function() { searchBox.OnSelectItem(0); });
 </script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
+<link href="style.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -190,6 +193,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>Contains</b> (const T
 <tr class="separator:a713b880033161403da46985d79f29099"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8337a83f15d6a9ed13d17e9697153652"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfpl_1_1_range_t.html">RangeT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_range_t.html#a8337a83f15d6a9ed13d17e9697153652">Lengthen</a> (const float percent) const </td></tr>
 <tr class="separator:a8337a83f15d6a9ed13d17e9697153652"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29db1951d7cb8a31cc56afb1317bf1b0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classfpl_1_1_range_t.html">RangeT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_range_t.html#a29db1951d7cb8a31cc56afb1317bf1b0">Include</a> (const T x) const </td></tr>
+<tr class="separator:a29db1951d7cb8a31cc56afb1317bf1b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4074e43599d136bfecd11a8d03021d0a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4074e43599d136bfecd11a8d03021d0a"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_range_t.html#a4074e43599d136bfecd11a8d03021d0a">operator==</a> (const <a class="el" href="classfpl_1_1_range_t.html">RangeT</a> &amp;rhs) const </td></tr>
 <tr class="memdesc:a4074e43599d136bfecd11a8d03021d0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Equality is strict. No epsilon checking here. <br/></td></tr>
@@ -248,8 +253,11 @@ template&lt;size_t kMaxLen&gt; </td></tr>
 <tr class="memitem:a2bd7e3adcf10d99e2bb6f40758d927d5"><td class="memTemplItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memTemplItemRight" valign="bottom"><b>IndexOfShortest</b> (const <a class="el" href="structfpl_1_1_range_t_1_1_range_array.html">RangeArray</a>&lt; kMaxLen &gt; &amp;ranges)</td></tr>
 <tr class="separator:a2bd7e3adcf10d99e2bb6f40758d927d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a705e175fa27d70c3d83ad73bafd88f33"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a705e175fa27d70c3d83ad73bafd88f33"></a>
-static <a class="el" href="classfpl_1_1_range_t.html">RangeT</a>&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Full</b> ()</td></tr>
+static <a class="el" href="classfpl_1_1_range_t.html">RangeT</a>&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_range_t.html#a705e175fa27d70c3d83ad73bafd88f33">Full</a> ()</td></tr>
+<tr class="memdesc:a705e175fa27d70c3d83ad73bafd88f33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the complete range. Every T is contained in this range. <br/></td></tr>
 <tr class="separator:a705e175fa27d70c3d83ad73bafd88f33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3884ef0c0b70d0cb9713e551a70e38a"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classfpl_1_1_range_t.html">RangeT</a>&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfpl_1_1_range_t.html#af3884ef0c0b70d0cb9713e551a70e38a">Empty</a> ()</td></tr>
+<tr class="separator:af3884ef0c0b70d0cb9713e551a70e38a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a0cba8bf3b6ce55c54b88c3e2edbaf4ca"></a>
@@ -357,6 +365,59 @@ template&lt;class T &gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Returns distance outside of the range. If inside the range, returns 0. Behavior is undefined for invalid regions. </p>
+
+</div>
+</div>
+<a class="anchor" id="af3884ef0c0b70d0cb9713e551a70e38a"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classfpl_1_1_range_t.html">RangeT</a>&lt;T&gt; <a class="el" href="classfpl_1_1_range_t.html">fpl::RangeT</a>&lt; T &gt;::Empty </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the most empty range possible. The lower bound is greater than everything, and the upper bound is less than everything. Useful when finding the min/max values of an array of numbers. </p>
+
+</div>
+</div>
+<a class="anchor" id="a29db1951d7cb8a31cc56afb1317bf1b0"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class T &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classfpl_1_1_range_t.html">RangeT</a> <a class="el" href="classfpl_1_1_range_t.html">fpl::RangeT</a>&lt; T &gt;::Include </td>
+          <td>(</td>
+          <td class="paramtype">const T&#160;</td>
+          <td class="paramname"><em>x</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the smallest range that contains both <code>x</code> and the range in <code>this</code>. </p>
 
 </div>
 </div>
@@ -946,7 +1007,7 @@ template&lt;class T &gt; </div>
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-ga('create', 'UA-46159502-1', 'google.github.io');
+ga('create', 'UA-49880327-7', 'google.github.io');
 ga('send', 'pageview');
 </script>
 </body>

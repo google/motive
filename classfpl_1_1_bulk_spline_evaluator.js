@@ -12,11 +12,13 @@ var classfpl_1_1_bulk_spline_evaluator =
     [ "NextY", "classfpl_1_1_bulk_spline_evaluator.html#a381ace4e154797093c9b22d8376e2cc3", null ],
     [ "NormalizeY", "classfpl_1_1_bulk_spline_evaluator.html#a1dfc5a0545b5dad408a20bf515541c14", null ],
     [ "SetNumIndices", "classfpl_1_1_bulk_spline_evaluator.html#a3f45c698e6e6b470cfcdb2e2393eddd7", null ],
+    [ "SetPlaybackRate", "classfpl_1_1_bulk_spline_evaluator.html#abb30809d3608a6216b9dac551ee83d02", null ],
     [ "SetSpline", "classfpl_1_1_bulk_spline_evaluator.html#a3c02a40d5c32e2c6bb502dc61988663a", null ],
     [ "SetYRange", "classfpl_1_1_bulk_spline_evaluator.html#a5096b6b62d1424e4006de548863fdd99", null ],
     [ "SourceSpline", "classfpl_1_1_bulk_spline_evaluator.html#ac425e45435584a31c407e1bfb9203631", null ],
     [ "Valid", "classfpl_1_1_bulk_spline_evaluator.html#aac6bf7c6562ac9689bfcfaf70f64b59a", null ],
     [ "X", "classfpl_1_1_bulk_spline_evaluator.html#a53385988f9194242b6b839f5c1e5e749", null ],
     [ "Y", "classfpl_1_1_bulk_spline_evaluator.html#afaf2ad5c46c6e59fe690778e52b3196d", null ],
-    [ "YDifferenceToEnd", "classfpl_1_1_bulk_spline_evaluator.html#a4480d6a1b4f848df7eccc99da5da9b4c", null ]
+    [ "YDifferenceToEnd", "classfpl_1_1_bulk_spline_evaluator.html#a4480d6a1b4f848df7eccc99da5da9b4c", null ],
+    [ "Ys", "classfpl_1_1_bulk_spline_evaluator.html#aeeb8183756efec159f0eb7c280fcea9e", null ]
 ];
