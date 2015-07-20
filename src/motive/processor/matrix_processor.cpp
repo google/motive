@@ -332,7 +332,12 @@ class MatrixData {
 // See comments on MatrixInit for details on this class.
 class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
  public:
-  virtual ~MatrixMotiveProcessor() {}
+  virtual ~MatrixMotiveProcessor() {
+    const MotiveIndex num_indices = NumIndices();
+    for (MotiveIndex index = 0; index < num_indices; ++index) {
+      RemoveIndex(index);
+    }
+  }
 
   virtual void AdvanceFrame(MotiveTime /*delta_time*/) {
     Defragment();
