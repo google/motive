@@ -15,6 +15,7 @@
 #ifndef MOTIVE_ANIM_H
 #define MOTIVE_ANIM_H
 
+#include <vector>
 #include "motive/init.h"
 #include "motive/math/compact_spline.h"
 

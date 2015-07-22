@@ -80,6 +80,7 @@ MOTIVE_SCHEMA_DIR := $(MOTIVE_DIR)/schemas
 MOTIVE_SCHEMA_INCLUDE_DIRS :=
 
 MOTIVE_SCHEMA_FILES := \
+  $(MOTIVE_SCHEMA_DIR)/anim_table.fbs \
   $(MOTIVE_SCHEMA_DIR)/matrix_anim.fbs \
   $(MOTIVE_SCHEMA_DIR)/motive.fbs
 
