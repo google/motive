@@ -57,6 +57,7 @@ typedef uint32_t MotiveChildIndex;
 /// Time units are defined by the user. We use integer instead of floating
 /// point to avoid a loss of precision as time accumulates.
 typedef int MotiveTime;
+static const MotiveTime kMotiveTimeEndless = std::numeric_limits<MotiveTime>::max();
 
 /// @class MotivatorInit
 /// Base class for Motivator parameterization. Every motivator type has a

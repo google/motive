@@ -308,6 +308,12 @@ class MotivatorMatrix4fTemplate : public Motivator {
     return C::To(Processor().Value(index_).TranslationVector3D());
   }
 
+  /// Return the time remaining in the current spline animation.
+  /// Time units are defined by the user.
+  MotiveTime TimeRemaining() const {
+    return Processor().TimeRemaining(index_);
+  }
+
   /// Return the current value of the `child_index`th basic transform that
   /// drives this matrix.
   /// @param child_index The index into MatrixInit::ops(). The ops() array

@@ -112,7 +112,7 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
         // Hold `init` and `playback` data in structures that won't disappear,
         // since these are referenced by pointer.
         s.init = SmoothInit(y_range, spline_fb->modular_arithmetic());
-        s.playback = fpl::SplinePlayback(s.spline, 0.0f, true);
+        s.playback = fpl::SplinePlayback(s.spline, 0.0f);
         init.AddOp(op_type, s.init, s.playback);
         break;
       }

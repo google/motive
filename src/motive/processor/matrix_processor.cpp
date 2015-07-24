@@ -193,7 +193,7 @@ static inline void RotateAboutAxis(const float angle, vec4* column0,
 // 'num_ops_'. Each item in 'ops_' is one matrix operation.
 //
 class MatrixData {
-  MatrixData() {}  // Use Create() to create this class.
+  MatrixData() : end_time_(0) {}  // Use Create() to create this class.
  public:
   ~MatrixData() { Destroy(this); }
 
@@ -287,6 +287,8 @@ class MatrixData {
   }
 
   const mat4& result_matrix() const { return result_matrix_; }
+  MotiveTime end_time() const { return end_time_; }
+  void set_end_time(MotiveTime end_time) { end_time_ = end_time; }
   int num_ops() const { return num_ops_; }
 
   static MatrixData* Create(const MatrixInit& init, MotiveEngine* engine) {
@@ -325,6 +327,7 @@ class MatrixData {
   }
 
   mat4 result_matrix_;
+  MotiveTime end_time_;
   int num_ops_;
   MatrixOperation ops_[1];
 };
@@ -332,6 +335,8 @@ class MatrixData {
 // See comments on MatrixInit for details on this class.
 class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
  public:
+  MatrixMotiveProcessor() : time_(0) {}
+
   virtual ~MatrixMotiveProcessor() {
     const MotiveIndex num_indices = NumIndices();
     for (MotiveIndex index = 0; index < num_indices; ++index) {
@@ -339,7 +344,7 @@ class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
     }
   }
 
-  virtual void AdvanceFrame(MotiveTime /*delta_time*/) {
+  virtual void AdvanceFrame(MotiveTime delta_time) {
     Defragment();
 
     // Process the series of matrix operations for each index.
@@ -348,6 +353,10 @@ class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
       MatrixData& d = Data(index);
       d.UpdateResultMatrix();
     }
+
+    // Update our global time. It shouldn't matter if this wraps
+    // around, since we only calculate times relative to it.
+    time_ += delta_time;
   }
 
   virtual MotivatorType Type() const { return MatrixInit::kType; }
@@ -355,6 +364,12 @@ class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
 
   virtual const mat4& Value(MotiveIndex index) const {
     return Data(index).result_matrix();
+  }
+
+  virtual MotiveTime TimeRemaining(MotiveIndex index) const {
+    const MotiveTime end_time = Data(index).end_time();
+    return end_time == kMotiveTimeEndless ? kMotiveTimeEndless
+                                          : end_time - time_;
   }
 
   virtual float ChildValue1f(MotiveIndex index,
@@ -365,6 +380,7 @@ class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
   virtual void SetChildTarget1f(MotiveIndex index, MotiveChildIndex child_index,
                                 const MotiveTarget1f& t) {
     Data(index).Op(child_index).SetTarget1f(t);
+    // TODO: Update end time.
   }
 
   virtual void SetChildValue1f(MotiveIndex index, MotiveChildIndex child_index,
@@ -382,6 +398,7 @@ class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
     RemoveIndex(index);
     auto init_params = static_cast<const MatrixInit&>(init);
     data_[index] = MatrixData::Create(init_params, engine);
+    data_[index]->set_end_time(time_ + init_params.end_time());
   }
 
   virtual void RemoveIndex(MotiveIndex index) {
@@ -419,6 +436,7 @@ class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
   }
 
   std::vector<MatrixData*> data_;
+  MotiveTime time_;
 };
 
 MOTIVE_INSTANCE(MatrixInit, MatrixMotiveProcessor);

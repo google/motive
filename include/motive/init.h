@@ -327,12 +327,23 @@ class MatrixInit : public MotivatorInit {
   void AddOp(MatrixOperationType type, const MotivatorInit& init,
              const fpl::SplinePlayback1f& spline) {
     ops_.push_back(MatrixOperationInit(type, init, spline));
+
+    // End time is the length of the longest spline.
+    const float spline_time = spline.Time();
+    end_time_ = spline_time == std::numeric_limits<float>::infinity() ?
+                kMotiveTimeEndless : static_cast<MotiveTime>(spline_time);
   }
 
   const OpVector& ops() const { return ops_; }
 
+  MotiveTime end_time() const { return end_time_; }
+
  private:
   OpVector ops_;
+
+  // Maximum duration of any of the splines.
+  // If any of the splines repeat, then set to kMotiveTimeEndless.
+  MotiveTime end_time_;
 };
 
 }  // namespace motive

@@ -308,6 +308,16 @@ struct SplinePlaybackN {
     splines[3] = &w;
   }
 
+  float Time() const {
+    if (repeat) return std::numeric_limits<float>::infinity();
+
+    float end_x = 0.0f;
+    for (int i = 0; i < kDimensions; ++i) {
+      end_x = std::max(end_x, splines[i]->EndX());
+    }
+    return end_x - start_x;
+  }
+
   /// The spline to follow.
   const CompactSpline* splines[kDimensions];
 
