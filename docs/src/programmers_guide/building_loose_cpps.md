@@ -53,7 +53,7 @@ FlatBuffer compiler `flatc` to generate a header file for motive's
 FlatBuffer schemas.
 
 ~~~{.sh}
-flatc --gen-includes -o generated_includes -c motive/schemas/motive.fbs
+flatc -o generated_includes -c motive/schemas/motive.fbs
 ~~~
 
 This will create `generated_includes/motive_generated.h`. You should add
