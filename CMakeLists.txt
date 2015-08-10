@@ -11,7 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-cmake_minimum_required(VERSION 2.8.12)
+if(fpl_ios)
+  cmake_minimum_required(VERSION 3.3.1)
+else()
+  cmake_minimum_required(VERSION 2.8.12)
+endif()
 
 project(motive)
 
@@ -174,7 +178,7 @@ include_directories(${dependencies_mathfu_dir}/include)
 include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
 
 # Detect clang
-if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" OR 
+if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" OR
    CMAKE_CXX_COMPILER_ID MATCHES ".*clang")
   set(CMAKE_COMPILER_IS_CLANGXX 1)
 endif()
@@ -207,7 +211,12 @@ if(motive_enable_benchmarks)
   add_definitions(-DBENCHMARK_MOTIVE)
 endif()
 
-set (SDL_LIBRARIES SDL2-static)
+if(NOT fpl_ios)
+  set(SDL_LIBRARIES SDL2-static)
+else()
+  set(SDL_LIBRARIES "")
+endif()
+
 if(WIN32)
   add_definitions(-D_USE_MATH_DEFINES)
   set(SDL_LIBRARIES SDL2main ${SDL_LIBRARIES})
@@ -216,6 +225,9 @@ endif()
 
 # Executable target.
 add_library(motive ${motive_SRCS})
+
+# Set iOS specific attributes
+mathfu_set_ios_attributes(motive)
 
 # Dependencies for the executable target.
 add_dependencies(motive motive_generated_includes)
