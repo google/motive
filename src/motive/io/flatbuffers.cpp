@@ -24,10 +24,10 @@ namespace motive {
 // Verify that MatrixOperationType and MatrixOperationTypeFb are identical
 // enumerations. Since FlatBuffer support is optional, we must duplicate the
 // MatrixOperationType from init.h in matrix_anim.fbx.
-#define MOTIVE_VERIFY_MATRIX_OP_ENUM(name) \
-    static_assert(name == static_cast<MatrixOperationType>( \
-                  MatrixOperationTypeFb_##name), \
-                  "FlatBuffer and init.h enum do not match")
+#define MOTIVE_VERIFY_MATRIX_OP_ENUM(name)                                    \
+  static_assert(                                                              \
+      name == static_cast<MatrixOperationType>(MatrixOperationTypeFb_##name), \
+      "FlatBuffer and init.h enum do not match")
 MOTIVE_VERIFY_MATRIX_OP_ENUM(kInvalidMatrixOperation);
 MOTIVE_VERIFY_MATRIX_OP_ENUM(kRotateAboutX);
 MOTIVE_VERIFY_MATRIX_OP_ENUM(kRotateAboutY);
@@ -41,7 +41,6 @@ MOTIVE_VERIFY_MATRIX_OP_ENUM(kScaleZ);
 MOTIVE_VERIFY_MATRIX_OP_ENUM(kScaleUniformly);
 MOTIVE_VERIFY_MATRIX_OP_ENUM(kNumMatrixOperationTypes);
 #undef MOTIVE_VERIFY_OP_ENUM
-
 
 static void ModularInitFromFlatBuffers(const ModularParameters& params,
                                        ModularInit* init) {
@@ -103,7 +102,7 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
         const fpl::Range y_range(spline_fb->y_range_start(),
                                  spline_fb->y_range_end());
         s.spline.Init(y_range, spline_fb->x_granularity(),
-                    spline_fb->nodes()->size());
+                      spline_fb->nodes()->size());
         for (auto n = spline_fb->nodes()->begin();
              n != spline_fb->nodes()->end(); ++n) {
           s.spline.AddNodeVerbatim(n->x(), n->y(), n->angle());
@@ -133,16 +132,16 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
 void AnimTable::InitFromFlatBuffers(const AnimTableFb& params) {
   // Allocate the index arrays.
   indices_.resize(params.lists()->size());
-  for (size_t i = 0; i < indices_.size(); ++i) {
+  for (flatbuffers::uoffset_t i = 0; i < indices_.size(); ++i) {
     indices_[i].resize(params.lists()->Get(i)->anim_files()->Length());
   }
 
   // Create the name map and allocate indices into anims_.
-  for (size_t i = 0; i < indices_.size(); ++i) {
+  for (flatbuffers::uoffset_t i = 0; i < indices_.size(); ++i) {
     auto files_fb = params.lists()->Get(i)->anim_files();
     AnimList& list = indices_[i];
 
-    for (size_t j = 0; j < list.size(); ++j) {
+    for (flatbuffers::uoffset_t j = 0; j < list.size(); ++j) {
       const char* anim_name = files_fb->Get(j)->c_str();
 
       // If this anim already exists, re-use it.
