@@ -107,9 +107,10 @@ int main() {
   const motive::MotiveTarget1f position_target =
       motive::CurrentToTarget1f(0, 0.2f, 10, 0, target_time);
 
-  motive::MatrixInit matrix_init(2);
-  matrix_init.AddOp(motive::kRotateAboutY, angle_init, angle_target);
-  matrix_init.AddOp(motive::kTranslateZ, position_init, position_target);
+  motive::MatrixOpArray ops(2);
+  ops.AddOp(motive::kRotateAboutY, angle_init, angle_target);
+  ops.AddOp(motive::kTranslateZ, position_init, position_target);
+  const motive::MatrixInit matrix_init(ops);
 
   MyMotivatorMatrix4f matrix(matrix_init, &engine);
 

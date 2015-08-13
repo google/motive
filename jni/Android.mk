@@ -81,7 +81,7 @@ MOTIVE_SCHEMA_INCLUDE_DIRS :=
 
 MOTIVE_SCHEMA_FILES := \
   $(MOTIVE_SCHEMA_DIR)/anim_table.fbs \
-  $(MOTIVE_SCHEMA_DIR)/matrix_anim.fbs \
+  $(MOTIVE_SCHEMA_DIR)/anim.fbs \
   $(MOTIVE_SCHEMA_DIR)/motive.fbs
 
 ifeq (,$(MOTIVE_RUN_ONCE))

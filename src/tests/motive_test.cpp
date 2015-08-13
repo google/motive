@@ -48,6 +48,7 @@ using motive::MatrixInit;
 using motive::MatrixOperationInit;
 using motive::Settled1f;
 using motive::MatrixOperationType;
+using motive::MatrixOpArray;
 using motive::kRotateAboutX;
 using motive::kRotateAboutY;
 using motive::kRotateAboutZ;
@@ -550,116 +551,116 @@ static void TestMatrixMotivator(const MatrixInit& matrix_init,
 
 // Test the matrix operation kTranslateX.
 TEST_F(MotiveTests, MatrixTranslateX) {
-  MatrixInit matrix_init;
-  matrix_init.AddOp(motive::kTranslateX, smooth_scalar_init_, 2.0f);
-  TestMatrixMotivator(matrix_init, &engine_);
+  MatrixOpArray ops(1);
+  ops.AddOp(motive::kTranslateX, smooth_scalar_init_, 2.0f);
+  TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Don't use an motivator to drive the animation. Use a constant value.
 TEST_F(MotiveTests, MatrixTranslateXConstValue) {
-  MatrixInit matrix_init;
-  matrix_init.AddOp(motive::kTranslateX, 2.0f);
-  TestMatrixMotivator(matrix_init, &engine_);
+  MatrixOpArray ops(1);
+  ops.AddOp(motive::kTranslateX, 2.0f);
+  TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the matrix operation kRotateAboutX.
 TEST_F(MotiveTests, MatrixRotateAboutX) {
-  MatrixInit matrix_init;
-  matrix_init.AddOp(motive::kRotateAboutX, smooth_angle_init_, kHalfPi);
-  TestMatrixMotivator(matrix_init, &engine_);
+  MatrixOpArray ops(1);
+  ops.AddOp(motive::kRotateAboutX, smooth_angle_init_, kHalfPi);
+  TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the matrix operation kRotateAboutY.
 TEST_F(MotiveTests, MatrixRotateAboutY) {
-  MatrixInit matrix_init;
-  matrix_init.AddOp(motive::kRotateAboutY, smooth_angle_init_, kHalfPi / 3.0f);
-  TestMatrixMotivator(matrix_init, &engine_);
+  MatrixOpArray ops(1);
+  ops.AddOp(motive::kRotateAboutY, smooth_angle_init_, kHalfPi / 3.0f);
+  TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the matrix operation kRotateAboutZ.
 TEST_F(MotiveTests, MatrixRotateAboutZ) {
-  MatrixInit matrix_init;
-  matrix_init.AddOp(motive::kRotateAboutZ, smooth_angle_init_, -kHalfPi / 1.2f);
-  TestMatrixMotivator(matrix_init, &engine_);
+  MatrixOpArray ops(1);
+  ops.AddOp(motive::kRotateAboutZ, smooth_angle_init_, -kHalfPi / 1.2f);
+  TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the matrix operation kScaleX.
 TEST_F(MotiveTests, MatrixScaleX) {
-  MatrixInit matrix_init;
-  matrix_init.AddOp(motive::kScaleX, smooth_scalar_init_, -3.0f);
-  TestMatrixMotivator(matrix_init, &engine_);
+  MatrixOpArray ops(1);
+  ops.AddOp(motive::kScaleX, smooth_scalar_init_, -3.0f);
+  TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the series of matrix operations for translating XYZ.
 TEST_F(MotiveTests, MatrixTranslateXYZ) {
-  MatrixInit matrix_init;
-  matrix_init.AddOp(motive::kTranslateX, smooth_scalar_init_, 2.0f);
-  matrix_init.AddOp(motive::kTranslateY, smooth_scalar_init_, -3.0f);
-  matrix_init.AddOp(motive::kTranslateZ, smooth_scalar_init_, 0.5f);
-  TestMatrixMotivator(matrix_init, &engine_);
+  MatrixOpArray ops(3);
+  ops.AddOp(motive::kTranslateX, smooth_scalar_init_, 2.0f);
+  ops.AddOp(motive::kTranslateY, smooth_scalar_init_, -3.0f);
+  ops.AddOp(motive::kTranslateZ, smooth_scalar_init_, 0.5f);
+  TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the series of matrix operations for rotating about X, Y, and Z,
 // in turn.
 TEST_F(MotiveTests, MatrixRotateAboutXYZ) {
-  MatrixInit matrix_init;
-  matrix_init.AddOp(motive::kRotateAboutX, smooth_angle_init_, -kHalfPi / 2.0f);
-  matrix_init.AddOp(motive::kRotateAboutY, smooth_angle_init_, kHalfPi / 3.0f);
-  matrix_init.AddOp(motive::kRotateAboutZ, smooth_angle_init_, kHalfPi / 5.0f);
-  TestMatrixMotivator(matrix_init, &engine_);
+  MatrixOpArray ops(3);
+  ops.AddOp(motive::kRotateAboutX, smooth_angle_init_, -kHalfPi / 2.0f);
+  ops.AddOp(motive::kRotateAboutY, smooth_angle_init_, kHalfPi / 3.0f);
+  ops.AddOp(motive::kRotateAboutZ, smooth_angle_init_, kHalfPi / 5.0f);
+  TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the series of matrix operations for scaling XYZ non-uniformly.
 TEST_F(MotiveTests, MatrixScaleXYZ) {
-  MatrixInit matrix_init;
-  matrix_init.AddOp(motive::kScaleX, smooth_scalar_init_, -3.0f);
-  matrix_init.AddOp(motive::kScaleY, smooth_scalar_init_, 2.2f);
-  matrix_init.AddOp(motive::kScaleZ, smooth_scalar_init_, 1.01f);
-  TestMatrixMotivator(matrix_init, &engine_);
+  MatrixOpArray ops(3);
+  ops.AddOp(motive::kScaleX, smooth_scalar_init_, -3.0f);
+  ops.AddOp(motive::kScaleY, smooth_scalar_init_, 2.2f);
+  ops.AddOp(motive::kScaleZ, smooth_scalar_init_, 1.01f);
+  TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the matrix operation kScaleUniformly.
 TEST_F(MotiveTests, MatrixScaleUniformly) {
-  MatrixInit matrix_init;
-  matrix_init.AddOp(motive::kScaleUniformly, smooth_scalar_init_, 10.1f);
-  TestMatrixMotivator(matrix_init, &engine_);
+  MatrixOpArray ops(1);
+  ops.AddOp(motive::kScaleUniformly, smooth_scalar_init_, 10.1f);
+  TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the series of matrix operations for translating and rotating.
 TEST_F(MotiveTests, MatrixTranslateRotateTranslateBack) {
-  MatrixInit matrix_init;
-  matrix_init.AddOp(motive::kTranslateY, smooth_scalar_init_, 1.0f);
-  matrix_init.AddOp(motive::kRotateAboutX, smooth_angle_init_, kHalfPi);
-  matrix_init.AddOp(motive::kTranslateY, smooth_scalar_init_, -1.0f);
-  TestMatrixMotivator(matrix_init, &engine_);
+  MatrixOpArray ops(3);
+  ops.AddOp(motive::kTranslateY, smooth_scalar_init_, 1.0f);
+  ops.AddOp(motive::kRotateAboutX, smooth_angle_init_, kHalfPi);
+  ops.AddOp(motive::kTranslateY, smooth_scalar_init_, -1.0f);
+  TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the series of matrix operations for translating, rotating, and scaling.
 TEST_F(MotiveTests, MatrixTranslateRotateScale) {
-  MatrixInit matrix_init;
-  matrix_init.AddOp(motive::kTranslateY, smooth_scalar_init_, 1.0f);
-  matrix_init.AddOp(motive::kRotateAboutX, smooth_angle_init_, kHalfPi);
-  matrix_init.AddOp(motive::kScaleZ, smooth_scalar_init_, -1.4f);
-  TestMatrixMotivator(matrix_init, &engine_);
+  MatrixOpArray ops(3);
+  ops.AddOp(motive::kTranslateY, smooth_scalar_init_, 1.0f);
+  ops.AddOp(motive::kRotateAboutX, smooth_angle_init_, kHalfPi);
+  ops.AddOp(motive::kScaleZ, smooth_scalar_init_, -1.4f);
+  TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test a complex the series of matrix operations.
 TEST_F(MotiveTests, MatrixTranslateRotateScaleGoneWild) {
-  MatrixInit matrix_init;
-  matrix_init.AddOp(motive::kTranslateY, smooth_scalar_init_, 1.0f);
-  matrix_init.AddOp(motive::kTranslateX, smooth_scalar_init_, -1.6f);
-  matrix_init.AddOp(motive::kRotateAboutX, smooth_angle_init_, kHalfPi * 0.1f);
-  matrix_init.AddOp(motive::kRotateAboutY, smooth_angle_init_, kHalfPi * 0.33f);
-  matrix_init.AddOp(motive::kScaleZ, smooth_scalar_init_, -1.4f);
-  matrix_init.AddOp(motive::kRotateAboutY, smooth_angle_init_,
+  MatrixOpArray ops(16);
+  ops.AddOp(motive::kTranslateY, smooth_scalar_init_, 1.0f);
+  ops.AddOp(motive::kTranslateX, smooth_scalar_init_, -1.6f);
+  ops.AddOp(motive::kRotateAboutX, smooth_angle_init_, kHalfPi * 0.1f);
+  ops.AddOp(motive::kRotateAboutY, smooth_angle_init_, kHalfPi * 0.33f);
+  ops.AddOp(motive::kScaleZ, smooth_scalar_init_, -1.4f);
+  ops.AddOp(motive::kRotateAboutY, smooth_angle_init_,
                     -kHalfPi * 0.33f);
-  matrix_init.AddOp(motive::kTranslateX, smooth_scalar_init_, -1.2f);
-  matrix_init.AddOp(motive::kTranslateY, smooth_scalar_init_, -1.5f);
-  matrix_init.AddOp(motive::kTranslateZ, smooth_scalar_init_, -2.2f);
-  matrix_init.AddOp(motive::kRotateAboutZ, smooth_angle_init_, -kHalfPi * 0.5f);
-  matrix_init.AddOp(motive::kScaleX, smooth_scalar_init_, 2.0f);
-  matrix_init.AddOp(motive::kScaleY, smooth_scalar_init_, 4.1f);
-  TestMatrixMotivator(matrix_init, &engine_);
+  ops.AddOp(motive::kTranslateX, smooth_scalar_init_, -1.2f);
+  ops.AddOp(motive::kTranslateY, smooth_scalar_init_, -1.5f);
+  ops.AddOp(motive::kTranslateZ, smooth_scalar_init_, -2.2f);
+  ops.AddOp(motive::kRotateAboutZ, smooth_angle_init_, -kHalfPi * 0.5f);
+  ops.AddOp(motive::kScaleX, smooth_scalar_init_, 2.0f);
+  ops.AddOp(motive::kScaleY, smooth_scalar_init_, 4.1f);
+  TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the MotivatorVector::SplineTime() function.

@@ -31,6 +31,8 @@ class MatrixAnim {
     fpl::SplinePlayback playback;
   };
 
+  explicit MatrixAnim(int expected_num_ops = 0) : ops_(expected_num_ops) {}
+
   // For construction. Allocate storage for spline data.
   Spline* Construct(int num_splines) {
     splines_.resize(num_splines);
@@ -38,19 +40,78 @@ class MatrixAnim {
   }
 
   // Non-const version is for construction.
-  MatrixInit& init() { return init_; }
+  MatrixOpArray& ops() { return ops_; }
 
   // Const version is to initialize a MatrixMotivator.
-  const MatrixInit& init() const { return init_; }
+  const MatrixOpArray& ops() const { return ops_; }
 
  private:
   /// Initialization structure for a MatrixMotivator.
   /// When initialized with this struct, the MatrixMotivator will play back
   /// the animation described in this class.
-  MatrixInit init_;
+  MatrixOpArray ops_;
 
   /// Hold spline animation data that is referenced by `init_`.
   std::vector<Spline> splines_;
+};
+
+/// @class RigAnim
+/// @brief Animation for a rigged model
+class RigAnim {
+ public:
+  void Init(BoneIndex num_bones, bool record_names) {
+    assert(num_bones <= kMaxNumBones);
+    anims_.resize(num_bones);
+    bone_parents_.resize(num_bones);
+    if (record_names) {
+      bone_names_.resize(num_bones);
+    }
+  }
+
+  // @param parent If no parent exists, pass in kInvalidBoneIdx.
+  MatrixAnim& InitMatrixAnim(BoneIndex idx, BoneIndex parent,
+                             const char* bone_name) {
+    assert(idx < static_cast<int>(anims_.size()));
+    assert(parent < idx || parent == kInvalidBoneIdx);
+    bone_parents_[idx] = static_cast<uint8_t>(parent);
+    if (bone_names_.size() > 0) {
+      bone_names_[idx] = bone_name;
+    }
+    return anims_[idx];
+  }
+
+  MotiveTime end_time() const { return end_time_; }
+  void set_end_time(MotiveTime t) { end_time_ = t; }
+
+  const BoneIndex* bone_parents() const { return &bone_parents_[0]; }
+
+  BoneIndex NumBones() const { return static_cast<BoneIndex>(anims_.size()); }
+
+  const MatrixAnim& Anim(BoneIndex idx) const {
+    assert(idx < anims_.size());
+    return anims_[idx];
+  }
+
+  bool MatchesHierarchy(const BoneIndex* mesh_bone_parents,
+                        BoneIndex mesh_num_bones) const {
+    // When animation has only one bone, or mesh has only one bone,
+    // we simply animate the root node only.
+    const int anim_num_bones = NumBones();
+    if (mesh_num_bones <= 1 || anim_num_bones == 1) return true;
+
+    // Otherwise, the hierarchy must match completely.
+    // TODO: Implement runtime retargetting by allowing the hiearchy to be
+    //       slightly different on bones that aren't animated.
+    return anim_num_bones == mesh_num_bones &&
+           memcmp(mesh_bone_parents, &bone_parents_[0],
+                  anim_num_bones * sizeof(bone_parents_[0])) == 0;
+  }
+
+ private:
+  std::vector<MatrixAnim> anims_;
+  std::vector<BoneIndex> bone_parents_;
+  std::vector<std::string> bone_names_;
+  MotiveTime end_time_;
 };
 
 }  // namespace motive

@@ -68,6 +68,13 @@ table MatrixAnimFb {
   ops:[MatrixOpFb];
 }
 
-root_type MatrixAnimFb;
+// Animate an array of matrices.
+table RigAnimFb {
+  matrix_anims:[MatrixAnimFb];
+  bone_parents:[ubyte];
+  bone_names:[string];
+}
+
+root_type RigAnimFb;
 file_identifier "ANIM";
 file_extension "fplanim";

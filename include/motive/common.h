@@ -59,6 +59,16 @@ typedef uint32_t MotiveChildIndex;
 typedef int MotiveTime;
 static const MotiveTime kMotiveTimeEndless = std::numeric_limits<MotiveTime>::max();
 
+/// @typedef BoneIndex
+/// Identify bone for skeletal animation. Each non-root bone has a parent
+/// whose BoneIndex is less than its own. Each bone has a transformation matrix.
+/// By traversing up the tree to a root bone, multiplying the transformation
+/// matrices as you go, you can get the global transform for the bone.
+/// We support up to 254 bones.
+typedef uint8_t BoneIndex;
+static const BoneIndex kMaxNumBones = 254;
+static const BoneIndex kInvalidBoneIdx = 255;
+
 /// @class MotivatorInit
 /// Base class for Motivator parameterization. Every motivator type has a
 /// its own init class that derives from MotivatorInit. In the derivation,

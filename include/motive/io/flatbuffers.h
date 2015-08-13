@@ -17,15 +17,17 @@
 
 namespace motive {
 
+class AnimTable;
+class MatrixAnim;
+struct MatrixAnimFb;
 class OvershootInit;
 struct OvershootParameters;
+class RigAnim;
+struct RigAnimFb;
 class SmoothInit;
 struct SmoothParameters;
 struct Settled1f;
 struct Settled1fParameters;
-class MatrixAnim;
-struct MatrixAnimFb;
-class AnimTable;
 
 /// Load `file_name` into `buf` and return true on success, false on failure.
 /// Motive does not make assumptions on file io, so the caller must provide
@@ -46,6 +48,9 @@ void Settled1fFromFlatBuffers(const Settled1fParameters& params,
 
 /// Convert from FlatBuffer params to Motive MatrixAnim.
 void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim);
+
+/// Convert from FlatBuffer params to Motive MatrixAnim.
+void RigAnimFromFlatBuffers(const RigAnimFb& params, RigAnim* anim);
 
 /// Initialize all animations in `anim_table`. Assume that each `anim_name` is
 /// a file name, and load it with `load_fn`. Then call

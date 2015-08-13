@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "matrix_anim_generated.h"
+#include "anim_generated.h"
 #include "motive_generated.h"
 #include "anim_table_generated.h"
 #include "motive/io/flatbuffers.h"
@@ -72,8 +72,8 @@ void Settled1fFromFlatBuffers(const Settled1fParameters& params,
 }
 
 void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
-  MatrixInit& init = anim->init();
-  init.Clear(params.ops()->size());
+  MatrixOpArray& ops = anim->ops();
+  ops.Clear(params.ops()->size());
 
   // Count the number of splines.
   int num_splines = 0;
@@ -84,7 +84,7 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
   // Initialize the output structure with the correct number of splines.
   MatrixAnim::Spline* splines = anim->Construct(num_splines);
 
-  // Loop through each op, adding to the MatrixAnim init params.
+  // Loop through each op, adding to the MatrixAnim ops.
   int spline_idx = 0;
   for (auto op = params.ops()->begin(); op != params.ops()->end(); ++op) {
     const MatrixOperationType op_type =
@@ -112,14 +112,14 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
         // since these are referenced by pointer.
         s.init = SmoothInit(y_range, spline_fb->modular_arithmetic());
         s.playback = fpl::SplinePlayback(s.spline, 0.0f);
-        init.AddOp(op_type, s.init, s.playback);
+        ops.AddOp(op_type, s.init, s.playback);
         break;
       }
 
       case MatrixOpValueFb_ConstantOpFb: {
         const ConstantOpFb* const_fb =
             reinterpret_cast<const ConstantOpFb*>(op->value());
-        init.AddOp(op_type, const_fb->y_const());
+        ops.AddOp(op_type, const_fb->y_const());
         break;
       }
 
@@ -127,6 +127,27 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
         assert(false);  // Invalid FlatBuffer data.
     }
   }
+}
+
+void RigAnimFromFlatBuffers(const RigAnimFb& params, RigAnim* anim) {
+  const size_t num_bones = params.matrix_anims()->Length();
+  const auto names = params.bone_names();
+  const auto parents = params.bone_parents();
+  const bool record_names = names != nullptr && names->Length() == num_bones;
+  assert(parents != nullptr && parents->Length() == num_bones);
+
+  anim->Init(num_bones, record_names);
+
+  MotiveTime end_time = 0;
+  for (size_t i = 0; i < num_bones; ++i) {
+    const BoneIndex parent = parents->Get(i);
+    const char* name = record_names ? names->Get(i)->c_str() : "";
+    MatrixAnim& m = anim->InitMatrixAnim(i, parent, name);
+    MatrixAnimFromFlatBuffers(*params.matrix_anims()->Get(i), &m);
+
+    end_time = std::max(end_time, m.ops().end_time());
+  }
+  anim->set_end_time(end_time);
 }
 
 void AnimTable::InitFromFlatBuffers(const AnimTableFb& params) {
@@ -178,9 +199,9 @@ const char* LoadAnimTableAnimations(AnimTable* anim_table,
     if (!load_success) return anim_name;
 
     // Initialize the animation file into `anim_table`.
-    const MatrixAnimFb* anim_fb = GetMatrixAnimFb(anim_buf.c_str());
-    MatrixAnim* anim = anim_table->QueryByName(anim_name);
-    MatrixAnimFromFlatBuffers(*anim_fb, anim);
+    const RigAnimFb* anim_fb = GetRigAnimFb(anim_buf.c_str());
+    RigAnim* anim = anim_table->QueryByName(anim_name);
+    RigAnimFromFlatBuffers(*anim_fb, anim);
   }
 
   return nullptr;

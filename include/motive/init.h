@@ -20,6 +20,8 @@
 
 namespace motive {
 
+class RigAnim;
+
 enum MatrixOperationType {
   kInvalidMatrixOperation,
   kRotateAboutX,
@@ -272,9 +274,8 @@ struct MatrixOperationInit {
 ///      kRotateAboutY --> to make penguin face the correct direction
 ///      kTranslateX } --> to move penguin along to ground to target position
 ///      kTranslateZ }
-class MatrixInit : public MotivatorInit {
+class MatrixOpArray {
  public:
-  MOTIVE_INTERFACE();
   typedef std::vector<MatrixOperationInit> OpVector;
 
   // Guess at the number of operations we'll have. Better to high-ball a little
@@ -284,8 +285,8 @@ class MatrixInit : public MotivatorInit {
   /// By default expect a relatively high number of ops. Cost for allocating
   /// a bit too much temporary memory is small compared to cost of reallocating
   /// that memory.
-  explicit MatrixInit(int expected_num_ops = kDefaultExpectedNumOps)
-      : MotivatorInit(kType) {
+  explicit MatrixOpArray(int expected_num_ops = kDefaultExpectedNumOps)
+      : end_time_(0) {
     ops_.reserve(expected_num_ops);
   }
 
@@ -344,6 +345,21 @@ class MatrixInit : public MotivatorInit {
   // Maximum duration of any of the splines.
   // If any of the splines repeat, then set to kMotiveTimeEndless.
   MotiveTime end_time_;
+};
+
+class MatrixInit : public MotivatorInit {
+ public:
+  MOTIVE_INTERFACE();
+  typedef std::vector<MatrixOperationInit> OpVector;
+
+  explicit MatrixInit(const MatrixOpArray& ops)
+      : MotivatorInit(kType), ops_(&ops) {}
+
+  const OpVector& ops() const { return ops_->ops(); }
+  MotiveTime end_time() const { return ops_->end_time(); }
+
+ private:
+  const MatrixOpArray* ops_;
 };
 
 }  // namespace motive

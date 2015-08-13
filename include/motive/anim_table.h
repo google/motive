@@ -34,7 +34,7 @@ class AnimTable {
   /// initialize any of them. Those animations might be in many formats.
   /// If your animations are in FlatBuffer format, too, then call `AnimNames()`
   /// to get all the files that must be loaded. Then for each file, call
-  /// MatrixAnimFromFlatBuffers() with the loaded FlatBuffer and the MatrixAnim
+  /// RigAnimFromFlatBuffers() with the loaded FlatBuffer and the RigAnim
   /// returned by QueryByName().
   void InitFromFlatBuffers(const AnimTableFb& params);
 
@@ -52,7 +52,7 @@ class AnimTable {
   /// Get an animation by name. Initialize the animation with this function.
   /// First get the list of `anim_names` with AnimNames(), then initialize
   /// each one, in turn, by calling this function.
-  MatrixAnim* QueryByName(const char* anim_name) {
+  RigAnim* QueryByName(const char* anim_name) {
     auto map_entry = name_map_.find(anim_name);
     if (map_entry == name_map_.end()) return nullptr;
     return &anims_[map_entry->second];
@@ -71,14 +71,14 @@ class AnimTable {
   ///                 should run consecutively from 0 to the number of
   ///                 animations - 1. No need for the number of animations to
   ///                 match between objects.
-  const MatrixAnim& Query(int object, int anim_idx) const {
+  const RigAnim& Query(int object, int anim_idx) const {
     const AnimIndex idx = CalculateIndex(object, anim_idx);
     return anims_[idx];
   }
 
   /// Get an animation by name. This is slow and should be avoided when
   /// possible.
-  const MatrixAnim* QueryByName(const char* anim_name) const {
+  const RigAnim* QueryByName(const char* anim_name) const {
     return const_cast<AnimTable*>(this)->QueryByName(anim_name);
   }
 
@@ -105,7 +105,7 @@ class AnimTable {
   std::unordered_map<const char*, AnimIndex> name_map_;
 
   /// Animation data. Contains no duplicate entries, thanks to name_map_.
-  std::vector<MatrixAnim> anims_;
+  std::vector<RigAnim> anims_;
 };
 
 }  // namespace motive
