@@ -377,9 +377,6 @@ class MotiveProcessorMatrix4f : public MotiveProcessor {
   /// Get the current matrix value from the processor.
   virtual const mathfu::mat4& Value(MotiveIndex index) const = 0;
 
-  /// Return the time remaining in the current matrix animation.
-  virtual MotiveTime TimeRemaining(MotiveIndex index) const = 0;
-
   /// Get current values of the components that create the matrix.
   virtual float ChildValue1f(MotiveIndex index,
                              MotiveChildIndex child_index) const = 0;
@@ -403,6 +400,15 @@ class MotiveProcessorMatrix4f : public MotiveProcessor {
       SetChildValue1f(index, child_index + i, value[i]);
     }
   }
+};
+
+class MotiveProcessorRig : public MotiveProcessor {
+ public:
+  /// TODO OPT: Change this to a 4x3 matrix, since it's an affine transform.
+  virtual const mathfu::mat4* GlobalTransforms(MotiveIndex index) const = 0;
+
+  /// Return the time remaining in the current matrix animation.
+  virtual MotiveTime TimeRemaining(MotiveIndex index) const = 0;
 };
 
 /// Static functions in MotiveProcessor-derived classes.

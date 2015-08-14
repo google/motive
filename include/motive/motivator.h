@@ -379,6 +379,34 @@ class MotivatorMatrix4fTemplate : public Motivator {
   }
 };
 
+class RigMotivator : public Motivator {
+ public:
+  RigMotivator() {}
+  RigMotivator(const MotivatorInit& init, MotiveEngine* engine)
+      : Motivator(init, engine, 1) {}
+
+  /// Initialize to the type specified by `init`.
+  void Initialize(const MotivatorInit& init, MotiveEngine* engine) {
+    InitializeWithDimension(init, engine, 1);
+  }
+
+  const mathfu::mat4* GlobalTransforms() const {
+    return Processor().GlobalTransforms(index_);
+  }
+
+  /// Return the time remaining in the current spline animation.
+  /// Time units are defined by the user.
+  MotiveTime TimeRemaining() const { return Processor().TimeRemaining(index_); }
+
+ private:
+  MotiveProcessorRig& Processor() {
+    return *static_cast<MotiveProcessorRig*>(processor_);
+  }
+  const MotiveProcessorRig& Processor() const {
+    return *static_cast<const MotiveProcessorRig*>(processor_);
+  }
+};
+
 // These Motivator types use mathfu in their external API.
 typedef MotivatorVectorTemplate<fpl::PassThroughVectorConverter, 1> Motivator1f;
 typedef MotivatorVectorTemplate<fpl::PassThroughVectorConverter, 2> Motivator2f;

@@ -351,15 +351,40 @@ class MatrixInit : public MotivatorInit {
  public:
   MOTIVE_INTERFACE();
   typedef std::vector<MatrixOperationInit> OpVector;
+  static mathfu::mat4 kIdentityTransform;
 
   explicit MatrixInit(const MatrixOpArray& ops)
-      : MotivatorInit(kType), ops_(&ops) {}
+      : MotivatorInit(kType),
+        ops_(&ops),
+        start_transform_(&kIdentityTransform) {}
+  MatrixInit(const MatrixOpArray& ops, const mathfu::mat4& start_transform)
+      : MotivatorInit(kType), ops_(&ops), start_transform_(&start_transform) {}
 
   const OpVector& ops() const { return ops_->ops(); }
   MotiveTime end_time() const { return ops_->end_time(); }
+  const mathfu::mat4& start_transform() const { return *start_transform_; }
 
  private:
   const MatrixOpArray* ops_;
+  const mathfu::mat4* start_transform_;
+};
+
+class RigInit : public MotivatorInit {
+ public:
+  MOTIVE_INTERFACE();
+
+  RigInit(const RigAnim& anim, const mathfu::mat4* bone_transforms,
+          const BoneIndex* bone_parents, BoneIndex num_bones);
+  const RigAnim& anim() const { return *anim_; }
+  const BoneIndex* bone_parents() const { return bone_parents_; }
+  const mathfu::mat4* bone_transforms() const { return bone_transforms_; }
+  BoneIndex num_bones() const { return num_bones_; }
+
+ private:
+  const RigAnim* anim_;                  // Animation and hierarcy.
+  const BoneIndex* bone_parents_;        // Array defining bone hierarchy.
+  const mathfu::mat4* bone_transforms_;  // Array defining default pose.
+  BoneIndex num_bones_;                  // Length of `bone_parents` and `bone_transforms_`.
 };
 
 }  // namespace motive

@@ -186,6 +186,15 @@ static inline void RotateAboutAxis(const float angle, vec4* column0,
   *column1 = c * c1 - s * c0;
 }
 
+// Due to aliasing problems, mat4 does not have a GetColumn() function.
+// We load it using the load load operations, which is slightly slower since
+// the compiler doesn't know it's doing an aligned load.
+// TODO: Add a LoadColumn() funtion to mat4 that returns the vec4 instead of a
+//       vec4&, and uses an aligned load.
+static inline vec4 MatrixColumn(const mat4& m, size_t i) {
+  return vec4(&m[4 * i]);
+}
+
 // Hold a series of matrix operations, and their resultant matrix.
 //
 // This class is of variable size, to keep compact and to avoid cache misses
@@ -193,7 +202,7 @@ static inline void RotateAboutAxis(const float angle, vec4* column0,
 // 'num_ops_'. Each item in 'ops_' is one matrix operation.
 //
 class MatrixData {
-  MatrixData() : end_time_(0) {}  // Use Create() to create this class.
+  MatrixData() {}  // Use Create() to create this class.
  public:
   ~MatrixData() { Destroy(this); }
 
@@ -203,10 +212,10 @@ class MatrixData {
   // fast).
   mat4 CalculateResultMatrix() const {
     // Start with the identity matrix.
-    vec4 c0(mathfu::kAxisX4f);  // (1, 0, 0, 0)
-    vec4 c1(mathfu::kAxisY4f);  // (0, 1, 0, 0)
-    vec4 c2(mathfu::kAxisZ4f);  // (0, 0, 1, 0)
-    vec4 c3(mathfu::kAxisW4f);  // (0, 0, 0, 1)
+    vec4 c0 = start_matrix_[0];
+    vec4 c1 = start_matrix_[1];
+    vec4 c2 = start_matrix_[2];
+    vec4 c3 = start_matrix_[3];
 
     for (int i = 0; i < num_ops_; ++i) {
       const MatrixOperation& op = ops_[i];
@@ -287,8 +296,6 @@ class MatrixData {
   }
 
   const mat4& result_matrix() const { return result_matrix_; }
-  MotiveTime end_time() const { return end_time_; }
-  void set_end_time(MotiveTime end_time) { end_time_ = end_time; }
   int num_ops() const { return num_ops_; }
 
   static MatrixData* Create(const MatrixInit& init, MotiveEngine* engine) {
@@ -300,6 +307,9 @@ class MatrixData {
     MatrixData* d = new (buffer) MatrixData();
 
     // Explicitly call constructors on members.
+    for (size_t i = 0; i < MOTIVE_ARRAY_SIZE(d->start_matrix_); ++i) {
+      d->start_matrix_[i] = MatrixColumn(init.start_transform(), i);
+    }
     d->result_matrix_ = mat4::Identity();
     d->num_ops_ = num_ops;
     for (int i = 0; i < num_ops; ++i) {
@@ -326,9 +336,21 @@ class MatrixData {
     return sizeof(MatrixData) + sizeof(MatrixOperation) * (num_ops - 1);
   }
 
+  /// Constants transforms that get applied before all other transforms.
+  /// Useful for skeletons, where it represents the transform from the
+  /// parent bone.
+  vec4 start_matrix_[4];
+
+  /// Result of the most recent matrix update.
   mat4 result_matrix_;
-  MotiveTime end_time_;
+
+  /// Length of the `ops_` array below, which extends past the end of the
+  /// defined class.
   int num_ops_;
+
+  /// Matrix operations to perform. Of length `num_ops_`. Class is initialized
+  /// in a chunk of memory that is big enough to hold
+  /// ops_[0] .. ops_[num_ops_ - 1]
   MatrixOperation ops_[1];
 };
 
@@ -366,12 +388,6 @@ class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
     return Data(index).result_matrix();
   }
 
-  virtual MotiveTime TimeRemaining(MotiveIndex index) const {
-    const MotiveTime end_time = Data(index).end_time();
-    return end_time == kMotiveTimeEndless ? kMotiveTimeEndless
-                                          : end_time - time_;
-  }
-
   virtual float ChildValue1f(MotiveIndex index,
                              MotiveChildIndex child_index) const {
     return Data(index).Op(child_index).Value();
@@ -398,7 +414,6 @@ class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
     RemoveIndex(index);
     auto init_params = static_cast<const MatrixInit&>(init);
     data_[index] = MatrixData::Create(init_params, engine);
-    data_[index]->set_end_time(time_ + init_params.end_time());
   }
 
   virtual void RemoveIndex(MotiveIndex index) {
