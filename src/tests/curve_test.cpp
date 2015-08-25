@@ -96,6 +96,15 @@ TEST_F(CurveTests, QuadraticCriticalPoint) {
   CheckCriticalPoint(QuadraticCurve(60.0f, -32.0f, 6.0f));
 }
 
+TEST_F(CurveTests, QuadraticRangesMatchingSign_SmallValues) {
+  const Range limits(0.0f, 1.0f);
+  const QuadraticCurve small(1.006107e-11f, -3.01832101e-11f, 1.006107e-11f);
+
+  QuadraticCurve::RangeArray matching;
+  small.RangesMatchingSign(limits, 1.0f, &matching);
+  EXPECT_EQ(matching.len, 1);
+}
+
 TEST_F(CurveTests, CubicWithWidth) {
   const CubicInit init(1.0f, -8.0f, 0.3f, -4.0f, 1.0f);
   const CubicCurve c(init);

@@ -34,7 +34,8 @@ static const mathfu::vec2i kDefaultGraphSize(kDefaultGraphWidth,
                                              kDefaultGraphHeight);
 
 /// 2^22 = the max precision of significand.
-static const float kEpsilonScale = 1.0f / static_cast<float>(1 << 22);
+static const float kEpsilonPrecision = static_cast<float>(1 << 22);
+static const float kEpsilonScale = 1.0f / kEpsilonPrecision;
 
 /// @class QuadraticInitWithStartDerivative
 /// @brief Initialization parameters to create a quaternion with
@@ -68,6 +69,11 @@ class QuadraticCurve {
     c_[0] = c0;
   }
   QuadraticCurve(const float* c) { memcpy(c_, c, sizeof(c_)); }
+  QuadraticCurve(const QuadraticCurve& q, const float scale) {
+    for (int i = 0; i < kNumCoeff; ++i) {
+      c_[i] = scale * q.c_[i];
+    }
+  }
   QuadraticCurve(const QuadraticInitWithStartDerivative& init) { Init(init); }
   void Init(const QuadraticInitWithStartDerivative& init);
 
@@ -103,9 +109,22 @@ class QuadraticCurve {
   /// If we're testing for zero, for instance, we should test against this
   /// Epsilon().
   float Epsilon() const {
+    return Epsilon(MaxCoeff());
+  }
+
+  /// Given values in the range of `x`, returns a value below which should be
+  /// considered zero.
+  float Epsilon(float x) const {
+    return x * kEpsilonScale;
+  }
+
+  /// Returns the largest absolute value of the coefficients. Gives a sense
+  /// of the scale of the quaternion. If all the coefficients are tiny or
+  /// huge, we'll need to renormalize around 1, since we take reciprocals of
+  /// the coefficients, and floating point precision is poor for floats.
+  float MaxCoeff() const {
     using std::max;
-    const float max_c = max(max(fabs(c_[2]), fabs(c_[1])), fabs(c_[0]));
-    return max_c * kEpsilonScale;
+    return max(max(fabs(c_[2]), fabs(c_[1])), fabs(c_[0]));
   }
 
   /// Used for finding roots, and more.
