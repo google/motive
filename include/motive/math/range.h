@@ -350,6 +350,26 @@ class RangeT {
     return IndexOfShortest(ranges.arr, ranges.len);
   }
 
+  /// Return the index of the shortest range in `ranges`.
+  static T ClampToClosest(T x, const RangeT* ranges, size_t len) {
+    T closest_dist = std::numeric_limits<T>::infinity();
+    T closest_clamp = x;
+    for (size_t i = 0; i < len; ++i) {
+      const T clamp = ranges[i].Clamp(x);
+      const T dist = fabs(x - clamp);
+      if (dist < closest_dist) {
+        closest_dist = dist;
+        closest_clamp = clamp;
+      }
+    }
+    return closest_clamp;
+  }
+
+  template <size_t kMaxLen>
+  static T ClampToClosest(T x, const RangeArray<kMaxLen>& ranges) {
+    return ClampToClosest(x, ranges.arr, ranges.len);
+  }
+
   /// Returns the complete range. Every T is contained in this range.
   static RangeT<T> Full() {
     return RangeT<T>(-std::numeric_limits<T>::infinity(),
