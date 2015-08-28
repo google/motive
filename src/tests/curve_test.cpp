@@ -102,7 +102,7 @@ TEST_F(CurveTests, QuadraticRangesMatchingSign_SmallValues) {
 
   QuadraticCurve::RangeArray matching;
   small.RangesMatchingSign(limits, 1.0f, &matching);
-  EXPECT_EQ(matching.len, 1);
+  EXPECT_EQ(matching.len, 1u);
 }
 
 TEST_F(CurveTests, CubicWithWidth) {
