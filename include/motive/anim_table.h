@@ -84,8 +84,8 @@ class AnimTable {
 
  private:
   typedef uint16_t AnimIndex;
-  typedef typename std::vector<AnimIndex> AnimList;
-  typedef typename std::pair<const char*, AnimIndex> NameToIndex;
+  typedef std::vector<AnimIndex> AnimList;
+  typedef std::pair<const char*, AnimIndex> NameToIndex;
 
   AnimIndex CalculateIndex(int object, int anim_idx) const {
     assert(0 <= object && object < static_cast<int>(indices_.size()));

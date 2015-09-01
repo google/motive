@@ -110,7 +110,8 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
 
         // Hold `init` and `playback` data in structures that won't disappear,
         // since these are referenced by pointer.
-        s.init = SmoothInit(y_range, spline_fb->modular_arithmetic());
+        s.init =
+            SmoothInit(y_range, spline_fb->modular_arithmetic() ? true : false);
         s.playback = fpl::SplinePlayback(s.spline, 0.0f);
         ops.AddOp(op_type, s.init, s.playback);
         break;
@@ -136,13 +137,14 @@ void RigAnimFromFlatBuffers(const RigAnimFb& params, RigAnim* anim) {
   const bool record_names = names != nullptr && names->Length() == num_bones;
   assert(parents != nullptr && parents->Length() == num_bones);
 
-  anim->Init(num_bones, record_names);
+  anim->Init(static_cast<motive::BoneIndex>(num_bones), record_names);
 
   MotiveTime end_time = 0;
   for (size_t i = 0; i < num_bones; ++i) {
     const BoneIndex parent = parents->Get(i);
     const char* name = record_names ? names->Get(i)->c_str() : "";
-    MatrixAnim& m = anim->InitMatrixAnim(i, parent, name);
+    MatrixAnim& m =
+        anim->InitMatrixAnim(static_cast<motive::BoneIndex>(i), parent, name);
     MatrixAnimFromFlatBuffers(*params.matrix_anims()->Get(i), &m);
 
     end_time = std::max(end_time, m.ops().end_time());
