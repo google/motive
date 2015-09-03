@@ -709,7 +709,7 @@ class FbxAnimParser {
 
     // Get global scale from the internal units.
     global_scale_ =
-        scene_->GetGlobalSettings().GetSystemUnit().GetScaleFactor();
+        1.0 / scene_->GetGlobalSettings().GetSystemUnit().GetScaleFactor();
     log_.Log(kLogInfo, "Scene scale factor is %f\n", global_scale_);
 
     // Remember the source file name so we can search for textures nearby.
@@ -736,7 +736,7 @@ class FbxAnimParser {
 
   FlatVal FbxToFlatValue(const float x, const MatrixOperationType op) const {
     return motive::RotateOp(op) ? Angle::FromDegrees(x).ToRadians() :
-           motive::ScaleOp(op) ? global_scale_ * x : x;
+           motive::TranslateOp(op) ? global_scale_ * x : x;
   }
 
   FlatDerivative FbxToFlatDerivative(const float d,
