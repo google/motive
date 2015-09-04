@@ -71,7 +71,8 @@ void Settled1fFromFlatBuffers(const Settled1fParameters& params,
   settled->max_difference = params.max_difference();
 }
 
-void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
+void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, bool repeat,
+                               MatrixAnim* anim) {
   MatrixOpArray& ops = anim->ops();
   ops.Clear(params.ops()->size());
 
@@ -112,7 +113,7 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
         // since these are referenced by pointer.
         s.init =
             SmoothInit(y_range, spline_fb->modular_arithmetic() ? true : false);
-        s.playback = fpl::SplinePlayback(s.spline, 0.0f);
+        s.playback = fpl::SplinePlayback(s.spline, 0.0f, repeat);
         ops.AddOp(op_type, s.init, s.playback);
         break;
       }
@@ -145,7 +146,8 @@ void RigAnimFromFlatBuffers(const RigAnimFb& params, RigAnim* anim) {
     const char* name = record_names ? names->Get(i)->c_str() : "";
     MatrixAnim& m =
         anim->InitMatrixAnim(static_cast<motive::BoneIndex>(i), parent, name);
-    MatrixAnimFromFlatBuffers(*params.matrix_anims()->Get(i), &m);
+    MatrixAnimFromFlatBuffers(*params.matrix_anims()->Get(i), params.repeat(),
+                              &m);
 
     end_time = std::max(end_time, m.ops().end_time());
   }

@@ -47,6 +47,7 @@ using motive::BoneIndex;
 using motive::kInvalidBoneIdx;
 
 static const int kTimeGranularityMiliseconds = 10;
+static const float kRepeatToleranceScale = 20.0f;
 
 // Each log message is given a level of importance.
 // We only output messages that have level >= our current logging level.
@@ -387,8 +388,9 @@ class FlatAnim {
     auto bone_names_fb = fbb.CreateVector(bone_names);
     auto bone_parents_fb = fbb.CreateVector(bone_parents);
     auto matrix_anims_fb = fbb.CreateVector(matrix_anims);
-    auto rig_anim_fb =
-        CreateRigAnimFb(fbb, matrix_anims_fb, bone_parents_fb, bone_names_fb);
+    const bool repeat = CanRepeat();
+    auto rig_anim_fb = CreateRigAnimFb(fbb, matrix_anims_fb, bone_parents_fb,
+                                       bone_names_fb, repeat);
     motive::FinishRigAnimFbBuffer(fbb, rig_anim_fb);
 
     // Create the output file.
@@ -437,6 +439,31 @@ class FlatAnim {
     const Channels& channels = CurChannels();
     return ToleranceForOp(channels[channel_id].op);
   }
+
+  /// @brief Return true if the start and end pose and derivatives are equal.
+  bool CanRepeat() const {
+    for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
+      for (auto channel = bone->channels.begin();
+           channel != bone->channels.end(); ++channel) {
+        // Get deltas for the start and end of the channel.
+        const SplineNode& start = channel->nodes.front();
+        const SplineNode& end = channel->nodes.back();
+        const float diff_val = fabs(start.val - end.val);
+        const float diff_derivative = fabs(start.derivative - end.derivative);
+        const float diff_time = static_cast<float>(end.time - start.time);
+
+        // Return false unless the start and end of the channel are the same.
+        const float tolerance =
+            kRepeatToleranceScale * ToleranceForOp(channel->op);
+        const float derivative_tolerance =
+            kRepeatToleranceScale * tolerance / diff_time;
+        const bool same = diff_val < tolerance &&
+                          diff_derivative < derivative_tolerance;
+        if (!same) return false;
+      }
+    }
+    return true;
+  };
 
   /// @brief Return true if the three channels starting at `channel_id`
   ///        can be replaced with a single kScaleUniformly channel.
@@ -610,28 +637,6 @@ struct ChannelNameToMatrixOp {
   const char* name;
   MatrixOperationType op;
 };
-
-// Convert from Maya channel name to MatrixOp.
-// TODO: Add channel names from other programs.
-static const ChannelNameToMatrixOp kChannelNameToMatrixOp[] = {
-    {"Lcl Translation.X", motive::kTranslateX},
-    {"Lcl Translation.Y", motive::kTranslateY},
-    {"Lcl Translation.Z", motive::kTranslateZ},
-    {"Lcl Rotation.X", motive::kRotateAboutX},
-    {"Lcl Rotation.Y", motive::kRotateAboutY},
-    {"Lcl Rotation.Z", motive::kRotateAboutZ},
-    {"Lcl Scaling.X", motive::kScaleX},
-    {"Lcl Scaling.Y", motive::kScaleY},
-    {"Lcl Scaling.Z", motive::kScaleZ},
-};
-
-static MatrixOperationType MatrixOpFromChannelName(const char* name) {
-  for (size_t i = 0; i < MOTIVE_ARRAY_SIZE(kChannelNameToMatrixOp); ++i) {
-    const ChannelNameToMatrixOp& m = kChannelNameToMatrixOp[i];
-    if (strcmp(m.name, name) == 0) return m.op;
-  }
-  return kInvalidMatrixOperation;
-}
 
 /// @class FbxParser
 /// @brief Load FBX files and save their geometry and animations in our

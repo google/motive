@@ -70,9 +70,22 @@ table MatrixAnimFb {
 
 // Animate an array of matrices.
 table RigAnimFb {
+  // Each bone in the rig is animated by its own matrix.
+  // Matrix values are in local space (i.e. the origin is the bone position +
+  // orientation). To convert to character space, traverse the hierarchy in
+  // `bone_parents`.
   matrix_anims:[MatrixAnimFb];
+
+  // Specifies bone hierarchy. Bone `i` is a child of `bone_parents[i]`.
+  // If a root bone (i.e. no parent), set to 255.
   bone_parents:[ubyte];
+
+  // For debugging. The human-readable name of each bone animated by
+  // `matrix_anims`.
   bone_names:[string];
+
+  // True if all the data streams end where they started.
+  repeat:bool;
 }
 
 root_type RigAnimFb;
