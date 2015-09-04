@@ -836,8 +836,14 @@ class FbxAnimParser {
 
     for (size_t i = 0; i < MOTIVE_ARRAY_SIZE(properties); ++i) {
       const AnimProperty& p = properties[i];
-      FbxAnimCurveNode* anim_node = AnimCurveNodeDrivingProperty(*p.property);
 
+      // Skeletons have a fixed translate that cannot be animated.
+      // Skeletal translates are applied in mesh_pipeline and output in the
+      // constant bone transform.
+      if (motive::TranslateOp(p.x_op) && node->GetSkeleton() != nullptr)
+        continue;
+
+      FbxAnimCurveNode* anim_node = AnimCurveNodeDrivingProperty(*p.property);
       const int num_channels =
           anim_node == nullptr ? 0 : anim_node->GetChannelsCount();
       for (int channel = 0; channel < num_channels; ++channel) {
