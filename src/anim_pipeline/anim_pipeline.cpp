@@ -48,6 +48,16 @@ using motive::kInvalidBoneIdx;
 
 static const int kTimeGranularityMiliseconds = 10;
 static const float kRepeatToleranceScale = 20.0f;
+static const int kDefaultChannelOrder[] = { 0, 1, 2 };
+static const int kRotationOrderToChannelOrder[][3] = {
+  { 2, 1, 0 }, // eOrderXYZ,
+  { 2, 0, 1 }, // eOrderXZY,
+  { 1, 0, 2 }, // eOrderYZX,
+  { 1, 2, 0 }, // eOrderYXZ,
+  { 0, 2, 1 }, // eOrderZXY,
+  { 0, 1, 2 }, // eOrderZYX,
+  { 2, 1, 0 }, // eOrderSphericXYZ
+};
 
 // Each log message is given a level of importance.
 // We only output messages that have level >= our current logging level.
@@ -820,6 +830,20 @@ class FbxAnimParser {
     return true;
   }
 
+  static const int* ChannelOrder(const FbxNode* node,
+                                 const MatrixOperationType op) {
+    // X,y,z order is significant only for rotations.
+    if (!motive::RotateOp(op)) return kDefaultChannelOrder;
+
+    // We output the last channel first, since they're applied in reverse
+    // order.
+    FbxEuler::EOrder rotation_order;
+    node->GetRotationOrder(FbxNode::eSourcePivot, rotation_order);
+    assert(0 <= rotation_order &&
+           rotation_order < MOTIVE_ARRAY_SIZE(kRotationOrderToChannelOrder));
+    return kRotationOrderToChannelOrder[rotation_order];
+  }
+
   void GatherFlatAnimForNode(FbxNode* node, FlatAnim* out) const {
     // The FBX tranform format is defined as below (see
     // http://help.autodesk.com/view/FBX/2016/ENU/?guid=__files_GUID_10CDD63C_79C1_4F2D_BB28_AD2BE65A02ED_htm):
@@ -848,11 +872,23 @@ class FbxAnimParser {
       if (motive::TranslateOp(p.x_op) && node->GetSkeleton() != nullptr)
         continue;
 
+      // Get the curve attached to the property that's animated.
       FbxAnimCurveNode* anim_node = AnimCurveNodeDrivingProperty(*p.property);
-      const int num_channels =
-          anim_node == nullptr ? 0 : anim_node->GetChannelsCount();
-      for (int channel = 0; channel < num_channels; ++channel) {
+      if (anim_node == nullptr) continue;
+
+      // Ensure we have three channels (x, y, z).
+      const int num_channels = anim_node->GetChannelsCount();
+      if (num_channels != 3) {
+        log_.Log(kLogError, "Animation property has %d channels instead of 3\n",
+                 num_channels);
+        continue;
+      }
+
+      // Rotations must be applied in the correct order.
+      const int* channel_order = ChannelOrder(node, p.x_op);
+      for (int channel_idx = 0; channel_idx < 3; ++channel_idx) {
         // Proceed through each channel: x, y, z.
+        const int channel = channel_order[channel_idx];
         const motive::MatrixOperationType op =
             static_cast<motive::MatrixOperationType>(p.x_op + channel);
 
