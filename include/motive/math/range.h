@@ -240,6 +240,26 @@ class RangeT {
     return RangeT(std::max(a.start_, b.start_), std::min(a.end_, b.end_));
   }
 
+  /// Return the smallest range that covers all of 'a' and 'b'.
+  static RangeT Union(const RangeT& a, const RangeT& b) {
+    // Possible cases:
+    // 1.  |-a---|    |-b---|  ==>  return (a.start, b.end)
+    // 2.  |-b---|    |-a---|  ==>  return (b.start, a.end)
+    // 3.  |-a---------|       ==>  return a
+    //        |-b---|
+    // 4.  |-b---------|       ==>  return b
+    //        |-a---|
+    // 5.  |-a---|             ==>  return (a.start, b.end)
+    //        |-b---|
+    // 6.  |-b---|             ==>  return (b.start, a.end)
+    //        |-a---|
+    //
+    // All satisfied by,
+    //   intersection.start = min(a.start, b.start)
+    //   intersection.end = max(a.end, b.end)
+    return RangeT(std::min(a.start_, b.start_), std::max(a.end_, b.end_));
+  }
+
   /// Only keep entries in 'values' if they are in
   /// (range.start - epsition, range.end + epsilon).
   /// Any values that are kept are clamped to 'range'.

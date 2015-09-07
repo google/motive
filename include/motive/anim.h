@@ -86,6 +86,9 @@ class RigAnim {
   const BoneIndex* bone_parents() const { return &bone_parents_[0]; }
 
   BoneIndex NumBones() const { return static_cast<BoneIndex>(anims_.size()); }
+  const char* BoneName(BoneIndex idx) const {
+    return idx < bone_names_.size() ? bone_names_[idx].c_str() : "unknown";
+  }
 
   const MatrixAnim& Anim(BoneIndex idx) const {
     assert(idx < anims_.size());

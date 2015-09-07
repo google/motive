@@ -140,6 +140,7 @@ set(motive_SRCS
     include/motive/target.h
     include/motive/util.h
     include/motive/version.h
+    src/motive/anim_table.cpp
     src/motive/engine.cpp
     src/motive/motivator.cpp
     src/motive/io/flatbuffers.cpp

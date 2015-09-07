@@ -17,7 +17,6 @@
 #include "motive/io/flatbuffers.h"
 #include "motive/init.h"
 #include "motive/anim.h"
-#include "motive/anim_table.h"
 
 namespace motive {
 
@@ -152,69 +151,6 @@ void RigAnimFromFlatBuffers(const RigAnimFb& params, RigAnim* anim) {
     end_time = std::max(end_time, m.ops().end_time());
   }
   anim->set_end_time(end_time);
-}
-
-void AnimTable::InitFromFlatBuffers(const AnimTableFb& params) {
-  // Allocate the index arrays.
-  indices_.resize(params.lists()->size());
-  for (flatbuffers::uoffset_t i = 0; i < indices_.size(); ++i) {
-    indices_[i].resize(params.lists()->Get(i)->anim_files()->Length());
-  }
-
-  // Create the name map and allocate indices into anims_.
-  for (flatbuffers::uoffset_t i = 0; i < indices_.size(); ++i) {
-    auto files_fb = params.lists()->Get(i)->anim_files();
-    AnimList& list = indices_[i];
-
-    for (flatbuffers::uoffset_t j = 0; j < list.size(); ++j) {
-      const char* anim_name = files_fb->Get(j)->c_str();
-
-      // Allow empty indices in the animation table.
-      if (anim_name == nullptr || *anim_name == '\0') {
-        list[j] = kInvalidAnimIndex;
-        continue;
-      }
-
-      // If this anim already exists, re-use it.
-      auto existing = name_map_.find(anim_name);
-      if (existing != name_map_.end()) {
-        list[j] = existing->second;
-        continue;
-      }
-
-      // Allocate a new index and insert into name map.
-      const AnimIndex new_idx = static_cast<AnimIndex>(name_map_.size());
-      list[j] = new_idx;
-      name_map_.insert(NameToIndex(anim_name, new_idx));
-    }
-  }
-
-  // Initialize the array of animations. These must be loaded separately.
-  // See LoadAnimTableAnimations() for an example.
-  anims_.resize(name_map_.size());
-}
-
-const char* LoadAnimTableAnimations(AnimTable* anim_table,
-                                    LoadFileFn* load_fn) {
-  std::vector<const char*> anim_names;
-  anim_table->AnimNames(&anim_names);
-
-  // Loop through each name
-  for (auto it = anim_names.begin(); it != anim_names.end(); ++it) {
-    const char* anim_name = *it;
-
-    // Load the animation file.
-    std::string anim_buf;
-    const bool load_success = load_fn(anim_name, &anim_buf);
-    if (!load_success) return anim_name;
-
-    // Initialize the animation file into `anim_table`.
-    const RigAnimFb* anim_fb = GetRigAnimFb(anim_buf.c_str());
-    RigAnim* anim = anim_table->QueryByName(anim_name);
-    RigAnimFromFlatBuffers(*anim_fb, anim);
-  }
-
-  return nullptr;
 }
 
 }  // namespace motive

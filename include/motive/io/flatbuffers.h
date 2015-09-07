@@ -29,11 +29,6 @@ struct SmoothParameters;
 struct Settled1f;
 struct Settled1fParameters;
 
-/// Load `file_name` into `buf` and return true on success, false on failure.
-/// Motive does not make assumptions on file io, so the caller must provide
-/// this function. Files should loaded in binary format.
-typedef bool LoadFileFn(const char* file_name, std::string* buf);
-
 /// Convert from FlatBuffer params to Motive init, for Overshoot.
 void OvershootInitFromFlatBuffers(const OvershootParameters& params,
                                   OvershootInit* init);
@@ -52,16 +47,6 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, bool repeat,
 
 /// Convert from FlatBuffer params to Motive MatrixAnim.
 void RigAnimFromFlatBuffers(const RigAnimFb& params, RigAnim* anim);
-
-/// Initialize all animations in `anim_table`. Assume that each `anim_name` is
-/// a file name, and load it with `load_fn`. Then call
-/// MatrixAnimFromFlatBuffers for each file to initialize all the animations.
-/// Returns the `anim_name` that couldn't be loaded, on failure, or nullptr,
-/// on success.
-/// Note: Every platform will have its own way of handling binary data. This
-///       utility function is provided mostly as an example for how to
-///       initialize an AnimTable.
-const char* LoadAnimTableAnimations(AnimTable* anim_table, LoadFileFn* load_fn);
 
 }  // namespace motive
 

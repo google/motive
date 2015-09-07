@@ -38,6 +38,7 @@ LOCAL_C_INCLUDES := \
   $(DEPENDENCIES_FPLUTIL_DIR)/libfplutil/include
 
 LOCAL_SRC_FILES := \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/anim_table.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/engine.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/io/flatbuffers.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/bulk_spline_evaluator.cpp \

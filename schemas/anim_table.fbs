@@ -15,10 +15,13 @@
 namespace motive;
 
 table AnimListFb {
+  // One animation file per `anim_idx`.
+  // Duplicate names can be specified. Each animation will only be loaded once.
   anim_files:[string];
 }
 
 table AnimTableFb {
+  // One list of animations per `object`.
   lists:[AnimListFb];
 }
 
