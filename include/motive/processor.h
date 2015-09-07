@@ -25,8 +25,10 @@
 
 namespace motive {
 
+class MatrixOpArray;
 class Motivator;
 class MotiveEngine;
+class RigAnim;
 
 /// @class MotiveProcessor
 /// @brief A MotiveProcessor processes *all* instances of one type of Motivator.
@@ -411,6 +413,9 @@ class MotiveProcessorMatrix4f : public MotiveProcessor {
       SetChildValue1f(index, child_index + i, value[i]);
     }
   }
+
+  /// Smoothly transition to the operations specified in `ops`.
+  virtual void BlendToOps(MotiveIndex /*index*/, const MatrixOpArray& /*ops*/){}
 };
 
 class MotiveProcessorRig : public MotiveProcessor {
@@ -420,6 +425,9 @@ class MotiveProcessorRig : public MotiveProcessor {
 
   /// Return the time remaining in the current matrix animation.
   virtual MotiveTime TimeRemaining(MotiveIndex index) const = 0;
+
+  /// Smoothly transition to the animation in `anim`.
+  virtual void BlendToAnim(MotiveIndex index, const RigAnim& anim) = 0;
 };
 
 /// Static functions in MotiveProcessor-derived classes.

@@ -370,6 +370,12 @@ class MotivatorMatrix4fTemplate : public Motivator {
     Processor().SetChildValue3f(index_, child_index, C::From(value));
   }
 
+  /// Match existing MatrixOps with those in `ops` and smoothly transition
+  /// to the new parameters in `ops`.
+  void BlendToOps(const MatrixOpArray& ops) {
+    Processor().BlendToOps(index_, ops);
+  }
+
  private:
   MotiveProcessorMatrix4f& Processor() {
     return *static_cast<MotiveProcessorMatrix4f*>(processor_);
@@ -385,11 +391,24 @@ class RigMotivator : public Motivator {
   RigMotivator(const MotivatorInit& init, MotiveEngine* engine)
       : Motivator(init, engine, 1) {}
 
-  /// Initialize to the type specified by `init`.
+  /// Initialize to the type specified by `init`. The only type defined
+  /// within Motive for `init` is motive::RigInit, but you can register your
+  /// own MotiveProcessorRig classes if you like.
   void Initialize(const MotivatorInit& init, MotiveEngine* engine) {
     InitializeWithDimension(init, engine, 1);
   }
 
+  /// Blend from the current state to the animation specified in `anim`.
+  /// Blend time is specified in `anim` itself.
+  /// If the current state is unspecified because no animation
+  /// has yet been played, snap to `anim`.
+  void BlendToAnim(const RigAnim& anim) {
+    Processor().BlendToAnim(index_, anim);
+  }
+
+  /// Returns array of matricies: one for each bone position. The matrices are
+  /// all in the space of the root bones. That is, the bone hierarchy has been
+  /// flattened.
   const mathfu::mat4* GlobalTransforms() const {
     return Processor().GlobalTransforms(index_);
   }

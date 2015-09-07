@@ -29,54 +29,81 @@ namespace motive {
 mathfu::mat4 MatrixInit::kIdentityTransform(mathfu::mat4::Identity());
 static const MatrixOpArray kEmptyOps(0);
 
-RigInit::RigInit(const RigAnim& anim, const mat4* bone_transforms,
+RigInit::RigInit(const RigAnim& defining_anim,
+                 const mathfu::mat4* bone_transforms,
                  const BoneIndex* bone_parents, BoneIndex num_bones)
     : MotivatorInit(kType),
-      anim_(&anim),
-      bone_parents_(bone_parents),
-      bone_transforms_(bone_transforms),
-      num_bones_(num_bones) {
-  // The `bone` parameters come from the mesh. If the mesh has no skeleton,
-  // we apply just the root transform of `anim`.
-  const bool mesh_has_no_skeleton = num_bones == 0;
-  if (mesh_has_no_skeleton) {
-    bone_parents_ = &kInvalidBoneIdx;
-    bone_transforms_ = &MatrixInit::kIdentityTransform;
-    num_bones_ = 1;
-  } else {
-    // Ensure the animation and the mesh have the same hierarchy.
-    assert(anim.MatchesHierarchy(bone_parents, num_bones));
-  }
+      defining_anim_(&defining_anim),
+      bone_transforms_(
+          num_bones == 0 ? &MatrixInit::kIdentityTransform : bone_transforms) {
+  // Ensure the animation and the mesh have the same hierarchy.
+  // We allow the one exception where there are no bones and only popsicle
+  // stick animations.
+  assert((num_bones == 0 && defining_anim.NumBones() == 1) ||
+         MatchesHierarchy(defining_anim, bone_parents, num_bones));
+}
+
+// static
+bool RigInit::MatchesHierarchy(const BoneIndex* parents_a, BoneIndex len_a,
+                               const BoneIndex* parents_b, BoneIndex len_b) {
+  // TODO: Implement runtime retargetting by allowing the hiearchy to be
+  //       slightly different on bones that aren't animated.
+  return len_a == len_b &&
+         memcmp(parents_a, parents_b, len_a * sizeof(parents_a[0])) == 0;
+}
+
+// static
+bool RigInit::MatchesHierarchy(const RigAnim& anim, const BoneIndex* parents_b,
+                               BoneIndex len_b) {
+  return MatchesHierarchy(anim.bone_parents(), anim.NumBones(), parents_b,
+                          len_b);
+}
+
+// static
+bool RigInit::MatchesHierarchy(const RigAnim& anim_a, const RigAnim& anim_b) {
+  return MatchesHierarchy(anim_a.bone_parents(), anim_a.NumBones(),
+                          anim_b.bone_parents(), anim_b.NumBones());
 }
 
 class RigData {
  public:
   explicit RigData(const RigInit& init, MotiveTime start_time,
                    MotiveEngine* engine)
-      : motivators_(init.num_bones()),
-        global_transforms_(init.num_bones()),
-        parents_(init.bone_parents()),
-        end_time_(start_time + init.anim().end_time()) {
-    const RigAnim& rig_anim = init.anim();
-    const mat4* bone_transforms = init.bone_transforms();
-    const int num_anim_bones = rig_anim.NumBones();
-    const int num_bones = init.num_bones();
-    assert(num_bones > 0 && num_anim_bones > 0);
+      : motivators_(init.defining_anim().NumBones()),
+        global_transforms_(init.defining_anim().NumBones()),
+        defining_anim_(&init.defining_anim()),
+        end_time_(start_time) {
+    const BoneIndex num_bones = defining_anim_->NumBones();
 
     // Initialize global transforms to default pose.
     // These will get overridden the first time AdvanceFrame() is called, but
     // we initialize them nicely anyway.
-    memcpy(&global_transforms_[0], bone_transforms,
+    memcpy(&global_transforms_[0], init.bone_transforms(),
            sizeof(global_transforms_[0]) * num_bones);
 
     // Initialize the motivators that drive the local transforms.
-    for (int i = 0; i < num_bones; ++i) {
-      const MatrixOpArray& ops =
-          i >= num_anim_bones
-              ? kEmptyOps
-              : rig_anim.Anim(static_cast<motive::BoneIndex>(i)).ops();
-      const MatrixInit matrix_init(ops, bone_transforms[i]);
+    for (BoneIndex i = 0; i < num_bones; ++i) {
+      const MatrixOpArray& ops = defining_anim_->Anim(i).ops();
+      const MatrixInit matrix_init(ops, global_transforms_[i]);
       motivators_[i].Initialize(matrix_init, engine);
+    }
+  }
+
+  void BlendToAnim(const RigAnim& anim, MotiveTime start_time) {
+    end_time_ = start_time + anim.end_time();
+
+    // When animation has only one bone, or mesh has only one bone,
+    // we simply animate the root node only.
+    const int anim_num_bones = anim.NumBones();
+    const int defining_num_bones = defining_anim_->NumBones();
+    assert(defining_num_bones == 1 || anim_num_bones == 1 ||
+           RigInit::MatchesHierarchy(anim, *defining_anim_));
+
+    // Update the motivators to blend to our new values.
+    for (BoneIndex i = 0; i < defining_num_bones; ++i) {
+      const MatrixOpArray& ops =
+          i >= anim_num_bones ? kEmptyOps : anim.Anim(i).ops();
+      motivators_[i].BlendToOps(ops);
     }
   }
 
@@ -94,14 +121,15 @@ class RigData {
 
  private:
   /// Traverse hierarchy, converting local transforms from `motivators_` into
-  /// global transforms. The `parents_` are layed out such that the parent
+  /// global transforms. The `parents` are layed out such that the parent
   /// always come before the child.
-  // TODO OPT: optimize `parents_` layout so that we can parallelize this call.
+  // TODO OPT: optimize `parents` layout so that we can parallelize this call.
   void CalculateGlobalTransforms(mat4* out) const {
+    const BoneIndex* parents = defining_anim_->bone_parents();
     const int num_bones = NumBones();
     for (int i = 0; i < num_bones; ++i) {
       const mat4& local_transform = motivators_[i].Value();
-      const int parent_idx = parents_[i];
+      const int parent_idx = parents[i];
       if (parent_idx == kInvalidBoneIdx) {
         out[i] = local_transform;
       } else {
@@ -113,7 +141,7 @@ class RigData {
 
   std::vector<MotivatorMatrix4f> motivators_;
   std::vector<mat4> global_transforms_;
-  const BoneIndex* parents_;
+  const RigAnim* defining_anim_;
 
   /// Time that the animation is expected to complete.
   MotiveTime end_time_;
@@ -144,6 +172,10 @@ class RigMotiveProcessor : public MotiveProcessorRig {
     // Update our global time. It shouldn't matter if this wraps
     // around, since we only calculate times relative to it.
     time_ += delta_time;
+  }
+
+  virtual void BlendToAnim(MotiveIndex index, const RigAnim& anim) {
+    Data(index).BlendToAnim(anim, time_);
   }
 
   virtual MotivatorType Type() const { return RigInit::kType; }

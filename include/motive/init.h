@@ -49,6 +49,10 @@ inline bool ScaleOp(MatrixOperationType op) {
   return kScaleX <= op && op <= kScaleUniformly;
 }
 
+inline float OperationDefaultValue(MatrixOperationType op) {
+  return RotateOp(op) || TranslateOp(op) ? 0.0f : 1.0f;
+}
+
 /// @class ModularInit
 /// Base-class for OvershootInit and SmoothInit. Holds parameters related
 /// to modular arithmetic in a Motivator.
@@ -373,18 +377,25 @@ class RigInit : public MotivatorInit {
  public:
   MOTIVE_INTERFACE();
 
-  RigInit(const RigAnim& anim, const mathfu::mat4* bone_transforms,
+  RigInit(const RigAnim& defining_anim, const mathfu::mat4* bone_transforms,
           const BoneIndex* bone_parents, BoneIndex num_bones);
-  const RigAnim& anim() const { return *anim_; }
-  const BoneIndex* bone_parents() const { return bone_parents_; }
+  const RigAnim& defining_anim() const { return *defining_anim_; }
   const mathfu::mat4* bone_transforms() const { return bone_transforms_; }
-  BoneIndex num_bones() const { return num_bones_; }
+
+  // Utility functions. Ensure that animations are compatible with rigs.
+  static bool MatchesHierarchy(const BoneIndex* parents_a, BoneIndex len_a,
+                               const BoneIndex* parents_b, BoneIndex len_b);
+  static bool MatchesHierarchy(const RigAnim& anim, const BoneIndex* parents_b,
+                               BoneIndex len_b);
+  static bool MatchesHierarchy(const RigAnim& anim_a, const RigAnim& anim_b);
 
  private:
-  const RigAnim* anim_;                  // Animation and hierarcy.
-  const BoneIndex* bone_parents_;        // Array defining bone hierarchy.
-  const mathfu::mat4* bone_transforms_;  // Array defining default pose.
-  BoneIndex num_bones_;                  // Length of `bone_parents` and `bone_transforms_`.
+  /// Animation defining hierarchy and the union of matrix ops (across all
+  /// animations).
+  const RigAnim* defining_anim_;
+
+  // Array defining default pose.
+  const mathfu::mat4* bone_transforms_;
 };
 
 }  // namespace motive

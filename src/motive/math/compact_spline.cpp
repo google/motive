@@ -339,6 +339,37 @@ CompactSplineIndex CompactSpline::IndexForX(
   return index;
 }
 
+CompactSplineIndex CompactSpline::IndexForXAllowingRepeat(
+    const float x, const CompactSplineIndex guess_index,
+    const bool repeat, float* final_x) const {
+  // Does not repeat, so return the index as is.
+  const CompactSplineIndex index = IndexForX(x, guess_index);
+  if (!repeat || index != kAfterSplineIndex) {
+    *final_x = x;
+    return index;
+  }
+
+  // Repeats, so wrap `x` back to 0 and find the index again.
+  const float repeat_x = x - LengthX();
+  const CompactSplineIndex repeat_index = IndexForX(repeat_x, 0);
+  *final_x = repeat_x;
+  return repeat_index;
+}
+
+CompactSplineIndex CompactSpline::ClampIndex(const CompactSplineIndex index,
+                                             float* x) const {
+  if (index == kBeforeSplineIndex) {
+    *x = StartX();
+    return 0;
+  }
+  if (index == kAfterSplineIndex) {
+    *x = EndX();
+    return NumNodes() - 1;
+  }
+  assert(index < NumNodes());
+  return index;
+}
+
 CompactSplineIndex CompactSpline::LastNodeIndex() const {
   return static_cast<CompactSplineIndex>(nodes_.size() - 1);
 }

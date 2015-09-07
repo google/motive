@@ -15,6 +15,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include "motive/math/angle.h"
 #include "motive/math/bulk_spline_evaluator.h"
 #include "motive/math/dual_cubic.h"
 #include "motive/util/benchmark.h"
@@ -66,16 +67,70 @@ void BulkSplineEvaluator::SetYRange(const Index index, const Range& valid_y,
   r.modular_arithmetic = modular_arithmetic ? kMask32True : kMask32False;
 }
 
-void BulkSplineEvaluator::SetSpline(const Index index,
-                                    const SplinePlayback& playback) {
-  FPL_BENCHMARK("BulkSplineEvaluator::SetSpline");
+CubicInit BulkSplineEvaluator::CalculateBlendInit(
+    const Index index, const SplinePlayback& playback,
+    CompactSplineIndex* out_blend_end_index) const {
+  const CompactSpline* spline = playback.splines[0];
 
+  const float blend_width = playback.blend_x * playback.playback_rate;
+  float blend_end_x = playback.start_x + blend_width;
+  const CompactSplineIndex blend_end_index_unclamped =
+      spline->IndexForXAllowingRepeat(blend_end_x, kInvalidSplineIndex,
+                                      playback.repeat, &blend_end_x);
+  const CompactSplineIndex blend_end_index =
+      spline->ClampIndex(blend_end_index_unclamped, &blend_end_x);
+
+  const float curve_x = blend_end_x - spline->NodeX(blend_end_index);
+  const CubicInit curve_init = spline->CreateCubicInit(blend_end_index);
+  const CubicCurve curve(curve_init);
+
+  *out_blend_end_index = blend_end_index;
+  return CubicInit(ys_[index], Derivative(index), curve.Evaluate(curve_x),
+                   curve.Derivative(curve_x), blend_width);
+}
+
+void BulkSplineEvaluator::BlendToSpline(const Index index,
+                                        const SplinePlayback& playback) {
+  CompactSplineIndex blend_end_index = 0;
+  const CubicInit blend_init = CalculateBlendInit(index, playback,
+                                                  &blend_end_index);
+  assert(blend_end_index < playback.splines[0]->NumNodes());
+
+  Source& s = sources_[index];
+  s.spline = playback.splines[0];
+  s.x_index = blend_end_index - 1;
+  s.repeat = playback.repeat;
+  playback_rates_[index] = playback.playback_rate;
+  cubic_xs_[index] = 0.0f;
+  cubic_x_ends_[index] = playback.blend_x;
+  cubics_[index].Init(blend_init);
+}
+
+void BulkSplineEvaluator::JumpToSpline(const Index index,
+                                       const SplinePlayback& playback) {
   Source& s = sources_[index];
   s.spline = playback.splines[0];
   s.x_index = kInvalidSplineIndex;
   s.repeat = playback.repeat;
   playback_rates_[index] = playback.playback_rate;
   InitCubic(index, playback.start_x);
+}
+
+void BulkSplineEvaluator::SetSpline(const Index index,
+                                    const SplinePlayback& playback) {
+
+  // If we're already playing a spline, and the blend time is specified,
+  // create a curve that blends from the current state to a point later in
+  // the new spline.
+  const Source& s = sources_[index];
+  const bool should_blend = s.spline != nullptr && playback.blend_x > 0.0f;
+  if (should_blend) {
+    BlendToSpline(index, playback);
+  } else {
+    JumpToSpline(index, playback);
+  }
+
+  // Update the results.
   EvaluateIndex(index);
 }
 
@@ -150,13 +205,9 @@ void BulkSplineEvaluator::InitCubic(const Index index, const float start_x) {
   if (s.spline == nullptr) return;
 
   // Do nothing if the current cubic matches the current spline segment.
-  float new_start_x = start_x;
-  CompactSplineIndex x_index = s.spline->IndexForX(new_start_x, s.x_index + 1);
-  assert(s.x_index != x_index);
-  if (s.repeat && x_index == kAfterSplineIndex) {
-    new_start_x -= s.spline->LengthX();
-    x_index = s.spline->IndexForX(new_start_x, 0);
-  }
+  float new_start_x = 0.0f;
+  const CompactSplineIndex x_index = s.spline->IndexForXAllowingRepeat(
+      start_x, s.x_index + 1, s.repeat, &new_start_x);
 
   // Update the x values for the new index.
   const Range x_range = s.spline->RangeX(x_index);

@@ -95,21 +95,6 @@ class RigAnim {
     return anims_[idx];
   }
 
-  bool MatchesHierarchy(const BoneIndex* mesh_bone_parents,
-                        BoneIndex mesh_num_bones) const {
-    // When animation has only one bone, or mesh has only one bone,
-    // we simply animate the root node only.
-    const int anim_num_bones = NumBones();
-    if (mesh_num_bones <= 1 || anim_num_bones == 1) return true;
-
-    // Otherwise, the hierarchy must match completely.
-    // TODO: Implement runtime retargetting by allowing the hiearchy to be
-    //       slightly different on bones that aren't animated.
-    return anim_num_bones == mesh_num_bones &&
-           memcmp(mesh_bone_parents, &bone_parents_[0],
-                  anim_num_bones * sizeof(bone_parents_[0])) == 0;
-  }
-
  private:
   std::vector<MatrixAnim> anims_;
   std::vector<BoneIndex> bone_parents_;

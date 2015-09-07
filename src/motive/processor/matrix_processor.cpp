@@ -24,6 +24,8 @@ using fpl::Angle;
 
 namespace motive {
 
+static const MotiveTime kBlendToDefaultTime = 200;
+
 static inline bool IsRotation(MatrixOperationType type) {
   return type <= kRotateAboutZ;
 }
@@ -45,33 +47,10 @@ class MatrixOperation {
     SetAnimationType(animation_type);
 
     switch (animation_type) {
-      case kMotivatorAnimation: {
+      case kMotivatorAnimation:
         // Manually construct the motivator in the union's memory buffer.
-        Motivator1f* motivator =
-            new (value_.motivator_memory) Motivator1f(*init.init, engine);
-
-        // Initialize the state if required.
-        switch (init.union_type) {
-          case MatrixOperationInit::kUnionEmpty:
-            break;
-
-          case MatrixOperationInit::kUnionInitialValue:
-            motivator->SetTarget(Current1f(init.initial_value));
-            break;
-
-          case MatrixOperationInit::kUnionTarget:
-            motivator->SetTarget(*init.target);
-            break;
-
-          case MatrixOperationInit::kUnionSpline:
-            motivator->SetSpline(*init.spline);
-            break;
-
-          default:
-            assert(false);
-        }
+        new (value_.motivator_memory) Motivator1f(*init.init, engine);
         break;
-      }
 
       case kConstValueAnimation:
         // If this value is not driven by an motivator, it must have a constant
@@ -119,6 +98,56 @@ class MatrixOperation {
     assert(animation_type_ == kConstValueAnimation &&
            (!IsRotation(Type()) || Angle::IsAngleInRange(value)));
     value_.const_value = value;
+  }
+
+  void BlendToOp(const MatrixOperationInit& init) {
+    switch (animation_type_) {
+      case kMotivatorAnimation: {
+        Motivator1f& motivator = Motivator();
+
+        // Initialize the state if required.
+        switch (init.union_type) {
+          case MatrixOperationInit::kUnionEmpty:
+            break;
+
+          case MatrixOperationInit::kUnionInitialValue:
+            motivator.SetTarget(Current1f(init.initial_value));
+            break;
+
+          case MatrixOperationInit::kUnionTarget:
+            motivator.SetTarget(*init.target);
+            break;
+
+          case MatrixOperationInit::kUnionSpline:
+            motivator.SetSpline(*init.spline);
+            break;
+
+          default:
+            assert(false);
+        }
+        break;
+      }
+
+      case kConstValueAnimation:
+        // Const values can't be changed.
+        assert(init.union_type == MatrixOperationInit::kUnionInitialValue &&
+               value_.const_value == init.initial_value);
+        break;
+
+      default:
+        assert(false);
+    }
+  }
+
+  void BlendToDefault(MotiveTime blend_time) {
+    // Don't touch const value ones. Their default value is their const value.
+    if (animation_type_ == kConstValueAnimation) return;
+    assert(animation_type_ == kMotivatorAnimation);
+
+    // Create spline that eases out to the default_value.
+    Motivator1f& motivator = Motivator();
+    const float default_value = OperationDefaultValue(Type());
+    motivator.SetTarget(Target1f(default_value, 0.0f, blend_time));
   }
 
  private:
@@ -285,6 +314,30 @@ class MatrixData {
 
   void UpdateResultMatrix() { result_matrix_ = CalculateResultMatrix(); }
 
+  void BlendToOps(const MatrixInit::OpVector& new_ops) {
+    const int num_new_ops = static_cast<int>(new_ops.size());
+    assert(num_ops_ >= num_new_ops);
+
+    // Blend every operation to either the values in `ops` or, if `ops` doesn't
+    // contain the operation, to the default value (0 for rotates and
+    // translates, 1 for scales).
+    int new_op_idx = 0;
+    for (int i = 0; i < num_ops_; ++i) {
+      MatrixOperation& op = ops_[i];
+      const MatrixOperationType defining_type = op.Type();
+      const MatrixOperationType op_type = new_op_idx < num_new_ops ?
+          new_ops[new_op_idx].type : kInvalidMatrixOperation;
+
+      if (defining_type == op_type) {
+        op.BlendToOp(new_ops[new_op_idx]);
+        new_op_idx++;
+      } else {
+        op.BlendToDefault(kBlendToDefaultTime);
+      }
+    }
+    assert(new_op_idx == num_new_ops);
+  }
+
   const MatrixOperation& Op(int child_index) const {
     assert(0 <= child_index && child_index < num_ops_);
     return ops_[child_index];
@@ -402,6 +455,10 @@ class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
   virtual void SetChildValue1f(MotiveIndex index, MotiveChildIndex child_index,
                                float value) {
     Data(index).Op(child_index).SetValue1f(value);
+  }
+
+  virtual void BlendToOps(MotiveIndex index, const MatrixOpArray& ops) {
+    Data(index).BlendToOps(ops.ops());
   }
 
  protected:

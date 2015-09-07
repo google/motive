@@ -20,6 +20,11 @@
 
 namespace motive {
 
+// TODO: Make these configurable per call, instead of const in the anim.
+static const float kAnimStartTime = 0.0f;
+static const float kAnimPlaybackRate = 1.0f;
+static const float kAnimBlendTime = 200.0f;
+
 // Verify that MatrixOperationType and MatrixOperationTypeFb are identical
 // enumerations. Since FlatBuffer support is optional, we must duplicate the
 // MatrixOperationType from init.h in matrix_anim.fbx.
@@ -112,7 +117,8 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, bool repeat,
         // since these are referenced by pointer.
         s.init =
             SmoothInit(y_range, spline_fb->modular_arithmetic() ? true : false);
-        s.playback = fpl::SplinePlayback(s.spline, 0.0f, repeat);
+        s.playback = fpl::SplinePlayback(s.spline, kAnimStartTime, repeat,
+                                         kAnimPlaybackRate, kAnimBlendTime);
         ops.AddOp(op_type, s.init, s.playback);
         break;
       }

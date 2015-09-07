@@ -139,6 +139,18 @@ class CompactSpline {
   CompactSplineIndex IndexForX(const float x,
                                const CompactSplineIndex guess_index) const;
 
+  /// If `repeat` is true, loop to x = 0 when `x` >= EndX().
+  /// If `repeat` is false, same as IndexForX().
+  CompactSplineIndex IndexForXAllowingRepeat(
+      const float x, const CompactSplineIndex guess_index,
+      const bool repeat, float* final_x) const;
+
+  /// Returns closest index between 0 and NumNodes() - 1.
+  /// Clamps `x` to a value in the range of index.
+  /// `index` must be a valid value: i.e. kBeforeSplineIndex, kAfterSplineIndex,
+  ///  or between 0..NumNodes()-1.
+  CompactSplineIndex ClampIndex(const CompactSplineIndex index, float* x) const;
+
   // First and last x, y, and derivatives in the spline.
   float StartX() const;
   float StartY() const;
@@ -248,7 +260,8 @@ struct SplinePlaybackN {
   static const int kDimensions = kDimensionsT;
 
   /// Default constructor. Initializes to invalid values.
-  SplinePlaybackN() : start_x(-1.0f), playback_rate(-1.0f), repeat(false) {
+  SplinePlaybackN()
+      : start_x(-1.0f), blend_x(0.0f), playback_rate(-1.0f), repeat(false) {
     for (int i = 0; i < kDimensions; ++i) {
       splines[i] = nullptr;
     }
@@ -257,8 +270,10 @@ struct SplinePlaybackN {
   /// Initialize all channels with same spline.
   /// Especially useful when kDimensions = 1, since there is only one channel.
   explicit SplinePlaybackN(const CompactSpline& s, float start_x = 0.0f,
-                           bool repeat = false, float playback_rate = 1.0f)
-      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
+                           bool repeat = false, float playback_rate = 1.0f,
+                           float blend_x = 0.0f)
+      : start_x(start_x), blend_x(blend_x), playback_rate(playback_rate),
+        repeat(repeat) {
     for (int i = 0; i < kDimensions; ++i) {
       splines[i] = &s;
     }
@@ -267,8 +282,10 @@ struct SplinePlaybackN {
   /// Initialize each channel with its own spline.
   /// @param s An array pointers to splines, of length kDimensions.
   explicit SplinePlaybackN(const CompactSpline* s, float start_x = 0.0f,
-                           bool repeat = false, float playback_rate = 1.0f)
-      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
+                           bool repeat = false, float playback_rate = 1.0f,
+                           float blend_x = 0.0f)
+      : start_x(start_x), blend_x(blend_x), playback_rate(playback_rate),
+        repeat(repeat) {
     for (int i = 0; i < kDimensions; ++i) {
       splines[i] = &s[i];
     }
@@ -277,8 +294,9 @@ struct SplinePlaybackN {
   /// Initialize 2D spline playback.
   SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
                   float start_x = 0.0f, bool repeat = false,
-                  float playback_rate = 1.0f)
-      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
+                  float playback_rate = 1.0f, float blend_x = 0.0f)
+      : start_x(start_x), blend_x(blend_x), playback_rate(playback_rate),
+        repeat(repeat) {
     assert(kDimensions == 2);
     splines[0] = &x;
     splines[1] = &y;
@@ -287,8 +305,10 @@ struct SplinePlaybackN {
   /// Initialize 3D spline playback.
   SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
                   const CompactSpline& z, float start_x = 0.0f,
-                  bool repeat = false, float playback_rate = 1.0f)
-      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
+                  bool repeat = false, float playback_rate = 1.0f,
+                  float blend_x = 0.0f)
+      : start_x(start_x), blend_x(blend_x), playback_rate(playback_rate),
+        repeat(repeat) {
     assert(kDimensions == 3);
     splines[0] = &x;
     splines[1] = &y;
@@ -299,8 +319,9 @@ struct SplinePlaybackN {
   SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
                   const CompactSpline& z, const CompactSpline& w,
                   float start_x = 0.0f, bool repeat = false,
-                  float playback_rate = 1.0f)
-      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
+                  float playback_rate = 1.0f, float blend_x = 0.0f)
+      : start_x(start_x), blend_x(blend_x), playback_rate(playback_rate),
+        repeat(repeat) {
     assert(kDimensions == 4);
     splines[0] = &x;
     splines[1] = &y;
@@ -323,6 +344,10 @@ struct SplinePlaybackN {
 
   /// The starting point from which to play.
   float start_x;
+
+  /// The point at which to be 100% in this spline. We create a smooth spline
+  /// from the current state to the spline state that lasts for `blend_x`.
+  float blend_x;
 
   /// The playback rate of the spline. Scales `delta_time` of the update to
   /// to x-axis of `splines`.
