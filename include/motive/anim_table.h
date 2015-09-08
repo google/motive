@@ -71,9 +71,9 @@ class AnimTable {
   ///                 should run consecutively from 0 to the number of
   ///                 animations - 1. No need for the number of animations to
   ///                 match between objects.
-  const RigAnim& Query(int object, int anim_idx) const {
+  const RigAnim* Query(int object, int anim_idx) const {
     const AnimIndex idx = CalculateIndex(object, anim_idx);
-    return anims_[idx];
+    return idx == kInvalidAnimIndex ? nullptr : &anims_[idx];
   }
 
   /// Get an animation by name. This is slow and should be avoided when
@@ -86,6 +86,7 @@ class AnimTable {
   typedef uint16_t AnimIndex;
   typedef std::vector<AnimIndex> AnimList;
   typedef std::pair<const char*, AnimIndex> NameToIndex;
+  static const AnimIndex kInvalidAnimIndex = static_cast<AnimIndex>(-1);
 
   AnimIndex CalculateIndex(int object, int anim_idx) const {
     assert(0 <= object && object < static_cast<int>(indices_.size()));

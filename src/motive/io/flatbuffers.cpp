@@ -169,6 +169,12 @@ void AnimTable::InitFromFlatBuffers(const AnimTableFb& params) {
     for (flatbuffers::uoffset_t j = 0; j < list.size(); ++j) {
       const char* anim_name = files_fb->Get(j)->c_str();
 
+      // Allow empty indices in the animation table.
+      if (anim_name == nullptr || *anim_name == '\0') {
+        list[j] = kInvalidAnimIndex;
+        continue;
+      }
+
       // If this anim already exists, re-use it.
       auto existing = name_map_.find(anim_name);
       if (existing != name_map_.end()) {
