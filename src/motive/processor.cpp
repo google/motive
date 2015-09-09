@@ -15,11 +15,6 @@
 #include "motive/processor.h"
 #include "motive/motivator.h"
 
-// Define this to 0 in the build file to disable sanity checks.
-#ifndef MOTIVE_VERIFY_INTERNAL_STATE
-#define MOTIVE_VERIFY_INTERNAL_STATE 1
-#endif
-
 namespace motive {
 
 MotiveProcessor::~MotiveProcessor() {

@@ -16,7 +16,7 @@ cmake_minimum_required(VERSION 2.8.12)
 project(motive)
 
 # Compile the game with the debug flag
-set(motive_DEBUG ON)
+#set(motive_DEBUG ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
@@ -191,7 +191,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${C_FLAGS_WARNINGS}")
 
 if(motive_DEBUG)
   # if we want to define this, it needs to be only in debug builds
-  #add_definitions(-D_DEBUG)
+  add_definitions(-D_DEBUG)
+  add_definitions(-DMOTIVE_VERIFY_INTERNAL_STATE)
 endif()
 
 if(motive_debug_functions)
