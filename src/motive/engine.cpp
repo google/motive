@@ -19,10 +19,6 @@
 
 namespace motive {
 
-// If we benchmark other stuff besides the MotiveProcessor::AdvanceFrame(),
-// we'll have to move this to an enum of benchmarking ids.
-static const int kBenchmarkIdOfFirstProcessor = 0;
-
 // static
 MotiveEngine::FunctionMap MotiveEngine::function_map_;
 
