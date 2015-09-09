@@ -821,7 +821,7 @@ class FbxAnimParser {
           FbxToFlatDerivative(curve->KeyGetLeftDerivative(i), p.x_op);
       const float right_derivative =
           FbxToFlatDerivative(curve->KeyGetRightDerivative(i), p.x_op);
-      const float value = FbxToFlatValue(curve->KeyGetValue(i), p.x_op);
+      const float value = FbxToFlatValue(curve->KeyGetValue(i + 1), p.x_op);
       if (fabs(left_derivative) > derivative_tolerance ||
           fabs(right_derivative) > derivative_tolerance ||
           fabs(value - *const_value) > tolerance)
