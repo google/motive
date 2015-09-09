@@ -17,6 +17,7 @@
 #include <vector>
 #include "motive/math/bulk_spline_evaluator.h"
 #include "motive/math/dual_cubic.h"
+#include "motive/util/benchmark.h"
 
 using mathfu::Lerp;
 
@@ -67,6 +68,8 @@ void BulkSplineEvaluator::SetYRange(const Index index, const Range& valid_y,
 
 void BulkSplineEvaluator::SetSpline(const Index index,
                                     const SplinePlayback& playback) {
+  FPL_BENCHMARK("BulkSplineEvaluator::SetSpline");
+
   Source& s = sources_[index];
   s.spline = playback.splines[0];
   s.x_index = kInvalidSplineIndex;

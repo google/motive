@@ -14,6 +14,7 @@
 
 #include "motive/processor.h"
 #include "motive/motivator.h"
+#include "motive/util/benchmark.h"
 
 namespace motive {
 
@@ -62,6 +63,8 @@ void MotiveProcessor::VerifyInternalState() const {
 void MotiveProcessor::InitializeMotivator(
     const MotivatorInit& init, MotiveEngine* engine, Motivator* motivator,
     MotiveDimension dimensions) {
+  const fpl::Benchmark b(benchmark_id_for_init());
+
   // Assign an 'index' to reference the new Motivator. All interactions between
   // the Motivator and MotiveProcessor use this 'index' to identify the data.
   const MotiveIndex index = index_allocator_.Alloc(dimensions);
@@ -189,6 +192,14 @@ void MotiveProcessor::MoveIndexRangeBase(const IndexRange& source,
     motivators_[i + index_diff] = motivators_[i];
     motivators_[i] = nullptr;
   }
+}
+
+void MotiveProcessor::RegisterBenchmarks() {
+  const std::string class_name(*Type());
+  benchmark_id_for_advance_frame_ =
+      fpl::RegisterBenchmark((class_name + "::AdvanceFrame").c_str());
+  benchmark_id_for_init_ =
+      fpl::RegisterBenchmark((class_name + "::Init").c_str());
 }
 
 }  // namespace motive

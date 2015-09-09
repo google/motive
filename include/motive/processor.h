@@ -56,7 +56,8 @@ class MotiveEngine;
 class MotiveProcessor {
  public:
   MotiveProcessor()
-      : allocator_callbacks_(this), index_allocator_(allocator_callbacks_) {}
+      : allocator_callbacks_(this), index_allocator_(allocator_callbacks_),
+        benchmark_id_for_advance_frame_(-1), benchmark_id_for_init_(-1) {}
   virtual ~MotiveProcessor();
 
   /// Instantiate motivator data inside the MotiveProcessor, and initialize
@@ -149,6 +150,13 @@ class MotiveProcessor {
   /// debugging problems where the internal state is corrupt.
   void VerifyInternalState() const;
 
+  // For internal use. Called by the MotiveEngine to profile each processor.
+  void RegisterBenchmarks();
+  int benchmark_id_for_advance_frame() const {
+    return benchmark_id_for_advance_frame_;
+  }
+  int benchmark_id_for_init() const { return benchmark_id_for_init_; }
+
  protected:
   /// Initialize data at 'index'. The meaning of 'index' is determined by the
   /// MotiveProcessor implementation (most likely it is the index into one or
@@ -230,6 +238,9 @@ class MotiveProcessor {
   /// unused indices with the highest allocated indices. This reduces the total
   /// size of the data arrays.
   MotiveIndexAllocator index_allocator_;
+
+  int benchmark_id_for_advance_frame_;
+  int benchmark_id_for_init_;
 };
 
 /// @class MotiveProcessorVector

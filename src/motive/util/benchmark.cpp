@@ -25,6 +25,8 @@
 
 namespace fpl {
 
+static const double kMicrosecondsPerSecond = 1000000.0;
+
 // Holds an array of sampled data. Provide statistical analysis functions.
 template<class T>
 class SampleAnalyzer {
@@ -36,6 +38,7 @@ class SampleAnalyzer {
   static const int kDefaultHistogramHeight = 10;
 
   // Functions to set the time data.
+  explicit SampleAnalyzer(const char* name) : name_(name) {}
   void Append(T sample) { samples_.push_back(sample); }
   void Clear() { samples_.clear(); }
   void SetName(const char* name) { name_ = name; }
@@ -47,7 +50,7 @@ class SampleAnalyzer {
   void MinMax(BenchmarkTime* min_time, BenchmarkTime* max_time) const;
   void Histogram(BenchmarkTime min, BenchmarkTime max,
                  BucketArray* buckets_pointer) const;
-  std::string Statistics(int width = kDefaultHistogramWidth,
+  std::string Statistics(double to_usec, int width = kDefaultHistogramWidth,
                          int height = kDefaultHistogramHeight) const;
 
  private:
@@ -106,7 +109,7 @@ void SampleAnalyzer<T>::MinMax(BenchmarkTime* min_time, BenchmarkTime* max_time)
 
 template<class T>
 void SampleAnalyzer<T>::Histogram(BenchmarkTime min, BenchmarkTime max,
-                               BucketArray* buckets_pointer) const {
+                                  BucketArray* buckets_pointer) const {
   // Use all the buckets we can.
   BucketArray& buckets = *buckets_pointer;
   buckets.resize(buckets.capacity());
@@ -133,7 +136,8 @@ void SampleAnalyzer<T>::Histogram(BenchmarkTime min, BenchmarkTime max,
 }
 
 template<class T>
-std::string SampleAnalyzer<T>::Statistics(int width, int height) const {
+std::string SampleAnalyzer<T>::Statistics(double to_usec, int width,
+                                          int height) const {
   std::stringstream s;
 
   // Output general statistics.
@@ -143,10 +147,10 @@ std::string SampleAnalyzer<T>::Statistics(int width, int height) const {
   const BenchmarkTime avg = Average();
   const BenchmarkTime stdev = StandardDeviation(avg);
   s << name_ << ": "
-    << "average " << avg
-    << ", min " << min
-    << ", max " << max
-    << ", standard deviation " << stdev << std::endl;
+    << "average " << avg * to_usec << "usec"
+    << ", min " << min * to_usec << "usec"
+    << ", max " << max * to_usec << "usec"
+    << ", standard deviation " << stdev * to_usec << "usec" << std::endl;
 
   // Gather a histogram with 'width' buckets.
   BucketArray buckets(width);
@@ -179,7 +183,8 @@ static std::vector<TimeAnalyzer> gTimes;
 BenchmarkTime GetBenchmarkTime() { return Timer::GetTicks(); }
 
 void InitBenchmarks(int num_ids) {
-  gTimes.resize(num_ids);
+  Timer::InitializeTickPeriod();
+  gTimes.reserve(num_ids);
 }
 
 void ClearBenchmarks() {
@@ -188,16 +193,18 @@ void ClearBenchmarks() {
   }
 }
 
-void SetBenchmarkDetails(int id, const char* name) {
-  assert(0 <= id && id < static_cast<int>(gTimes.size()));
-  gTimes[id].SetName(name);
+int RegisterBenchmark(const char* name) {
+  const int id = static_cast<int>(gTimes.size());
+  gTimes.push_back(TimeAnalyzer(name));
+  return id;
 }
 
 void OutputBenchmarks() {
+  const double to_usec = Timer::tick_period() * kMicrosecondsPerSecond;
   printf("\n");
   for (size_t i = 0; i < gTimes.size(); ++i) {
     if (gTimes[i].NumSamples() > 0) {
-      printf("%s\n", gTimes[i].Statistics().c_str());
+      printf("%s\n", gTimes[i].Statistics(to_usec).c_str());
     }
   }
 }

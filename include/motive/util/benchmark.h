@@ -17,6 +17,10 @@
 
 namespace fpl {
 
+#define FPL_TOKEN_PASTE_NESTED(a, b) a##b
+#define FPL_TOKEN_PASTE(a, b) FPL_TOKEN_PASTE_NESTED(a, b)
+#define FPL_UNIQUE(token) FPL_TOKEN_PASTE(token, __LINE__)
+
 #if defined(BENCHMARK_MOTIVE)
 
 /// A raw tick count from the system. Guaranteed to increase.
@@ -33,8 +37,9 @@ void InitBenchmarks(int num_ids);
 /// Empty all samples that have been collected with 'Benchmark'.
 void ClearBenchmarks();
 
-/// Set some details for how the data will be displayed in OutputBenchmarks().
-void SetBenchmarkDetails(int id, const char* name);
+/// Allocate storage on a tag to gather benchmark data for.
+/// Returns the `id` to be passed into the `Benchmark` constructor.
+int RegisterBenchmark(const char* name);
 
 /// Dump an analysis of the samples to stdout.
 void OutputBenchmarks();
@@ -54,14 +59,23 @@ class Benchmark {
   BenchmarkTime start_time_;
 };
 
+#define FPL_BENCHMARK(name) \
+  static int FPL_UNIQUE(id) = fpl::RegisterBenchmark(name); \
+  const fpl::Benchmark FPL_UNIQUE(benchmark)(FPL_UNIQUE(id))
+
 #else // not defined(BENCHMARK_MOTIVE)
 
 // Stub out these calls so that they don't generate any code.
-inline void SetBenchmarkDetails(int /*id*/, const char* /*name*/) {}
+inline void InitBenchmarks(int /*num_ids*/) {}
+inline void ClearBenchmarks() {}
+inline int RegisterBenchmark(const char* /*name*/) { return -1; }
+inline void OutputBenchmarks() {}
 class Benchmark {
  public:
   explicit Benchmark(int /*id*/) {}
 };
+
+#define FPL_BENCHMARK(name)
 
 #endif // not defined(BENCHMARK_MOTIVE)
 

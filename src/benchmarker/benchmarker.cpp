@@ -38,6 +38,7 @@ using mathfu::vec2;
 using mathfu::vec2i;
 using motive::MotiveEngine;
 using motive::MatrixInit;
+using motive::MatrixOpArray;
 using motive::MotivatorMatrix4f;
 using motive::SmoothInit;
 
@@ -127,10 +128,10 @@ class MotiveBenchmarker {
 
     // Create a matrix initializer with a series of basic matrix operations.
     // The final matrix will be created by applying these operations, in turn.
-    matrix_init_.AddOp(motive::kRotateAboutY, kRotateInit, linearPlayback);
-    matrix_init_.AddOp(motive::kTranslateX, kTranslateInit,
+    matrix_ops_.AddOp(motive::kRotateAboutY, kRotateInit, linearPlayback);
+    matrix_ops_.AddOp(motive::kTranslateX, kTranslateInit,
                        oscillatingSlowlyPlayback);
-    matrix_init_.AddOp(motive::kTranslateY, kTranslateInit,
+    matrix_ops_.AddOp(motive::kTranslateY, kTranslateInit,
                        oscillatingQuicklyPlayback);
 
     // Initialize the large array of matrix motivators. Note that the
@@ -138,7 +139,7 @@ class MotiveBenchmarker {
     // by the matrix motivators themselves.
     for (size_t i = 0; i < kNumMatrices; ++i) {
       MotivatorMatrix4f& m = matrices_[i];
-      m.Initialize(matrix_init_, &engine_);
+      m.Initialize(MatrixInit(matrix_ops_), &engine_);
     }
   }
 
@@ -174,7 +175,7 @@ class MotiveBenchmarker {
   };
 
   MotiveEngine engine_;
-  MatrixInit matrix_init_;
+  MatrixOpArray matrix_ops_;
   CompactSpline splines_[kNumChildImpellers];
   MotivatorMatrix4f matrices_[kNumMatrices];
 };
