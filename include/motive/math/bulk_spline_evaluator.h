@@ -67,6 +67,9 @@ class BulkSplineEvaluator {
   /// The Y() and Derivative() values are immediately available.
   void SetSpline(const Index index, const SplinePlayback& s);
 
+  /// Mark spline as invalid.
+  void ClearSpline(const Index index) { sources_[index].spline = nullptr; }
+
   /// Set conversion rate from AdvanceFrame's delta_x to the speed at which
   /// we traverse the spline.
   ///     0   ==> paused

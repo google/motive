@@ -109,7 +109,8 @@ class SmoothMotiveProcessor : public MotiveProcessorVector {
     for (int i = start_node_index; i < t.num_nodes(); ++i) {
       const MotiveNode1f& n = t.Node(i);
       const float y = interpolator_.NextY(index, prev_y, n.value, n.direction);
-      d.local_spline->AddNode(static_cast<float>(n.time), y, n.velocity);
+      d.local_spline->AddNode(static_cast<float>(n.time), y, n.velocity,
+                              fpl::kAddWithoutModification);
       prev_y = y;
     }
 
@@ -123,6 +124,7 @@ class SmoothMotiveProcessor : public MotiveProcessorVector {
 
     // Return the local spline to the spline pool. We use external splines now.
     FreeSpline(d.local_spline);
+    d.local_spline = nullptr;
 
     // Initialize spline to follow way points.
     // Snaps the current value and velocity to the way point's start value
@@ -146,6 +148,9 @@ class SmoothMotiveProcessor : public MotiveProcessorVector {
   }
 
   virtual void RemoveIndex(MotiveIndex index) {
+    // Clear reference to this spline.
+    interpolator_.ClearSpline(index);
+
     // Return the spline to the pool of splines.
     SmoothData& d = Data(index);
     FreeSpline(d.local_spline);
