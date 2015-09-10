@@ -46,24 +46,14 @@ class MatrixOperation {
     SetType(init.type);
     SetAnimationType(animation_type);
 
-    switch (animation_type) {
-      case kMotivatorAnimation:
-        // Manually construct the motivator in the union's memory buffer.
-        new (value_.motivator_memory) Motivator1f(*init.init, engine);
-        break;
-
-      case kConstValueAnimation:
-        // If this value is not driven by an motivator, it must have a constant
-        // value.
-        assert(init.union_type == MatrixOperationInit::kUnionInitialValue);
-
-        // Record the const value into the union.
-        value_.const_value = init.initial_value;
-        break;
-
-      default:
-        assert(false);
+    // Manually construct the motivator in the union's memory buffer.
+    if (animation_type == kMotivatorAnimation) {
+      new (value_.motivator_memory) Motivator1f(*init.init, engine);
     }
+
+    // Initialize the value. For defining animations, init.union_type will
+    // be kUnionEmpty, so this will not set up any splines.
+    BlendToOp(init);
   }
 
   ~MatrixOperation() {
@@ -129,9 +119,13 @@ class MatrixOperation {
       }
 
       case kConstValueAnimation:
-        // Const values can't be changed.
-        assert(init.union_type == MatrixOperationInit::kUnionInitialValue &&
-               value_.const_value == init.initial_value);
+        // If this value is not driven by an motivator, it must have a constant
+        // value.
+        assert(init.union_type == MatrixOperationInit::kUnionInitialValue);
+
+        // Record the const value into the union. There is no blending for
+        // constant values.
+        value_.const_value = init.initial_value;
         break;
 
       default:
