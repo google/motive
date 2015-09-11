@@ -119,6 +119,12 @@ class MotivatorInit {
   ((sizeof(a) / sizeof(*(a))) / \
    static_cast<size_t>(!(sizeof(a) % sizeof(*(a)))))
 
+/// Disallow the copy constructor and operator= functions.
+/// Used in the `private` declarations for a class.
+#define MOTIVE_DISALLOW_COPY_AND_ASSIGN(TypeName) \
+  TypeName(const TypeName&);                      \
+  void operator=(const TypeName&)
+
 }  // namespace motive
 
 #endif  // MOTIVE_COMMON_H_

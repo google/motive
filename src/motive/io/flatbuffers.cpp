@@ -146,13 +146,12 @@ void RigAnimFromFlatBuffers(const RigAnimFb& params, RigAnim* anim) {
   anim->Init(static_cast<motive::BoneIndex>(num_bones), record_names);
 
   MotiveTime end_time = 0;
-  for (size_t i = 0; i < num_bones; ++i) {
+  for (BoneIndex i = 0; i < num_bones; ++i) {
     const BoneIndex parent = parents->Get(i);
     const char* name = record_names ? names->Get(i)->c_str() : "";
-    MatrixAnim& m =
-        anim->InitMatrixAnim(static_cast<motive::BoneIndex>(i), parent, name);
-    MatrixAnimFromFlatBuffers(*params.matrix_anims()->Get(i), params.repeat(),
-                              &m);
+    MatrixAnim& m = anim->InitMatrixAnim(i, parent, name);
+    MatrixAnimFromFlatBuffers(*params.matrix_anims()->Get(i),
+                              params.repeat() != 0, &m);
 
     end_time = std::max(end_time, m.ops().end_time());
   }

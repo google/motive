@@ -33,6 +33,7 @@ static const MatrixOperationType kCanonicalRigAnimOps[] = {
   kScaleUniformly,
 };
 
+#if !defined(NDEBUG)  // Since only called in assert statement.
 static bool IsCanonicalAnim(const RigAnim& anim) {
   for (BoneIndex i = 0; i < anim.NumBones(); ++i) {
     const MatrixOpArray::OpVector& ops = anim.Anim(i).ops().ops();
@@ -49,6 +50,7 @@ static bool IsCanonicalAnim(const RigAnim& anim) {
   }
   return true;
 }
+#endif
 
 static const RigAnim* FindCompleteRig(const RigAnim** anims, size_t num_anims) {
   // We assume that that animation with the most bones has all the bones.
@@ -58,7 +60,7 @@ static const RigAnim* FindCompleteRig(const RigAnim** anims, size_t num_anims) {
   BoneIndex max_bone_index = 0;
   for (size_t i = 1; i < num_anims; ++i) {
     if (anims[i]->NumBones() > anims[max_bone_index]->NumBones()) {
-      max_bone_index = i;
+      max_bone_index = static_cast<BoneIndex>(i);
     }
   }
   return anims[max_bone_index];

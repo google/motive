@@ -15,6 +15,8 @@
 # 3. This notice may not be removed or altered from any source distribution.
 cmake_minimum_required(VERSION 2.8.12)
 
+project(anim_pipeline)
+
 # This is the directory into which the executables are built.
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
     ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${CMAKE_SYSTEM_NAME})
@@ -37,11 +39,34 @@ if("${fbx_sdk_dir}" STREQUAL "")
                       " environment variable to the install directory")
 endif()
 
-# Search for the FBX library. Prefer the static library '.a' over the shared
-# library '.so'.
-find_library(fbx_sdk_lib NAMES libfbxsdk.a fbxsdk
-             PATHS ${fbx_sdk_dir}/lib/gcc4/x64/release
-                   ${fbx_sdk_dir}/lib/clang/release)
+# Search for the FBX library.
+# Visual Studio 64 bit option can be specified with
+# `cmake -G "Visual Studio 11 Win64"`
+if(CMAKE_CL_64)
+  set(fbs_sdk_subdir "x64")
+else()
+  set(fbs_sdk_subdir "x86")
+endif()
+
+# Prefer the static library '.a' over the sharedlibrary '.so'.
+find_library(fbx_sdk_lib_release
+  NAMES libfbxsdk.a fbxsdk libfbxsdk-md.lib
+  PATHS ${fbx_sdk_dir}/lib/gcc4/x64/release
+        ${fbx_sdk_dir}/lib/clang/release
+        ${fbx_sdk_dir}/lib/vs2012/${fbs_sdk_subdir}/release)
+
+find_library(fbx_sdk_lib_debug
+  NAMES libfbxsdk.a fbxsdk libfbxsdk-md.lib
+  PATHS ${fbx_sdk_dir}/lib/gcc4/x64/debug
+        ${fbx_sdk_dir}/lib/clang/debug
+        ${fbx_sdk_dir}/lib/vs2012/${fbs_sdk_subdir}/debug)
+
+set(fbx_sdk_lib debug ${fbx_sdk_lib_debug} optimized ${fbx_sdk_lib_release})
+
+# Linux and Mac require these libs too.
+if(NOT MSVC)
+  set(fbx_sdk_extra_libs "pthread dl")
+endif()
 
 # Include motive.
 set(motive_build_samples OFF CACHE BOOL "")
@@ -73,6 +98,8 @@ endif()
 set(C_FLAGS_WARNINGS "")
 if(MSVC)
   set(C_FLAGS_WARNINGS "/W4 /WX")
+  # Suppress deprecation of fopen.
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR
        CMAKE_COMPILER_IS_CLANGXX)
   add_definitions(-g)
@@ -99,4 +126,8 @@ mathfu_configure_flags(anim_pipeline)
 
 # Dependencies for the executable target.
 add_dependencies(anim_pipeline motive fplutil)
-target_link_libraries(anim_pipeline ${fbx_sdk_lib} pthread dl motive fplutil)
+target_link_libraries(anim_pipeline
+    ${fbx_sdk_lib}
+    ${fbx_sdk_extra_libs}
+    motive
+    fplutil)

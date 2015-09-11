@@ -13,6 +13,8 @@
 // limitations under the License.
 
 // Suppress warnings in external header.
+#pragma warning(push)            // for Visual Studio
+#pragma warning(disable : 4068)  // "unknown pragma" -- for Visual Studio
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -21,6 +23,7 @@
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #include <fbxsdk.h>
 #pragma GCC diagnostic pop
+#pragma warning(pop)
 
 #include <assert.h>
 #include <fstream>
@@ -214,8 +217,8 @@ class FlatAnim {
     float time = time_inc;
     float worst_diff = 0.0f;
     float worst_time = 0.0f;
-    int worst_idx = 0;
-    for (int i = 1; i < count - 1; ++i) {
+    size_t worst_idx = 0;
+    for (size_t i = 1; i < count - 1; ++i) {
       const float cubic_val = c.Evaluate(time);
       const float curve_val = vals[i];
       const float diff_val = fabs(cubic_val - curve_val);
@@ -337,8 +340,7 @@ class FlatAnim {
     }
   }
 
-  bool OutputFlatBuffer(const std::string& input_file,
-                        const std::string& output_file) const {
+  bool OutputFlatBuffer(const std::string& output_file) const {
     // Ensure output directory exists.
     const std::string output_dir = DirectoryName(output_file);
     if (!CreateDirectory(output_dir.c_str())) {
@@ -355,7 +357,7 @@ class FlatAnim {
     matrix_anims.reserve(num_bones);
     bone_names.reserve(num_bones);
     bone_parents.reserve(num_bones);
-    for (size_t bone_idx = 0; bone_idx < num_bones; ++bone_idx) {
+    for (BoneIndex bone_idx = 0; bone_idx < num_bones; ++bone_idx) {
       const Bone& bone = bones_[bone_idx];
       const Channels& channels = bone.channels;
 
@@ -431,10 +433,12 @@ class FlatAnim {
   }
 
  private:
+  MOTIVE_DISALLOW_COPY_AND_ASSIGN(FlatAnim);
+
   struct SplineNode;
   struct Channel;
-  typedef typename std::vector<SplineNode> Nodes;
-  typedef typename std::vector<Channel> Channels;
+  typedef std::vector<SplineNode> Nodes;
+  typedef std::vector<Channel> Channels;
 
   Channels& CurChannels() {
     assert(bones_.size() > 0);
@@ -738,6 +742,8 @@ class FbxAnimParser {
   }
 
  private:
+  MOTIVE_DISALLOW_COPY_AND_ASSIGN(FbxAnimParser);
+
   struct AnimProperty {
     FbxPropertyT<FbxDouble3>* property;
     motive::MatrixOperationType x_op;
@@ -749,9 +755,12 @@ class FbxAnimParser {
     return static_cast<FlatTime>(milliseconds);
   }
 
-  FlatVal FbxToFlatValue(const float x, const MatrixOperationType op) const {
-    return motive::RotateOp(op) ? Angle::FromDegrees(x).ToRadians() :
-           motive::TranslateOp(op) ? global_scale_ * x : x;
+  FlatVal FbxToFlatValue(const double x, const MatrixOperationType op) const {
+    return motive::RotateOp(op)
+               ? Angle::FromDegrees(static_cast<float>(x)).ToRadians()
+               : motive::TranslateOp(op)
+                     ? static_cast<FlatVal>(global_scale_ * x)
+                     : static_cast<float>(x);
   }
 
   FlatDerivative FbxToFlatDerivative(const float d,
@@ -795,7 +804,8 @@ class FbxAnimParser {
   bool AnimConst(const AnimProperty& p, int channel, float tolerance,
                  FbxAnimCurveNode* anim_node, float* const_value) const {
     // If anim_node can provide no data, return the value from the property.
-    if (anim_node == nullptr || channel >= anim_node->GetChannelsCount()) {
+    if (anim_node == nullptr ||
+        channel >= static_cast<int>(anim_node->GetChannelsCount())) {
       *const_value = FbxToFlatValue(p.property->Get()[channel], p.x_op);
       return true;
     }
@@ -812,10 +822,9 @@ class FbxAnimParser {
 
     // If any keys has a different value, or non-zero slope, then not const.
     const int num_keys = curve->KeyGetCount();
-    int last_index = 0;
     for (int i = 0; i < num_keys - 1; ++i) {
-      const float t =
-          FbxToFlatTime(curve->KeyGetTime(i + 1) - curve->KeyGetTime(i));
+      const float t = static_cast<float>(
+          FbxToFlatTime(curve->KeyGetTime(i + 1) - curve->KeyGetTime(i)));
       const float derivative_tolerance = tolerance * t;
       const float left_derivative =
           FbxToFlatDerivative(curve->KeyGetLeftDerivative(i), p.x_op);
@@ -1137,8 +1146,7 @@ int main(int argc, char** argv) {
   pipe.GatherFlatAnim(&anim);
 
   // Output gathered data to a binary FlatBuffer.
-  const bool output_status =
-      anim.OutputFlatBuffer(args.fbx_file, args.output_file);
+  const bool output_status = anim.OutputFlatBuffer(args.output_file);
   if (!output_status) return 1;
 
   // Success.

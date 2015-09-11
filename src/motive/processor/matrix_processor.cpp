@@ -214,7 +214,7 @@ static inline void RotateAboutAxis(const float angle, vec4* column0,
 // the compiler doesn't know it's doing an aligned load.
 // TODO: Add a LoadColumn() funtion to mat4 that returns the vec4 instead of a
 //       vec4&, and uses an aligned load.
-static inline vec4 MatrixColumn(const mat4& m, size_t i) {
+static inline vec4 MatrixColumn(const mat4& m, int i) {
   return vec4(&m[4 * i]);
 }
 
@@ -355,7 +355,8 @@ class MatrixData {
 
     // Explicitly call constructors on members.
     for (size_t i = 0; i < MOTIVE_ARRAY_SIZE(d->start_matrix_); ++i) {
-      d->start_matrix_[i] = MatrixColumn(init.start_transform(), i);
+      d->start_matrix_[i] =
+          MatrixColumn(init.start_transform(), static_cast<int>(i));
     }
     d->result_matrix_ = mat4::Identity();
     d->num_ops_ = num_ops;

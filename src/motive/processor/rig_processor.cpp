@@ -41,6 +41,7 @@ RigInit::RigInit(const RigAnim& defining_anim,
   // stick animations.
   assert((num_bones == 0 && defining_anim.NumBones() == 1) ||
          MatchesHierarchy(defining_anim, bone_parents, num_bones));
+  (void)bone_parents;
 }
 
 // static
