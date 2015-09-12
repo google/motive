@@ -473,7 +473,8 @@ class FlatAnim {
             kRepeatToleranceScale * tolerance / diff_time;
         const bool same = diff_val < tolerance &&
                           diff_derivative < derivative_tolerance;
-        if (!same) return false;
+        if (!same)
+          return false;
       }
     }
     return true;

@@ -65,7 +65,7 @@ set(fbx_sdk_lib debug ${fbx_sdk_lib_debug} optimized ${fbx_sdk_lib_release})
 
 # Linux and Mac require these libs too.
 if(NOT MSVC)
-  set(fbx_sdk_extra_libs "pthread dl")
+  set(fbx_sdk_extra_libs pthread dl)
 endif()
 
 # Include motive.
