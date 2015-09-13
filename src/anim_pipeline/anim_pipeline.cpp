@@ -50,7 +50,6 @@ using motive::BoneIndex;
 using motive::kInvalidBoneIdx;
 
 static const int kTimeGranularityMiliseconds = 10;
-static const float kRepeatToleranceScale = 20.0f;
 static const int kDefaultChannelOrder[] = { 0, 1, 2 };
 static const int kRotationOrderToChannelOrder[][3] = {
   { 2, 1, 0 }, // eOrderXYZ,
@@ -115,10 +114,17 @@ class Logger {
   LogLevel level_;
 };
 
-static const float kDefaultScaleTolerance = 0.005f;  // half a percent
-static const float kDefaultRotateTolerance =
-    0.00873f;  // 0.5 degrees in radians
-static const float kDefaultTranslateTolerance = 0.01f;  // totally arbitrary
+// Half a percent.
+static const float kDefaultScaleTolerance = 0.005f;
+
+// 0.5 degrees in radians.
+static const float kDefaultRotateTolerance = 0.00873f;
+
+// Totally arbitrary. TODO: make a percentage of the model size.
+static const float kDefaultTranslateTolerance = 0.01f;
+
+// 10 degrees in radians.
+static const float kDefaultDerivativeAngleTolerance = 0.1745f;
 
 // Use these bitfields to find situations where scale x, y, and z occur, in
 // any order, in a row.
@@ -149,17 +155,36 @@ static inline const char* MatrixOpName(const motive::MatrixOperationType op) {
   return kMatrixOpNames[op];
 }
 
+/// @brief Convert derivative to its angle in x/y space.
+///  derivative 0 ==> angle 0
+///  derivative 1 ==> angle 45 degrees
+///  derivative +inf ==> angle 90 degrees
+///  derivative -2 ==> angle -63.4 degrees
+/// @returns Angle, in radians, >= -pi and <= pi
+static inline float DerivativeAngle(float derivative) {
+  return atan(derivative);
+}
+
 /// @brief Amount the output curves are allowed to deviate from the input
 ///        curves.
 struct Tolerances {
-  float scale;      /// Amount output scale curves can deviate, unitless.
-  float rotate;     /// Amount output rotate curves can deviate, in radians.
-  float translate;  /// Amount output translate curves can deviate, in scene's
-                    /// distance units.
+  /// Amount output scale curves can deviate, unitless.
+  float scale;
+
+  /// Amount output rotate curves can deviate, in radians.
+  float rotate;
+
+  /// Amount output translate curves can deviate, in scene's distance units.
+  float translate;
+
+  /// Amount derivative--converted to an angle in x/y--can deviate, in radians.
+  float derivative_angle;
+
   Tolerances()
       : scale(kDefaultScaleTolerance),
         rotate(kDefaultRotateTolerance),
-        translate(kDefaultTranslateTolerance) {}
+        translate(kDefaultTranslateTolerance),
+        derivative_angle(kDefaultDerivativeAngleTolerance) {}
 };
 
 // Unique id identifying a single float curve being animated.
@@ -282,16 +307,14 @@ class FlatAnim {
       const float mid_val = c.Evaluate(mid_time);
       const float mid_derivative = c.Derivative(mid_time);
 
-      // Scale the tolerance as a function of time. As time stretches out,
-      // the derivatives get more sensitive.
-      const float derivative_tolerance = tolerance / cubic_width;
-
       // If the mid point is on the curve, or at the same time as start and end,
       // just delete it. It's redundant.
       const bool mid_at_same_time = cubic_width == 0.0f;
+      const float derivative_angle_error =
+          DerivativeAngle(mid_derivative - mid.derivative);
       const bool mid_on_c =
           fabs(mid_val - mid.val) < tolerance &&
-          fabs(mid_derivative - mid.derivative) < derivative_tolerance;
+          fabs(derivative_angle_error) < tolerances_.derivative_angle;
       if (mid_at_same_time || mid_on_c) {
         n.erase(n.begin() + (i - 1));
       }
@@ -301,7 +324,8 @@ class FlatAnim {
     // we know to output a constant value in `OutputFlatBuffer()`.
     const bool is_const =
         n.size() == 2 && fabs(n[0].val - n[1].val) < tolerance &&
-        fabs(n[0].derivative) < tolerance && fabs(n[1].derivative) < tolerance;
+        fabs(n[0].derivative) < tolerances_.derivative_angle &&
+        fabs(n[1].derivative) < tolerances_.derivative_angle;
     if (is_const) {
       n.resize(1);
     }
@@ -428,6 +452,10 @@ class FlatAnim {
                      : motive::ScaleOp(op) ? tolerances_.scale : 0.1f;
   }
 
+  float ToleranceForDerivativeAngle() const {
+    return tolerances_.derivative_angle;
+  }
+
   bool IsDefaultValue(MatrixOperationType op, float value) const {
     return fabs(value - DefaultOpValue(op)) < ToleranceForOp(op);
   }
@@ -463,16 +491,13 @@ class FlatAnim {
         const SplineNode& start = channel->nodes.front();
         const SplineNode& end = channel->nodes.back();
         const float diff_val = fabs(start.val - end.val);
-        const float diff_derivative = fabs(start.derivative - end.derivative);
-        const float diff_time = static_cast<float>(end.time - start.time);
+        const float diff_derivative_angle =
+            fabs(DerivativeAngle(start.derivative - end.derivative));
 
         // Return false unless the start and end of the channel are the same.
-        const float tolerance =
-            kRepeatToleranceScale * ToleranceForOp(channel->op);
-        const float derivative_tolerance =
-            kRepeatToleranceScale * tolerance / diff_time;
+        const float tolerance = ToleranceForOp(channel->op);
         const bool same = diff_val < tolerance &&
-                          diff_derivative < derivative_tolerance;
+                          diff_derivative_angle < tolerances_.derivative_angle;
         if (!same)
           return false;
       }
@@ -515,9 +540,9 @@ class FlatAnim {
               ? std::numeric_limits<float>::infinity()
               : tolerance * static_cast<float>(n0[i + 1].time - v0.time);
       const bool are_equal =
-          EqualNodes(v0, v1, tolerance, derivative_tolerance) &&
-          EqualNodes(v0, v2, tolerance, derivative_tolerance) &&
-          EqualNodes(v1, v2, tolerance, derivative_tolerance);
+          EqualNodes(v0, v1, tolerance, tolerances_.derivative_angle) &&
+          EqualNodes(v0, v2, tolerance, tolerances_.derivative_angle) &&
+          EqualNodes(v1, v2, tolerance, tolerances_.derivative_angle);
       if (!are_equal) return false;
     }
 
@@ -542,7 +567,8 @@ class FlatAnim {
   static bool EqualNodes(const SplineNode& a, const SplineNode& b,
                          float tolerance, float derivative_tolerance) {
     return a.time == b.time && fabs(a.val - a.val) < tolerance &&
-           fabs(a.derivative - b.derivative) < derivative_tolerance;
+           fabs(DerivativeAngle(a.derivative - b.derivative)) <
+               derivative_tolerance;
   }
 
   static bool ConstOp(const Channel& c) { return c.nodes.size() <= 1; }
@@ -803,7 +829,8 @@ class FbxAnimParser {
   }
 
   bool AnimConst(const AnimProperty& p, int channel, float tolerance,
-                 FbxAnimCurveNode* anim_node, float* const_value) const {
+                 float derivative_tolerance, FbxAnimCurveNode* anim_node,
+                 float* const_value) const {
     // If anim_node can provide no data, return the value from the property.
     if (anim_node == nullptr ||
         channel >= static_cast<int>(anim_node->GetChannelsCount())) {
@@ -824,16 +851,13 @@ class FbxAnimParser {
     // If any keys has a different value, or non-zero slope, then not const.
     const int num_keys = curve->KeyGetCount();
     for (int i = 0; i < num_keys - 1; ++i) {
-      const float t = static_cast<float>(
-          FbxToFlatTime(curve->KeyGetTime(i + 1) - curve->KeyGetTime(i)));
-      const float derivative_tolerance = tolerance * t;
       const float left_derivative =
           FbxToFlatDerivative(curve->KeyGetLeftDerivative(i), p.x_op);
       const float right_derivative =
           FbxToFlatDerivative(curve->KeyGetRightDerivative(i), p.x_op);
       const float value = FbxToFlatValue(curve->KeyGetValue(i + 1), p.x_op);
-      if (fabs(left_derivative) > derivative_tolerance ||
-          fabs(right_derivative) > derivative_tolerance ||
+      if (fabs(DerivativeAngle(left_derivative)) > derivative_tolerance ||
+          fabs(DerivativeAngle(right_derivative)) > derivative_tolerance ||
           fabs(value - *const_value) > tolerance)
         return false;
     }
@@ -905,6 +929,7 @@ class FbxAnimParser {
         // If the channel is const, only output if it's not the default value.
         float const_value = 0.0f;
         const bool anim_const = AnimConst(p, channel, out->ToleranceForOp(op),
+                                          out->ToleranceForDerivativeAngle(),
                                           anim_node, &const_value);
         if (anim_const && out->IsDefaultValue(op, const_value)) continue;
 
@@ -1076,8 +1101,8 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
       // -q switch
     } else if (arg == "-q") {
       const float degrees = static_cast<float>(atof(arg.c_str()));
-      if (0.0f < degrees && degrees < 180.0f) {
-        log.Log(kLogError, "rotate_tolerance must be >0 and <180.");
+      if (degrees <= 0.0f || degrees > 180.0f) {
+        log.Log(kLogError, "rotate_tolerance must be >0 and <=180.");
         valid_args = false;
       } else {
         args->tolerances.rotate = fpl::Angle::FromDegrees(degrees).ToRadians();
@@ -1089,6 +1114,17 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
       if (args->tolerances.translate <= 0.0f) {
         log.Log(kLogError, "translate_tolerance must be > 0.");
         valid_args = false;
+      }
+
+      // -a switch
+    } else if (arg == "-a") {
+      const float degrees = static_cast<float>(atof(arg.c_str()));
+      if (degrees <= 0.0f || degrees > 90.0f) {
+        log.Log(kLogError, "derivative_tolerance must be >0 and <=90.");
+        valid_args = false;
+      } else {
+        args->tolerances.derivative_angle =
+            fpl::Angle::FromDegrees(degrees).ToRadians();
       }
 
     } else {
@@ -1103,7 +1139,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         kLogImportant,
         "Usage: anim_pipeline [-v] [-o OUTPUT_FILE] [-s scale_tolerance]\n"
         "           [-q rotate_tolerance] [-t translate_tolerance]\n"
-        " FBX_FILE\n"
+        "           [-a derivative_tolerance] FBX_FILE\n"
         "Pipeline to convert FBX animations into FlatBuffer animations.\n"
         "Outputs an .fplanim file with the same base name as FBX_FILE.\n\n"
         "Options:\n"
@@ -1118,7 +1154,11 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         "                            from intput rotate curves, in degrees\n"
         "  -t translate_tolerance    max deviation of output translate curves\n"
         "                            from input translate curves, in scene's\n"
-        "                            units of distance\n");
+        "                            units of distance\n"
+        "  -a derivative_tolerance   max deviation of curve derivatives,\n"
+        "                            considered as an angle in the x/y plain\n"
+        "                            (e.g. derivative 1 ==> 45 degrees),\n"
+        "                            in degrees.\n");
   }
 
   return valid_args;
