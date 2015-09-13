@@ -49,6 +49,12 @@ using motive::kNumMatrixOperationTypes;
 using motive::BoneIndex;
 using motive::kInvalidBoneIdx;
 
+enum RepeatPreference {
+  kRepeatIfRepeatable,
+  kAlwaysRepeat,
+  kNeverRepeat
+};
+
 static const int kTimeGranularityMiliseconds = 10;
 static const int kDefaultChannelOrder[] = { 0, 1, 2 };
 static const int kRotationOrderToChannelOrder[][3] = {
@@ -364,7 +370,8 @@ class FlatAnim {
     }
   }
 
-  bool OutputFlatBuffer(const std::string& output_file) const {
+  bool OutputFlatBuffer(const std::string& output_file,
+                        RepeatPreference repeat_preference) const {
     // Ensure output directory exists.
     const std::string output_dir = DirectoryName(output_file);
     if (!CreateDirectory(output_dir.c_str())) {
@@ -424,10 +431,11 @@ class FlatAnim {
     auto bone_names_fb = fbb.CreateVector(bone_names);
     auto bone_parents_fb = fbb.CreateVector(bone_parents);
     auto matrix_anims_fb = fbb.CreateVector(matrix_anims);
-    const bool repeat = CanRepeat();
+    const bool repeat = Repeat(repeat_preference);
     auto rig_anim_fb = CreateRigAnimFb(fbb, matrix_anims_fb, bone_parents_fb,
                                        bone_names_fb, repeat);
     motive::FinishRigAnimFbBuffer(fbb, rig_anim_fb);
+
 
     // Create the output file.
     FILE* file = fopen(output_file.c_str(), "wb");
@@ -482,28 +490,68 @@ class FlatAnim {
     return ToleranceForOp(channels[channel_id].op);
   }
 
-  /// @brief Return true if the start and end pose and derivatives are equal.
-  bool CanRepeat() const {
-    for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
-      for (auto channel = bone->channels.begin();
-           channel != bone->channels.end(); ++channel) {
+  /// Return the first channel of the first bone that isn't repeatable.
+  /// If all channels are repeatable, return kInvalidBoneIdx.
+  /// A channel is repeatable if its start and end values and derivatives
+  /// are within `tolerances_`.
+  BoneIndex FirstNonRepeatingBone(FlatChannelId* first_channel_id) const {
+    for (BoneIndex bone_idx = 0; bone_idx < bones_.size(); ++bone_idx) {
+      const Bone& bone = bones_[bone_idx];
+      const Channels& channels = bone.channels;
+
+      for (FlatChannelId channel_id = 0; channel_id < channels.size();
+           ++channel_id) {
+        const Channel& channel = channels[channel_id];
+
         // Get deltas for the start and end of the channel.
-        const SplineNode& start = channel->nodes.front();
-        const SplineNode& end = channel->nodes.back();
+        const SplineNode& start = channel.nodes.front();
+        const SplineNode& end = channel.nodes.back();
         const float diff_val = fabs(start.val - end.val);
         const float diff_derivative_angle =
             fabs(DerivativeAngle(start.derivative - end.derivative));
 
         // Return false unless the start and end of the channel are the same.
-        const float tolerance = ToleranceForOp(channel->op);
+        const float tolerance = ToleranceForOp(channel.op);
         const bool same = diff_val < tolerance &&
                           diff_derivative_angle < tolerances_.derivative_angle;
-        if (!same)
-          return false;
+        if (!same) {
+          *first_channel_id = channel_id;
+          return bone_idx;
+        }
       }
     }
-    return true;
+    return kInvalidBoneIdx;
   };
+
+  // Determine if the animation should repeat back to start after it reaches
+  // the end.
+  bool Repeat(RepeatPreference repeat_preference) const {
+    if (repeat_preference == kNeverRepeat) return false;
+
+    // Check to see if the animation is repeatable.
+    FlatChannelId channel_id = 0;
+    const BoneIndex bone_idx = FirstNonRepeatingBone(&channel_id);
+    const bool repeat = repeat_preference == kAlwaysRepeat ||
+                        (repeat_preference == kRepeatIfRepeatable &&
+                         bone_idx == kInvalidBoneIdx);
+
+    // Log repeat information.
+    if (repeat_preference == kAlwaysRepeat) {
+      if (bone_idx != kInvalidBoneIdx) {
+        const Bone& bone = bones_[bone_idx];
+        const Channel& channel = bone.channels[channel_id];
+        log_.Log(kLogWarning, "Animation marked as repeating (as requested),"
+                              " but it does not repeat on bone %s's"
+                              " `%s` channel\n",
+                              bone.name.c_str(), MatrixOpName(channel.op));
+      }
+    } else if (repeat_preference == kRepeatIfRepeatable) {
+      log_.Log(kLogVerbose, repeat ? "Animation repeats.\n" :
+                                     "Animation does not repeat.\n");
+    }
+
+    return repeat;
+  }
 
   /// @brief Return true if the three channels starting at `channel_id`
   ///        can be replaced with a single kScaleUniformly channel.
@@ -1053,6 +1101,7 @@ struct AnimPipelineArgs {
   std::string output_file; /// File to write .fplanim to.
   LogLevel log_level;      /// Amount of logging to dump during conversion.
   Tolerances tolerances;   /// Amount output curves can deviate from input.
+  RepeatPreference repeat_preference; /// Loop back to start when reaches end.
 };
 
 static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
@@ -1127,6 +1176,19 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
             fpl::Angle::FromDegrees(degrees).ToRadians();
       }
 
+    // --repeat switch
+    } else if (arg == "--repeat" || arg == "--norepeat") {
+      const RepeatPreference repeat_preference =
+          arg == "--repeat" ? kAlwaysRepeat : kNeverRepeat;
+      if (args->repeat_preference != kRepeatIfRepeatable &&
+          args->repeat_preference != repeat_preference) {
+        log.Log(kLogError,
+                "Only one of --repeat and --norepeat can be specified.\n");
+        valid_args = false;
+      } else {
+        args->repeat_preference = repeat_preference;
+      }
+
     } else {
       log.Log(kLogError, "Unknown parameter: %s\n", arg.c_str());
       valid_args = false;
@@ -1158,7 +1220,13 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         "  -a derivative_tolerance   max deviation of curve derivatives,\n"
         "                            considered as an angle in the x/y plain\n"
         "                            (e.g. derivative 1 ==> 45 degrees),\n"
-        "                            in degrees.\n");
+        "                            in degrees.\n"
+        "  --repeat, --norepeat      mark the animation as repeating or not\n"
+        "                            repeating. A repeating animation cycles\n"
+        "                            over and over. If neither option is\n"
+        "                            specified, the animation is marked as\n"
+        "                            repeating when it starts and ends\n"
+        "                            with the same pose and derivatives.\n");
   }
 
   return valid_args;
@@ -1187,7 +1255,8 @@ int main(int argc, char** argv) {
   pipe.GatherFlatAnim(&anim);
 
   // Output gathered data to a binary FlatBuffer.
-  const bool output_status = anim.OutputFlatBuffer(args.output_file);
+  const bool output_status = anim.OutputFlatBuffer(args.output_file,
+                                                   args.repeat_preference);
   if (!output_status) return 1;
 
   // Success.
