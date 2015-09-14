@@ -239,9 +239,13 @@ float CompactSpline::EndDerivative() const {
 }
 
 float CompactSpline::NodeX(const CompactSplineIndex index) const {
+  // Note that, when `index` is before the spline, we return x=0 instead of
+  // x=first node's x. This is because logically the spline always starts at
+  // x=0, so anything before the first node is in an implicit segment from
+  // x=0..first node's x.
   return index == kAfterSplineIndex
              ? EndX()
-             : index == kBeforeSplineIndex ? StartX()
+             : index == kBeforeSplineIndex ? 0.0f
                                            : nodes_[index].X(x_granularity_);
 }
 float CompactSpline::NodeY(const CompactSplineIndex index) const {
@@ -300,10 +304,10 @@ void CompactSpline::BulkYs(const CompactSpline* const splines,
 
 Range CompactSpline::RangeX(const CompactSplineIndex index) const {
   if (index == kBeforeSplineIndex)
-    // Return StartX() for the start of the range instead of -inf.
-    // Before we get to the range, we want to have relative x-values that are
-    // negative.
-    return Range(StartX(), StartX());
+    // Return 0.0f for the start of the range instead of -inf.
+    // There is an implicit range from the start of the spline (x=0) to the
+    // start of the first segment.
+    return Range(0.0f, StartX());
 
   if (index == kAfterSplineIndex)
     return Range(EndX(), std::numeric_limits<float>::infinity());
@@ -350,7 +354,7 @@ CompactSplineIndex CompactSpline::IndexForXAllowingRepeat(
   }
 
   // Repeats, so wrap `x` back to 0 and find the index again.
-  const float repeat_x = x - LengthX();
+  const float repeat_x = x - EndX();
   const CompactSplineIndex repeat_index = IndexForX(repeat_x, 0);
   *final_x = repeat_x;
   return repeat_index;

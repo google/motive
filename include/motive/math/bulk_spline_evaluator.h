@@ -170,9 +170,8 @@ class BulkSplineEvaluator {
     const Source& s = sources_[index];
     return s.spline->NodeX(s.x_index);
   }
-  CubicInit CalculateBlendInit(
-      const Index index, const SplinePlayback& playback,
-      CompactSplineIndex* out_blend_end_index) const;
+  CubicInit CalculateBlendInit(const Index index,
+                               const SplinePlayback& playback) const;
   void BlendToSpline(const Index index, const SplinePlayback& playback);
   void JumpToSpline(const Index index, const SplinePlayback& playback);
 

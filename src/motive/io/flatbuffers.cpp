@@ -14,9 +14,11 @@
 #include "anim_generated.h"
 #include "motive_generated.h"
 #include "anim_table_generated.h"
-#include "motive/io/flatbuffers.h"
-#include "motive/init.h"
 #include "motive/anim.h"
+#include "motive/init.h"
+#include "motive/io/flatbuffers.h"
+
+using fpl::Range;
 
 namespace motive {
 
@@ -49,7 +51,7 @@ MOTIVE_VERIFY_MATRIX_OP_ENUM(kNumMatrixOperationTypes);
 static void ModularInitFromFlatBuffers(const ModularParameters& params,
                                        ModularInit* init) {
   init->set_modular(params.modular() != 0);
-  init->set_range(fpl::Range(params.min(), params.max()));
+  init->set_range(Range(params.min(), params.max()));
 }
 
 void OvershootInitFromFlatBuffers(const OvershootParameters& params,
@@ -104,8 +106,8 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, bool repeat,
         // Copy the spline data into s.spline.
         // TODO: modify CompactSpline so we can just point at spline data
         //       instead of copying it.
-        const fpl::Range y_range(spline_fb->y_range_start(),
-                                 spline_fb->y_range_end());
+        const Range y_range(spline_fb->y_range_start(),
+                            spline_fb->y_range_end());
         s.spline.Init(y_range, spline_fb->x_granularity(),
                       spline_fb->nodes()->size());
         for (auto n = spline_fb->nodes()->begin();
@@ -115,8 +117,9 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, bool repeat,
 
         // Hold `init` and `playback` data in structures that won't disappear,
         // since these are referenced by pointer.
-        s.init =
-            SmoothInit(y_range, spline_fb->modular_arithmetic() ? true : false);
+        const bool modular = ModularOp(op_type);
+        const Range& op_range = RangeOfOp(op_type, y_range);
+        s.init = SmoothInit(op_range, modular);
         s.playback = fpl::SplinePlayback(s.spline, kAnimStartTime, repeat,
                                          kAnimPlaybackRate, kAnimBlendTime);
         ops.AddOp(op_type, s.init, s.playback);

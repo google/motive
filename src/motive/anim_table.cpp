@@ -137,7 +137,11 @@ static void CreateDefiningAnim(const RigAnim** anims, size_t num_anims,
         ops.AddOp(op, const_value);
       } else {
         // Otherwise, add it as an animated parameter.
-        splines[num_ops_inited].init = SmoothInit(ranges[k], false);
+        // The range is modular for rotate operations, but not for scale or
+        // translate operations.
+        const bool modular = ModularOp(op);
+        const Range& op_range = RangeOfOp(op, ranges[k]);
+        splines[num_ops_inited].init = SmoothInit(op_range, modular);
         ops.AddOp(op, splines[num_ops_inited].init);
         num_ops_inited++;
       }

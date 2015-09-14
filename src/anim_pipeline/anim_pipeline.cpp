@@ -653,18 +653,14 @@ class FlatAnim {
         reinterpret_cast<const motive::CompactSplineNodeFb*>(s.nodes()),
         s.NumNodes());
 
-    auto spline_fb = motive::CreateCompactSplineFb(
-        fbb, s.y_range().start(), s.y_range().end(), s.x_granularity(),
-        modular_arithmetic, nodes_fb);
+    auto spline_fb = motive::CreateCompactSplineFb(fbb, s.y_range().start(),
+                                                   s.y_range().end(),
+                                                   s.x_granularity(), nodes_fb);
 
     return spline_fb;
   }
 
   static Range SplineYRange(const Channel& ch) {
-    // Angles always occupy the full angular range, in case they traverse the
-    // pi boundary to -pi, or vice versa.
-    if (motive::RotateOp(ch.op)) return Range(-kPi, kPi);
-
     // Find extreme values for nodes.
     Range y_range(Range::Empty());
     for (auto n = ch.nodes.begin(); n != ch.nodes.end(); ++n) {
@@ -856,8 +852,7 @@ class FbxAnimParser {
   }
 
   FlatVal FbxToFlatValue(const double x, const MatrixOperationType op) const {
-    return motive::RotateOp(op)
-               ? Angle::FromDegrees(static_cast<float>(x)).ToRadians()
+    return motive::RotateOp(op) ? static_cast<float>(FBXSDK_DEG_TO_RAD * x)
                                 : motive::TranslateOp(op)
                                       ? static_cast<FlatVal>(global_scale_ * x)
                                       : static_cast<float>(x);

@@ -42,7 +42,6 @@ table CompactSplineFb {
   y_range_start:float;
   y_range_end:float;
   x_granularity:float;
-  modular_arithmetic:bool;
   nodes:[CompactSplineNodeFb];
 }
 
