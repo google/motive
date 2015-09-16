@@ -279,31 +279,91 @@ TEST_F(RangeTests, Normalize_Above) {
   EXPECT_NEAR(0.5f, zero_one.Normalize(1.5f), kZeroOneEpsilon);
 }
 
+typedef float NormalizeFn(const Range& r, float x);
+
+static float NormalizeWild(const Range& r, float x) {
+  return r.NormalizeWildValue(x);
+}
+
+static float NormalizeClose(const Range& r, float x) {
+  return r.NormalizeCloseValue(x);
+}
+
+void TestNormalize_Inside(NormalizeFn* fn) {
+  const Range a(-kPi, kPi);
+  const Range zero_one(0.0f, 1.0f);
+  EXPECT_EQ(0.0f, fn(a, 0.0f));
+  EXPECT_NEAR(kPi - 0.1f, fn(a, kPi - 0.1f), kAngleEpsilon);
+  EXPECT_EQ(1.0f, fn(zero_one, 1.0f));
+  EXPECT_EQ(0.5f, fn(zero_one, 0.5f));
+}
+
+void TestNormalize_Border(NormalizeFn* fn) {
+  const Range a(-kPi, kPi);
+  const Range zero_one(0.0f, 1.0f);
+  EXPECT_EQ(kPi, fn(a, -kPi));
+  EXPECT_EQ(kPi, fn(a, kPi));
+  EXPECT_EQ(1.0f, fn(zero_one, 0.0f));
+  EXPECT_EQ(1.0f, fn(zero_one, 1.0f));
+}
+
+void TestNormalize_JustOutside(NormalizeFn* fn) {
+  const Range a(-kPi, kPi);
+  const Range zero_one(0.0f, 1.0f);
+  EXPECT_NEAR(0.9999f * kPi, fn(a, -1.0001f * kPi), kAngleEpsilon);
+  EXPECT_NEAR(-kPi + 0.00001f, fn(a, kPi + 0.00001f), kAngleEpsilon);
+  EXPECT_NEAR(0.99f, fn(zero_one, -1.01f), kZeroOneEpsilon);
+  EXPECT_NEAR(0.0000004f, fn(zero_one, 1.0000004f), kZeroOneEpsilon);
+}
+
+void TestNormalize_FartherOutside(NormalizeFn* fn) {
+  const Range a(-kPi, kPi);
+  const Range zero_one(0.0f, 1.0f);
+  EXPECT_NEAR(-0.9f * kPi, fn(a, -4.9f * kPi), kAngleEpsilon);
+  EXPECT_NEAR(1.0f, fn(a, 4.0f * kPi + 1.0f), kAngleEpsilon);
+  EXPECT_NEAR(0.7f, fn(zero_one, -2.3f), kZeroOneEpsilon);
+  EXPECT_NEAR(0.5f, fn(zero_one, 3.5f), kZeroOneEpsilon);
+}
+
+void TestNormalize_Distant(NormalizeFn* fn) {
+  const Range a(-kPi, kPi);
+  const Range zero_one(0.0f, 1.0f);
+  EXPECT_NEAR(0.0f, fn(a, -10.0f * kPi), kAngleEpsilon);
+  EXPECT_NEAR(1.0f, fn(a, 100.0f * kPi + 1.0f), kAngleEpsilon);
+  EXPECT_NEAR(0.7f, fn(zero_one, -19.3f), kZeroOneEpsilon);
+  EXPECT_NEAR(0.5f, fn(zero_one, 10.5f), kZeroOneEpsilon);
+}
+
 TEST_F(RangeTests, NormalizeWild_Inside) {
-  const Range a(-kPi, kPi);
-  const Range zero_one(0.0f, 1.0f);
-  EXPECT_EQ(0.0f, a.NormalizeWildValue(0.0f));
-  EXPECT_NEAR(kPi - 0.1f, a.NormalizeWildValue(kPi - 0.1f), kAngleEpsilon);
-  EXPECT_EQ(1.0f, zero_one.NormalizeWildValue(1.0f));
-  EXPECT_EQ(0.5f, zero_one.NormalizeWildValue(0.5f));
+  TestNormalize_Inside(NormalizeWild);
 }
-
 TEST_F(RangeTests, NormalizeWild_Border) {
-  const Range a(-kPi, kPi);
-  const Range zero_one(0.0f, 1.0f);
-  EXPECT_EQ(kPi, a.NormalizeWildValue(-kPi));
-  EXPECT_EQ(kPi, a.NormalizeWildValue(kPi));
-  EXPECT_EQ(1.0f, zero_one.NormalizeWildValue(0.0f));
-  EXPECT_EQ(1.0f, zero_one.NormalizeWildValue(1.0f));
+  TestNormalize_Border(NormalizeWild);
+}
+TEST_F(RangeTests, NormalizeWild_JustOutside) {
+  TestNormalize_JustOutside(NormalizeWild);
+}
+TEST_F(RangeTests, NormalizeWild_FartherOutside) {
+  TestNormalize_FartherOutside(NormalizeWild);
+}
+TEST_F(RangeTests, NormalizeWild_Distant) {
+  TestNormalize_Distant(NormalizeWild);
 }
 
-TEST_F(RangeTests, NormalizeWild_Distant) {
-  const Range a(-kPi, kPi);
-  const Range zero_one(0.0f, 1.0f);
-  EXPECT_NEAR(0.0f, a.NormalizeWildValue(-10.0f * kPi), kAngleEpsilon);
-  EXPECT_NEAR(1.0f, a.NormalizeWildValue(100.0f * kPi + 1.0f), kAngleEpsilon);
-  EXPECT_NEAR(0.7f, zero_one.NormalizeWildValue(-19.3f), kZeroOneEpsilon);
-  EXPECT_NEAR(0.5f, zero_one.NormalizeWildValue(10.5f), kZeroOneEpsilon);
+TEST_F(RangeTests, NormalizeClose_Inside) {
+  TestNormalize_Inside(NormalizeClose);
+}
+TEST_F(RangeTests, NormalizeClose_Border) {
+  TestNormalize_Border(NormalizeClose);
+}
+TEST_F(RangeTests, NormalizeClose_JustOutside) {
+  TestNormalize_JustOutside(NormalizeClose);
+}
+TEST_F(RangeTests, NormalizeClose_FartherOutside) {
+  TestNormalize_FartherOutside(NormalizeClose);
+}
+TEST_F(RangeTests, NormalizeClose_Distant) {
+  TestNormalize_Distant(NormalizeClose);
 }
 
 int main(int argc, char **argv) {

@@ -237,6 +237,13 @@ class CubicCurve {
   CubicCurve(const CubicInit& init) { Init(init); }
   void Init(const CubicInit& init);
 
+  /// Shift the curve along the x-axis: x_shift to the left.
+  /// That is x_shift becomes the curve's x=0.
+  void ShiftLeft(const float x_shift);
+
+  /// Shift the curve along the x-axis: x_shift to the right.
+  void ShiftRight(const float x_shift) { ShiftLeft(-x_shift); }
+
   /// Return the cubic function's value at `x`.
   /// f(x) = c3*x^3 + c2*x^2 + c1*x + c0
   float Evaluate(const float x) const {

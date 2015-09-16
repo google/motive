@@ -112,6 +112,54 @@ TEST_F(CurveTests, CubicWithWidth) {
   EXPECT_LT(fabs(c.Evaluate(init.width_x) - init.end_y), epsilon);
 }
 
+typedef void ShiftFn(float shift, CubicCurve* c);
+static void ShiftLeft(float shift, CubicCurve* c) { c->ShiftLeft(shift); }
+static void ShiftRight(float shift, CubicCurve* c) { c->ShiftRight(shift); }
+
+static void TestShift(const CubicInit& init, float shift, ShiftFn* fn,
+                      float direction) {
+  const CubicCurve c(init);
+  CubicCurve shifted(c);
+  fn(shift, &shifted);
+
+  const float epsilon = shifted.Epsilon();
+  const float offset = direction * shift;
+  EXPECT_NEAR(c.Evaluate(0.0f), shifted.Evaluate(offset), epsilon);
+  EXPECT_NEAR(c.Evaluate(-offset), shifted.Evaluate(0.0f), epsilon);
+  EXPECT_NEAR(c.Derivative(0.0f), shifted.Derivative(offset), epsilon);
+  EXPECT_NEAR(c.Derivative(-offset), shifted.Derivative(0.0f), epsilon);
+  EXPECT_NEAR(c.SecondDerivative(0.0f), shifted.SecondDerivative(offset),
+              epsilon);
+  EXPECT_NEAR(c.SecondDerivative(-offset), shifted.SecondDerivative(0.0f),
+              epsilon);
+}
+
+static void TestShiftLeft(const CubicInit& init, float shift) {
+  TestShift(init, shift, ShiftLeft, -1.0f);
+}
+
+static void TestShiftRight(const CubicInit& init, float shift) {
+  TestShift(init, shift, ShiftRight, 1.0f);
+}
+
+TEST_F(CurveTests, CubicShiftLeft) {
+  const CubicInit init(1.0f, -8.0f, 0.3f, -4.0f, 1.0f);
+  TestShiftLeft(init, 0.0f);
+  TestShiftLeft(init, 1.0f);
+  TestShiftLeft(init, -0.1f);
+  TestShiftLeft(init, 0.00001f);
+  TestShiftLeft(init, 10.0f);
+}
+
+TEST_F(CurveTests, CubicShiftRight) {
+  const CubicInit init(1.0f, -8.0f, 0.3f, -4.0f, 1.0f);
+  TestShiftRight(init, 0.0f);
+  TestShiftRight(init, 1.0f);
+  TestShiftRight(init, -0.1f);
+  TestShiftRight(init, 0.00001f);
+  TestShiftRight(init, 10.0f);
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

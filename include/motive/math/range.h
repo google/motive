@@ -102,8 +102,51 @@ class RangeT {
   /// `x` must be within +-Length() of the range bounds. This is a reasonable
   /// restriction in most cases (such as after an arithmetic operation).
   /// For cases where `x` may be wildly outside the range, use
-  /// NormalizeWildValue() instead.
-  T Normalize(T x) const { return x + ModularAdjustment(x); }
+  /// NormalizeCloseValue() or NormalizeWildValue() instead.
+  T Normalize(T x) const {
+    const float normalized = x + ModularAdjustment(x);
+    assert(ContainsExcludingStart(normalized));
+    return normalized;
+  }
+
+  /// Ensure `x` is within the valid constraint range, by subtracting or
+  /// adding Length() to it repeatedly.
+  /// `x` must be within +-kMaxAdjustments * Length() of the range bounds
+  /// for this function to be effective. If its greater, we end up calling
+  /// NormalizeWildValue(), so you'd be better off calling NormalizeWildValue()
+  /// from the beginning.
+  /// This function is intended to be called in situations where `x` is almost
+  /// always within one or two lengths of being normalized, so we don't want to
+  /// incur the division cost of NormalizeWildValue(). It's still guaranteed
+  /// to return a normalized value, however.
+  T NormalizeCloseValue(T x) const {
+    static const int kMaxAdjustments = 4;
+
+    // Return without change if `x` is already normalized.
+    const bool below = x <= start_;
+    const bool above = x > end_;
+    if (!below && !above) return x;
+
+    // Each time through the loop, we'll adjust by one length closer to the
+    // valid interval.
+    const T length = Length();
+    int num_adjustments = 0;
+
+    if (below) {
+      // Keep adding until we're in the range.
+      do {
+        x += length;
+        if (num_adjustments++ > kMaxAdjustments) return NormalizeWildValue(x);
+      } while (x <= start_);
+    } else {
+      // Keep subtracting until we're in the range.
+      do {
+        x -= length;
+        if (num_adjustments++ > kMaxAdjustments) return NormalizeWildValue(x);
+      } while (x > end_);
+    }
+    return x;
+  }
 
   /// Ensure `x` is within the valid constraint range, by subtracting multiples
   /// of Length() from it until it is.
@@ -120,6 +163,7 @@ class RangeT {
     // outside the bounds, so we need to do a standard normalization afterwards.
     const T close = x - whole_units * length;
     const T normalized = close + ModularAdjustment(close);
+    assert(ContainsExcludingStart(normalized));
     return normalized;
   }
 
@@ -130,7 +174,6 @@ class RangeT {
   T ModularAdjustment(T x) const {
     const T length = Length();
     const T adjustment = x <= start_ ? length : x > end_ ? -length : 0.0f;
-    assert(start_ < x + adjustment && x + adjustment <= end_);
     return adjustment;
   }
 
@@ -181,7 +224,21 @@ class RangeT {
     return 0.0f;
   }
 
+  /// Return true if `x` is in [start_, end_], i.e. the **inclusive** range.
   bool Contains(const T x) const { return start_ <= x && x <= end_; }
+
+  /// Return true if `x` is in (start_, end_], i.e. the range that includes the
+  /// end bound but not the start bound.
+  bool ContainsExcludingStart(const T x) const {
+    return start_ < x && x <= end_;
+  }
+
+  /// Return true if `x` is in [start_, end_), i.e. the range that includes the
+  /// start bound but not the end bound.
+  bool ContainsExcludingEnd(const T x) const { return start_ <= x && x < end_; }
+
+  /// Return true if `x` is in (start_, end_), i.e. the **exclusive** range.
+  bool StrictlyContains(const T x) const { return start_ < x && x < end_; }
 
   /// Swap start and end. When 'a' and 'b' don't overlap, if you invert the
   /// return value of Range::Intersect(a, b), you'll get the gap between
@@ -425,6 +482,10 @@ typedef RangeT<unsigned int> RangeUInt;
 
 // Since the float specialization will be most common, we give it a simple name.
 typedef RangeFloat Range;
+
+// Useful constants.
+static const Range kAngleRange(-static_cast<float>(M_PI),
+                               static_cast<float>(M_PI));
 
 }  // namespace fpl
 

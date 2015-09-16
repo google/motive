@@ -230,6 +230,27 @@ void CubicCurve::Init(const CubicInit& init) {
           one_over_w_sq * (init.end_derivative + init.start_derivative);
 }
 
+void CubicCurve::ShiftLeft(const float x_shift) {
+  // Early out optimization.
+  if (x_shift == 0.0f) return;
+
+  // s = x_shift
+  // f(x) = dx^3 + cx^2 + bx + a
+  // f(x + s) = d(x+s)^3 + c(x+s)^2 + b(x+s) + a
+  //          = d(x^3 + 3sx^2 + 3s^2x + s^3) + c(x^2 + 2sx + s^2) + b(x + s) + a
+  //          = dx^3 + (3sd + c)x^2 + (3ds^2 + 2c + b)x + (ds^3 + cs^2 + bs + a)
+  //          = dx^3 + (f''(s)/2) x^2 + f'(s) x + f(s)
+  //
+  // Or, for an more general formulation, see:
+  //     http://math.stackexchange.com/questions/694565/polynomial-shift
+  const float new_c = SecondDerivative(x_shift) * 0.5f;
+  const float new_b = Derivative(x_shift);
+  const float new_a = Evaluate(x_shift);
+  c_[0] = new_a;
+  c_[1] = new_b;
+  c_[2] = new_c;
+}
+
 bool CubicCurve::UniformCurvature(const Range& x_limits) const {
   // Curvature is given by the second derivative. The second derivative is
   // linear. So, the curvature is uniformly positive or negative iff
