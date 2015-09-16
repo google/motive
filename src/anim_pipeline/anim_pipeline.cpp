@@ -380,6 +380,9 @@ class FlatAnim {
       return false;
     }
 
+    // All the channels should end at the same time.
+    const FlatTime end_time = MaxAnimatedTime();
+
     flatbuffers::FlatBufferBuilder fbb;
     std::vector<flatbuffers::Offset<motive::MatrixAnimFb>> matrix_anims;
     std::vector<flatbuffers::Offset<flatbuffers::String>> bone_names;
@@ -408,7 +411,7 @@ class FlatAnim {
         } else {
           // Output spline MatrixOp.
           CompactSpline s;
-          CreateCompactSpline(*c, &s);
+          CreateCompactSpline(*c, end_time, &s);
           value = CreateSplineFlatBuffer(fbb, s, ModularOp(c->op)).Union();
           value_type = motive::MatrixOpValueFb_CompactSplineFb;
         }
@@ -488,6 +491,20 @@ class FlatAnim {
   float Tolerance(FlatChannelId channel_id) const {
     const Channels& channels = CurChannels();
     return ToleranceForOp(channels[channel_id].op);
+  }
+
+  /// Return the time of the channel that requires the most time.
+  FlatTime MaxAnimatedTime() const {
+    FlatTime max_time = 0;
+    for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
+      const Channels& channels = bone->channels;
+      for (auto ch = channels.begin(); ch != channels.end(); ++ch) {
+        if (ch->nodes.size() > 0) {
+          max_time = std::max(max_time, ch->nodes.back().time);
+        }
+      }
+    }
+    return max_time;
   }
 
   /// Return the first channel of the first bone that isn't repeatable.
@@ -656,20 +673,28 @@ class FlatAnim {
     return y_range;
   }
 
-  static void CreateCompactSpline(const Channel& ch, CompactSpline* s) {
+  static void CreateCompactSpline(const Channel& ch, FlatTime end_time,
+                                  CompactSpline* s) {
     const Nodes& nodes = ch.nodes;
     assert(nodes.size() > 1);
 
     // Maximize the bits we get for x by making the last time the maximum
     // x-value.
-    const float x_granularity = CompactSpline::RecommendXGranularity(
-        static_cast<float>(nodes.back().time));
+    const float x_granularity =
+        CompactSpline::RecommendXGranularity(static_cast<float>(end_time));
     const Range y_range = SplineYRange(ch);
 
     // Construct the Spline from the node data directly.
     s->Init(y_range, x_granularity, static_cast<int>(nodes.size()));
     for (auto n = nodes.begin(); n != nodes.end(); ++n) {
       s->AddNode(static_cast<float>(n->time), n->val, n->derivative,
+                 kAddWithoutModification);
+    }
+
+    // Append one more node so that all channels end at the same time.
+    const SplineNode& back_node = nodes.back();
+    if (back_node.time < end_time) {
+      s->AddNode(static_cast<float>(end_time), back_node.val, 0.0f,
                  kAddWithoutModification);
     }
   }
@@ -833,9 +858,9 @@ class FbxAnimParser {
   FlatVal FbxToFlatValue(const double x, const MatrixOperationType op) const {
     return motive::RotateOp(op)
                ? Angle::FromDegrees(static_cast<float>(x)).ToRadians()
-               : motive::TranslateOp(op)
-                     ? static_cast<FlatVal>(global_scale_ * x)
-                     : static_cast<float>(x);
+                                : motive::TranslateOp(op)
+                                      ? static_cast<FlatVal>(global_scale_ * x)
+                                      : static_cast<float>(x);
   }
 
   FlatDerivative FbxToFlatDerivative(const float d,
