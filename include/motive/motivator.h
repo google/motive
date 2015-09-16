@@ -140,8 +140,10 @@ class Motivator {
   MotiveIndex index_;
 };
 
-/// @class Motivator1f
-/// @brief Drive a single float value towards a target, or along a spline.
+/// @class MotivatorVectorTemplate
+/// @brief Drive a tuple of floats towards a target, or along a spline.
+///
+/// This template is instantiated below with four variations: 1~4 floats.
 ///
 /// The current and target values and velocities can be specified by SetTarget()
 /// or SetSpline().
@@ -285,6 +287,7 @@ class MotivatorMatrix4fTemplate : public Motivator {
   typedef VectorConverter C;
   typedef typename VectorConverter::ExternalMatrix4 Mat4;
   typedef typename VectorConverter::ExternalVector3 Vec3;
+  typedef MotivatorVectorTemplate<C, 1> Mot1f;
 
  public:
   MotivatorMatrix4fTemplate() {}
@@ -314,6 +317,10 @@ class MotivatorMatrix4fTemplate : public Motivator {
     return Processor().TimeRemaining(index_);
   }
 
+  /// Query the number of matrix operations. This equals the number of
+  /// operations in the `init` initializer.
+  int NumChildren() const { return Processor().NumChildren(index_); }
+
   /// Return the current value of the `child_index`th basic transform that
   /// drives this matrix.
   /// @param child_index The index into MatrixInit::ops(). The ops() array
@@ -334,6 +341,13 @@ class MotivatorMatrix4fTemplate : public Motivator {
   ///                    z gets child_index + 2's value.
   Vec3 ChildValue3f(MotiveChildIndex child_index) const {
     return C::To(Processor().ChildValue3f(index_, child_index));
+  }
+
+  /// Returns the Motivator1f that's driving this child, if it's driven by
+  /// a Motivator1f. Otherwise, returns nullptr.
+  const Mot1f* ChildMotivator1f(MotiveChildIndex child_index) const {
+    return static_cast<const Mot1f*>(
+        Processor().ChildMotivator1f(index_, child_index));
   }
 
   /// Set the target the 'child_index'th basic transform.
