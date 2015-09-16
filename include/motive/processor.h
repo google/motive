@@ -390,6 +390,9 @@ class MotiveProcessorMatrix4f : public MotiveProcessor {
   /// Get the current matrix value from the processor.
   virtual const mathfu::mat4& Value(MotiveIndex index) const = 0;
 
+  /// Get the number of matrix operations performed by this motivator.
+  virtual int NumChildren(MotiveIndex index) const = 0;
+
   /// Get current values of the components that create the matrix.
   virtual float ChildValue1f(MotiveIndex index,
                              MotiveChildIndex child_index) const = 0;
@@ -399,6 +402,11 @@ class MotiveProcessorMatrix4f : public MotiveProcessor {
                         ChildValue1f(index, child_index + 1),
                         ChildValue1f(index, child_index + 2));
   }
+
+  /// Get the Motivator1f driving this child, if this child is driven by
+  /// a Motivator1f, or nullptr otherwise.
+  virtual const Motivator* ChildMotivator1f(
+      MotiveIndex index, MotiveChildIndex child_index) const = 0;
 
   /// Set child values. Matrices are composed from child components.
   virtual void SetChildTarget1f(MotiveIndex /*index*/,

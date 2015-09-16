@@ -436,9 +436,18 @@ class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
     return Data(index).result_matrix();
   }
 
+  virtual int NumChildren(MotiveIndex index) const {
+    return Data(index).num_ops();
+  }
+
   virtual float ChildValue1f(MotiveIndex index,
                              MotiveChildIndex child_index) const {
     return Data(index).Op(child_index).Value();
+  }
+
+  virtual const Motivator1f* ChildMotivator1f(
+      MotiveIndex index, MotiveChildIndex child_index) const {
+    return Data(index).Op(child_index).ValueMotivator();
   }
 
   virtual void SetChildTarget1f(MotiveIndex index, MotiveChildIndex child_index,
