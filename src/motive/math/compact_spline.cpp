@@ -249,7 +249,10 @@ float CompactSpline::NodeX(const CompactSplineIndex index) const {
                                            : nodes_[index].X(x_granularity_);
 }
 float CompactSpline::NodeY(const CompactSplineIndex index) const {
-  return nodes_[index].Y(y_range_);
+  return index == kAfterSplineIndex
+             ? EndY()
+             : index == kBeforeSplineIndex ? StartY()
+                                           : nodes_[index].Y(y_range_);
 }
 float CompactSpline::NodeDerivative(const CompactSplineIndex index) const {
   return nodes_[index].Derivative();
