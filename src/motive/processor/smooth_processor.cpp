@@ -84,7 +84,8 @@ class SmoothMotiveProcessor : public MotiveProcessorVector {
     // current values with the values specified in the first node.
     const MotiveNode1f& node0 = t.Node(0);
     const bool override_current = node0.time == 0;
-    const float start_y = override_current ? node0.value : Value1f(index);
+    const float start_y = override_current ? node0.value
+                                           : interpolator_.NormalizedY(index);
     const float start_derivative =
         override_current ? node0.velocity : Velocity1f(index);
     const int start_node_index = override_current ? 1 : 0;

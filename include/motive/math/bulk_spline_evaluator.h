@@ -96,6 +96,12 @@ class BulkSplineEvaluator {
   /// Return the current y value for the spline at `index`.
   float Y(const Index index) const { return ys_[index]; }
 
+  /// Return the current y value for the spline at `index`, normalized to be
+  /// within the valid y_range.
+  float NormalizedY(const Index index) const {
+    return NormalizeY(index, ys_[index]);
+  }
+
   /// Return the current y value for spline indices
   /// `index` ~ `index + count - 1`.
   void Ys(const Index index, const Index count, float* ys) const {
@@ -143,7 +149,7 @@ class BulkSplineEvaluator {
   /// Apply modular arithmetic to ensure that `y` is within the valid y_range.
   float NormalizeY(const Index index, const float y) const {
     const YRange& r = y_ranges_[index];
-    return r.modular_arithmetic ? r.valid_y.Normalize(y) : y;
+    return r.modular_arithmetic ? r.valid_y.NormalizeCloseValue(y) : y;
   }
 
   /// Helper function to calculate the next y-value in a series of y-values
