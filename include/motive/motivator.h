@@ -427,6 +427,21 @@ class RigMotivator : public Motivator {
     return Processor().GlobalTransforms(index_);
   }
 
+  /// Returns the shell aniamtion that defines this rig. It contains all the
+  /// bones and operations-on-those-bones that can be animated.
+  ///
+  /// Distinction,
+  /// Rig: defines the bone heirarchy.
+  /// Defining animation: defines the bone heirarchy + operations on each bone.
+  /// Operations-on-bone: one of MatrixOperationType, for example, a rotation
+  ///     about the x-axis, or a translation along the y-axis. Animations are
+  ///     composed of several such operations on each bone. Not every animation
+  ///     has all the operations, however. The defining animation is the union
+  ///     of all possible operations on each bone.
+  const RigAnim* DefiningAnim() const {
+    return Processor().DefiningAnim(index_);
+  }
+
   /// Return the time remaining in the current spline animation.
   /// Time units are defined by the user.
   MotiveTime TimeRemaining() const { return Processor().TimeRemaining(index_); }

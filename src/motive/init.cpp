@@ -46,9 +46,10 @@ RigInit::RigInit(const RigAnim& defining_anim,
       bone_transforms_(
           num_bones == 0 ? &MatrixInit::kIdentityTransform : bone_transforms) {
   // Ensure the animation and the mesh have the same hierarchy.
-  // We allow the one exception where there are no bones and only popsicle
-  // stick animations.
-  assert((num_bones == 0 && defining_anim.NumBones() == 1) ||
+  // We allow the one exception where there are only popsicle stick animations
+  // (i.e. animations that affect a single root bone, like popsicle-stick
+  // puppets).
+  assert(defining_anim.NumBones() == 1 ||
          MatchesHierarchy(defining_anim, bone_parents, num_bones));
   (void)bone_parents;
 }

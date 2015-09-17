@@ -434,6 +434,9 @@ class MotiveProcessorRig : public MotiveProcessor {
   /// Return the time remaining in the current matrix animation.
   virtual MotiveTime TimeRemaining(MotiveIndex index) const = 0;
 
+  /// Return the animation that defines the rig.
+  virtual const RigAnim* DefiningAnim(MotiveIndex index) const = 0;
+
   /// Smoothly transition to the animation in `anim`.
   virtual void BlendToAnim(MotiveIndex index, const RigAnim& anim) = 0;
 
