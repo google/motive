@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <sstream>
+
 #include "mathfu/constants.h"
 #include "motive/anim.h"
 #include "motive/engine.h"
@@ -22,49 +24,13 @@
 using mathfu::vec4;
 using mathfu::mat4;
 using fpl::Angle;
+using fpl::kPi;
 
 namespace motive {
 
 // static
 mathfu::mat4 MatrixInit::kIdentityTransform(mathfu::mat4::Identity());
 static const MatrixOpArray kEmptyOps(0);
-
-RigInit::RigInit(const RigAnim& defining_anim,
-                 const mathfu::mat4* bone_transforms,
-                 const BoneIndex* bone_parents, BoneIndex num_bones)
-    : MotivatorInit(kType),
-      defining_anim_(&defining_anim),
-      bone_transforms_(
-          num_bones == 0 ? &MatrixInit::kIdentityTransform : bone_transforms) {
-  // Ensure the animation and the mesh have the same hierarchy.
-  // We allow the one exception where there are no bones and only popsicle
-  // stick animations.
-  assert((num_bones == 0 && defining_anim.NumBones() == 1) ||
-         MatchesHierarchy(defining_anim, bone_parents, num_bones));
-  (void)bone_parents;
-}
-
-// static
-bool RigInit::MatchesHierarchy(const BoneIndex* parents_a, BoneIndex len_a,
-                               const BoneIndex* parents_b, BoneIndex len_b) {
-  // TODO: Implement runtime retargetting by allowing the hiearchy to be
-  //       slightly different on bones that aren't animated.
-  return len_a == len_b &&
-         memcmp(parents_a, parents_b, len_a * sizeof(parents_a[0])) == 0;
-}
-
-// static
-bool RigInit::MatchesHierarchy(const RigAnim& anim, const BoneIndex* parents_b,
-                               BoneIndex len_b) {
-  return MatchesHierarchy(anim.bone_parents(), anim.NumBones(), parents_b,
-                          len_b);
-}
-
-// static
-bool RigInit::MatchesHierarchy(const RigAnim& anim_a, const RigAnim& anim_b) {
-  return MatchesHierarchy(anim_a.bone_parents(), anim_a.NumBones(),
-                          anim_b.bone_parents(), anim_b.NumBones());
-}
 
 class RigData {
  public:
@@ -73,6 +39,7 @@ class RigData {
       : motivators_(init.defining_anim().NumBones()),
         global_transforms_(init.defining_anim().NumBones()),
         defining_anim_(&init.defining_anim()),
+        current_anim_(nullptr),
         end_time_(start_time) {
     const BoneIndex num_bones = defining_anim_->NumBones();
 
@@ -106,6 +73,9 @@ class RigData {
           i >= anim_num_bones ? kEmptyOps : anim.Anim(i).ops();
       motivators_[i].BlendToOps(ops);
     }
+
+    // Remember the currently playing animation, for debugging purposes.
+    current_anim_ = &anim;
   }
 
   void UpdateGlobalTransforms() {
@@ -119,6 +89,52 @@ class RigData {
   }
 
   MotiveTime end_time() const { return end_time_; }
+
+  const RigAnim* defining_anim() const { return defining_anim_; }
+
+  void ChildValuesForDebugging(std::vector<float>* values) const {
+    values->resize(defining_anim_->NumOps());
+
+    int k = 0;
+    const int defining_num_bones = defining_anim_->NumBones();
+    for (BoneIndex i = 0; i < defining_num_bones; ++i) {
+      const MotiveChildIndex num_children = motivators_[i].NumChildren();
+      for (MotiveChildIndex j = 0; j < num_children; ++j) {
+        (*values)[k++] = motivators_[i].ChildValue1f(j);
+      }
+    }
+  }
+
+  std::string CsvHeaderForDebugging() const {
+    std::ostringstream oss;
+    oss << "animation name,time," << defining_anim_->CsvHeaderForDebugging(0)
+        << std::endl;
+    oss << ",," << defining_anim_->CsvHeaderForDebugging(1) << std::endl;
+    return oss.str();
+  }
+
+  std::string CsvValuesForDebugging(MotiveTime current_time) const {
+    std::vector<float> values;
+    ChildValuesForDebugging(&values);
+
+    std::ostringstream oss;
+    const MotiveTime anim_time =
+        current_time - end_time_ + current_anim_->end_time();
+    oss << current_anim_->anim_name() << ',' << anim_time << ',';
+
+    int k = 0;
+    const int defining_num_bones = defining_anim_->NumBones();
+    for (BoneIndex i = 0; i < defining_num_bones; ++i) {
+      const MatrixOpArray::OpVector& ops = defining_anim_->Anim(i).ops().ops();
+      for (size_t j = 0; j < ops.size(); ++j) {
+        const float multiplier = RotateOp(ops[j].type) ? 180.0f / kPi : 1.0f;
+        oss << multiplier * values[k] << ',';
+        k++;
+      }
+    }
+
+    return oss.str();
+  }
 
  private:
   /// Traverse hierarchy, converting local transforms from `motivators_` into
@@ -143,6 +159,7 @@ class RigData {
   std::vector<MotivatorMatrix4f> motivators_;
   std::vector<mat4> global_transforms_;
   const RigAnim* defining_anim_;
+  const RigAnim* current_anim_;
 
   /// Time that the animation is expected to complete.
   MotiveTime end_time_;
@@ -190,6 +207,18 @@ class RigMotiveProcessor : public MotiveProcessorRig {
     const MotiveTime end_time = Data(index).end_time();
     return end_time == kMotiveTimeEndless ? kMotiveTimeEndless
                                           : end_time - time_;
+  }
+
+  virtual const RigAnim* DefiningAnim(MotiveIndex index) const {
+    return Data(index).defining_anim();
+  }
+
+  virtual std::string CsvHeaderForDebugging(MotiveIndex index) const {
+    return Data(index).CsvHeaderForDebugging();
+  }
+
+  virtual std::string CsvValuesForDebugging(MotiveIndex index) const {
+    return Data(index).CsvValuesForDebugging(time_);
   }
 
  protected:

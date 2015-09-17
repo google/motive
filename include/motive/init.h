@@ -37,32 +37,41 @@ enum MatrixOperationType {
   kNumMatrixOperationTypes
 };
 
+/// Returns true if the operation is a rotate.
 inline bool RotateOp(MatrixOperationType op) {
   return kRotateAboutX <= op && op <= kRotateAboutZ;
 }
 
+/// Returns true if the operation is a translate.
 inline bool TranslateOp(MatrixOperationType op) {
   return kTranslateX <= op && op <= kTranslateZ;
 }
 
+/// Returns true if the operation is a scale.
 inline bool ScaleOp(MatrixOperationType op) {
   return kScaleX <= op && op <= kScaleUniformly;
 }
 
+/// Returns the default value of the operation. That is, the value of the
+/// operation that does nothing to the transformation. Any operation that
+/// constantly returns the default value can be removed.
 inline float OperationDefaultValue(MatrixOperationType op) {
   return RotateOp(op) || TranslateOp(op) ? 0.0f : 1.0f;
 }
 
-// Returns true if this operation uses modular arithmetic.
-// Rotations are equivalence every 2pi, so they are modular.
+/// Returns true if this operation uses modular arithmetic.
+/// Rotations are equivalence every 2pi, so they are modular.
 inline bool ModularOp(MatrixOperationType op) { return RotateOp(op); }
 
-// Returns the range of the matrix operation's spline. Most ranges are just
-// the extents of the splines, but rotations we want to normalize within
-// +-pi before blending to another curve.
+/// Returns the range of the matrix operation's spline. Most ranges are just
+/// the extents of the splines, but rotations we want to normalize within
+/// +-pi before blending to another curve.
 inline fpl::Range RangeOfOp(MatrixOperationType op, const fpl::Range& extents) {
   return ModularOp(op) ? fpl::kAngleRange : extents;
 }
+
+/// Return a string with the operation name. Used for debugging.
+const char* MatrixOpName(const motive::MatrixOperationType op);
 
 /// @class ModularInit
 /// Base-class for OvershootInit and SmoothInit. Holds parameters related

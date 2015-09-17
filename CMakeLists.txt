@@ -140,9 +140,11 @@ set(motive_SRCS
     include/motive/target.h
     include/motive/util.h
     include/motive/version.h
+    src/motive/anim.cpp
     src/motive/anim_table.cpp
     src/motive/engine.cpp
     src/motive/motivator.cpp
+    src/motive/init.cpp
     src/motive/io/flatbuffers.cpp
     src/motive/math/bulk_spline_evaluator.cpp
     src/motive/math/compact_spline.cpp

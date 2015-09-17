@@ -139,14 +139,16 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, bool repeat,
   }
 }
 
-void RigAnimFromFlatBuffers(const RigAnimFb& params, RigAnim* anim) {
+void RigAnimFromFlatBuffers(const RigAnimFb& params, const char* anim_name,
+                            RigAnim* anim) {
   const size_t num_bones = params.matrix_anims()->Length();
   const auto names = params.bone_names();
   const auto parents = params.bone_parents();
   const bool record_names = names != nullptr && names->Length() == num_bones;
   assert(parents != nullptr && parents->Length() == num_bones);
 
-  anim->Init(static_cast<motive::BoneIndex>(num_bones), record_names);
+  anim->Init(anim_name, static_cast<motive::BoneIndex>(num_bones),
+             record_names);
 
   MotiveTime end_time = 0;
   for (BoneIndex i = 0; i < num_bones; ++i) {
