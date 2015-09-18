@@ -431,6 +431,13 @@ class RigMotivator : public Motivator {
   /// Time units are defined by the user.
   MotiveTime TimeRemaining() const { return Processor().TimeRemaining(index_); }
 
+  std::string CsvHeaderForDebugging() const {
+    return Processor().CsvHeaderForDebugging(index_);
+  }
+  std::string CsvValuesForDebugging() const {
+    return Processor().CsvValuesForDebugging(index_);
+  }
+
  private:
   MotiveProcessorRig& Processor() {
     return *static_cast<MotiveProcessorRig*>(processor_);

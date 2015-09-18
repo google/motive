@@ -85,7 +85,7 @@ static void CreateDefiningAnim(const RigAnim** anims, size_t num_anims,
   const RigAnim* complete_rig = FindCompleteRig(anims, num_anims);
   const BoneIndex num_bones = complete_rig->NumBones();
   const BoneIndex* parents = complete_rig->bone_parents();
-  defining_anim->Init(num_bones, true);
+  defining_anim->Init("defining_anim", num_bones, true);
 
   // For each bone, consider adding each operation in the canonical operations.
   for (BoneIndex j = 0; j < num_bones; ++j) {
@@ -203,7 +203,7 @@ bool AnimTable::LoadAnimations(LoadRigAnimFn* load_fn) {
 
     // Initialize the animation file into `anim_table`.
     RigAnim* anim = QueryByName(anim_name);
-    RigAnimFromFlatBuffers(*anim_fb, anim);
+    RigAnimFromFlatBuffers(*anim_fb, anim_name, anim);
   }
   return true;
 }

@@ -140,27 +140,6 @@ static const uint32_t kScaleZBitfield = 1 << motive::kScaleZ;
 static const uint32_t kScaleXyzBitfield = kScaleXBitfield | kScaleYBitfield |
                                           kScaleZBitfield;
 
-static const char* kMatrixOpNames[] = {
-    "Invalid Matrix Operation",  // kInvalidMatrixOperation
-    "Rotate About X",            // kRotateAboutX
-    "Rotate About Y",            // kRotateAboutY
-    "Rotate About Z",            // kRotateAboutZ
-    "Translate X",               // kTranslateX
-    "Translate Y",               // kTranslateY
-    "Translate Z",               // kTranslateZ
-    "Scale X",                   // kScaleX
-    "Scale Y",                   // kScaleY
-    "Scale Z",                   // kScaleZ
-    "Scale Uniformly",           // kScaleUniformly
-};
-static_assert(MOTIVE_ARRAY_SIZE(kMatrixOpNames) == kNumMatrixOperationTypes,
-              "Adjust kMatrixOpNames to match enumeration");
-
-static inline const char* MatrixOpName(const motive::MatrixOperationType op) {
-  assert(0 <= op && op < kNumMatrixOperationTypes);
-  return kMatrixOpNames[op];
-}
-
 /// @brief Convert derivative to its angle in x/y space.
 ///  derivative 0 ==> angle 0
 ///  derivative 1 ==> angle 45 degrees

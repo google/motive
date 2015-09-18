@@ -436,6 +436,13 @@ class MotiveProcessorRig : public MotiveProcessor {
 
   /// Smoothly transition to the animation in `anim`.
   virtual void BlendToAnim(MotiveIndex index, const RigAnim& anim) = 0;
+
+  virtual std::string CsvHeaderForDebugging(MotiveIndex /*index*/) const {
+    return std::string();
+  }
+  virtual std::string CsvValuesForDebugging(MotiveIndex /*index*/) const {
+    return std::string();
+  }
 };
 
 /// Static functions in MotiveProcessor-derived classes.
