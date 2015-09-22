@@ -166,6 +166,20 @@ class BulkSplineEvaluator {
     return current_y + diff;
   }
 
+  /// True if using modular arithmetic on this `index`. Modular arithmetic is
+  /// used for types such as angles, which are equivalent modulo 2pi
+  /// (e.g. -pi and +pi represent the same angle).
+  bool ModularArithmetic(const Index index) const {
+    return y_ranges_[index].modular_arithmetic != 0;
+  }
+
+  /// The modular range for values that use ModularArithmetic(). Note that Y()
+  /// can be outside of this range. However, we always normalize to this range
+  /// before blending to a new spline.
+  const Range& ModularRange(const Index index) const {
+    return y_ranges_[index].valid_y;
+  }
+
  private:
   void InitCubic(const Index index, const float start_x);
   Index NumIndices() const { return static_cast<Index>(sources_.size()); }
@@ -211,10 +225,10 @@ class BulkSplineEvaluator {
   struct YRange {
     YRange() : valid_y(Range::Full()), modular_arithmetic(0) {}
 
-    /// Hold min and max values for the y result, or for the modular range.
-    /// Modular ranges are used for things like angles, the wrap around from
+    /// Hold the min and max extents of the modular range.
+    /// Modular ranges are used for things like angles, which wrap around from
     /// -pi to +pi.
-    Range valid_y;
+    Range valid_y; // TODO: change name to modular_range.
 
     /// True if y values wrap around when they exit the valid_y range.
     /// False if y values clamp to the edges of the valid_y range.

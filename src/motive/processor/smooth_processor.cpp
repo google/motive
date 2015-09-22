@@ -99,7 +99,7 @@ class SmoothMotiveProcessor : public MotiveProcessorVector {
     // Initialize the compact spline to hold the sequence of nodes in 't'.
     // Add the first node, which has the start condition.
     const float end_x = static_cast<float>(t.EndTime());
-    const Range y_range = t.ValueRange(start_y).Lengthen(kYRangeBufferPercent);
+    const Range y_range = CalculateYRange(index, t, start_y);
     const float x_granularity = CompactSpline::RecommendXGranularity(end_x);
     d.local_spline->Init(y_range, x_granularity, kMaxNodesInLocalSpline);
     d.local_spline->AddNode(0.0f, start_y, start_derivative);
@@ -193,6 +193,26 @@ class SmoothMotiveProcessor : public MotiveProcessorVector {
     if (spline != nullptr) {
       spline_pool_.push_back(spline);
     }
+  }
+
+  Range CalculateYRange(MotiveIndex index, const MotiveTarget1f& t,
+                        float start_y) const {
+    if (interpolator_.ModularArithmetic(index)) {
+      // For modular splines, we need to expand the spline's y-range to match
+      // the number of nodes in the spline. It's possible for the spline to jump
+      // up the entire range every node, so the range has to be broad enough
+      // to hold it all.
+      //
+      // Note that we only normalize the first value of the spline, and
+      // subsequent values are allowed to curve out of the normalized range.
+      const float num_spline_nodes = static_cast<float>(t.num_nodes());
+      return interpolator_.ModularRange(index).Lengthen(num_spline_nodes);
+    }
+
+    // Calculate the union of the y ranges in the target, then expand it a
+    // little to allow for intermediate nodes that jump slightly beyond the
+    // union's range.
+    return t.ValueRange(start_y).Lengthen(kYRangeBufferPercent);
   }
 
   // Hold index-specific data, for example a pointer to the spline allocated
