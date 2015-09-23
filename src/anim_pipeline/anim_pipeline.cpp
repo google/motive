@@ -129,8 +129,11 @@ static const float kDefaultRotateTolerance = 0.00873f;
 // Totally arbitrary. TODO: make a percentage of the model size.
 static const float kDefaultTranslateTolerance = 0.01f;
 
+// 0.5 degrees in radians.
+static const float kDefaultDerivativeAngleTolerance = 0.00873f;
+
 // 10 degrees in radians.
-static const float kDefaultDerivativeAngleTolerance = 0.1745f;
+static const float kDefaultRepeatDerivativeAngleTolerance = 0.1745f;
 
 // Use these bitfields to find situations where scale x, y, and z occur, in
 // any order, in a row.
@@ -165,11 +168,16 @@ struct Tolerances {
   /// Amount derivative--converted to an angle in x/y--can deviate, in radians.
   float derivative_angle;
 
+  /// Amount derivative--converted to an angle in x/y--can deviate, in radians,
+  /// This value used when determining if an animation repeats or not.
+  float repeat_derivative_angle;
+
   Tolerances()
       : scale(kDefaultScaleTolerance),
         rotate(kDefaultRotateTolerance),
         translate(kDefaultTranslateTolerance),
-        derivative_angle(kDefaultDerivativeAngleTolerance) {}
+        derivative_angle(kDefaultDerivativeAngleTolerance),
+        repeat_derivative_angle(kDefaultRepeatDerivativeAngleTolerance) {}
 };
 
 // Unique id identifying a single float curve being animated.
@@ -272,45 +280,42 @@ class FlatAnim {
   void PruneNodes(FlatChannelId channel_id) {
     const float tolerance = Tolerance(channel_id);
 
-    // For every consecutive group of three nodes, determine if the middle
-    // node is redundant. If so, remove it.
-    // Iterate backwards through the array to minimize the cost of `erase()`
-    // for the common case of all the nodes being the same.
+    // For every node try to prune as many redunant nodes that come after it.
+    // A node is redundant if the spline evaluates to the same value even if
+    // it doesn't exists (note: here "same value" means within `tolerances_`).
     Channels& channels = CurChannels();
     Nodes& n = channels[channel_id].nodes;
-    for (int i = static_cast<int>(n.size() - 1); i >= 2; --i) {
-      // Construct cubic curve `c` that skips the `mid` node.
-      const SplineNode& start = n[i - 2];
-      const SplineNode& mid = n[i - 1];
-      const SplineNode& end = n[i];
-      const float cubic_width = static_cast<float>(end.time - start.time);
-      const CubicCurve c(CubicInit(start.val, start.derivative, end.val,
-                                   end.derivative, cubic_width));
-
-      // Evaluate `c` at the time of `mid`.
-      const float mid_time = static_cast<float>(mid.time - start.time);
-      const float mid_val = c.Evaluate(mid_time);
-      const float mid_derivative = c.Derivative(mid_time);
-
-      // If the mid point is on the curve, or at the same time as start and end,
-      // just delete it. It's redundant.
-      const bool mid_at_same_time = cubic_width == 0.0f;
-      const float derivative_angle_error =
-          DerivativeAngle(mid_derivative - mid.derivative);
-      const bool mid_on_c =
-          fabs(mid_val - mid.val) < tolerance &&
-          fabs(derivative_angle_error) < tolerances_.derivative_angle;
-      if (mid_at_same_time || mid_on_c) {
-        n.erase(n.begin() + (i - 1));
+    std::vector<bool> prune(n.size(), false);
+    for (size_t i = 0; i < n.size();) {
+      size_t next_i = i + 1;
+      for (size_t j = i + 2; j < n.size(); ++j) {
+        const bool redundant = IntermediateNodesRedundant(&n[i], j - i + 1,
+                                                          tolerance);
+        if (redundant) {
+          prune[j - 1] = true;
+          next_i = j;
+        }
       }
+      i = next_i;
     }
+
+    // Compact to remove all pruned nodes.
+    size_t write = 0;
+    for (size_t read = 0; read < n.size(); ++read) {
+      if (prune[read]) continue;
+      if (write < read) {
+        n[write] = n[read];
+      }
+      write++;
+    }
+    n.resize(write);
 
     // If value is constant for the entire time, remove the second node so that
     // we know to output a constant value in `OutputFlatBuffer()`.
     const bool is_const =
         n.size() == 2 && fabs(n[0].val - n[1].val) < tolerance &&
-        fabs(n[0].derivative) < tolerances_.derivative_angle &&
-        fabs(n[1].derivative) < tolerances_.derivative_angle;
+        fabs(DerivativeAngle(n[0].derivative)) < tolerances_.derivative_angle &&
+        fabs(DerivativeAngle(n[1].derivative)) < tolerances_.derivative_angle;
     if (is_const) {
       n.resize(1);
     }
@@ -508,8 +513,9 @@ class FlatAnim {
 
         // Return false unless the start and end of the channel are the same.
         const float tolerance = ToleranceForOp(channel.op);
-        const bool same = diff_val < tolerance &&
-                          diff_derivative_angle < tolerances_.derivative_angle;
+        const bool same =
+            diff_val < tolerance &&
+            diff_derivative_angle < tolerances_.repeat_derivative_angle;
         if (!same) {
           *first_channel_id = channel_id;
           return bone_idx;
@@ -606,6 +612,43 @@ class FlatAnim {
     }
     assert(false);
     return kInvalidBoneIdx;
+  }
+
+  /// @brief Returns true if all nodes between the first and last in `n`
+  ///        can be deleted without noticable difference to the curve.
+  bool IntermediateNodesRedundant(const SplineNode* n, size_t len,
+                                  float tolerance) const {
+    // If the start and end nodes occur at the same time and are equal,
+    // then ignore everything inbetween them.
+    const SplineNode& start = n[0];
+    const SplineNode& end = n[len -1];
+    if (EqualNodes(start, end, tolerance, tolerances_.derivative_angle))
+      return true;
+
+    // Construct cubic curve `c` that skips all the intermediate nodes.
+    const float cubic_width = static_cast<float>(end.time - start.time);
+    const CubicCurve c(CubicInit(start.val, start.derivative, end.val,
+                                 end.derivative, cubic_width));
+
+    // For each intermediate node, check if the cubic `c` is close.
+    for (size_t i = 1; i < len - 1; ++i) {
+      // Evaluate `c` at the time of `mid`.
+      const SplineNode& mid = n[i];
+      const float mid_time = static_cast<float>(mid.time - start.time);
+      const float mid_val = c.Evaluate(mid_time);
+      const float mid_derivative = c.Derivative(mid_time);
+
+      // If the mid point is on the curve, it's redundant.
+      const float derivative_angle_error =
+          DerivativeAngle(mid_derivative - mid.derivative);
+      const bool mid_on_c =
+          fabs(mid_val - mid.val) < tolerance &&
+          fabs(derivative_angle_error) < tolerances_.derivative_angle;
+      if (!mid_on_c) return false;
+    }
+
+    // All mid points are redundant.
+    return true;
   }
 
   static bool EqualNodes(const SplineNode& a, const SplineNode& b,
@@ -1094,7 +1137,11 @@ class FbxAnimParser {
 };
 
 struct AnimPipelineArgs {
-  AnimPipelineArgs() : fbx_file(""), output_file(""), log_level(kLogImportant) {}
+  AnimPipelineArgs() :
+      fbx_file(""),
+      output_file(""),
+      log_level(kLogImportant),
+      repeat_preference(kRepeatIfRepeatable) {}
 
   std::string fbx_file;    /// FBX input file to convert.
   std::string output_file; /// File to write .fplanim to.
