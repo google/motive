@@ -381,7 +381,7 @@ class MatrixData {
 
  private:
   static size_t SizeOfClass(int num_ops) {
-    return sizeof(MatrixData) + sizeof(MatrixOperation) * (num_ops - 1);
+    return sizeof(MatrixData) + sizeof(MatrixOperation) * std::max(0, num_ops - 1);
   }
 
   /// Constants transforms that get applied before all other transforms.

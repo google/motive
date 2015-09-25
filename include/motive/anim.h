@@ -37,6 +37,8 @@ class MatrixAnim {
   /// @param num_splines Total number of splines in the animation. Not all ops
   ///                    use a spline (some are const ops).
   Spline* Construct(int num_splines) {
+    if (num_splines == 0) return nullptr;
+
     // Note: It's important that the `splines_` array is not moved, since
     //       `ops_` points into it.
     // TODO: Revisit this layout to eliminate the internal pointers, making it

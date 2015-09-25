@@ -58,8 +58,10 @@ class RigAnim;
 class MotiveProcessor {
  public:
   MotiveProcessor()
-      : allocator_callbacks_(this), index_allocator_(allocator_callbacks_),
-        benchmark_id_for_advance_frame_(-1), benchmark_id_for_init_(-1) {}
+      : index_allocator_(allocator_callbacks_),
+        benchmark_id_for_advance_frame_(-1), benchmark_id_for_init_(-1) {
+    allocator_callbacks_.set_processor(this);
+  }
   virtual ~MotiveProcessor();
 
   /// Instantiate motivator data inside the MotiveProcessor, and initialize
@@ -207,7 +209,8 @@ class MotiveProcessor {
   /// Proxy callbacks from IndexAllocator into MotiveProcessor.
   class AllocatorCallbacks : public MotiveIndexAllocator::CallbackInterface {
    public:
-    AllocatorCallbacks(MotiveProcessor* processor) : processor_(processor) {}
+    AllocatorCallbacks() : processor_(nullptr) {}
+    void set_processor(MotiveProcessor* processor) { processor_ = processor; }
     virtual void SetNumIndices(MotiveIndex num_indices) {
       processor_->SetNumIndicesBase(num_indices);
     }

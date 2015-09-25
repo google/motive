@@ -36,17 +36,22 @@ class RigData {
  public:
   explicit RigData(const RigInit& init, MotiveTime start_time,
                    MotiveEngine* engine)
-      : motivators_(init.defining_anim().NumBones()),
-        global_transforms_(init.defining_anim().NumBones()),
+      : motivators_(nullptr),
+        global_transforms_(nullptr),
         defining_anim_(&init.defining_anim()),
         current_anim_(nullptr),
         end_time_(start_time) {
     const BoneIndex num_bones = defining_anim_->NumBones();
 
+    // Visual Studio 2010 does not like std::vectors of mat4, since they are
+    // a 16-byte aligned type. Use plain old arrays instead.
+    motivators_ = new MotivatorMatrix4f[num_bones];
+    global_transforms_ = new mat4[num_bones];
+
     // Initialize global transforms to default pose.
     // These will get overridden the first time AdvanceFrame() is called, but
     // we initialize them nicely anyway.
-    memcpy(&global_transforms_[0], init.bone_transforms(),
+    memcpy(global_transforms_, init.bone_transforms(),
            sizeof(global_transforms_[0]) * num_bones);
 
     // Initialize the motivators that drive the local transforms.
@@ -57,13 +62,21 @@ class RigData {
     }
   }
 
+  ~RigData() {
+    delete[] motivators_;
+    motivators_ = nullptr;
+
+    delete[] global_transforms_;
+    global_transforms_ = nullptr;
+  }
+
   void BlendToAnim(const RigAnim& anim, MotiveTime start_time) {
     end_time_ = start_time + anim.end_time();
 
     // When animation has only one bone, or mesh has only one bone,
     // we simply animate the root node only.
     const int anim_num_bones = anim.NumBones();
-    const int defining_num_bones = defining_anim_->NumBones();
+    const int defining_num_bones = NumBones();
     assert(defining_num_bones == 1 || anim_num_bones == 1 ||
            RigInit::MatchesHierarchy(anim, *defining_anim_));
 
@@ -79,13 +92,13 @@ class RigData {
   }
 
   void UpdateGlobalTransforms() {
-    CalculateGlobalTransforms(&global_transforms_[0]);
+    CalculateGlobalTransforms(global_transforms_);
   }
 
-  const mat4* GlobalTransforms() const { return &global_transforms_[0]; }
+  const mat4* GlobalTransforms() const { return global_transforms_; }
 
   BoneIndex NumBones() const {
-    return static_cast<BoneIndex>(global_transforms_.size());
+    return defining_anim_->NumBones();
   }
 
   MotiveTime end_time() const { return end_time_; }
@@ -96,7 +109,7 @@ class RigData {
     values->resize(defining_anim_->NumOps());
 
     int k = 0;
-    const int defining_num_bones = defining_anim_->NumBones();
+    const int defining_num_bones = NumBones();
     for (BoneIndex i = 0; i < defining_num_bones; ++i) {
       const MotiveChildIndex num_children = motivators_[i].NumChildren();
       for (MotiveChildIndex j = 0; j < num_children; ++j) {
@@ -123,7 +136,7 @@ class RigData {
     oss << current_anim_->anim_name() << ',' << anim_time << ',';
 
     int k = 0;
-    const int defining_num_bones = defining_anim_->NumBones();
+    const int defining_num_bones = NumBones();
     for (BoneIndex i = 0; i < defining_num_bones; ++i) {
       const MatrixOpArray::OpVector& ops = defining_anim_->Anim(i).ops().ops();
       for (size_t j = 0; j < ops.size(); ++j) {
@@ -156,8 +169,8 @@ class RigData {
     }
   }
 
-  std::vector<MotivatorMatrix4f> motivators_;
-  std::vector<mat4> global_transforms_;
+  MotivatorMatrix4f* motivators_;
+  mat4* global_transforms_;
   const RigAnim* defining_anim_;
   const RigAnim* current_anim_;
 
