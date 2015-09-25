@@ -396,7 +396,7 @@ class FlatAnim {
           // Output spline MatrixOp.
           CompactSpline s;
           CreateCompactSpline(*c, end_time, &s);
-          value = CreateSplineFlatBuffer(fbb, s, ModularOp(c->op)).Union();
+          value = CreateSplineFlatBuffer(fbb, s).Union();
           value_type = motive::MatrixOpValueFb_CompactSplineFb;
         }
 
@@ -500,7 +500,8 @@ class FlatAnim {
       const Bone& bone = bones_[bone_idx];
       const Channels& channels = bone.channels;
 
-      for (FlatChannelId channel_id = 0; channel_id < channels.size();
+      for (FlatChannelId channel_id = 0;
+           channel_id < static_cast<FlatChannelId>(channels.size());
            ++channel_id) {
         const Channel& channel = channels[channel_id];
 
@@ -585,10 +586,6 @@ class FlatAnim {
       const SplineNode v0 = n0[i];
       const SplineNode v1 = n1[i];
       const SplineNode v2 = n2[i];
-      const float derivative_tolerance =
-          i == n0.size() - 1
-              ? std::numeric_limits<float>::infinity()
-              : tolerance * static_cast<float>(n0[i + 1].time - v0.time);
       const bool are_equal =
           EqualNodes(v0, v1, tolerance, tolerances_.derivative_angle) &&
           EqualNodes(v0, v2, tolerance, tolerances_.derivative_angle) &&
@@ -669,8 +666,7 @@ class FlatAnim {
   }
 
   static flatbuffers::Offset<motive::CompactSplineFb> CreateSplineFlatBuffer(
-      flatbuffers::FlatBufferBuilder& fbb, const CompactSpline& s,
-      bool modular_arithmetic) {
+      flatbuffers::FlatBufferBuilder& fbb, const CompactSpline& s) {
     auto nodes_fb = fbb.CreateVectorOfStructs(
         reinterpret_cast<const motive::CompactSplineNodeFb*>(s.nodes()),
         s.NumNodes());
