@@ -27,9 +27,10 @@ perhaps, as a simple rendering or audio library.
 
 # Features
 
-The v1.0 release of Motive is feature light. It's focused primarily on
-procedural animation and simple hand-tunable motion. It is suitable for
-the animation of props, cameras, GUI elements, and simple rigs.
+The v1.1 release of Motive focusses on speed and scalability. Motive now
+supports rigged character animation and blending between those animations.
+Motive maintains its aptitude for procedural animation that was the focus of
+v1.0.
 
 # Downloading
 
