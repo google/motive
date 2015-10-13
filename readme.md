@@ -38,10 +38,6 @@ Motive has optional features that depend upon:
 * [FlatBuffers][] -- allow animation data to be defined in json and then
   compiled to a small binary format.
 
-The Motive performance benchmark application also uses:
-
-* [SDL][] -- for crossplatform graphics rendering
-
 # Notes
 
 For applications on Google Play that integrate this tool, usage is tracked.
@@ -55,4 +51,3 @@ appreciate if you would leave it in.
   [MathFu]: http://google.github.io/mathfu/
   [FplUtil]: http://google.github.io/fplutil/
   [FlatBuffers]: http://google.github.io/flatbuffers/
-  [SDL]: https://www.libsdl.org/

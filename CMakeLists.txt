@@ -81,20 +81,6 @@ set(mathfu_build_benchmarks OFF CACHE BOOL "")
 set(mathfu_build_tests OFF CACHE BOOL "")
 add_subdirectory(${dependencies_mathfu_dir} ${tmp_dir}/mathfu)
 
-# Include SDL in this project while working around SDL requirement of out of
-# tree builds.
-set(SDL_SHARED OFF CACHE BOOL "Build a shared version of the library")
-# (hack) We redefine install to stop SDL's CMakeLists.txt from referring to SDL2 lib
-function(install)
-endfunction(install)
-# For some reason SDL defaults to these not being defined, and then defines their own,
-# causing linker errors.
-add_definitions(-DHAVE_LIBC)
-add_definitions(-DHAVE_STDIO_H)
-set(BIN_DIR ${CMAKE_CURRENT_BINARY_DIR})
-set(CMAKE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/.)
-set(CMAKE_BINARY_DIR ${BIN_DIR})
-
 # Include FlatBuffers in this project.
 set(FLATBUFFERS_BUILD_TESTS OFF CACHE BOOL "")
 if(NOT TARGET flatc)
@@ -174,9 +160,6 @@ include_directories(${dependencies_fplutil_dir}/libfplutil/include)
 include_directories(${dependencies_mathfu_dir}/benchmarks)
 include_directories(${dependencies_mathfu_dir}/include)
 
-# SDL includes.
-include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
-
 # Detect clang
 if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" OR
    CMAKE_CXX_COMPILER_ID MATCHES ".*clang")
@@ -211,15 +194,8 @@ if(motive_enable_benchmarks)
   add_definitions(-DBENCHMARK_MOTIVE)
 endif()
 
-if(NOT fpl_ios)
-  set(SDL_LIBRARIES SDL2-static)
-else()
-  set(SDL_LIBRARIES "")
-endif()
-
 if(WIN32)
   add_definitions(-D_USE_MATH_DEFINES)
-  set(SDL_LIBRARIES SDL2main ${SDL_LIBRARIES})
   link_directories("$ENV{DXSDK_DIR}/Lib/$ENV{PROCESSOR_ARCHITECTURE}")
 endif()
 

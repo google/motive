@@ -57,10 +57,6 @@ Motive has optional features that depend upon:
 * [FlatBuffers][] -- allow animation data to be defined in json and then
   compiled to a small binary format.
 
-The Motive performance benchmark application also uses:
-
-* [SDL][] -- for crossplatform graphics rendering
-
 # Tracking on Google Play
 
 For applications on Google Play that integrate this tool, usage is tracked.
@@ -89,7 +85,6 @@ appreciate if you would leave it in.
   [Motive]: @ref motive_overview
   [OS X]: http://www.apple.com/osx/
   [SIMD]: http://en.wikipedia.org/wiki/SIMD
-  [SDL]: https://www.libsdl.org/
   [Windows]: http://windows.microsoft.com/
   [stackoverflow.com]: http://www.stackoverflow.com
   [vector]: http://en.wikipedia.org/wiki/Euclidean_vector
