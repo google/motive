@@ -1,7 +1,7 @@
-The Motive Animation System    {#motive_overview}
+The Motive Animation System
 ===========================
 
-# Overview
+# Overview    {#motive_overview}
 
 Motive is a cross-platform animation system. It's designed to be,
   * **performant** -- data is stored centrally and processed in bulk so that we

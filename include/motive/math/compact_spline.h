@@ -116,6 +116,12 @@ class CompactSpline {
   /// @param y Must be within the `y_range` specified in Init().
   /// @param derivative No restrictions, but excessively large values may still
   ///                   result in overshoot, even with an intermediate node.
+  /// @param method If kAddWithoutModification, adds the node and does nothing
+  ///               else. If kEnsureCubicWellBehaved, adds the node and
+  ///               (if required) inserts another node in the middle so that
+  ///               the individual cubics have uniform curvature.
+  ///               Uniform curvature means always curving upward or always
+  ///               curving downward. See docs/dual_cubics.pdf for details.
   void AddNode(const float x, const float y, const float derivative,
                const CompactSplineAddMethod method = kEnsureCubicWellBehaved);
 
@@ -202,7 +208,8 @@ class CompactSpline {
   /// @param splines input splines of length `num_splines`.
   /// @param num_splines number of splines to evaluate.
   /// @param start_x starting point for every spline.
-  /// @param delta_x increment for each
+  /// @param delta_x increment for each output y.
+  /// @param num_ys length of the `ys` array.
   /// @param ys two dimensional output array, ys[num_ys][num_splines].
   ///           ys[0] are `splines` evaluated at start_x.
   ///           ys[num_ys - 1] are `splines` evaluated at
@@ -280,7 +287,12 @@ struct SplinePlaybackN {
   }
 
   /// Initialize each channel with its own spline.
-  /// @param s An array pointers to splines, of length kDimensions.
+  /// @param s An array of splines, of length kDimensions.
+  /// @param start_x Point on spline at which to start playback.
+  /// @param repeat If true, return to x=0 when spline completes.
+  /// @param playback_rate Scale of delta_time, during playback.
+  /// @param blend_x If we blend to this playback from another spline,
+  ///                duration of the blend.
   explicit SplinePlaybackN(const CompactSpline* s, float start_x = 0.0f,
                            bool repeat = false, float playback_rate = 1.0f,
                            float blend_x = 0.0f)

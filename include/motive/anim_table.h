@@ -39,7 +39,6 @@ class AnimTable {
   ///       provide this function.
   ///
   /// Example:
-  ///   #include "anim_generated.h"
   ///   const RigAnimFb* MyLoadRigAnimFn(const char* anim_name,
   ///                                    std::string* scratch_buf) {
   ///     const bool load_ok = MyLoadFile(anim_name, scratch_buf);

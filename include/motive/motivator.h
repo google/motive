@@ -380,6 +380,7 @@ class MotivatorMatrix4fTemplate : public Motivator {
   ///                    `value`.
   ///                    child_index + 1's constant is set to value.y, and
   ///                    child_index + 2's constant is set to value.z.
+  /// @param value The new constant value for this 3-dimensional operation.
   void SetChildValue3f(MotiveChildIndex child_index, const Vec3& value) {
     Processor().SetChildValue3f(index_, child_index, C::From(value));
   }

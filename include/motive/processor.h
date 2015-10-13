@@ -80,6 +80,9 @@ class MotiveProcessor {
   ///                  This MotiveProcessor. The MotiveProcessor also keeps
   ///                  a reference to `motivator` in case it shuffles around
   ///                  internal data.
+  /// @param dimensions The number of slots to consume in the MotiveProcessor.
+  ///                   For example, a 3D vector would consume three slots in
+  ///                   a MotiveProcessor of floats.
   void InitializeMotivator(const MotivatorInit& init, MotiveEngine* engine,
                            Motivator* motivator, MotiveDimension dimensions);
 

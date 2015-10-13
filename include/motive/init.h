@@ -78,6 +78,9 @@ const char* MatrixOpName(const motive::MatrixOperationType op);
 /// to modular arithmetic in a Motivator.
 class ModularInit : public MotivatorInit {
  public:
+  explicit ModularInit(MotivatorType type)
+      : MotivatorInit(type), range_(fpl::Range::Full()), modular_(false) {}
+
   /// The derived type must call this constructor with it's MotivatorType
   /// identifier.
   /// @param type The kType parameter of the derived init class.
@@ -86,8 +89,6 @@ class ModularInit : public MotivatorInit {
   /// @param modular Option to use modular arithmetic for Motivator::Value().
   ///                If true, all values are wrapped around to stay within
   ///                `range`.
-  explicit ModularInit(MotivatorType type)
-      : MotivatorInit(type), range_(fpl::Range::Full()), modular_(false) {}
   ModularInit(MotivatorType type, const fpl::Range& range, bool modular)
       : MotivatorInit(type), range_(range), modular_(modular) {}
 
