@@ -390,7 +390,15 @@ class MatrixInit : public MotivatorInit {
   const mathfu::mat4& start_transform() const { return *start_transform_; }
 
  private:
+  /// Reference to the union of all operations that this matrix will be able
+  /// to execute. Later calls to MotivatorMatrix4f::BlendToOps() must provide
+  /// operations that are a subset of those in `ops_`.
+  /// In `RigAnim`, these represent operations in the defining anim.
   const MatrixOpArray* ops_;
+
+  /// Constant transform from which to start applying `ops_`.
+  /// For example, `RigAnim`s use it to represent the constant transformation
+  /// from a bone to its parent.
   const mathfu::mat4* start_transform_;
 };
 
@@ -415,7 +423,12 @@ class RigInit : public MotivatorInit {
   /// animations).
   const RigAnim* defining_anim_;
 
-  // Array defining default pose.
+  /// Array defining default pose. That is, the transformation from a bone to
+  /// its parent. With just these, you can reconstruct the model in the pose
+  /// it was exported in (i.e. its default pose).
+  /// These transforms are used as the `start_transform_`s of the underlying
+  /// `MatrixInit`s. All the matrix operations are applied from the origin of
+  /// the bone they're animating.
   const mathfu::mat4* bone_transforms_;
 };
 
