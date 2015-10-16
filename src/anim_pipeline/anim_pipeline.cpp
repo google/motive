@@ -1168,12 +1168,16 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
   for (int i = 1; i < argc - 1; ++i) {
     const std::string arg = argv[i];
 
-    // -v switch
     if (arg == "-v" || arg == "--verbose") {
       args->log_level = kLogVerbose;
 
-      // -o switch
-    } else if (arg == "-o") {
+    } else if (arg == "-d" || arg == "--details") {
+      args->log_level = kLogImportant;
+
+    } else if (arg == "-i" || arg == "--info") {
+      args->log_level = kLogInfo;
+
+    } else if (arg == "-o" || arg == "--out") {
       if (i + 1 < argc - 1) {
         args->output_file = std::string(argv[i + 1]);
         i++;
@@ -1181,16 +1185,14 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         valid_args = false;
       }
 
-      // -s switch
-    } else if (arg == "-s") {
+    } else if (arg == "-s" || arg == "--scale") {
       args->tolerances.scale = static_cast<float>(atof(arg.c_str()));
       if (args->tolerances.scale <= 0.0f) {
         log.Log(kLogError, "scale_tolerance must be > 0.");
         valid_args = false;
       }
 
-      // -q switch
-    } else if (arg == "-q") {
+    } else if (arg == "-r" || arg == "--rotate") {
       const float degrees = static_cast<float>(atof(arg.c_str()));
       if (degrees <= 0.0f || degrees > 180.0f) {
         log.Log(kLogError, "rotate_tolerance must be >0 and <=180.");
@@ -1199,16 +1201,14 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         args->tolerances.rotate = fpl::Angle::FromDegrees(degrees).ToRadians();
       }
 
-      // -t switch
-    } else if (arg == "-t") {
+    } else if (arg == "-t" || arg == "--translate") {
       args->tolerances.translate = static_cast<float>(atof(arg.c_str()));
       if (args->tolerances.translate <= 0.0f) {
         log.Log(kLogError, "translate_tolerance must be > 0.");
         valid_args = false;
       }
 
-      // -a switch
-    } else if (arg == "-a") {
+    } else if (arg == "-a" || arg == "--angle") {
       const float degrees = static_cast<float>(atof(arg.c_str()));
       if (degrees <= 0.0f || degrees > 90.0f) {
         log.Log(kLogError, "derivative_tolerance must be >0 and <=90.");
@@ -1218,7 +1218,6 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
             fpl::Angle::FromDegrees(degrees).ToRadians();
       }
 
-    // --repeat switch
     } else if (arg == "--repeat" || arg == "--norepeat") {
       const RepeatPreference repeat_preference =
           arg == "--repeat" ? kAlwaysRepeat : kNeverRepeat;
@@ -1241,34 +1240,42 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
   if (!valid_args) {
     log.Log(
         kLogImportant,
-        "Usage: anim_pipeline [-v] [-o OUTPUT_FILE] [-s scale_tolerance]\n"
-        "           [-q rotate_tolerance] [-t translate_tolerance]\n"
-        "           [-a derivative_tolerance] FBX_FILE\n"
+        "Usage: anim_pipeline [-v|-d|-i] [-o OUTPUT_FILE]\n"
+        "           [-s SCALE_TOLERANCE] [-r ROTATE_TOLERANCE]\n"
+        "           [-t TRANSLATE_TOLERANCE] [-a DERIVATIVE_TOLERANCE]\n"
+        "           [--repeat|--norepeat] FBX_FILE\n"
+        "\n"
         "Pipeline to convert FBX animations into FlatBuffer animations.\n"
-        "Outputs an .fplanim file with the same base name as FBX_FILE.\n\n"
+        "Outputs a .fplanim file with the same base name as FBX_FILE.\n\n"
         "Options:\n"
-        "  -v, --verbose             output all informative messages\n"
-        "  -o OUTPUT_FILE            file to write .fplanim file to;\n"
-        "                            can be an absolute or relative path;\n"
-        "                            when unspecified, use base FBX name\n"
-        "                            + .fplanim\n"
-        "  -s scale_tolerance        max deviation of output scale curves\n"
-        "                            from input scale curves, unitless\n"
-        "  -q rotate_tolerance       max deviation of output rotate curves\n"
-        "                            from intput rotate curves, in degrees\n"
-        "  -t translate_tolerance    max deviation of output translate curves\n"
-        "                            from input translate curves, in scene's\n"
-        "                            units of distance\n"
-        "  -a derivative_tolerance   max deviation of curve derivatives,\n"
-        "                            considered as an angle in the x/y plain\n"
-        "                            (e.g. derivative 1 ==> 45 degrees),\n"
-        "                            in degrees.\n"
-        "  --repeat, --norepeat      mark the animation as repeating or not\n"
-        "                            repeating. A repeating animation cycles\n"
-        "                            over and over. If neither option is\n"
-        "                            specified, the animation is marked as\n"
-        "                            repeating when it starts and ends\n"
-        "                            with the same pose and derivatives.\n");
+        "  -v, --verbose         output all informative messages\n"
+        "  -d, --details         output important informative messages\n"
+        "  -i, --info            output more than details, less than verbose.\n"
+        "  -o, --out OUTPUT_FILE file to write .fplanim file to;\n"
+        "                        can be an absolute or relative path;\n"
+        "                        when unspecified, uses base FBX name\n"
+        "                        + .fplanim\n"
+        "  -s, --scale SCALE_TOLERANCE\n"
+        "                        max deviation of output scale curves\n"
+        "                        from input scale curves, unitless\n"
+        "  -r, --rotate ROTATE_TOLERANCE\n"
+        "                        max deviation of output rotate curves\n"
+        "                        from intput rotate curves, in degrees\n"
+        "  -t, --translate TRANSLATE_TOLERANCE\n"
+        "                        max deviation of output translate curves\n"
+        "                        from input translate curves, in scene's\n"
+        "                        units of distance\n"
+        "  -a, --angle DERIVATIVE_TOLERANCE\n"
+        "                        max deviation of curve derivatives,\n"
+        "                        considered as an angle in the x/y plane\n"
+        "                        (e.g. derivative 1 ==> 45 degrees),\n"
+        "                        in degrees.\n"
+        "  --repeat, --norepeat  mark the animation as repeating or not\n"
+        "                        repeating. A repeating animation cycles\n"
+        "                        over and over. If neither option is\n"
+        "                        specified, the animation is marked as\n"
+        "                        repeating when it starts and ends\n"
+        "                        with the same pose and derivatives.\n");
   }
 
   return valid_args;
