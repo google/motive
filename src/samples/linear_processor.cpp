@@ -17,7 +17,7 @@
 #include "motive/math/curve.h"
 
 using motive::MotivatorInit;
-using motive::MotiveProcessorVector;
+using motive::VectorProcessor;
 using motive::MotiveEngine;
 using motive::MotiveIndex;
 using motive::MotiveTime;
@@ -48,7 +48,7 @@ class LinearInit : public MotivatorInit {
 
 
 //! [Own Processor LinearMotiveProcessor]
-class LinearMotiveProcessor : public MotiveProcessorVector {
+class LinearMotiveProcessor : public VectorProcessor {
  public:
   virtual ~LinearMotiveProcessor() {}
 
@@ -199,7 +199,8 @@ int main() {
   // Move from 10 --> -5 in 100 internal time units.
   const MotiveTarget1f target = motive::CurrentToTarget1f(10, 0, -5, 0, 100);
 
-  // Create the 1-dimensional motivator of type Linear by passing in LinearInit.
+  // Create the one dimensional motivator of type Linear by passing in
+  // LinearInit.
   Motivator1f linear_motivator(LinearInit(), &engine, target);
   //! [Own Processor Create Instance]
 

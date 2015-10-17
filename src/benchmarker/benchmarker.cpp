@@ -35,7 +35,7 @@ using mathfu::vec2i;
 using motive::MotiveEngine;
 using motive::MatrixInit;
 using motive::MatrixOpArray;
-using motive::MotivatorMatrix4f;
+using motive::MatrixMotivator4f;
 using motive::SmoothInit;
 
 static const SmoothInit kRotateInit(Range(-kPi, kPi), true);
@@ -131,10 +131,10 @@ class MotiveBenchmarker {
                        oscillatingQuicklyPlayback);
 
     // Initialize the large array of matrix motivators. Note that the
-    // 1-dimensional motivators that drive the matrix motivators are created
+    // one dimensional motivators that drive the matrix motivators are created
     // by the matrix motivators themselves.
     for (size_t i = 0; i < kNumMatrices; ++i) {
-      MotivatorMatrix4f& m = matrices_[i];
+      MatrixMotivator4f& m = matrices_[i];
       m.Initialize(MatrixInit(matrix_ops_), &engine_);
     }
   }
@@ -173,7 +173,7 @@ class MotiveBenchmarker {
   MotiveEngine engine_;
   MatrixOpArray matrix_ops_;
   CompactSpline splines_[kNumChildImpellers];
-  MotivatorMatrix4f matrices_[kNumMatrices];
+  MatrixMotivator4f matrices_[kNumMatrices];
 };
 
 int main() {

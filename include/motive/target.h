@@ -133,7 +133,9 @@ class MotiveTarget1f {
   MotiveNode1f nodes_[kMaxNodes];
 };
 
-// N-dimensional MotiveTargets are simply arrays of 1-dimensional MotiveTargets.
+/// @class MotiveTargetN
+/// @brief N-dimensional MotiveTargets are simply arrays of one dimensional
+///        MotiveTargets.
 template <int kDimensionsT>
 class MotiveTargetN {
  public:

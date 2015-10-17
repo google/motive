@@ -15,7 +15,7 @@ scalability.
 You can add your own custom animation algorithms by deriving classes from
 one of the `MotiveProcessor` subclasses. To create a class that animates a
 one-dimensional variable, derive from `MotiveProcessor1f`. For a 4x4 matrix
-variable, derive from `MotiveProcessorMatrix4f`.
+variable, derive from `MatrixProcessor4f`.
 
 # Example  {#motive_guide_processor_example}
 

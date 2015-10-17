@@ -403,7 +403,7 @@ class MatrixData {
 };
 
 // See comments on MatrixInit for details on this class.
-class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
+class MatrixMotiveProcessor : public MatrixProcessor4f {
  public:
   MatrixMotiveProcessor() : time_(0) {}
 
