@@ -8,7 +8,7 @@ Each animation algorithm is processed by a `MotiveProcessor`.
 
 A `MotiveProcessor` holds the data for *every* `Motivator` that uses its
 algorithm. Once per frame, `MotiveProcessor::AdvanceFrame` is called and
-*all* `Motivator`s are updated, in bulk. This bulk storage and processing allows
+*all* `Motivators` are updated, in bulk. This bulk storage and processing allows
 us to optimize with SIMD and multiple threads, which is important for
 scalability.
 
