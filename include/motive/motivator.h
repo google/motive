@@ -26,9 +26,9 @@ class MotiveEngine;
 ///
 /// The value can be one-dimensional (e.g. a float), or multi-dimensional
 /// (e.g. a matrix). The dimension is determined by the sub-class:
-/// Motivator1f drives a float, MotivatorMatrix4f drives a 4x4 float matrix.
+/// Motivator1f drives a float, MatrixMotivator4f drives a 4x4 float matrix.
 ///
-/// Although you can instandiate a Motivator, you probably will not, since
+/// Although you can instantiate a Motivator, you probably will not, since
 /// there is no mechanism to read data out of a Motivator. Generally, you
 /// will instantiate a derived class like Motivator1f, which provides
 /// accessor functions.
@@ -263,15 +263,15 @@ class MotivatorVectorTemplate : public Motivator {
   }
 
  private:
-  MotiveProcessorVector& Processor() {
-    return *static_cast<MotiveProcessorVector*>(processor_);
+  VectorProcessor& Processor() {
+    return *static_cast<VectorProcessor*>(processor_);
   }
-  const MotiveProcessorVector& Processor() const {
-    return *static_cast<const MotiveProcessorVector*>(processor_);
+  const VectorProcessor& Processor() const {
+    return *static_cast<const VectorProcessor*>(processor_);
   }
 };
 
-/// @class MotivatorMatrix4fTemplate
+/// @class MatrixMotivator4fTemplate
 /// @brief Drive a 4x4 float matrix from a series of basic transformations.
 ///
 /// The underlying basic transformations can be animated with
@@ -283,15 +283,15 @@ class MotivatorVectorTemplate : public Motivator {
 /// via the VectorConverter template parameter.
 ///
 template <class VectorConverter>
-class MotivatorMatrix4fTemplate : public Motivator {
+class MatrixMotivator4fTemplate : public Motivator {
   typedef VectorConverter C;
   typedef typename VectorConverter::ExternalMatrix4 Mat4;
   typedef typename VectorConverter::ExternalVector3 Vec3;
   typedef MotivatorVectorTemplate<C, 1> Mot1f;
 
  public:
-  MotivatorMatrix4fTemplate() {}
-  MotivatorMatrix4fTemplate(const MotivatorInit& init, MotiveEngine* engine)
+  MatrixMotivator4fTemplate() {}
+  MatrixMotivator4fTemplate(const MotivatorInit& init, MotiveEngine* engine)
       : Motivator(init, engine, 1) {}
 
   /// Initialize to the type specified by `init`.
@@ -392,11 +392,11 @@ class MotivatorMatrix4fTemplate : public Motivator {
   }
 
  private:
-  MotiveProcessorMatrix4f& Processor() {
-    return *static_cast<MotiveProcessorMatrix4f*>(processor_);
+  MatrixProcessor4f& Processor() {
+    return *static_cast<MatrixProcessor4f*>(processor_);
   }
-  const MotiveProcessorMatrix4f& Processor() const {
-    return *static_cast<const MotiveProcessorMatrix4f*>(processor_);
+  const MatrixProcessor4f& Processor() const {
+    return *static_cast<const MatrixProcessor4f*>(processor_);
   }
 };
 
@@ -408,7 +408,7 @@ class RigMotivator : public Motivator {
 
   /// Initialize to the type specified by `init`. The only type defined
   /// within Motive for `init` is motive::RigInit, but you can register your
-  /// own MotiveProcessorRig classes if you like.
+  /// own RigProcessor classes if you like.
   void Initialize(const MotivatorInit& init, MotiveEngine* engine) {
     InitializeWithDimension(init, engine, 1);
   }
@@ -455,11 +455,11 @@ class RigMotivator : public Motivator {
   }
 
  private:
-  MotiveProcessorRig& Processor() {
-    return *static_cast<MotiveProcessorRig*>(processor_);
+  RigProcessor& Processor() {
+    return *static_cast<RigProcessor*>(processor_);
   }
-  const MotiveProcessorRig& Processor() const {
-    return *static_cast<const MotiveProcessorRig*>(processor_);
+  const RigProcessor& Processor() const {
+    return *static_cast<const RigProcessor*>(processor_);
   }
 };
 
@@ -468,8 +468,8 @@ typedef MotivatorVectorTemplate<fpl::PassThroughVectorConverter, 1> Motivator1f;
 typedef MotivatorVectorTemplate<fpl::PassThroughVectorConverter, 2> Motivator2f;
 typedef MotivatorVectorTemplate<fpl::PassThroughVectorConverter, 3> Motivator3f;
 typedef MotivatorVectorTemplate<fpl::PassThroughVectorConverter, 4> Motivator4f;
-typedef MotivatorMatrix4fTemplate<fpl::PassThroughVectorConverter>
-    MotivatorMatrix4f;
+typedef MatrixMotivator4fTemplate<fpl::PassThroughVectorConverter>
+    MatrixMotivator4f;
 
 }  // namespace motive
 

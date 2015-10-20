@@ -38,7 +38,7 @@ struct OvershootData {
   OvershootInit init;
 };
 
-class OvershootMotiveProcessor : public MotiveProcessorVector {
+class OvershootMotiveProcessor : public VectorProcessor {
  public:
   virtual ~OvershootMotiveProcessor() {}
 

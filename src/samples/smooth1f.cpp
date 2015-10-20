@@ -37,7 +37,7 @@ int main() {
   // In this example, we animate a one-dimensional floating point value.
   // It's also possible to animate a mathfu::vec2 with motive::Motivator2f, and
   // similarly for higher dimensional vectors. We can even animate a mathfu::mat4
-  // (a 4x4 matrix) with motive::MotivatorMatrix4f.
+  // (a 4x4 matrix) with motive::MatrixMotivator4f.
   //
   // If you have your own math library, you can also animate those instead of
   // mathfu types. See [Using Your Own Math Types][].

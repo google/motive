@@ -282,12 +282,12 @@ struct MatrixOperationInit {
 };
 
 /// @class MatrixInit
-/// @brief Initialize a MotivatorMatrix4f to generate its matrix from
+/// @brief Initialize a MatrixMotivator4f to generate its matrix from
 ///        a series of operations.
 ///
-/// Initialize an MotivatorMatrix4f with these initialization parameters to
-/// create an motivator that generates a 4x4 matrix from a series of basic
-/// matrix operations. The basic matrix operations are driven by 1 dimensional
+/// Initialize a MatrixMotivator4f with these initialization parameters to
+/// create a motivator that generates a 4x4 matrix from a series of basic
+/// matrix operations. The basic matrix operations are driven by one dimensional
 /// motivators.
 ///
 /// The series of operations can transform an object from the coordinate space
@@ -327,28 +327,28 @@ class MatrixOpArray {
     ops_.push_back(MatrixOperationInit(type, const_value));
   }
 
-  /// Operation is driven by a 1-dimensional motivator. For example, you can
+  /// Operation is driven by a one dimensional motivator. For example, you can
   /// control the face angle of a standing object with 'type' = kRotateAboutY
   /// and 'init' a curve specified by SmoothInit.
   void AddOp(MatrixOperationType type, const MotivatorInit& init) {
     ops_.push_back(MatrixOperationInit(type, init));
   }
 
-  /// Operation is driven by a 1-dimensional motivator, and initial value
+  /// Operation is driven by a one dimensional motivator, and initial value
   /// is specified.
   void AddOp(MatrixOperationType type, const MotivatorInit& init,
              float initial_value) {
     ops_.push_back(MatrixOperationInit(type, init, initial_value));
   }
 
-  /// Operation is driven by a 1-dimensional motivator, which is initialized
+  /// Operation is driven by a one dimensional motivator, which is initialized
   /// to traverse the key points specified in `target`.
   void AddOp(MatrixOperationType type, const MotivatorInit& init,
              const MotiveTarget1f& target) {
     ops_.push_back(MatrixOperationInit(type, init, target));
   }
 
-  /// Operation is driven by a 1-dimensional motivator, which is initialized
+  /// Operation is driven by a one dimensional motivator, which is initialized
   /// to follow the predefined curve specified in `spline`.
   void AddOp(MatrixOperationType type, const MotivatorInit& init,
              const fpl::SplinePlayback1f& spline) {

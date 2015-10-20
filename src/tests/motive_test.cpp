@@ -31,7 +31,7 @@ using motive::Motivator1f;
 using motive::Motivator2f;
 using motive::Motivator3f;
 using motive::Motivator4f;
-using motive::MotivatorMatrix4f;
+using motive::MatrixMotivator4f;
 using motive::MotiveTime;
 using motive::MotivatorInit;
 using motive::MotiveTarget1f;
@@ -534,7 +534,7 @@ static void ExpectMatricesEqual(const mat4& a, const mat4&b, float epsilon) {
 
 static void TestMatrixMotivator(const MatrixInit& matrix_init,
                                 MotiveEngine* engine) {
-  MotivatorMatrix4f matrix_motivator(matrix_init, engine);
+  MatrixMotivator4f matrix_motivator(matrix_init, engine);
   engine->AdvanceFrame(kTimePerFrame);
   const mat4 check_matrix = CreateMatrixFromOps(matrix_init);
   const mat4 motive_matrix = matrix_motivator.Value();

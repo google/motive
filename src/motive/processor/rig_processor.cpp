@@ -45,7 +45,7 @@ class RigData {
 
     // Visual Studio 2010 does not like std::vectors of mat4, since they are
     // a 16-byte aligned type. Use plain old arrays instead.
-    motivators_ = new MotivatorMatrix4f[num_bones];
+    motivators_ = new MatrixMotivator4f[num_bones];
     global_transforms_ = new mat4[num_bones];
 
     // Initialize global transforms to default pose.
@@ -169,7 +169,7 @@ class RigData {
     }
   }
 
-  MotivatorMatrix4f* motivators_;
+  MatrixMotivator4f* motivators_;
   mat4* global_transforms_;
   const RigAnim* defining_anim_;
   const RigAnim* current_anim_;
@@ -179,11 +179,11 @@ class RigData {
 };
 
 // See comments on RigInit for details on this class.
-class RigMotiveProcessor : public MotiveProcessorRig {
+class MotiveRigProcessor : public RigProcessor {
  public:
-  RigMotiveProcessor() : time_(0) {}
+  MotiveRigProcessor() : time_(0) {}
 
-  virtual ~RigMotiveProcessor() {
+  virtual ~MotiveRigProcessor() {
     const MotiveIndex num_indices = NumIndices();
     for (MotiveIndex index = 0; index < num_indices; ++index) {
       RemoveIndex(index);
@@ -284,6 +284,6 @@ class RigMotiveProcessor : public MotiveProcessorRig {
   MotiveTime time_;
 };
 
-MOTIVE_INSTANCE(RigInit, RigMotiveProcessor);
+MOTIVE_INSTANCE(RigInit, MotiveRigProcessor);
 
 }  // namespace motive

@@ -37,7 +37,7 @@ struct SmoothData {
   CompactSpline* local_spline;
 };
 
-class SmoothMotiveProcessor : public MotiveProcessorVector {
+class SmoothMotiveProcessor : public VectorProcessor {
  public:
   virtual ~SmoothMotiveProcessor() {
     for (auto it = spline_pool_.begin(); it != spline_pool_.end(); ++it) {

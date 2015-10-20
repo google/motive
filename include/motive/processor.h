@@ -251,10 +251,10 @@ class MotiveProcessor {
   int benchmark_id_for_init_;
 };
 
-/// @class MotiveProcessorVector
+/// @class VectorProcessor
 /// @brief Interface for motivator types that drive a single float value.
 /// That is, for MotiveProcessors that interface with MotivatorVectorT's.
-class MotiveProcessorVector : public MotiveProcessor {
+class VectorProcessor : public MotiveProcessor {
  public:
   virtual MotiveTime TargetTime(MotiveIndex index) const = 0;
   virtual MotiveTime SplineTime(MotiveIndex /*index*/) const { return 0; }
@@ -388,10 +388,10 @@ class MotiveProcessorVector : public MotiveProcessor {
 #undef MOTIVE_VECTOR_ACCESSOR_FN
 };
 
-/// @class MotiveProcessorMatrix4f
+/// @class MatrixProcessor4f
 /// @brief Interface for motivator types that drive a 4x4 float matrix.
-/// That is, for MotiveProcessors that interface with MotivatorMatrix4f's.
-class MotiveProcessorMatrix4f : public MotiveProcessor {
+/// That is, for MotiveProcessors that interface with MatrixMotivator4f's.
+class MatrixProcessor4f : public MotiveProcessor {
  public:
   /// Get the current matrix value from the processor.
   virtual const mathfu::mat4& Value(MotiveIndex index) const = 0;
@@ -432,7 +432,7 @@ class MotiveProcessorMatrix4f : public MotiveProcessor {
   virtual void BlendToOps(MotiveIndex /*index*/, const MatrixOpArray& /*ops*/){}
 };
 
-class MotiveProcessorRig : public MotiveProcessor {
+class RigProcessor : public MotiveProcessor {
  public:
   /// TODO OPT: Change this to a 4x3 matrix, since it's an affine transform.
   virtual const mathfu::mat4* GlobalTransforms(MotiveIndex index) const = 0;

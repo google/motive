@@ -22,7 +22,7 @@ using fpl::Range;
 using fpl::kPi;
 using fpl::Graph2DPoints;
 using mathfu::vec2;
-using motive::MotivatorMatrix4fTemplate;
+using motive::MatrixMotivator4fTemplate;
 
 
 //! [Own Vector Types]
@@ -47,7 +47,7 @@ typedef MyVecTemplate<4> MyVec4;
 //! [Own Vector Converter]
 class MyVectorConverter {
  public:
-  // MotivatorMatrix4fTemplate needs these External.
+  // MatrixMotivator4fTemplate needs these External.
   typedef MyMatrix4 ExternalMatrix4;
   typedef MyVec2 ExternalVector2;
   typedef MyVec3 ExternalVector3;
@@ -86,7 +86,7 @@ class MyVectorConverter {
 //! [Own Vector Converter]
 
 //! [Own MatrixMotivator]
-typedef MotivatorMatrix4fTemplate<MyVectorConverter> MyMotivatorMatrix4f;
+typedef MatrixMotivator4fTemplate<MyVectorConverter> MyMatrixMotivator4f;
 //! [Own MatrixMotivator]
 
 
@@ -112,7 +112,7 @@ int main() {
   ops.AddOp(motive::kTranslateZ, position_init, position_target);
   const motive::MatrixInit matrix_init(ops);
 
-  MyMotivatorMatrix4f matrix(matrix_init, &engine);
+  MyMatrixMotivator4f matrix(matrix_init, &engine);
 
   const motive::MotiveTime delta_time = 250;
   for (motive::MotiveTime t = 0; t <= target_time; t += delta_time) {
