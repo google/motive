@@ -95,7 +95,8 @@ $(call flatbuffers_header_build_rules, \
   $(MOTIVE_SCHEMA_DIR), \
   $(MOTIVE_GENERATED_OUTPUT_DIR), \
   $(MOTIVE_SCHEMA_INCLUDE_DIRS), \
-  $(LOCAL_SRC_FILES))
+  $(LOCAL_SRC_FILES), \
+  motive_generated_includes)
 endif
 
 include $(BUILD_STATIC_LIBRARY)
