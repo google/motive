@@ -934,6 +934,11 @@ class FbxAnimParser {
     FbxAnimCurve* curve = anim_node->GetCurve(channel);
     if (curve == nullptr || curve->KeyGetCount() <= 0) return true;
 
+    // The first value may be different from the value at time 0.
+    // The value at time 0 may actually be the end value, if the first key
+    // doesn't start at time 0 and the channel cycles.
+    const float first_value = FbxToFlatValue(curve->KeyGetValue(0), p.x_op);
+
     // If any keys has a different value, or non-zero slope, then not const.
     const int num_keys = curve->KeyGetCount();
     for (int i = 0; i < num_keys - 1; ++i) {
@@ -944,7 +949,7 @@ class FbxAnimParser {
       const float value = FbxToFlatValue(curve->KeyGetValue(i + 1), p.x_op);
       if (fabs(DerivativeAngle(left_derivative)) > derivative_tolerance ||
           fabs(DerivativeAngle(right_derivative)) > derivative_tolerance ||
-          fabs(value - *const_value) > tolerance)
+          fabs(value - first_value) > tolerance)
         return false;
     }
     return true;
