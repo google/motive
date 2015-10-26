@@ -69,7 +69,8 @@ class RigData {
     global_transforms_ = nullptr;
   }
 
-  void BlendToAnim(const RigAnim& anim, MotiveTime start_time) {
+  void BlendToAnim(const RigAnim& anim, const fpl::SplinePlayback& playback,
+                   MotiveTime start_time) {
     end_time_ = start_time + anim.end_time();
 
     // When animation has only one bone, or mesh has only one bone,
@@ -83,7 +84,7 @@ class RigData {
     for (BoneIndex i = 0; i < defining_num_bones; ++i) {
       const MatrixOpArray& ops =
           i >= anim_num_bones ? kEmptyOps : anim.Anim(i).ops();
-      motivators_[i].BlendToOps(ops);
+      motivators_[i].BlendToOps(ops, playback);
     }
 
     // Remember the currently playing animation, for debugging purposes.
@@ -204,8 +205,9 @@ class MotiveRigProcessor : public RigProcessor {
     time_ += delta_time;
   }
 
-  virtual void BlendToAnim(MotiveIndex index, const RigAnim& anim) {
-    Data(index).BlendToAnim(anim, time_);
+  virtual void BlendToAnim(MotiveIndex index, const RigAnim& anim,
+                           const fpl::SplinePlayback& playback) {
+    Data(index).BlendToAnim(anim, playback, time_);
   }
 
   virtual MotivatorType Type() const { return RigInit::kType; }

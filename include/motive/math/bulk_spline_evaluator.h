@@ -65,7 +65,8 @@ class BulkSplineEvaluator {
 
   /// Initialize `index` to process `s.spline` starting from `s.start_x`.
   /// The Y() and Derivative() values are immediately available.
-  void SetSpline(const Index index, const SplinePlayback& s);
+  void SetSpline(const Index index, const CompactSpline& spline,
+                 const SplinePlayback& playback);
 
   /// Mark spline as invalid.
   void ClearSpline(const Index index) { sources_[index].spline = nullptr; }
@@ -190,10 +191,12 @@ class BulkSplineEvaluator {
     const Source& s = sources_[index];
     return s.spline->NodeX(s.x_index);
   }
-  CubicInit CalculateBlendInit(const Index index,
+  CubicInit CalculateBlendInit(const Index index, const CompactSpline& spline,
                                const SplinePlayback& playback) const;
-  void BlendToSpline(const Index index, const SplinePlayback& playback);
-  void JumpToSpline(const Index index, const SplinePlayback& playback);
+  void BlendToSpline(const Index index, const CompactSpline& spline,
+                     const SplinePlayback& playback);
+  void JumpToSpline(const Index index, const CompactSpline& spline,
+                    const SplinePlayback& playback);
 
   // These functions have C and assembly language variants.
   void UpdateCubicXsAndGetMask(const float delta_x, uint8_t* masks);

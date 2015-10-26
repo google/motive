@@ -277,15 +277,15 @@ class VectorProcessor : public MotiveProcessor {
 
   // Drive the Motivator by following splines specified in the playback.
   virtual void SetSpline(MotiveIndex /*index*/,
-                         const fpl::SplinePlayback1f& /*s*/) {}
-  virtual void SetSpline(MotiveIndex index, const fpl::SplinePlayback2f& s) {
-    SetSplinesSeparately(index, s);
-  }
-  virtual void SetSpline(MotiveIndex index, const fpl::SplinePlayback3f& s) {
-    SetSplinesSeparately(index, s);
-  }
-  virtual void SetSpline(MotiveIndex index, const fpl::SplinePlayback4f& s) {
-    SetSplinesSeparately(index, s);
+                         const fpl::CompactSpline& /*spline*/,
+                         const fpl::SplinePlayback& /*playback*/) {}
+  virtual void SetSplines(MotiveIndex index,
+                          const fpl::CompactSpline* splines,
+                          const fpl::SplinePlayback& playback) {
+    const MotiveDimension dimensions = Dimensions(index);
+    for (MotiveDimension i = 0; i < dimensions; ++i) {
+      SetSpline(index + i, splines[i], playback);
+    }
   }
   virtual void SetSplinePlaybackRate(MotiveIndex /*index*/,
                                      float /*playback_rate*/) {}
@@ -295,15 +295,6 @@ class VectorProcessor : public MotiveProcessor {
   void SetTargetSeparately(MotiveIndex index, const MoTarget& t) {
     for (int i = 0; i < MoTarget::kDimensions; ++i) {
       SetTarget(index + i, t[i]);
-    }
-  }
-
-  template <class Playback>
-  void SetSplinesSeparately(MotiveIndex index, const Playback& s) {
-    for (int i = 0; i < Playback::kDimensions; ++i) {
-      SetSpline(index + i,
-                fpl::SplinePlayback1f(*s.splines[i], s.start_x, s.repeat,
-                                      s.playback_rate));
     }
   }
 
@@ -429,7 +420,8 @@ class MatrixProcessor4f : public MotiveProcessor {
   }
 
   /// Smoothly transition to the operations specified in `ops`.
-  virtual void BlendToOps(MotiveIndex /*index*/, const MatrixOpArray& /*ops*/){}
+  virtual void BlendToOps(MotiveIndex /*index*/, const MatrixOpArray& /*ops*/,
+                          const fpl::SplinePlayback& /*playback*/){}
 };
 
 class RigProcessor : public MotiveProcessor {
@@ -444,7 +436,8 @@ class RigProcessor : public MotiveProcessor {
   virtual const RigAnim* DefiningAnim(MotiveIndex index) const = 0;
 
   /// Smoothly transition to the animation in `anim`.
-  virtual void BlendToAnim(MotiveIndex index, const RigAnim& anim) = 0;
+  virtual void BlendToAnim(MotiveIndex index, const RigAnim& anim,
+                           const fpl::SplinePlayback& playback) = 0;
 
   virtual std::string CsvHeaderForDebugging(MotiveIndex /*index*/) const {
     return std::string();

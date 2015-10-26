@@ -24,8 +24,6 @@ using fpl::Angle;
 
 namespace motive {
 
-static const MotiveTime kBlendToDefaultTime = 200;
-
 static inline bool IsRotation(MatrixOperationType type) {
   return type <= kRotateAboutZ;
 }
@@ -53,7 +51,7 @@ class MatrixOperation {
 
     // Initialize the value. For defining animations, init.union_type will
     // be kUnionEmpty, so this will not set up any splines.
-    BlendToOp(init);
+    BlendToOp(init, fpl::SplinePlayback());
   }
 
   ~MatrixOperation() {
@@ -90,7 +88,8 @@ class MatrixOperation {
     value_.const_value = value;
   }
 
-  void BlendToOp(const MatrixOperationInit& init) {
+  void BlendToOp(const MatrixOperationInit& init,
+                 const fpl::SplinePlayback& playback) {
     switch (animation_type_) {
       case kMotivatorAnimation: {
         Motivator1f& motivator = Motivator();
@@ -109,7 +108,7 @@ class MatrixOperation {
             break;
 
           case MatrixOperationInit::kUnionSpline:
-            motivator.SetSpline(*init.spline);
+            motivator.SetSpline(*init.spline, playback);
             break;
 
           default:
@@ -311,7 +310,8 @@ class MatrixData {
 
   void UpdateResultMatrix() { result_matrix_ = CalculateResultMatrix(); }
 
-  void BlendToOps(const MatrixInit::OpVector& new_ops) {
+  void BlendToOps(const MatrixInit::OpVector& new_ops,
+                  const fpl::SplinePlayback& playback) {
     const int num_new_ops = static_cast<int>(new_ops.size());
     assert(num_ops_ >= num_new_ops);
 
@@ -326,10 +326,10 @@ class MatrixData {
           new_ops[new_op_idx].type : kInvalidMatrixOperation;
 
       if (defining_type == op_type) {
-        op.BlendToOp(new_ops[new_op_idx]);
+        op.BlendToOp(new_ops[new_op_idx], playback);
         new_op_idx++;
       } else {
-        op.BlendToDefault(kBlendToDefaultTime);
+        op.BlendToDefault(playback.blend_x);
       }
     }
     assert(new_op_idx == num_new_ops);
@@ -464,8 +464,9 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
     Data(index).Op(child_index).SetValue1f(value);
   }
 
-  virtual void BlendToOps(MotiveIndex index, const MatrixOpArray& ops) {
-    Data(index).BlendToOps(ops.ops());
+  virtual void BlendToOps(MotiveIndex index, const MatrixOpArray& ops,
+                          const fpl::SplinePlayback& playback) {
+    Data(index).BlendToOps(ops.ops(), playback);
   }
 
  protected:

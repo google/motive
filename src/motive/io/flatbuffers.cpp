@@ -22,11 +22,6 @@ using fpl::Range;
 
 namespace motive {
 
-// TODO: Make these configurable per call, instead of const in the anim.
-static const float kAnimStartTime = 0.0f;
-static const float kAnimPlaybackRate = 1.0f;
-static const float kAnimBlendTime = 200.0f;
-
 // Verify that MatrixOperationType and MatrixOperationTypeFb are identical
 // enumerations. Since FlatBuffer support is optional, we must duplicate the
 // MatrixOperationType from init.h in matrix_anim.fbx.
@@ -77,8 +72,7 @@ void Settled1fFromFlatBuffers(const Settled1fParameters& params,
   settled->max_difference = params.max_difference();
 }
 
-void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, bool repeat,
-                               MatrixAnim* anim) {
+void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
   MatrixOpArray& ops = anim->ops();
   ops.Clear(params.ops()->size());
 
@@ -120,9 +114,7 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, bool repeat,
         const bool modular = ModularOp(op_type);
         const Range& op_range = RangeOfOp(op_type, y_range);
         s.init = SmoothInit(op_range, modular);
-        s.playback = fpl::SplinePlayback(s.spline, kAnimStartTime, repeat,
-                                         kAnimPlaybackRate, kAnimBlendTime);
-        ops.AddOp(op_type, s.init, s.playback);
+        ops.AddOp(op_type, s.init, s.spline);
         break;
       }
 
@@ -155,12 +147,14 @@ void RigAnimFromFlatBuffers(const RigAnimFb& params, const char* anim_name,
     const BoneIndex parent = parents->Get(i);
     const char* name = record_names ? names->Get(i)->c_str() : "";
     MatrixAnim& m = anim->InitMatrixAnim(i, parent, name);
-    MatrixAnimFromFlatBuffers(*params.matrix_anims()->Get(i),
-                              params.repeat() != 0, &m);
-
-    end_time = std::max(end_time, m.ops().end_time());
+    MatrixAnimFromFlatBuffers(*params.matrix_anims()->Get(i), &m);
+    end_time = std::max(end_time, m.ops().EndTime());
   }
-  anim->set_end_time(end_time);
+
+  // Set animation-wide values.
+  anim->set_end_time(params.repeat() ? std::numeric_limits<float>::infinity()
+                                     : end_time);
+  anim->set_repeat(params.repeat() != 0);
 }
 
 }  // namespace motive

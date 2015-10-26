@@ -68,13 +68,13 @@ void BulkSplineEvaluator::SetYRange(const Index index, const Range& valid_y,
 }
 
 CubicInit BulkSplineEvaluator::CalculateBlendInit(
-    const Index index, const SplinePlayback& playback) const {
-  const CompactSpline* spline = playback.splines[0];
+    const Index index, const CompactSpline& spline,
+    const SplinePlayback& playback) const {
 
   // Calculate spline segment where the blend will end.
   const float blend_width = playback.blend_x * playback.playback_rate;
   float blend_end_x = 0.0f;
-  const CompactSplineIndex blend_end_index = spline->IndexForXAllowingRepeat(
+  const CompactSplineIndex blend_end_index = spline.IndexForXAllowingRepeat(
       playback.start_x + blend_width, kInvalidSplineIndex, playback.repeat,
       &blend_end_x);
 
@@ -83,12 +83,12 @@ CubicInit BulkSplineEvaluator::CalculateBlendInit(
   float end_derivative = 0.0f;
   if (OutsideSpline(blend_end_index)) {
     // Get the start or end y-values of the spline.
-    end_y = spline->NodeY(blend_end_index);
+    end_y = spline.NodeY(blend_end_index);
 
   } else {
     // Create the cubic for the end segment.
-    const float curve_x = blend_end_x - spline->NodeX(blend_end_index);
-    const CubicInit curve_init = spline->CreateCubicInit(blend_end_index);
+    const float curve_x = blend_end_x - spline.NodeX(blend_end_index);
+    const CubicInit curve_init = spline.CreateCubicInit(blend_end_index);
     const CubicCurve curve(curve_init);
     end_y = curve.Evaluate(curve_x);
     end_derivative = curve.Derivative(curve_x);
@@ -117,24 +117,24 @@ CubicInit BulkSplineEvaluator::CalculateBlendInit(
 }
 
 void BulkSplineEvaluator::BlendToSpline(const Index index,
+                                        const CompactSpline& spline,
                                         const SplinePlayback& playback) {
   // Calculate the spline that transitions from the current curve state
   // to the target spline's state.
   // Transition spline runs from x=0-->playback.blend_time.
-  const CubicInit blend_init = CalculateBlendInit(index, playback);
+  const CubicInit blend_init = CalculateBlendInit(index, spline, playback);
 
   // Shift the transition spline so that it overlaps perfectly onto the target
   // spline. Initialize all the x-parameters as if we were initializing the
   // target spline. This will let us transition out of the transition spline
   // straight into the target spline without special casing.
-  const CompactSpline* spline = playback.splines[0];
   float blend_start_x = 0.0f;
-  const CompactSplineIndex blend_start_index = spline->IndexForXAllowingRepeat(
+  const CompactSplineIndex blend_start_index = spline.IndexForXAllowingRepeat(
       playback.start_x, kInvalidSplineIndex, playback.repeat, &blend_start_x);
-  const float cubic_start_x = blend_start_x - spline->NodeX(blend_start_index);
+  const float cubic_start_x = blend_start_x - spline.NodeX(blend_start_index);
 
   Source& s = sources_[index];
-  s.spline = spline;
+  s.spline = &spline;
   s.x_index = blend_start_index;
   s.repeat = playback.repeat;
   playback_rates_[index] = playback.playback_rate;
@@ -145,17 +145,19 @@ void BulkSplineEvaluator::BlendToSpline(const Index index,
 }
 
 void BulkSplineEvaluator::JumpToSpline(const Index index,
+                                       const CompactSpline& spline,
                                        const SplinePlayback& playback) {
   Source& s = sources_[index];
-  s.spline = playback.splines[0];
+  s.spline = &spline;
   s.x_index = kInvalidSplineIndex;
   s.repeat = playback.repeat;
   playback_rates_[index] = playback.playback_rate;
   InitCubic(index, playback.start_x);
 }
 
-void BulkSplineEvaluator::SetSpline(const Index index,
-                                    const SplinePlayback& playback) {
+void BulkSplineEvaluator::SetSpline(
+    const Index index, const CompactSpline& spline,
+    const SplinePlayback& playback) {
 
   // If we're already playing a spline, and the blend time is specified,
   // create a curve that blends from the current state to a point later in
@@ -163,9 +165,9 @@ void BulkSplineEvaluator::SetSpline(const Index index,
   const Source& s = sources_[index];
   const bool should_blend = s.spline != nullptr && playback.blend_x > 0.0f;
   if (should_blend) {
-    BlendToSpline(index, playback);
+    BlendToSpline(index, spline, playback);
   } else {
-    JumpToSpline(index, playback);
+    JumpToSpline(index, spline, playback);
   }
 
   // Update the results.

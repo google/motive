@@ -268,7 +268,7 @@ struct MatrixOperationInit {
       : init(&init), type(type), union_type(kUnionTarget), target(&target) {}
 
   MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init,
-                      const fpl::SplinePlayback1f& spline)
+                      const fpl::CompactSpline& spline)
       : init(&init), type(type), union_type(kUnionSpline), spline(&spline) {}
 
   const MotivatorInit* init;
@@ -277,7 +277,7 @@ struct MatrixOperationInit {
   union {
     float initial_value;
     const MotiveTarget1f* target;
-    const fpl::SplinePlayback1f* spline;
+    const fpl::CompactSpline* spline;
   };
 };
 
@@ -310,8 +310,7 @@ class MatrixOpArray {
   /// By default expect a relatively high number of ops. Cost for allocating
   /// a bit too much temporary memory is small compared to cost of reallocating
   /// that memory.
-  explicit MatrixOpArray(int expected_num_ops = kDefaultExpectedNumOps)
-      : end_time_(0) {
+  explicit MatrixOpArray(int expected_num_ops = kDefaultExpectedNumOps) {
     ops_.reserve(expected_num_ops);
   }
 
@@ -351,25 +350,27 @@ class MatrixOpArray {
   /// Operation is driven by a one dimensional motivator, which is initialized
   /// to follow the predefined curve specified in `spline`.
   void AddOp(MatrixOperationType type, const MotivatorInit& init,
-             const fpl::SplinePlayback1f& spline) {
+             const fpl::CompactSpline& spline) {
     ops_.push_back(MatrixOperationInit(type, init, spline));
+  }
 
-    // End time is the length of the longest spline.
-    const float spline_time = spline.Time();
-    end_time_ = spline_time == std::numeric_limits<float>::infinity() ?
-                kMotiveTimeEndless : static_cast<MotiveTime>(spline_time);
+  // Maximum duration of any of the splines.
+  MotiveTime EndTime() const {
+    MotiveTime end_time = 0;
+    for (size_t i = 0; i < ops_.size(); ++i) {
+      const MatrixOperationInit& op = ops_[i];
+      if (op.union_type == MatrixOperationInit::kUnionSpline) {
+        end_time = std::max(end_time,
+                            static_cast<MotiveTime>(op.spline->EndX()));
+      }
+    }
+    return end_time;
   }
 
   const OpVector& ops() const { return ops_; }
 
-  MotiveTime end_time() const { return end_time_; }
-
  private:
   OpVector ops_;
-
-  // Maximum duration of any of the splines.
-  // If any of the splines repeat, then set to kMotiveTimeEndless.
-  MotiveTime end_time_;
 };
 
 class MatrixInit : public MotivatorInit {
@@ -386,7 +387,6 @@ class MatrixInit : public MotivatorInit {
       : MotivatorInit(kType), ops_(&ops), start_transform_(&start_transform) {}
 
   const OpVector& ops() const { return ops_->ops(); }
-  MotiveTime end_time() const { return ops_->end_time(); }
   const mathfu::mat4& start_transform() const { return *start_transform_; }
 
  private:

@@ -260,99 +260,15 @@ class CompactSpline {
   float x_granularity_;
 };
 
-/// @class SplinePlaybackN
+/// @class SplinePlayback
 /// @brief Parameters to specify how a spline should be traversed.
-template <int kDimensionsT>
-struct SplinePlaybackN {
-  static const int kDimensions = kDimensionsT;
-
-  /// Default constructor. Initializes to invalid values.
-  SplinePlaybackN()
-      : start_x(-1.0f), blend_x(0.0f), playback_rate(-1.0f), repeat(false) {
-    for (int i = 0; i < kDimensions; ++i) {
-      splines[i] = nullptr;
-    }
-  }
-
+struct SplinePlayback {
   /// Initialize all channels with same spline.
   /// Especially useful when kDimensions = 1, since there is only one channel.
-  explicit SplinePlaybackN(const CompactSpline& s, float start_x = 0.0f,
-                           bool repeat = false, float playback_rate = 1.0f,
-                           float blend_x = 0.0f)
+  explicit SplinePlayback(float start_x = 0.0f, bool repeat = false,
+                          float playback_rate = 1.0f, float blend_x = 0.0f)
       : start_x(start_x), blend_x(blend_x), playback_rate(playback_rate),
-        repeat(repeat) {
-    for (int i = 0; i < kDimensions; ++i) {
-      splines[i] = &s;
-    }
-  }
-
-  /// Initialize each channel with its own spline.
-  /// @param s An array of splines, of length kDimensions.
-  /// @param start_x Point on spline at which to start playback.
-  /// @param repeat If true, return to x=0 when spline completes.
-  /// @param playback_rate Scale of delta_time, during playback.
-  /// @param blend_x If we blend to this playback from another spline,
-  ///                duration of the blend.
-  explicit SplinePlaybackN(const CompactSpline* s, float start_x = 0.0f,
-                           bool repeat = false, float playback_rate = 1.0f,
-                           float blend_x = 0.0f)
-      : start_x(start_x), blend_x(blend_x), playback_rate(playback_rate),
-        repeat(repeat) {
-    for (int i = 0; i < kDimensions; ++i) {
-      splines[i] = &s[i];
-    }
-  }
-
-  /// Initialize 2D spline playback.
-  SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
-                  float start_x = 0.0f, bool repeat = false,
-                  float playback_rate = 1.0f, float blend_x = 0.0f)
-      : start_x(start_x), blend_x(blend_x), playback_rate(playback_rate),
-        repeat(repeat) {
-    assert(kDimensions == 2);
-    splines[0] = &x;
-    splines[1] = &y;
-  }
-
-  /// Initialize 3D spline playback.
-  SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
-                  const CompactSpline& z, float start_x = 0.0f,
-                  bool repeat = false, float playback_rate = 1.0f,
-                  float blend_x = 0.0f)
-      : start_x(start_x), blend_x(blend_x), playback_rate(playback_rate),
-        repeat(repeat) {
-    assert(kDimensions == 3);
-    splines[0] = &x;
-    splines[1] = &y;
-    splines[2] = &z;
-  }
-
-  /// Initialize 4D spline playback.
-  SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
-                  const CompactSpline& z, const CompactSpline& w,
-                  float start_x = 0.0f, bool repeat = false,
-                  float playback_rate = 1.0f, float blend_x = 0.0f)
-      : start_x(start_x), blend_x(blend_x), playback_rate(playback_rate),
-        repeat(repeat) {
-    assert(kDimensions == 4);
-    splines[0] = &x;
-    splines[1] = &y;
-    splines[2] = &z;
-    splines[3] = &w;
-  }
-
-  float Time() const {
-    if (repeat) return std::numeric_limits<float>::infinity();
-
-    float end_x = 0.0f;
-    for (int i = 0; i < kDimensions; ++i) {
-      end_x = std::max(end_x, splines[i]->EndX());
-    }
-    return end_x - start_x;
-  }
-
-  /// The spline to follow.
-  const CompactSpline* splines[kDimensions];
+        repeat(repeat) {}
 
   /// The starting point from which to play.
   float start_x;
@@ -372,12 +288,6 @@ struct SplinePlaybackN {
   /// If true, start back at the beginning after we reach the end.
   bool repeat;
 };
-
-typedef SplinePlaybackN<1> SplinePlayback1f;
-typedef SplinePlaybackN<2> SplinePlayback2f;
-typedef SplinePlaybackN<3> SplinePlayback3f;
-typedef SplinePlaybackN<4> SplinePlayback4f;
-typedef SplinePlayback1f SplinePlayback;
 
 }  // namespace fpl
 

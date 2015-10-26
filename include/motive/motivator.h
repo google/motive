@@ -156,7 +156,6 @@ class MotivatorVectorTemplate : public Motivator {
   typedef typename fpl::ExternalVectorT<C, kDimensions>::type ExT;
   typedef typename fpl::InternalVectorT<kDimensions>::type InT;
   typedef typename MotiveTargetT<kDimensions>::type Target;
-  typedef fpl::SplinePlaybackN<kDimensions> Spline;
   typedef MotiveTargetBuilderTemplate<C, kDimensions> TargetBuilder;
 
   /// Motivator is created in a reset state. When in the reset state,
@@ -247,11 +246,29 @@ class MotivatorVectorTemplate : public Motivator {
   ///          existing current value.
   void SetTarget(const Target& t) { Processor().SetTarget(index_, t); }
 
-  /// Follow the curve specified in `s`. Overrides the existing current value.
-  /// @param s The spline to follow, the time in that spline to initiate
-  ///          playback, and whether to repeat from the beginning after the
-  ///          end of the spline is reached.
-  void SetSpline(const Spline& s) { Processor().SetSpline(index_, s); }
+  /// Follow the curve specified in `spline`. Overrides the existing current
+  /// value.
+  /// @param splines The splines to follow. Array of length Dimensions().
+  /// @param playback The time into the splines to initiate playback,
+  ///                 the blend time to the splines, and whether to repeat
+  ///                 from the beginning after the end of the spline is reached.
+  void SetSpline(const fpl::CompactSpline& spline,
+                 const fpl::SplinePlayback& playback) {
+    assert(Dimensions() == 1);
+    Processor().SetSpline(index_, spline, playback);
+  }
+
+  /// Follow the curves specified in `splines`. Overrides the existing current
+  /// value.
+  /// @param splines The splines that the curves should follow.
+  ///                Array of length Dimensions().
+  /// @param playback The time into the splines to initiate playback,
+  ///                 the blend time to the splines, and whether to repeat
+  ///                 from the beginning after the end of the spline is reached.
+  void SetSplines(const fpl::CompactSpline* splines,
+                  const fpl::SplinePlayback& playback) {
+    Processor().SetSplines(index_, splines, playback);
+  }
 
   /// Set rate at which we consume the spline set in SetSpline().
   ///     0   ==> paused
@@ -387,8 +404,9 @@ class MatrixMotivator4fTemplate : public Motivator {
 
   /// Match existing MatrixOps with those in `ops` and smoothly transition
   /// to the new parameters in `ops`.
-  void BlendToOps(const MatrixOpArray& ops) {
-    Processor().BlendToOps(index_, ops);
+  void BlendToOps(const MatrixOpArray& ops,
+                  const fpl::SplinePlayback& playback) {
+    Processor().BlendToOps(index_, ops, playback);
   }
 
  private:
@@ -417,8 +435,8 @@ class RigMotivator : public Motivator {
   /// Blend time is specified in `anim` itself.
   /// If the current state is unspecified because no animation
   /// has yet been played, snap to `anim`.
-  void BlendToAnim(const RigAnim& anim) {
-    Processor().BlendToAnim(index_, anim);
+  void BlendToAnim(const RigAnim& anim, const fpl::SplinePlayback& playback) {
+    Processor().BlendToAnim(index_, anim, playback);
   }
 
   /// Returns array of matricies: one for each bone position. The matrices are

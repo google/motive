@@ -28,7 +28,6 @@ class MatrixAnim {
   struct Spline {
     fpl::CompactSpline spline;
     SmoothInit init;
-    fpl::SplinePlayback playback;
   };
 
   explicit MatrixAnim(int expected_num_ops = 0) : ops_(expected_num_ops) {}
@@ -67,6 +66,8 @@ class MatrixAnim {
 /// @brief Animation for a RigMotivator. Drives a fully rigged model.
 class RigAnim {
  public:
+  RigAnim() : end_time_(0), repeat_(false) {}
+
   /// Initialize the basic data. After calling this function, `InitMatrixAnim()`
   /// should be called once for every bone in the animation.
   void Init(const char* anim_name, BoneIndex num_bones, bool record_names);
@@ -109,7 +110,8 @@ class RigAnim {
   std::string CsvHeaderForDebugging(int line) const;
 
   /// Amount of time required by this animation. Time units are set by the
-  /// caller.
+  /// caller. If animation repeats, returns infinity.
+  /// TODO: Add function to return non-repeated end time, even when repeatable.
   MotiveTime end_time() const { return end_time_; }
 
   /// For construction. The end time should be set to the maximal end time of
@@ -122,6 +124,15 @@ class RigAnim {
   /// For bones at the root (i.e. no parent) value is kInvalidBoneIdx.
   const BoneIndex* bone_parents() const { return &bone_parents_[0]; }
 
+  /// Animation is repeatable. That is, when the end of the animation is
+  /// reached, it can be started at the beginning again without glitching.
+  /// Generally, an animation is repeatable if it's curves have the same values
+  /// and derivatives at the start and end.
+  bool repeat() const { return repeat_; }
+
+  /// Set the repeat flag.
+  bool set_repeat(bool repeat) { return repeat_ = repeat; }
+
   /// For debugging. The name of the animation currently being played.
   /// Only valid if `record_names` is true in `Init()`.
   const std::string& anim_name() const { return anim_name_; }
@@ -131,6 +142,7 @@ class RigAnim {
   std::vector<BoneIndex> bone_parents_;
   std::vector<std::string> bone_names_;
   MotiveTime end_time_;
+  bool repeat_;
   std::string anim_name_;
 };
 
