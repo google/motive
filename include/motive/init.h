@@ -15,6 +15,7 @@
 #ifndef MOTIVE_INIT_H_
 #define MOTIVE_INIT_H_
 
+#include "mathfu/constants.h"
 #include "motive/util.h"
 #include "motive/math/range.h"
 
@@ -406,10 +407,13 @@ class RigInit : public MotivatorInit {
  public:
   MOTIVE_INTERFACE();
 
-  RigInit(const RigAnim& defining_anim, const mathfu::mat4* bone_transforms,
+  RigInit(const RigAnim& defining_anim,
+          const mathfu::AffineTransform* bone_transforms,
           const BoneIndex* bone_parents, BoneIndex num_bones);
   const RigAnim& defining_anim() const { return *defining_anim_; }
-  const mathfu::mat4* bone_transforms() const { return bone_transforms_; }
+  const mathfu::AffineTransform* bone_transforms() const {
+    return bone_transforms_;
+  }
 
   // Utility functions. Ensure that animations are compatible with rigs.
   static bool MatchesHierarchy(const BoneIndex* parents_a, BoneIndex len_a,
@@ -429,7 +433,7 @@ class RigInit : public MotivatorInit {
   /// These transforms are used as the `start_transform_`s of the underlying
   /// `MatrixInit`s. All the matrix operations are applied from the origin of
   /// the bone they're animating.
-  const mathfu::mat4* bone_transforms_;
+  const mathfu::AffineTransform* bone_transforms_;
 };
 
 }  // namespace motive

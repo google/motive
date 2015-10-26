@@ -15,6 +15,9 @@
 #include "motive/anim.h"
 #include "motive/init.h"
 
+using mathfu::AffineTransform;
+using mathfu::kAffineIdentity;
+
 namespace motive {
 
 static const char* kMatrixOpNames[] = {
@@ -39,12 +42,11 @@ const char* MatrixOpName(const motive::MatrixOperationType op) {
 }
 
 RigInit::RigInit(const RigAnim& defining_anim,
-                 const mathfu::mat4* bone_transforms,
+                 const AffineTransform* bone_transforms,
                  const BoneIndex* bone_parents, BoneIndex num_bones)
     : MotivatorInit(kType),
       defining_anim_(&defining_anim),
-      bone_transforms_(
-          num_bones == 0 ? &MatrixInit::kIdentityTransform : bone_transforms) {
+      bone_transforms_(num_bones == 0 ? &kAffineIdentity : bone_transforms) {
   // Ensure the animation and the mesh have the same hierarchy.
   // We allow the one exception where there are only popsicle stick animations
   // (i.e. animations that affect a single root bone, like popsicle-stick
