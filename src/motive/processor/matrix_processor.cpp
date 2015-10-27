@@ -141,7 +141,10 @@ class MatrixOperation {
     // Create spline that eases out to the default_value.
     Motivator1f& motivator = Motivator();
     const float default_value = OperationDefaultValue(Type());
-    motivator.SetTarget(Target1f(default_value, 0.0f, blend_time));
+    const MotiveTarget1f target =
+        blend_time == 0 ? Current1f(default_value)
+                        : Target1f(default_value, 0.0f, blend_time);
+    motivator.SetTarget(target);
   }
 
  private:
