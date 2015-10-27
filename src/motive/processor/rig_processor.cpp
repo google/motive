@@ -48,18 +48,17 @@ class RigData {
     motivators_ = new MatrixMotivator4f[num_bones];
     global_transforms_ = new mat4[num_bones];
 
-    // Initialize global transforms to default pose.
-    // These will get overridden the first time AdvanceFrame() is called, but
-    // we initialize them nicely anyway.
-    memcpy(global_transforms_, init.bone_transforms(),
-           sizeof(global_transforms_[0]) * num_bones);
-
     // Initialize the motivators that drive the local transforms.
     for (BoneIndex i = 0; i < num_bones; ++i) {
       const MatrixOpArray& ops = defining_anim_->Anim(i).ops();
-      const MatrixInit matrix_init(ops, global_transforms_[i]);
+      const MatrixInit matrix_init(ops, init.bone_transforms()[i]);
       motivators_[i].Initialize(matrix_init, engine);
     }
+
+    // Initialize global transforms to default pose.
+    // These will get overridden the first time AdvanceFrame() is called, but
+    // we initialize them nicely anyway.
+    UpdateGlobalTransforms();
   }
 
   ~RigData() {

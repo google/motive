@@ -358,7 +358,7 @@ class MatrixData {
       d->start_matrix_[i] =
           MatrixColumn(init.start_transform(), static_cast<int>(i));
     }
-    d->result_matrix_ = mat4::Identity();
+    d->result_matrix_ = init.start_transform();
     d->num_ops_ = num_ops;
     for (int i = 0; i < num_ops; ++i) {
       new (&d->ops_[i]) MatrixOperation(ops[i], engine);
