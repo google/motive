@@ -52,7 +52,8 @@ class RigData {
     // Initialize the motivators that drive the local transforms.
     for (BoneIndex i = 0; i < num_bones; ++i) {
       const MatrixOpArray& ops = defining_anim_->Anim(i).ops();
-      const MatrixInit matrix_init(ops, mat4(init.bone_transforms()[i]));
+      const MatrixInit matrix_init(
+          ops, mat4::FromAffineTransform(init.bone_transforms()[i]));
       motivators_[i].Initialize(matrix_init, engine);
     }
 
@@ -162,10 +163,11 @@ class RigData {
       const mat4& local_transform = motivators_[i].Value();
       const int parent_idx = parents[i];
       if (parent_idx == kInvalidBoneIdx) {
-        out[i] = mat4::PackAffine(local_transform);
+        out[i] = mat4::ToAffineTransform(local_transform);
       } else {
         assert(i > parent_idx);
-        out[i] = mat4::PackAffine(mat4(out[parent_idx]) * local_transform);
+        out[i] = mat4::ToAffineTransform(
+            mat4::FromAffineTransform(out[parent_idx]) * local_transform);
       }
     }
   }
