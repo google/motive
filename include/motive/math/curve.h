@@ -16,6 +16,7 @@
 #define MOTIVE_MATH_CURVE_H_
 
 #include <string>
+#include <cstring> // Required for memset, memcpy on Linux
 #include "motive/common.h"
 #include "motive/math/range.h"
 
