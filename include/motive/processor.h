@@ -426,8 +426,8 @@ class MatrixProcessor4f : public MotiveProcessor {
 
 class RigProcessor : public MotiveProcessor {
  public:
-  virtual const mathfu::AffineTransform* GlobalTransforms(
-      MotiveIndex index) const = 0;
+  /// TODO OPT: Change this to a 4x3 matrix, since it's an affine transform.
+  virtual const mathfu::mat4* GlobalTransforms(MotiveIndex index) const = 0;
 
   /// Return the time remaining in the current matrix animation.
   virtual MotiveTime TimeRemaining(MotiveIndex index) const = 0;

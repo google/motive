@@ -442,7 +442,7 @@ class RigMotivator : public Motivator {
   /// Returns array of matricies: one for each bone position. The matrices are
   /// all in the space of the root bones. That is, the bone hierarchy has been
   /// flattened.
-  const mathfu::AffineTransform* GlobalTransforms() const {
+  const mathfu::mat4* GlobalTransforms() const {
     return Processor().GlobalTransforms(index_);
   }
 
