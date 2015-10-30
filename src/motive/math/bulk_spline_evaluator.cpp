@@ -174,6 +174,11 @@ void BulkSplineEvaluator::SetSpline(
   EvaluateIndex(index);
 }
 
+void BulkSplineEvaluator::SetX(const Index index, const float x) {
+  InitCubic(index, x);
+  EvaluateIndex(index);
+}
+
 void BulkSplineEvaluator::UpdateCubicXsAndGetMask_C(const float delta_x,
                                                     uint8_t* masks) {
   const int num_xs = NumIndices();
@@ -244,7 +249,7 @@ void BulkSplineEvaluator::InitCubic(const Index index, const float start_x) {
   Source& s = sources_[index];
   if (s.spline == nullptr) return;
 
-  // Do nothing if the current cubic matches the current spline segment.
+  // Get the spline index for start_x.
   float new_start_x = 0.0f;
   const CompactSplineIndex x_index = s.spline->IndexForXAllowingRepeat(
       start_x, s.x_index + 1, s.repeat, &new_start_x);
@@ -252,6 +257,11 @@ void BulkSplineEvaluator::InitCubic(const Index index, const float start_x) {
   // Update the x values for the new index.
   const Range x_range = s.spline->RangeX(x_index);
   cubic_xs_[index] = new_start_x - x_range.start();
+
+  // TODO OPT: Exit early if s.x_index == x_index, since we've already
+  //   initialized the cubic. This is tricky, since if we're blending then the
+  //   index might match, but the cubic curve will not mach. We should refactor
+  //   to detect that case, so we can skip over the CreateCubicInit() call.
   s.x_index = x_index;
 
   // Initialize the cubic to interpolate the new spline segment.

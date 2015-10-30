@@ -144,6 +144,11 @@ class MotiveTests : public ::testing::Test {
   const SmoothInit& smooth_angle_init() const { return smooth_angle_init_; }
   const SmoothInit& smooth_scalar_init() const { return smooth_scalar_init_; }
   const CompactSpline& simple_spline() const { return simple_spline_; }
+  const CompactSpline* simple_splines(MotiveDimension dimension) const {
+    assert(static_cast<size_t>(dimension) <=
+           MOTIVE_ARRAY_SIZE(simple_splines_));
+    return simple_splines_;
+  }
 
   template <class MotivatorT>
   void InitMotivator(const MotivatorInit& init, float start_value,
@@ -226,6 +231,11 @@ class MotiveTests : public ::testing::Test {
     simple_spline_.AddNode(0.0f, -1.0f, 0.001f);
     simple_spline_.AddNode(0.5f * kSimpleSplineEndTime, 0.5f, 0.0f);
     simple_spline_.AddNode(kSimpleSplineEndTime, 1.0f, 0.001f);
+
+    // Duplicate simple_spline_ for multi-dimensional testing.
+    for (size_t i = 0; i < MOTIVE_ARRAY_SIZE(simple_splines_); ++i) {
+      simple_splines_[i] = simple_spline_;
+    }
   }
   virtual void TearDown() {}
 
@@ -235,6 +245,7 @@ class MotiveTests : public ::testing::Test {
   SmoothInit smooth_angle_init_;
   SmoothInit smooth_scalar_init_;
   CompactSpline simple_spline_;
+  CompactSpline simple_splines_[4];
 };
 
 // Ensure we wrap around from pi to -pi.
@@ -680,11 +691,8 @@ void SplineTime(MotiveTests& t) {
   static const MotiveTime kStartTime = 250;
   static const MotiveTime kDeltaTime = 500;
 
-  fpl::CompactSpline splines[MotivatorT::kDimensions];
-  for (MotiveDimension i = 0; i < MotivatorT::kDimensions; ++i) {
-    splines[i] = t.simple_spline();
-  }
-  const MotiveTime end_time = static_cast<MotiveTime>(t.simple_spline().EndX());
+  const fpl::CompactSpline* splines = t.simple_splines(MotivatorT::kDimensions);
+  const MotiveTime end_time = static_cast<MotiveTime>(splines[0].EndX());
 
   // Two updates of kDeltaTime should wrap past end_time.
   assert(kStartTime + 2 * kDeltaTime > end_time);
@@ -709,18 +717,58 @@ void SplineTime(MotiveTests& t) {
 }
 TEST_ALL_VECTOR_MOTIVATORS_F(SplineTime)
 
-// Test the MotivatorVector::SplineTime() function.
+// Test the MotivatorVector::SetSplineTime() function.
+template <class MotivatorT>
+void SetSplineTime(MotiveTests& t) {
+  typedef typename MotivatorT::ExT Vec;
+  static const MotiveTime kStartTime = 250;
+  static const MotiveTime kDeltaTime = 500;
+
+  const fpl::CompactSpline* splines = t.simple_splines(MotivatorT::kDimensions);
+  const MotiveTime end_time = static_cast<MotiveTime>(splines[0].EndX());
+
+  // Create a motivator that plays `spline` from kStartTime.
+  MotivatorT angle(t.smooth_angle_init(), &t.engine());
+  angle.SetSplines(splines, SplinePlayback(kStartTime));
+
+  // Set to time 0.
+  const float start_value = splines[0].StartY();
+  angle.SetSplineTime(0);
+  EXPECT_EQ(angle.SplineTime(), 0);
+  EXPECT_TRUE(VectorNear(angle.Value(), Vec(start_value), Vec(kAngleEpsilon)));
+
+  // Advance to double-check that the Motivator was properly re-initialized.
+  t.engine().AdvanceFrame(kDeltaTime);
+  EXPECT_EQ(angle.SplineTime(), kDeltaTime);
+
+  // Set to the end time.
+  const float end_value = splines[0].EndY();
+  angle.SetSplineTime(end_time);
+  EXPECT_EQ(angle.SplineTime(), end_time);
+  EXPECT_TRUE(VectorNear(angle.Value(), Vec(end_value), Vec(kAngleEpsilon)));
+
+  // Set to a spline node time.
+  const MotiveTime mid_time = static_cast<MotiveTime>(splines[0].NodeX(1));
+  const float mid_value = splines[0].NodeY(1);
+  angle.SetSplineTime(mid_time);
+  EXPECT_EQ(angle.SplineTime(), mid_time);
+  EXPECT_TRUE(VectorNear(angle.Value(), Vec(mid_value), Vec(kAngleEpsilon)));
+
+  // Set back to the start time.
+  angle.SetSplineTime(kStartTime);
+  EXPECT_EQ(angle.SplineTime(), kStartTime);
+}
+TEST_ALL_VECTOR_MOTIVATORS_F(SetSplineTime)
+
+// Test the MotivatorVector::PlaybackRate() function.
 template <class MotivatorT>
 void PlaybackRate(MotiveTests& t) {
   static const MotiveTime kDeltaTime = 10;
   static const float kPlaybackRates[] = { 0.0f, 0.5f, 1.0f, 2.0f };
   static const float kMidPlaybackRateOffset = 0.1f;
 
-  fpl::CompactSpline splines[MotivatorT::kDimensions];
-  for (MotiveDimension i = 0; i < MotivatorT::kDimensions; ++i) {
-    splines[i] = t.simple_spline();
-  }
-  const MotiveTime end_time = static_cast<MotiveTime>(t.simple_spline().EndX());
+  const fpl::CompactSpline* splines = t.simple_splines(MotivatorT::kDimensions);
+  const MotiveTime end_time = static_cast<MotiveTime>(splines[0].EndX());
 
   // Create a motivator that plays `spline` from kStartTime, and repeats
   // at the start when it reaches the end.

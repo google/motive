@@ -275,6 +275,10 @@ class MotivatorVectorTemplate : public Motivator {
     Processor().SetSplines(index_, splines, playback);
   }
 
+  void SetSplineTime(MotiveTime time) {
+    Processor().SetSplineTime(index_, time);
+  }
+
   /// Set rate at which we consume the spline set in SetSpline().
   ///     0   ==> paused
   ///     0.5 ==> half speed (slow motion)

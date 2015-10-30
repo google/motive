@@ -71,6 +71,11 @@ class BulkSplineEvaluator {
   /// Mark spline as invalid.
   void ClearSpline(const Index index) { sources_[index].spline = nullptr; }
 
+  /// Reposition the spline at `index` evaluate from `x`.
+  /// Same as calling SetSpline() with the same spline and
+  /// `playback.start_x = x`.
+  void SetX(const Index index, const float x);
+
   /// Set conversion rate from AdvanceFrame's delta_x to the speed at which
   /// we traverse the spline.
   ///     0   ==> paused

@@ -137,6 +137,13 @@ class SmoothMotiveProcessor : public VectorProcessor {
     interpolator_.SetSpline(index, spline, playback);
   }
 
+  virtual void SetSplineTime(MotiveIndex index, MotiveTime time) {
+    const MotiveIndex end_index = index + Dimensions(index);
+    for (MotiveIndex i = index; i < end_index; ++i) {
+      interpolator_.SetX(i, static_cast<float>(time));
+    }
+  }
+
   virtual void SetSplinePlaybackRate(MotiveIndex index, float playback_rate) {
     const MotiveIndex end_index = index + Dimensions(index);
     for (MotiveIndex i = index; i < end_index; ++i) {

@@ -287,6 +287,7 @@ class VectorProcessor : public MotiveProcessor {
       SetSpline(index + i, splines[i], playback);
     }
   }
+  virtual void SetSplineTime(MotiveIndex /*index*/, MotiveTime /*time*/) {}
   virtual void SetSplinePlaybackRate(MotiveIndex /*index*/,
                                      float /*playback_rate*/) {}
 
