@@ -37,6 +37,7 @@
 #include "anim_generated.h"
 #include "fplutil/file_utils.h"
 #include "mathfu/glsl_mappings.h"
+#include "motive/anim.h"
 #include "motive/common.h"
 #include "motive/init.h"
 #include "motive/math/angle.h"
@@ -354,6 +355,37 @@ class FlatAnim {
     }
   }
 
+  void LogAllChannels() const {
+    log_.Log(kLogInfo, "  %30s %16s  %9s   %s\n",
+             "bone name", "operation", "time range", "values");
+    for (BoneIndex bone_idx = 0; bone_idx < bones_.size(); ++bone_idx) {
+      const Bone& bone = bones_[bone_idx];
+      const Channels& channels = bone.channels;
+      if (channels.size() == 0) continue;
+
+      for (auto c = channels.begin(); c != channels.end(); ++c) {
+        log_.Log(kLogInfo, "  %30s %16s   ",
+                 bone.name.c_str(), MatrixOpName(c->op));
+        const char* format = motive::RotateOp(c->op) ? "%.0f "
+                           : motive::TranslateOp(c->op) ? "%.1f " : "%.2f ";
+        const float factor = motive::RotateOp(c->op)
+                           ? fpl::kRadiansToDegrees : 1.0f;
+
+        const Nodes& n = c->nodes;
+        if (n.size() <= 1) {
+          log_.Log(kLogInfo, " constant   ");
+        } else {
+          log_.Log(kLogInfo, "%4d~%4d   ", n[0].time, n[n.size() - 1].time);
+        }
+
+        for (size_t i = 0; i < n.size(); ++i) {
+          log_.Log(kLogInfo, format, factor * n[i].val);
+        }
+        log_.Log(kLogInfo, "\n");
+      }
+    }
+  }
+
   bool OutputFlatBuffer(const std::string& output_file,
                         RepeatPreference repeat_preference) const {
     // Ensure output directory exists.
@@ -433,9 +465,13 @@ class FlatAnim {
     }
 
     // Write the binary data to the file and close it.
-    log_.Log(kLogVerbose, "Writing %s\n", output_file.c_str());
+    log_.Log(kLogVerbose, "Writing %s", output_file.c_str());
     fwrite(fbb.GetBufferPointer(), 1, fbb.GetSize(), file);
     fclose(file);
+
+    // Log summary.
+    log_.Log(kLogImportant, "  %s (%d bytes)\n",
+             RemoveDirectoryFromName(output_file).c_str(), NumBytes());
     return true;
   }
 
@@ -453,6 +489,23 @@ class FlatAnim {
 
   bool IsDefaultValue(MatrixOperationType op, float value) const {
     return fabs(value - DefaultOpValue(op)) < ToleranceForOp(op);
+  }
+
+  int NumBytes() const {
+    static const size_t kBytesPerSplineNode = 6;
+    size_t num_bytes = sizeof(motive::RigAnim) +
+                       bones_.size() * sizeof(motive::MatrixAnim);
+
+    for (size_t i = 0; i < bones_.size(); ++i) {
+      auto channels = bones_[i].channels;
+
+      num_bytes += channels.size() * sizeof(motive::MatrixOperationInit);
+      for (size_t j = 0; j < channels.size(); ++j) {
+        Nodes nodes = channels[j].nodes;
+        num_bytes += sizeof(CompactSpline) + nodes.size() * kBytesPerSplineNode;
+      }
+    }
+    return static_cast<int>(num_bytes);
   }
 
  private:
@@ -803,6 +856,10 @@ class FbxAnimParser {
   bool Load(const char* file_name) {
     if (!Valid()) return false;
 
+    log_.Log(kLogInfo,
+        "---- anim_pipeline: %s ------------------------------------------\n",
+        BaseFileName(file_name).c_str());
+
     // Create the importer and initialize with the file.
     FbxImporter* importer = FbxImporter::Create(manager_, "");
     const bool init_status =
@@ -815,10 +872,10 @@ class FbxAnimParser {
     importer->GetFileVersion(file_major, file_minor, file_revision);
 
     // Report version information.
-    log_.Log(kLogImportant,
-             "Loading %s (version %d.%d.%d) with SDK version %d.%d.%d\n",
-             file_name, file_major, file_minor, file_revision, sdk_major,
-             sdk_minor, sdk_revision);
+    log_.Log(kLogVerbose,
+             "File version %d.%d.%d, SDK version %d.%d.%d\n",
+             file_major, file_minor, file_revision,
+             sdk_major, sdk_minor, sdk_revision);
 
     // Exit on load error.
     if (!init_status) {
@@ -843,7 +900,7 @@ class FbxAnimParser {
     // Get global scale from the internal units.
     global_scale_ =
         1.0 / scene_->GetGlobalSettings().GetSystemUnit().GetScaleFactor();
-    log_.Log(kLogInfo, "Scene scale factor is %f\n", global_scale_);
+    log_.Log(kLogVerbose, "Scene scale factor is %f\n", global_scale_);
 
     // Remember the source file name so we can search for textures nearby.
     anim_file_name_ = std::string(file_name);
@@ -888,7 +945,7 @@ class FbxAnimParser {
     // We're only interested in mesh nodes. If a node and all nodes under it
     // have no meshes, we early out.
     if (node == nullptr || !NodeHasMesh(node)) return;
-    log_.Log(kLogInfo, "Node: %s\n", node->GetName());
+    log_.Log(kLogVerbose, "Node: %s\n", node->GetName());
 
     // The root node cannot have a transform applied to it, so we do not
     // export it as a bone.
@@ -1030,7 +1087,7 @@ class FbxAnimParser {
         // Record constant value for this channel.
         if (anim_const) {
           out->AddConstant(channel_id, const_value);
-          log_.Log(kLogInfo, "  %s: constant %f\n", MatrixOpName(op),
+          log_.Log(kLogVerbose, "  %s: constant %f\n", MatrixOpName(op),
                    const_value);
           continue;
         }
@@ -1045,7 +1102,7 @@ class FbxAnimParser {
         }
 
         // For every key in the curve, log data to `out`.
-        log_.Log(kLogInfo, "  %s: curve\n", MatrixOpName(op));
+        log_.Log(kLogVerbose, "  %s: curve\n", MatrixOpName(op));
         FbxAnimCurve* curve = anim_node->GetCurve(channel);
         GatherFlatAnimCurve(channel_id, curve, op, out);
       }
@@ -1141,7 +1198,7 @@ struct AnimPipelineArgs {
   AnimPipelineArgs() :
       fbx_file(""),
       output_file(""),
-      log_level(kLogImportant),
+      log_level(kLogWarning),
       repeat_preference(kRepeatIfRepeatable) {}
 
   std::string fbx_file;    /// FBX input file to convert.
@@ -1309,6 +1366,7 @@ int main(int argc, char** argv) {
   pipe.GatherFlatAnim(&anim);
 
   // Output gathered data to a binary FlatBuffer.
+  anim.LogAllChannels();
   const bool output_status = anim.OutputFlatBuffer(args.output_file,
                                                    args.repeat_preference);
   if (!output_status) return 1;
