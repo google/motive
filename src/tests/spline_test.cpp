@@ -157,7 +157,7 @@ static void GatherGraphData(const CubicInit& init, GraphData* d,
   if (is_angle) {
     interpolator.SetYRange(0, kAngleRange, true);
   }
-  interpolator.SetSpline(0, fpl::SplinePlayback(spline));
+  interpolator.SetSpline(0, spline, fpl::SplinePlayback());
 
   ExecuteInterpolator(interpolator, kNumCheckPoints, d);
 
@@ -317,20 +317,6 @@ TEST_F(SplineTests, ScaleX) {
       EXPECT_NEAR(d.derivatives[i].third, scaled_d.derivatives[i].third *
                   kScale * kScale * kScale, kThirdDerivativePrecision);
     }
-  }
-}
-
-// Ensure that a spline that goes well outside the modular range always
-// evaluates to a value within the modular range.
-TEST_F(SplineTests, ModularWrapAround) {
-  static const CubicInit kIncreasingLine(-4.0f, 0.1f, 8.0f, 0.1f, 120.0f);
-
-  GraphData d;
-  GatherGraphData(kIncreasingLine, &d, true);
-
-  const int num_points = static_cast<int>(d.points.size());
-  for (int i = 0; i < num_points; ++i) {
-    EXPECT_TRUE(Angle::IsAngleInRange(d.points[i].y()));
   }
 }
 

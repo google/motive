@@ -148,10 +148,10 @@ class Motivator {
 /// The current and target values and velocities can be specified by SetTarget()
 /// or SetSpline().
 ///
-template <class VectorConverter, int kDimensionsT>
+template <class VectorConverter, MotiveDimension kDimensionsT>
 class MotivatorVectorTemplate : public Motivator {
  public:
-  static const int kDimensions = kDimensionsT;
+  static const MotiveDimension kDimensions = kDimensionsT;
   typedef VectorConverter C;
   typedef typename fpl::ExternalVectorT<C, kDimensions>::type ExT;
   typedef typename fpl::InternalVectorT<kDimensions>::type InT;

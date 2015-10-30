@@ -22,16 +22,19 @@
 
 #define DEBUG_PRINT_MATRICES 0
 
+using fpl::Angle;
 using fpl::kPi;
 using fpl::kHalfPi;
 using fpl::Range;
 using fpl::CompactSpline;
+using fpl::SplinePlayback;
+using motive::MatrixMotivator4f;
+using motive::MotiveDimension;
 using motive::MotiveEngine;
 using motive::Motivator1f;
 using motive::Motivator2f;
 using motive::Motivator3f;
 using motive::Motivator4f;
-using motive::MatrixMotivator4f;
 using motive::MotiveTime;
 using motive::MotivatorInit;
 using motive::MotiveTarget1f;
@@ -64,7 +67,7 @@ typedef mathfu::Matrix<float, 3> mat3;
 
 static const MotiveTime kTimePerFrame = 10;
 static const MotiveTime kMaxTime = 10000;
-static const float kMatrixEpsilon = 0.00001f;
+static const float kMatrixEpsilon = 0.001f;
 static const float kAngleEpsilon = 0.01f;
 
 #define TEST_ALL_VECTOR_MOTIVATORS_F(MOTIVE_TEST_NAME) \
@@ -93,6 +96,17 @@ bool VectorUniform(const mathfu::Vector<T, d>& v) {
   return true;
 }
 bool VectorUniform(float /*v*/) { return true; }
+
+// For tests. All elements of vector are normalized
+template <class T, int d>
+mathfu::Vector<T, d> VectorNormalize(const mathfu::Vector<T, d>& v) {
+  mathfu::Vector<T, d> out;
+  for (int i = 0; i < d; ++i) {
+    out[i] = Angle::WrapAngle(v[i]);
+  }
+  return out;
+}
+float VectorNormalize(float v) { return Angle::WrapAngle(v); }
 
 // For tests. All elements of vector are <=.
 template <class T, int d>
@@ -478,7 +492,8 @@ void SmoothModular(MotiveTests& t) {
                 angle.Value() <= Vec(kEnd + kAngleEpsilon));
     t.engine().AdvanceFrame(1);
   }
-  EXPECT_TRUE(VectorNear(angle.Value(), Vec(kEnd), Vec(kAngleEpsilon)));
+  const Vec normalized = VectorNormalize(angle.Value());
+  EXPECT_TRUE(VectorNear(normalized, Vec(kEnd), Vec(kAngleEpsilon)));
 }
 TEST_ALL_VECTOR_MOTIVATORS_F(SmoothModular)
 
@@ -662,13 +677,14 @@ TEST_F(MotiveTests, MatrixTranslateRotateScaleGoneWild) {
 // Test the MotivatorVector::SplineTime() function.
 template <class MotivatorT>
 void SplineTime(MotiveTests& t) {
-  typedef typename MotivatorT::Spline Spline;
-
   static const MotiveTime kStartTime = 250;
   static const MotiveTime kDeltaTime = 500;
 
-  const fpl::CompactSpline& spline = t.simple_spline();
-  const MotiveTime end_time = static_cast<MotiveTime>(spline.EndX());
+  fpl::CompactSpline splines[MotivatorT::kDimensions];
+  for (MotiveDimension i = 0; i < MotivatorT::kDimensions; ++i) {
+    splines[i] = t.simple_spline();
+  }
+  const MotiveTime end_time = static_cast<MotiveTime>(t.simple_spline().EndX());
 
   // Two updates of kDeltaTime should wrap past end_time.
   assert(kStartTime + 2 * kDeltaTime > end_time);
@@ -676,7 +692,7 @@ void SplineTime(MotiveTests& t) {
   // Create a motivator that plays `spline` from kStartTime, and repeats
   // at the start when it reaches the end.
   MotivatorT angle(t.smooth_angle_init(), &t.engine());
-  angle.SetSpline(Spline(spline, kStartTime, true));
+  angle.SetSplines(splines, SplinePlayback(kStartTime, true));
 
   // When we start, the spline time should be the same as the start time.
   EXPECT_EQ(angle.SplineTime(), kStartTime);
@@ -696,13 +712,15 @@ TEST_ALL_VECTOR_MOTIVATORS_F(SplineTime)
 // Test the MotivatorVector::SplineTime() function.
 template <class MotivatorT>
 void PlaybackRate(MotiveTests& t) {
-  typedef typename MotivatorT::Spline Spline;
-
   static const MotiveTime kDeltaTime = 10;
   static const float kPlaybackRates[] = { 0.0f, 0.5f, 1.0f, 2.0f };
   static const float kMidPlaybackRateOffset = 0.1f;
-  const fpl::CompactSpline& spline = t.simple_spline();
-  const MotiveTime end_time = static_cast<MotiveTime>(spline.EndX());
+
+  fpl::CompactSpline splines[MotivatorT::kDimensions];
+  for (MotiveDimension i = 0; i < MotivatorT::kDimensions; ++i) {
+    splines[i] = t.simple_spline();
+  }
+  const MotiveTime end_time = static_cast<MotiveTime>(t.simple_spline().EndX());
 
   // Create a motivator that plays `spline` from kStartTime, and repeats
   // at the start when it reaches the end.
@@ -710,7 +728,7 @@ void PlaybackRate(MotiveTests& t) {
 
   for (size_t i = 0; i < MOTIVE_ARRAY_SIZE(kPlaybackRates); ++i) {
     const float playback_rate = kPlaybackRates[i];
-    angle.SetSpline(Spline(spline, 0.0f, true, playback_rate));
+    angle.SetSplines(splines, SplinePlayback(0.0f, true, playback_rate));
 
     // Since the playback rate is 1, we expect the spline time to advance with
     // the delta time.
