@@ -27,4 +27,4 @@ table AnimTableFb {
 
 root_type AnimTableFb;
 file_identifier "ATAB";
-file_extension "fplanimtab";
+file_extension "motivetab";

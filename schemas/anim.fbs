@@ -89,4 +89,4 @@ table RigAnimFb {
 
 root_type RigAnimFb;
 file_identifier "ANIM";
-file_extension "fplanim";
+file_extension "motiveanim";
