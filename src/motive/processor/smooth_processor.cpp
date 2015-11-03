@@ -60,6 +60,9 @@ class SmoothMotiveProcessor : public VectorProcessor {
   virtual float Velocity1f(MotiveIndex index) const {
     return interpolator_.Derivative(index);
   }
+  virtual float Direction1f(MotiveIndex index) const {
+    return interpolator_.DerivativeWithoutPlayback(index);
+  }
   virtual float TargetValue1f(MotiveIndex index) const {
     return interpolator_.EndY(index);
   }

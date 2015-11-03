@@ -112,7 +112,17 @@ class BulkSplineEvaluator {
 
   /// Return the current slope for the spline at `index`.
   float Derivative(const Index index) const {
+    return PlaybackRate(index) * Cubic(index).Derivative(cubic_xs_[index]);
+  }
+
+  /// Return the current slope for the spline at `index`.
+  float DerivativeWithoutPlayback(const Index index) const {
     return Cubic(index).Derivative(cubic_xs_[index]);
+  }
+
+  /// Return the current playback rate of the spline at `index`.
+  float PlaybackRate(const Index index) const {
+    return playback_rates_[index];
   }
 
   /// Return the spline that is currently being traversed at `index`.

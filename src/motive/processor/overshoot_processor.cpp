@@ -69,6 +69,9 @@ class OvershootMotiveProcessor : public VectorProcessor {
   virtual float Velocity1f(MotiveIndex index) const {
     return Data(index).velocity;
   }
+  virtual float Direction1f(MotiveIndex index) const {
+    return Data(index).velocity; // No playback rate, so same as velocity.
+  }
   virtual float TargetValue1f(MotiveIndex index) const {
     return Data(index).target_value;
   }

@@ -83,6 +83,9 @@ class LinearMotiveProcessor : public VectorProcessor {
     return d.target_time <= 0.0f ? 0.0f
         : (d.target_value - d.value) / d.target_time;
   }
+  virtual float Direction1f(MotiveIndex index) const {
+    return Velocity1f(index);
+  }
   virtual float TargetValue1f(MotiveIndex index) const {
     return Data(index).target_value;
   }

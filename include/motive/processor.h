@@ -372,6 +372,7 @@ class VectorProcessor : public MotiveProcessor {
 
   MOTIVE_VECTOR_ACCESSOR_FN(Value)
   MOTIVE_VECTOR_ACCESSOR_FN(Velocity)
+  MOTIVE_VECTOR_ACCESSOR_FN(Direction)
   MOTIVE_VECTOR_ACCESSOR_FN(TargetValue)
   MOTIVE_VECTOR_ACCESSOR_FN(TargetVelocity)
   MOTIVE_VECTOR_ACCESSOR_FN(Difference)

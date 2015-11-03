@@ -200,6 +200,11 @@ class MotivatorVectorTemplate : public Motivator {
   /// at the current time in the spline curve.
   ExT Velocity() const { return C::To(Processor().VelocityT(index_, InT())); }
 
+  /// Returns the velocity when playback rate is 1. Useful to know the
+  /// direction of a multi-dimensional motivator, even when playback rate
+  /// is 0.
+  ExT Direction() const { return C::To(Processor().DirectionT(index_, InT())); }
+
   /// Returns the value this Motivator is driving towards.
   /// If being driven by a spline, returns the value at the end of the spline.
   ExT TargetValue() const {
