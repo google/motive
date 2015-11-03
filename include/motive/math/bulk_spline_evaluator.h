@@ -120,7 +120,9 @@ class BulkSplineEvaluator {
     return PlaybackRate(index) * Cubic(index).Derivative(cubic_xs_[index]);
   }
 
-  /// Return the current slope for the spline at `index`.
+  /// Return the current slope for the spline at `index`. Ignore the playback
+  /// rate. This is useful for times when the playback rate is 0, but you
+  /// still want to get information about the underlying spline.
   float DerivativeWithoutPlayback(const Index index) const {
     return Cubic(index).Derivative(cubic_xs_[index]);
   }
@@ -152,6 +154,13 @@ class BulkSplineEvaluator {
 
   /// Return slope at the end of the spline.
   float EndDerivative(const Index index) const {
+    return PlaybackRate(index) * sources_[index].spline->EndDerivative();
+  }
+
+  /// Return slope at the end of the spline, at `index`. Ignore the playback
+  /// rate. This is useful for times when the playback rate is 0, but you
+  /// still want to get information about the underlying spline.
+  float EndDerivativeWithoutPlayback(const Index index) const {
     return sources_[index].spline->EndDerivative();
   }
 
