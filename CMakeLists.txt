@@ -219,4 +219,3 @@ endif()
 if(motive_build_samples)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/samples)
 endif()
-

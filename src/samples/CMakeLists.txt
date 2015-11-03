@@ -52,7 +52,7 @@ add_definitions(-DFPL_CURVE_GRAPH_FUNCTIONS)
 
 function(sample_executable name)
   cxx_executable_with_flags(${name}_sample "${cxx_default}" "${COMMON_LIBS}"
-      ${CMAKE_CURRENT_SOURCE_DIR}/${name}.cpp ${SUPPORT_SRCS}
+      ${CMAKE_CURRENT_SOURCE_DIR}/${name}/${name}.cpp ${SUPPORT_SRCS}
       ${ARGN})
   mathfu_configure_flags(${name}_sample)
 endfunction()
@@ -60,4 +60,3 @@ endfunction()
 sample_executable(linear_processor)
 sample_executable(own_vector_types)
 sample_executable(smooth1f)
-

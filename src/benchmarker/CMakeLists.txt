@@ -69,5 +69,5 @@ add_executable(benchmarker ${CMAKE_CURRENT_SOURCE_DIR}/benchmarker.cpp)
 mathfu_configure_flags(benchmarker)
 
 # Dependencies for the executable target.
-add_dependencies(benchmarker mathfu motive)
+add_dependencies(benchmarker motive)
 target_link_libraries(benchmarker motive)

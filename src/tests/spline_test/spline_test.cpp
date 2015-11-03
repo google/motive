@@ -16,6 +16,7 @@
 #include "motive/math/bulk_spline_evaluator.h"
 #include "motive/common.h"
 #include "motive/math/angle.h"
+#include "motive/math/compact_spline.h"
 
 using fpl::QuadraticCurve;
 using fpl::CubicCurve;

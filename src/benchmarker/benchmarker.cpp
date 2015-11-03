@@ -114,21 +114,14 @@ class MotiveBenchmarker {
                  kOscillatingQuicklyPeriod, kOscillatingQuicklyAmplitude,
                  &splines_[kOscillatingQuickly]);
 
-    // Add some information for how to play-back the spline:
-    // the start time (always 0 here), and whether to repeat (always true here).
-    const SplinePlayback linearPlayback(splines_[kLinearOrbit], 0.0f, true);
-    const SplinePlayback oscillatingSlowlyPlayback(
-        splines_[kOscillatingSlowly], 0.0f, true);
-    const SplinePlayback oscillatingQuicklyPlayback(
-        splines_[kOscillatingQuickly], 0.0f, true);
-
     // Create a matrix initializer with a series of basic matrix operations.
     // The final matrix will be created by applying these operations, in turn.
-    matrix_ops_.AddOp(motive::kRotateAboutY, kRotateInit, linearPlayback);
+    matrix_ops_.AddOp(motive::kRotateAboutY, kRotateInit,
+					  splines_[kLinearOrbit]);
     matrix_ops_.AddOp(motive::kTranslateX, kTranslateInit,
-                       oscillatingSlowlyPlayback);
+                      splines_[kOscillatingSlowly]);
     matrix_ops_.AddOp(motive::kTranslateY, kTranslateInit,
-                       oscillatingQuicklyPlayback);
+                       splines_[kOscillatingQuickly]);
 
     // Initialize the large array of matrix motivators. Note that the
     // one dimensional motivators that drive the matrix motivators are created
