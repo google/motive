@@ -49,6 +49,7 @@ using motive::kInvalidMatrixOperation;
 using motive::kNumMatrixOperationTypes;
 using motive::BoneIndex;
 using motive::kInvalidBoneIdx;
+using std::string;
 
 enum RepeatPreference {
   kRepeatIfRepeatable,
@@ -386,10 +387,10 @@ class FlatAnim {
     }
   }
 
-  bool OutputFlatBuffer(const std::string& output_file,
+  bool OutputFlatBuffer(const string& output_file,
                         RepeatPreference repeat_preference) const {
     // Ensure output directory exists.
-    const std::string output_dir = DirectoryName(output_file);
+    const string output_dir = DirectoryName(output_file);
     if (!CreateDirectory(output_dir.c_str())) {
       log_.Log(kLogError, "Could not create output directory %s\n",
                output_dir.c_str());
@@ -702,9 +703,9 @@ class FlatAnim {
   }
 
   // Remove the namespacing from the bone name.
-  static const char* BoneBaseName(const std::string& name) {
+  static const char* BoneBaseName(const string& name) {
     const size_t colon = name.find_last_of(':');
-    const size_t base_idx = colon == std::string::npos ? 0 : colon + 1;
+    const size_t base_idx = colon == string::npos ? 0 : colon + 1;
     return &name[base_idx];
   }
 
@@ -796,7 +797,7 @@ class FlatAnim {
 
   struct Bone {
     // Unique name for this bone. Taken from mesh hierarchy.
-    std::string name;
+    string name;
 
     // Hierarchy depth. From this we can derive the tree, since bones are
     // listed in depth-first order.
@@ -910,7 +911,7 @@ class FbxAnimParser {
     log_.Log(kLogVerbose, "Scene scale factor is %f\n", global_scale_);
 
     // Remember the source file name so we can search for textures nearby.
-    anim_file_name_ = std::string(file_name);
+    anim_file_name_ = string(file_name);
     return true;
   }
 
@@ -1195,7 +1196,7 @@ class FbxAnimParser {
 
   // Name of source mesh file. Used to search for textures, when the textures
   // are not found in their referenced location.
-  std::string anim_file_name_;
+  string anim_file_name_;
 
   // Information and warnings.
   Logger& log_;
@@ -1208,8 +1209,8 @@ struct AnimPipelineArgs {
       log_level(kLogWarning),
       repeat_preference(kRepeatIfRepeatable) {}
 
-  std::string fbx_file;    /// FBX input file to convert.
-  std::string output_file; /// File to write .fplanim to.
+  string fbx_file;    /// FBX input file to convert.
+  string output_file; /// File to write .fplanim to.
   LogLevel log_level;      /// Amount of logging to dump during conversion.
   Tolerances tolerances;   /// Amount output curves can deviate from input.
   RepeatPreference repeat_preference; /// Loop back to start when reaches end.
@@ -1221,7 +1222,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
 
   // Last parameter is used as file name.
   if (argc > 1) {
-    args->fbx_file = std::string(argv[argc - 1]);
+    args->fbx_file = string(argv[argc - 1]);
     args->output_file = RemoveExtensionFromName(args->fbx_file) + "." +
                         motive::RigAnimFbExtension();
   }
@@ -1235,7 +1236,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
 
   // Parse switches.
   for (int i = 1; i < argc - 1; ++i) {
-    const std::string arg = argv[i];
+    const string arg = argv[i];
 
     if (arg == "-v" || arg == "--verbose") {
       args->log_level = kLogVerbose;
@@ -1248,7 +1249,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
 
     } else if (arg == "-o" || arg == "--out") {
       if (i + 1 < argc - 1) {
-        args->output_file = std::string(argv[i + 1]);
+        args->output_file = string(argv[i + 1]);
         i++;
       } else {
         valid_args = false;
