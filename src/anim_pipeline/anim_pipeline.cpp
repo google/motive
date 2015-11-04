@@ -365,7 +365,7 @@ class FlatAnim {
 
       for (auto c = channels.begin(); c != channels.end(); ++c) {
         log_.Log(kLogInfo, "  %30s %16s   ",
-                 bone.name.c_str(), MatrixOpName(c->op));
+                 BoneBaseName(bone.name), MatrixOpName(c->op));
         const char* format = motive::RotateOp(c->op) ? "%.0f "
                            : motive::TranslateOp(c->op) ? "%.1f " : "%.2f ";
         const float factor = motive::RotateOp(c->op)
@@ -699,6 +699,13 @@ class FlatAnim {
 
     // All mid points are redundant.
     return true;
+  }
+
+  // Remove the namespacing from the bone name.
+  static const char* BoneBaseName(const std::string& name) {
+    const size_t colon = name.find_last_of(':');
+    const size_t base_idx = colon == std::string::npos ? 0 : colon + 1;
+    return &name[base_idx];
   }
 
   static bool EqualNodes(const SplineNode& a, const SplineNode& b,
