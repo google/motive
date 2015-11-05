@@ -428,8 +428,11 @@ class MatrixProcessor4f : public MotiveProcessor {
 
 class RigProcessor : public MotiveProcessor {
  public:
-  /// TODO OPT: Change this to a 4x3 matrix, since it's an affine transform.
-  virtual const mathfu::mat4* GlobalTransforms(MotiveIndex index) const = 0;
+  /// Returns an array of length `DefiningAnim.NumBones()`.
+  /// The i'th element of the array represents the transform from the root
+  /// bone to the bone-space on the i'th bone.
+  virtual const mathfu::AffineTransform* GlobalTransforms(
+      MotiveIndex index) const = 0;
 
   /// Return the time remaining in the current matrix animation.
   virtual MotiveTime TimeRemaining(MotiveIndex index) const = 0;

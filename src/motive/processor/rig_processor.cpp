@@ -21,15 +21,15 @@
 #include "motive/math/angle.h"
 #include "motive/math/bulk_spline_evaluator.h"
 
-using mathfu::vec4;
-using mathfu::mat4;
 using fpl::Angle;
 using fpl::kPi;
+using mathfu::AffineTransform;
+using mathfu::mat4;
+using mathfu::vec4;
 
 namespace motive {
 
 // static
-mathfu::mat4 MatrixInit::kIdentityTransform(mathfu::mat4::Identity());
 static const MatrixOpArray kEmptyOps(0);
 
 class RigData {
@@ -46,7 +46,7 @@ class RigData {
     // Visual Studio 2010 does not like std::vectors of mat4, since they are
     // a 16-byte aligned type. Use plain old arrays instead.
     motivators_ = new MatrixMotivator4f[num_bones];
-    global_transforms_ = new mat4[num_bones];
+    global_transforms_ = new AffineTransform[num_bones];
 
     // Initialize the motivators that drive the local transforms.
     for (BoneIndex i = 0; i < num_bones; ++i) {
@@ -95,7 +95,7 @@ class RigData {
     CalculateGlobalTransforms(global_transforms_);
   }
 
-  const mat4* GlobalTransforms() const { return global_transforms_; }
+  const AffineTransform* GlobalTransforms() const { return global_transforms_; }
 
   BoneIndex NumBones() const {
     return defining_anim_->NumBones();
@@ -154,23 +154,25 @@ class RigData {
   /// global transforms. The `parents` are layed out such that the parent
   /// always come before the child.
   // TODO OPT: optimize `parents` layout so that we can parallelize this call.
-  void CalculateGlobalTransforms(mat4* out) const {
+  void CalculateGlobalTransforms(AffineTransform* out) const {
     const BoneIndex* parents = defining_anim_->bone_parents();
     const int num_bones = NumBones();
     for (int i = 0; i < num_bones; ++i) {
+      // TODO: Return an AffineTransform from the MatrixMotivator.
       const mat4& local_transform = motivators_[i].Value();
       const int parent_idx = parents[i];
       if (parent_idx == kInvalidBoneIdx) {
-        out[i] = local_transform;
+        out[i] = mat4::ToAffineTransform(local_transform);
       } else {
         assert(i > parent_idx);
-        out[i] = out[parent_idx] * local_transform;
+        out[i] = mat4::ToAffineTransform(
+            mat4::FromAffineTransform(out[parent_idx]) * local_transform);
       }
     }
   }
 
   MatrixMotivator4f* motivators_;
-  mat4* global_transforms_;
+  AffineTransform* global_transforms_;
   const RigAnim* defining_anim_;
   const RigAnim* current_anim_;
 
@@ -213,7 +215,7 @@ class MotiveRigProcessor : public RigProcessor {
   virtual MotivatorType Type() const { return RigInit::kType; }
   virtual int Priority() const { return 3; }
 
-  virtual const mat4* GlobalTransforms(MotiveIndex index) const {
+  virtual const AffineTransform* GlobalTransforms(MotiveIndex index) const {
     return Data(index).GlobalTransforms();
   }
 

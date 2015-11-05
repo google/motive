@@ -355,13 +355,12 @@ class MatrixData {
     const size_t size = SizeOfClass(num_ops);
     uint8_t* buffer = new uint8_t[size];
     MatrixData* d = new (buffer) MatrixData();
-
+    d->result_matrix_ = mat4::FromAffineTransform(init.start_transform());
     // Explicitly call constructors on members.
     for (size_t i = 0; i < MOTIVE_ARRAY_SIZE(d->start_matrix_); ++i) {
       d->start_matrix_[i] =
-          MatrixColumn(init.start_transform(), static_cast<int>(i));
+          MatrixColumn(d->result_matrix_, static_cast<int>(i));
     }
-    d->result_matrix_ = init.start_transform();
     d->num_ops_ = num_ops;
     for (int i = 0; i < num_ops; ++i) {
       new (&d->ops_[i]) MatrixOperation(ops[i], engine);
@@ -384,7 +383,8 @@ class MatrixData {
 
  private:
   static size_t SizeOfClass(int num_ops) {
-    return sizeof(MatrixData) + sizeof(MatrixOperation) * std::max(0, num_ops - 1);
+    return sizeof(MatrixData) +
+           sizeof(MatrixOperation) * std::max(0, num_ops - 1);
   }
 
   /// Constants transforms that get applied before all other transforms.

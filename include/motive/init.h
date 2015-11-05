@@ -15,6 +15,7 @@
 #ifndef MOTIVE_INIT_H_
 #define MOTIVE_INIT_H_
 
+#include "mathfu/constants.h"
 #include "motive/util.h"
 #include "motive/math/range.h"
 
@@ -377,17 +378,19 @@ class MatrixInit : public MotivatorInit {
  public:
   MOTIVE_INTERFACE();
   typedef std::vector<MatrixOperationInit> OpVector;
-  static mathfu::mat4 kIdentityTransform;
 
   explicit MatrixInit(const MatrixOpArray& ops)
       : MotivatorInit(kType),
         ops_(&ops),
-        start_transform_(&kIdentityTransform) {}
-  MatrixInit(const MatrixOpArray& ops, const mathfu::mat4& start_transform)
+        start_transform_(&mathfu::kAffineIdentity) {}
+  MatrixInit(const MatrixOpArray& ops,
+             const mathfu::AffineTransform& start_transform)
       : MotivatorInit(kType), ops_(&ops), start_transform_(&start_transform) {}
 
   const OpVector& ops() const { return ops_->ops(); }
-  const mathfu::mat4& start_transform() const { return *start_transform_; }
+  const mathfu::AffineTransform& start_transform() const {
+    return *start_transform_;
+  }
 
  private:
   /// Reference to the union of all operations that this matrix will be able
@@ -399,17 +402,20 @@ class MatrixInit : public MotivatorInit {
   /// Constant transform from which to start applying `ops_`.
   /// For example, `RigAnim`s use it to represent the constant transformation
   /// from a bone to its parent.
-  const mathfu::mat4* start_transform_;
+  const mathfu::AffineTransform* start_transform_;
 };
 
 class RigInit : public MotivatorInit {
  public:
   MOTIVE_INTERFACE();
 
-  RigInit(const RigAnim& defining_anim, const mathfu::mat4* bone_transforms,
+  RigInit(const RigAnim& defining_anim,
+          const mathfu::AffineTransform* bone_transforms,
           const BoneIndex* bone_parents, BoneIndex num_bones);
   const RigAnim& defining_anim() const { return *defining_anim_; }
-  const mathfu::mat4* bone_transforms() const { return bone_transforms_; }
+  const mathfu::AffineTransform* bone_transforms() const {
+    return bone_transforms_;
+  }
 
   // Utility functions. Ensure that animations are compatible with rigs.
   static bool MatchesHierarchy(const BoneIndex* parents_a, BoneIndex len_a,
@@ -429,7 +435,7 @@ class RigInit : public MotivatorInit {
   /// These transforms are used as the `start_transform_`s of the underlying
   /// `MatrixInit`s. All the matrix operations are applied from the origin of
   /// the bone they're animating.
-  const mathfu::mat4* bone_transforms_;
+  const mathfu::AffineTransform* bone_transforms_;
 };
 
 }  // namespace motive
