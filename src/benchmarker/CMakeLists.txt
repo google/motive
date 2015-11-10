@@ -20,7 +20,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../bin")
 set(COMMON_LIBS "motive;${CMAKE_THREAD_LIBS_INIT}")
 
 set(tmp_dir ${CMAKE_BINARY_DIR}/obj)
-get_filename_component(fpl_root "${CMAKE_SOURCE_DIR}/../../.." REALPATH)
+get_filename_component(fpl_root "${CMAKE_SOURCE_DIR}/../../.." ABSOLUTE)
 set(dependencies_motive_dir "${fpl_root}/motive"
     CACHE PATH "Directory containing the motive animation library.")
 set(dependencies_mathfu_dir "${fpl_root}/mathfu"

@@ -15,7 +15,10 @@
 # 3. This notice may not be removed or altered from any source distribution.
 cmake_minimum_required(VERSION 2.8.12)
 
-# gtest seems to prefer the non-DLL runtime on Windows, which conflicts with everything else.
+project(motive_tests)
+
+# gtest seems to prefer the non-DLL runtime on Windows, which conflicts with
+# everything else.
 option(
   gtest_force_shared_crt
   "Use shared (DLL) run-time lib even when Google Test is built as static lib."

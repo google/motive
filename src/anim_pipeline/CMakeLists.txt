@@ -22,7 +22,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
     ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${CMAKE_SYSTEM_NAME})
 
 set(tmp_dir ${CMAKE_BINARY_DIR}/obj)
-get_filename_component(fpl_root "${CMAKE_SOURCE_DIR}/../../.." REALPATH)
+get_filename_component(fpl_root "${CMAKE_SOURCE_DIR}/../../.." ABSOLUTE)
 set(dependencies_flatbuffers_dir "${fpl_root}/flatbuffers"
     CACHE PATH "Directory containing the Flatbuffers library.")
 set(dependencies_fplutil_dir "${fpl_root}/fplutil"

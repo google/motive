@@ -22,9 +22,11 @@ project(motive)
 # Compile the game with the debug flag
 #set(motive_DEBUG ON)
 
+set(MOTIVE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/bin)
+
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${MOTIVE_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MOTIVE_BINARY_DIR})
 
 # Temporary files (like object files) created while compiling projects.
 set(tmp_dir ${CMAKE_CURRENT_BINARY_DIR}/obj)
@@ -33,13 +35,13 @@ set(tmp_dir ${CMAKE_CURRENT_BINARY_DIR}/obj)
 if(NOT DEFINED third_party_root)
   get_filename_component(
     third_party_root "${CMAKE_CURRENT_SOURCE_DIR}/../../../../external"
-    REALPATH)
+    ABSOLUTE)
 endif()
 
 # Directory which contains source for FPL libraries.
 if(NOT DEFINED fpl_root)
   get_filename_component(
-      fpl_root "${CMAKE_CURRENT_SOURCE_DIR}/../../libs" REALPATH)
+      fpl_root "${CMAKE_CURRENT_SOURCE_DIR}/../../libs" ABSOLUTE)
 endif()
 
 # If the dependencies directory exists, assume this is the root directory for
