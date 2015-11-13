@@ -146,6 +146,12 @@ class MatrixOperation {
     motivator.SetTarget(target);
   }
 
+  void SetPlaybackRate(float playback_rate) {
+    if (animation_type_ == kConstValueAnimation) return;
+    assert(animation_type_ == kMotivatorAnimation);
+    Motivator().SetSplinePlaybackRate(playback_rate);
+  }
+
  private:
   enum AnimationType {
     kInvalidAnimationType,
@@ -335,6 +341,13 @@ class MatrixData {
     assert(new_op_idx == num_new_ops);
   }
 
+  void SetPlaybackRate(float playback_rate) {
+    for (int i = 0; i < num_ops_; ++i) {
+      MatrixOperation& op = ops_[i];
+      op.SetPlaybackRate(playback_rate);
+    }
+  }
+
   const MatrixOperation& Op(int child_index) const {
     assert(0 <= child_index && child_index < num_ops_);
     return ops_[child_index];
@@ -467,6 +480,10 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
   virtual void BlendToOps(MotiveIndex index, const MatrixOpArray& ops,
                           const fpl::SplinePlayback& playback) {
     Data(index).BlendToOps(ops.ops(), playback);
+  }
+
+  virtual void SetPlaybackRate(MotiveIndex index, float playback_rate) {
+    Data(index).SetPlaybackRate(playback_rate);
   }
 
  protected:

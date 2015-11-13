@@ -418,6 +418,10 @@ class MatrixMotivator4fTemplate : public Motivator {
     Processor().BlendToOps(index_, ops, playback);
   }
 
+  void SetPlaybackRate(float playback_rate) {
+    Processor().SetPlaybackRate(index_, playback_rate);
+  }
+
  private:
   MatrixProcessor4f& Processor() {
     return *static_cast<MatrixProcessor4f*>(processor_);
@@ -446,6 +450,10 @@ class RigMotivator : public Motivator {
   /// has yet been played, snap to `anim`.
   void BlendToAnim(const RigAnim& anim, const fpl::SplinePlayback& playback) {
     Processor().BlendToAnim(index_, anim, playback);
+  }
+
+  void SetPlaybackRate(float playback_rate) {
+    Processor().SetPlaybackRate(index_, playback_rate);
   }
 
   /// Returns array of matricies: one for each bone position. The matrices are

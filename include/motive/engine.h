@@ -23,7 +23,6 @@
 
 namespace motive {
 
-struct MotiveProcessorFunctions;
 struct MotiveVersion;
 
 /// @class MotiveEngine

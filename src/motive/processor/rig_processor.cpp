@@ -91,6 +91,15 @@ class RigData {
     current_anim_ = &anim;
   }
 
+  void SetPlaybackRate(float playback_rate) {
+    // Update the motivators to have the new playback rate.
+    // TODO: Do this in bulk.
+    const int defining_num_bones = NumBones();
+    for (BoneIndex i = 0; i < defining_num_bones; ++i) {
+      motivators_[i].SetPlaybackRate(playback_rate);
+    }
+  }
+
   void UpdateGlobalTransforms() {
     CalculateGlobalTransforms(global_transforms_);
   }
@@ -210,6 +219,10 @@ class MotiveRigProcessor : public RigProcessor {
   virtual void BlendToAnim(MotiveIndex index, const RigAnim& anim,
                            const fpl::SplinePlayback& playback) {
     Data(index).BlendToAnim(anim, playback, time_);
+  }
+
+  virtual void SetPlaybackRate(MotiveIndex index, float playback_rate) {
+    Data(index).SetPlaybackRate(playback_rate);
   }
 
   virtual MotivatorType Type() const { return RigInit::kType; }
