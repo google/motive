@@ -60,10 +60,11 @@ void MotiveProcessor::VerifyInternalState() const {
 #endif  // MOTIVE_VERIFY_INTERNAL_STATE
 }
 
-void MotiveProcessor::InitializeMotivator(
-    const MotivatorInit& init, MotiveEngine* engine, Motivator* motivator,
-    MotiveDimension dimensions) {
-  const fpl::Benchmark b(benchmark_id_for_init());
+void MotiveProcessor::InitializeMotivator(const MotivatorInit& init,
+                                          MotiveEngine* engine,
+                                          Motivator* motivator,
+                                          MotiveDimension dimensions) {
+  const motive::Benchmark b(benchmark_id_for_init());
 
   // Assign an 'index' to reference the new Motivator. All interactions between
   // the Motivator and MotiveProcessor use this 'index' to identify the data.
@@ -197,9 +198,9 @@ void MotiveProcessor::MoveIndexRangeBase(const IndexRange& source,
 void MotiveProcessor::RegisterBenchmarks() {
   const std::string class_name(*Type());
   benchmark_id_for_advance_frame_ =
-      fpl::RegisterBenchmark((class_name + "::AdvanceFrame").c_str());
+      motive::RegisterBenchmark((class_name + "::AdvanceFrame").c_str());
   benchmark_id_for_init_ =
-      fpl::RegisterBenchmark((class_name + "::Init").c_str());
+      motive::RegisterBenchmark((class_name + "::Init").c_str());
 }
 
 }  // namespace motive

@@ -30,8 +30,7 @@ void MotiveEngine::RegisterProcessorFactory(
 
 // Prevent the version string from being stripped from the binary by keeping
 // a reference to it here.
-MotiveEngine::MotiveEngine()
-  : version_(&Version()) {}
+MotiveEngine::MotiveEngine() : version_(&Version()) {}
 
 void MotiveEngine::Reset() {
   for (ProcessorMap::iterator it = mapped_processors_.begin();
@@ -79,10 +78,9 @@ void MotiveEngine::AdvanceFrame(MotiveTime delta_time) {
   // assume that one pass is sufficient.
   for (ProcessorSet::iterator it = sorted_processors_.begin();
        it != sorted_processors_.end(); ++it) {
-    const fpl::Benchmark b(it->processor->benchmark_id_for_advance_frame());
+    const motive::Benchmark b(it->processor->benchmark_id_for_advance_frame());
     it->processor->AdvanceFrame(delta_time);
   }
 }
 
 }  // namespace motive
-

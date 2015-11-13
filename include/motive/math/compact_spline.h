@@ -18,7 +18,7 @@
 #include "motive/common.h"
 #include "motive/math/curve.h"
 
-namespace fpl {
+namespace motive {
 
 class CompactSplineNode;
 
@@ -289,6 +289,6 @@ struct SplinePlayback {
   bool repeat;
 };
 
-}  // namespace fpl
+}  // namespace motive
 
 #endif  // MOTIVE_MATH_COMPACT_SPLINE_H_

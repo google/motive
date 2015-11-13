@@ -20,7 +20,7 @@
 using mathfu::vec2;
 using mathfu::vec2i;
 
-namespace fpl {
+namespace motive {
 
 union IntFloatUnion {
   uint32_t i;
@@ -359,4 +359,4 @@ std::string Graph2DPoints(const vec2* points, const int num_points,
 #endif  // defined(FPL_CURVE_GRAPH_FUNCTIONS)
 }
 
-}  // namespace fpl
+}  // namespace motive

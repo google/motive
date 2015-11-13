@@ -15,7 +15,7 @@
 #ifndef MOTIVE_UTIL_BENCHMARK_H_
 #define MOTIVE_UTIL_BENCHMARK_H_
 
-namespace fpl {
+namespace motive {
 
 #define FPL_TOKEN_PASTE_NESTED(a, b) a##b
 #define FPL_TOKEN_PASTE(a, b) FPL_TOKEN_PASTE_NESTED(a, b)
@@ -60,8 +60,8 @@ class Benchmark {
 };
 
 #define FPL_BENCHMARK(name) \
-  static int FPL_UNIQUE(id) = fpl::RegisterBenchmark(name); \
-  const fpl::Benchmark FPL_UNIQUE(benchmark)(FPL_UNIQUE(id))
+  static int FPL_UNIQUE(id) = fplbase::RegisterBenchmark(name); \
+  const fplbase::Benchmark FPL_UNIQUE(benchmark)(FPL_UNIQUE(id))
 
 #else // not defined(BENCHMARK_MOTIVE)
 
@@ -80,6 +80,6 @@ class Benchmark {
 #endif // not defined(BENCHMARK_MOTIVE)
 
 
-}  // namespace fpl
+}  // namespace motive
 
 #endif  // MOTIVE_UTIL_BENCHMARK_H_

@@ -22,7 +22,7 @@
 
 using mathfu::Lerp;
 
-namespace fpl {
+namespace motive {
 
 static const uint32_t kMask32True = 0xFFFFFFFF;
 static const uint32_t kMask32False = 0x00000000;
@@ -414,4 +414,4 @@ inline void BulkSplineEvaluator::EvaluateCubics() {
 #endif  // not defined(MOTIVE_ASSEMBLY_TEST)
 }
 
-}  // namespace fpl
+}  // namespace motive

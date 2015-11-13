@@ -43,7 +43,7 @@ static const MotiveIndex kMotiveIndexInvalid = static_cast<MotiveIndex>(-1);
 /// @typedef MotiveDimension
 /// Identify how many slots in the MotiveProcessor a Motivator occupies.
 /// A Motivator3f occupies three slots, for example. Arithmetic is mixed
-/// between MotiveIndex and MotiveDimension in fpl::IndexAllocator, so they
+/// between MotiveIndex and MotiveDimension in fplutil::IndexAllocator, so they
 /// should be the same type.
 typedef MotiveIndex MotiveDimension;
 
@@ -57,7 +57,8 @@ typedef uint32_t MotiveChildIndex;
 /// Time units are defined by the user. We use integer instead of floating
 /// point to avoid a loss of precision as time accumulates.
 typedef int MotiveTime;
-static const MotiveTime kMotiveTimeEndless = std::numeric_limits<MotiveTime>::max();
+static const MotiveTime kMotiveTimeEndless =
+    std::numeric_limits<MotiveTime>::max();
 
 /// @typedef BoneIndex
 /// Identify bone for skeletal animation. Each non-root bone has a parent

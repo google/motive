@@ -153,8 +153,8 @@ class MotivatorVectorTemplate : public Motivator {
  public:
   static const MotiveDimension kDimensions = kDimensionsT;
   typedef VectorConverter C;
-  typedef typename fpl::ExternalVectorT<C, kDimensions>::type ExT;
-  typedef typename fpl::InternalVectorT<kDimensions>::type InT;
+  typedef typename motive::ExternalVectorT<C, kDimensions>::type ExT;
+  typedef typename motive::InternalVectorT<kDimensions>::type InT;
   typedef typename MotiveTargetT<kDimensions>::type Target;
   typedef MotiveTargetBuilderTemplate<C, kDimensions> TargetBuilder;
 
@@ -257,8 +257,8 @@ class MotivatorVectorTemplate : public Motivator {
   /// @param playback The time into the splines to initiate playback,
   ///                 the blend time to the splines, and whether to repeat
   ///                 from the beginning after the end of the spline is reached.
-  void SetSpline(const fpl::CompactSpline& spline,
-                 const fpl::SplinePlayback& playback) {
+  void SetSpline(const motive::CompactSpline& spline,
+                 const motive::SplinePlayback& playback) {
     assert(Dimensions() == 1);
     Processor().SetSpline(index_, spline, playback);
   }
@@ -270,8 +270,8 @@ class MotivatorVectorTemplate : public Motivator {
   /// @param playback The time into the splines to initiate playback,
   ///                 the blend time to the splines, and whether to repeat
   ///                 from the beginning after the end of the spline is reached.
-  void SetSplines(const fpl::CompactSpline* splines,
-                  const fpl::SplinePlayback& playback) {
+  void SetSplines(const motive::CompactSpline* splines,
+                  const motive::SplinePlayback& playback) {
     Processor().SetSplines(index_, splines, playback);
   }
 
@@ -339,9 +339,7 @@ class MatrixMotivator4fTemplate : public Motivator {
 
   /// Return the time remaining in the current spline animation.
   /// Time units are defined by the user.
-  MotiveTime TimeRemaining() const {
-    return Processor().TimeRemaining(index_);
-  }
+  MotiveTime TimeRemaining() const { return Processor().TimeRemaining(index_); }
 
   /// Query the number of matrix operations. This equals the number of
   /// operations in the `init` initializer.
@@ -414,7 +412,7 @@ class MatrixMotivator4fTemplate : public Motivator {
   /// Match existing MatrixOps with those in `ops` and smoothly transition
   /// to the new parameters in `ops`.
   void BlendToOps(const MatrixOpArray& ops,
-                  const fpl::SplinePlayback& playback) {
+                  const motive::SplinePlayback& playback) {
     Processor().BlendToOps(index_, ops, playback);
   }
 
@@ -448,7 +446,8 @@ class RigMotivator : public Motivator {
   /// Blend time is specified in `anim` itself.
   /// If the current state is unspecified because no animation
   /// has yet been played, snap to `anim`.
-  void BlendToAnim(const RigAnim& anim, const fpl::SplinePlayback& playback) {
+  void BlendToAnim(const RigAnim& anim,
+                   const motive::SplinePlayback& playback) {
     Processor().BlendToAnim(index_, anim, playback);
   }
 
@@ -490,20 +489,22 @@ class RigMotivator : public Motivator {
   }
 
  private:
-  RigProcessor& Processor() {
-    return *static_cast<RigProcessor*>(processor_);
-  }
+  RigProcessor& Processor() { return *static_cast<RigProcessor*>(processor_); }
   const RigProcessor& Processor() const {
     return *static_cast<const RigProcessor*>(processor_);
   }
 };
 
 // These Motivator types use mathfu in their external API.
-typedef MotivatorVectorTemplate<fpl::PassThroughVectorConverter, 1> Motivator1f;
-typedef MotivatorVectorTemplate<fpl::PassThroughVectorConverter, 2> Motivator2f;
-typedef MotivatorVectorTemplate<fpl::PassThroughVectorConverter, 3> Motivator3f;
-typedef MotivatorVectorTemplate<fpl::PassThroughVectorConverter, 4> Motivator4f;
-typedef MatrixMotivator4fTemplate<fpl::PassThroughVectorConverter>
+typedef MotivatorVectorTemplate<motive::PassThroughVectorConverter, 1>
+    Motivator1f;
+typedef MotivatorVectorTemplate<motive::PassThroughVectorConverter, 2>
+    Motivator2f;
+typedef MotivatorVectorTemplate<motive::PassThroughVectorConverter, 3>
+    Motivator3f;
+typedef MotivatorVectorTemplate<motive::PassThroughVectorConverter, 4>
+    Motivator4f;
+typedef MatrixMotivator4fTemplate<motive::PassThroughVectorConverter>
     MatrixMotivator4f;
 
 }  // namespace motive

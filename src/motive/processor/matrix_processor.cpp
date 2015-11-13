@@ -20,7 +20,7 @@
 
 using mathfu::vec4;
 using mathfu::mat4;
-using fpl::Angle;
+using motive::Angle;
 
 namespace motive {
 
@@ -51,7 +51,7 @@ class MatrixOperation {
 
     // Initialize the value. For defining animations, init.union_type will
     // be kUnionEmpty, so this will not set up any splines.
-    BlendToOp(init, fpl::SplinePlayback());
+    BlendToOp(init, motive::SplinePlayback());
   }
 
   ~MatrixOperation() {
@@ -89,7 +89,7 @@ class MatrixOperation {
   }
 
   void BlendToOp(const MatrixOperationInit& init,
-                 const fpl::SplinePlayback& playback) {
+                 const motive::SplinePlayback& playback) {
     switch (animation_type_) {
       case kMotivatorAnimation: {
         Motivator1f& motivator = Motivator();
@@ -317,7 +317,7 @@ class MatrixData {
   void UpdateResultMatrix() { result_matrix_ = CalculateResultMatrix(); }
 
   void BlendToOps(const MatrixInit::OpVector& new_ops,
-                  const fpl::SplinePlayback& playback) {
+                  const motive::SplinePlayback& playback) {
     const int num_new_ops = static_cast<int>(new_ops.size());
     assert(num_ops_ >= num_new_ops);
 
@@ -478,7 +478,7 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
   }
 
   virtual void BlendToOps(MotiveIndex index, const MatrixOpArray& ops,
-                          const fpl::SplinePlayback& playback) {
+                          const motive::SplinePlayback& playback) {
     Data(index).BlendToOps(ops.ops(), playback);
   }
 

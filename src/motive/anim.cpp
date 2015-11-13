@@ -32,7 +32,7 @@ void RigAnim::Init(const char* anim_name, BoneIndex num_bones,
 }
 
 MatrixAnim& RigAnim::InitMatrixAnim(BoneIndex idx, BoneIndex parent,
-                           const char* bone_name) {
+                                    const char* bone_name) {
   assert(idx < static_cast<int>(anims_.size()));
   assert(parent < idx || parent == kInvalidBoneIdx);
   bone_parents_[idx] = static_cast<uint8_t>(parent);
@@ -73,4 +73,3 @@ std::string RigAnim::CsvHeaderForDebugging(int line) const {
 }
 
 }  // namespace motive
-

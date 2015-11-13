@@ -18,8 +18,6 @@
 #include "motive/init.h"
 #include "motive/io/flatbuffers.h"
 
-using fpl::Range;
-
 namespace motive {
 
 // Verify that MatrixOperationType and MatrixOperationTypeFb are identical

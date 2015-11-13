@@ -27,7 +27,7 @@
 #include "gtest/gtest.h"
 #endif  // FPL_ANGLE_UNIT_TESTS
 
-namespace fpl {
+namespace motive {
 
 
 /// Describe a conversion from `Angle` to a 3D vector.
@@ -483,6 +483,6 @@ inline Angle Angle::Clamp(const Angle& center, const Angle& max_diff) const {
   return center + diff_clamped;
 }
 
-}  // namespace fpl
+}  // namespace motive
 
 #endif  // MOTIVE_MATH_ANGLE_H_

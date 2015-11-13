@@ -23,7 +23,7 @@
 #include "benchmark_common.h" // From mathfu
 
 
-namespace fpl {
+namespace motive {
 
 static const double kMicrosecondsPerSecond = 1000000.0;
 
@@ -216,7 +216,7 @@ Benchmark::~Benchmark() {
   gTimes[id_].Append(end_time - start_time_);
 }
 
-}  // namespace fpl
+}  // namespace motive
 
 #else
 // Add a symbol to avoid the compiler warning about this file having no symbols.

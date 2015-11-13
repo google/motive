@@ -19,10 +19,10 @@
 #include "motive/math/angle.h"
 #include "motive/math/curve.h"
 
-using fpl::Angle;
-using fpl::Range;
-using fpl::kPi;
-using fpl::Graph2DPoints;
+using motive::Angle;
+using motive::Range;
+using motive::kPi;
+using motive::Graph2DPoints;
 using mathfu::vec2;
 
 int main() {

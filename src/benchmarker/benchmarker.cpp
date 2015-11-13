@@ -22,14 +22,14 @@
 #include "motive/init.h"
 #include "motive/util/benchmark.h"
 
-using fpl::CompactSpline;
-using fpl::CubicCurve;
-using fpl::CubicInit;
-using fpl::kPi;
-using fpl::kTwoPi;
-using fpl::QuadraticCurve;
-using fpl::Range;
-using fpl::SplinePlayback;
+using motive::CompactSpline;
+using motive::CubicCurve;
+using motive::CubicInit;
+using motive::kPi;
+using motive::kTwoPi;
+using motive::QuadraticCurve;
+using motive::Range;
+using motive::SplinePlayback;
 using mathfu::vec2;
 using mathfu::vec2i;
 using motive::MotiveEngine;
@@ -48,25 +48,20 @@ struct SplineNode {
   float derivative;
 };
 
-static const SplineNode kSinWave[] = {
-  { 0.0f,        0.0f,  1.0f },
-  { 0.5f * kPi,  1.0f,  0.0f },
-  { kPi,         0.0f, -1.0f },
-  { 1.5f * kPi, -1.0f,  0.0f },
-  { kTwoPi,      0.0f,  1.0f }
-};
+static const SplineNode kSinWave[] = {{0.0f, 0.0f, 1.0f},
+                                      {0.5f * kPi, 1.0f, 0.0f},
+                                      {kPi, 0.0f, -1.0f},
+                                      {1.5f * kPi, -1.0f, 0.0f},
+                                      {kTwoPi, 0.0f, 1.0f}};
 
-static const SplineNode kStraightLine[] = {
-  { 0.0f,  0.0f,  1.0f },
-  { 1.0f,  1.0f,  1.0f }
-};
+static const SplineNode kStraightLine[] = {{0.0f, 0.0f, 1.0f},
+                                           {1.0f, 1.0f, 1.0f}};
 
 static const float kLinearOrbitPeriod = 2000.0f;
 static const float kOscillatingSlowlyPeriod = 500.0f;
 static const float kOscillatingSlowlyAmplitude = 0.3f;
 static const float kOscillatingQuicklyPeriod = 200.0f;
 static const float kOscillatingQuicklyAmplitude = 0.1f;
-
 
 // Take an array of SplineNodes (x, y, derivative) values and scale them
 // to create a CompactSpline. We use Dual Cubic interpolation to ensure that
@@ -117,11 +112,11 @@ class MotiveBenchmarker {
     // Create a matrix initializer with a series of basic matrix operations.
     // The final matrix will be created by applying these operations, in turn.
     matrix_ops_.AddOp(motive::kRotateAboutY, kRotateInit,
-					  splines_[kLinearOrbit]);
+                      splines_[kLinearOrbit]);
     matrix_ops_.AddOp(motive::kTranslateX, kTranslateInit,
                       splines_[kOscillatingSlowly]);
     matrix_ops_.AddOp(motive::kTranslateY, kTranslateInit,
-                       splines_[kOscillatingQuickly]);
+                      splines_[kOscillatingQuickly]);
 
     // Initialize the large array of matrix motivators. Note that the
     // one dimensional motivators that drive the matrix motivators are created
@@ -141,8 +136,8 @@ class MotiveBenchmarker {
       }
 
       // Output benchmark statistics and empty the stats counter.
-      fpl::OutputBenchmarks();
-      fpl::ClearBenchmarks();
+      motive::OutputBenchmarks();
+      motive::ClearBenchmarks();
     }
   }
 
@@ -170,9 +165,8 @@ class MotiveBenchmarker {
 };
 
 int main() {
-  fpl::InitBenchmarks(kNumBenchmarkIds);
+  motive::InitBenchmarks(kNumBenchmarkIds);
   MotiveBenchmarker benchmarker;
   benchmarker.Run();
   return 0;
 }
-

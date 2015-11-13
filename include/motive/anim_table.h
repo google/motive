@@ -84,9 +84,7 @@ class AnimTable {
 
   /// Return size of the top-most vector. Recall that AnimTable is a vector
   /// of vectors.
-  int NumObjects() const {
-    return static_cast<int>(indices_.size());
-  }
+  int NumObjects() const { return static_cast<int>(indices_.size()); }
 
  private:
   typedef uint16_t AnimIndex;

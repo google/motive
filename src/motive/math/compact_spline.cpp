@@ -20,7 +20,7 @@
 
 using mathfu::Lerp;
 
-namespace fpl {
+namespace motive {
 
 // A spline is composed of a series of spline nodes (x, y, derivative) that are
 // interpolated to form a smooth curve.
@@ -448,4 +448,4 @@ float CompactSpline::RecommendXGranularity(const float max_x) {
   return max_x <= 0.0f ? 1.0f : max_x / CompactSplineNode::MaxX();
 }
 
-}  // namespace fpl
+}  // namespace motive

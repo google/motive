@@ -18,7 +18,7 @@
 #include <cpu-features.h>
 #endif  // defined(__ANDROID__)
 
-namespace fpl {
+namespace motive {
 
 ProcessorOptimization BestProcessorOptimization() {
 // TODO: Add checks for other operating systems.
@@ -41,4 +41,4 @@ ProcessorOptimization BestProcessorOptimization() {
   return kNoOptimizations;
 }
 
-}  // namespace fpl
+}  // namespace motive

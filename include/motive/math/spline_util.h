@@ -17,7 +17,7 @@
 
 #include "mathfu/glsl_mappings.h"
 
-namespace fpl {
+namespace motive {
 
 inline int NormalizeIdx(const int idx, const int max, const bool wraps) {
   return wraps ? (idx < 0 ? idx + max : idx >= max ? idx - max : idx)
@@ -121,6 +121,6 @@ void CalculateConstSpeedCurveFromPositions(
   //       Then adjust the times and scale the derivatives to match.
 }
 
-}  // namespace fpl
+}  // namespace motive
 
 #endif  // MOTIVE_MATH_SPLINE_UTIL_H_

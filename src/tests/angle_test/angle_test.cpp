@@ -19,13 +19,13 @@
 #include "motive/common.h"
 #include "gtest/gtest.h"
 
-using fpl::Angle;
-using fpl::AngleToVectorSystem;
-using fpl::kPi;
-using fpl::kHalfPi;
-using fpl::kQuarterPi;
-using fpl::kMinUniqueAngle;
-using fpl::kMaxUniqueAngle;
+using motive::Angle;
+using motive::AngleToVectorSystem;
+using motive::kPi;
+using motive::kHalfPi;
+using motive::kQuarterPi;
+using motive::kMinUniqueAngle;
+using motive::kMaxUniqueAngle;
 using mathfu::vec3;
 using mathfu::mat3;
 
@@ -289,12 +289,12 @@ void TestToVectorSystem(const AngleToVectorSystem system, const int zero_axis,
 
 // Test conversions from angles to vectors.
 TEST_F(AngleTests, ToVectorSystem) {
-  TestToVectorSystem(fpl::kAngleToVectorXY, 0, 1, 2);
-  TestToVectorSystem(fpl::kAngleToVectorXZ, 0, 2, 1);
-  TestToVectorSystem(fpl::kAngleToVectorYZ, 1, 2, 0);
-  TestToVectorSystem(fpl::kAngleToVectorYX, 1, 0, 2);
-  TestToVectorSystem(fpl::kAngleToVectorZX, 2, 0, 1);
-  TestToVectorSystem(fpl::kAngleToVectorZY, 2, 1, 0);
+  TestToVectorSystem(motive::kAngleToVectorXY, 0, 1, 2);
+  TestToVectorSystem(motive::kAngleToVectorXZ, 0, 2, 1);
+  TestToVectorSystem(motive::kAngleToVectorYZ, 1, 2, 0);
+  TestToVectorSystem(motive::kAngleToVectorYX, 1, 0, 2);
+  TestToVectorSystem(motive::kAngleToVectorZX, 2, 0, 1);
+  TestToVectorSystem(motive::kAngleToVectorZY, 2, 1, 0);
 }
 
 static const float kIgnoredAxisValues[] = { 0.0f, 1.0f, -10.0f, 300000.0f };
@@ -342,12 +342,12 @@ void TestFromVectorSystem(const AngleToVectorSystem system, const int zero_axis,
 
 // Test conversions from angles to vectors.
 TEST_F(AngleTests, FromVectorSystem) {
-  TestFromVectorSystem(fpl::kAngleToVectorXY, 0, 1, 2);
-  TestFromVectorSystem(fpl::kAngleToVectorXZ, 0, 2, 1);
-  TestFromVectorSystem(fpl::kAngleToVectorYZ, 1, 2, 0);
-  TestFromVectorSystem(fpl::kAngleToVectorYX, 1, 0, 2);
-  TestFromVectorSystem(fpl::kAngleToVectorZX, 2, 0, 1);
-  TestFromVectorSystem(fpl::kAngleToVectorZY, 2, 1, 0);
+  TestFromVectorSystem(motive::kAngleToVectorXY, 0, 1, 2);
+  TestFromVectorSystem(motive::kAngleToVectorXZ, 0, 2, 1);
+  TestFromVectorSystem(motive::kAngleToVectorYZ, 1, 2, 0);
+  TestFromVectorSystem(motive::kAngleToVectorYX, 1, 0, 2);
+  TestFromVectorSystem(motive::kAngleToVectorZX, 2, 0, 1);
+  TestFromVectorSystem(motive::kAngleToVectorZY, 2, 1, 0);
 }
 
 void TestToRotationMatrix(const AngleToVectorSystem system, const int zero_axis,
@@ -396,12 +396,12 @@ void TestToRotationMatrix(const AngleToVectorSystem system, const int zero_axis,
 
 // Test conversions from angles to vectors.
 TEST_F(AngleTests, ToRotationMatrix) {
-  TestToRotationMatrix(fpl::kAngleToVectorXY, 0, 1, 2);
-  TestToRotationMatrix(fpl::kAngleToVectorXZ, 0, 2, 1);
-  TestToRotationMatrix(fpl::kAngleToVectorYZ, 1, 2, 0);
-  TestToRotationMatrix(fpl::kAngleToVectorYX, 1, 0, 2);
-  TestToRotationMatrix(fpl::kAngleToVectorZX, 2, 0, 1);
-  TestToRotationMatrix(fpl::kAngleToVectorZY, 2, 1, 0);
+  TestToRotationMatrix(motive::kAngleToVectorXY, 0, 1, 2);
+  TestToRotationMatrix(motive::kAngleToVectorXZ, 0, 2, 1);
+  TestToRotationMatrix(motive::kAngleToVectorYZ, 1, 2, 0);
+  TestToRotationMatrix(motive::kAngleToVectorYX, 1, 0, 2);
+  TestToRotationMatrix(motive::kAngleToVectorZX, 2, 0, 1);
+  TestToRotationMatrix(motive::kAngleToVectorZY, 2, 1, 0);
 }
 
 int main(int argc, char **argv) {
