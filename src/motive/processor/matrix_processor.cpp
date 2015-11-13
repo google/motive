@@ -329,7 +329,7 @@ class MatrixData {
         op.BlendToOp(new_ops[new_op_idx], playback);
         new_op_idx++;
       } else {
-        op.BlendToDefault(playback.blend_x);
+        op.BlendToDefault(static_cast<MotiveTime>(playback.blend_x));
       }
     }
     assert(new_op_idx == num_new_ops);

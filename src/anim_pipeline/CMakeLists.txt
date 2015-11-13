@@ -53,13 +53,19 @@ find_library(fbx_sdk_lib_release
   NAMES libfbxsdk.a fbxsdk libfbxsdk-md.lib
   PATHS ${fbx_sdk_dir}/lib/gcc4/x64/release
         ${fbx_sdk_dir}/lib/clang/release
-        ${fbx_sdk_dir}/lib/vs2012/${fbs_sdk_subdir}/release)
+        ${fbx_sdk_dir}/lib/vs2008/${fbs_sdk_subdir}/release
+        ${fbx_sdk_dir}/lib/vs2010/${fbs_sdk_subdir}/release
+        ${fbx_sdk_dir}/lib/vs2012/${fbs_sdk_subdir}/release
+        ${fbx_sdk_dir}/lib/vs2013/${fbs_sdk_subdir}/release)
 
 find_library(fbx_sdk_lib_debug
   NAMES libfbxsdk.a fbxsdk libfbxsdk-md.lib
   PATHS ${fbx_sdk_dir}/lib/gcc4/x64/debug
         ${fbx_sdk_dir}/lib/clang/debug
-        ${fbx_sdk_dir}/lib/vs2012/${fbs_sdk_subdir}/debug)
+        ${fbx_sdk_dir}/lib/vs2008/${fbs_sdk_subdir}/debug
+        ${fbx_sdk_dir}/lib/vs2010/${fbs_sdk_subdir}/debug
+        ${fbx_sdk_dir}/lib/vs2012/${fbs_sdk_subdir}/debug
+        ${fbx_sdk_dir}/lib/vs2013/${fbs_sdk_subdir}/debug)
 
 set(fbx_sdk_lib debug ${fbx_sdk_lib_debug} optimized ${fbx_sdk_lib_release})
 

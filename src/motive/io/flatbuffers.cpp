@@ -152,7 +152,7 @@ void RigAnimFromFlatBuffers(const RigAnimFb& params, const char* anim_name,
   }
 
   // Set animation-wide values.
-  anim->set_end_time(params.repeat() ? std::numeric_limits<float>::infinity()
+  anim->set_end_time(params.repeat() ? std::numeric_limits<MotiveTime>::max()
                                      : end_time);
   anim->set_repeat(params.repeat() != 0);
 }
