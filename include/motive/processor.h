@@ -424,6 +424,9 @@ class MatrixProcessor4f : public MotiveProcessor {
   /// Smoothly transition to the operations specified in `ops`.
   virtual void BlendToOps(MotiveIndex /*index*/, const MatrixOpArray& /*ops*/,
                           const fpl::SplinePlayback& /*playback*/){}
+
+  /// Instantly change the playback speed of this animation.
+  virtual void SetPlaybackRate(MotiveIndex index, float playback_rate) = 0;
 };
 
 class RigProcessor : public MotiveProcessor {
@@ -443,6 +446,9 @@ class RigProcessor : public MotiveProcessor {
   /// Smoothly transition to the animation in `anim`.
   virtual void BlendToAnim(MotiveIndex index, const RigAnim& anim,
                            const fpl::SplinePlayback& playback) = 0;
+
+  /// Instantly change the playback speed of this animation.
+  virtual void SetPlaybackRate(MotiveIndex index, float playback_rate) = 0;
 
   virtual std::string CsvHeaderForDebugging(MotiveIndex /*index*/) const {
     return std::string();
