@@ -96,23 +96,13 @@ file(GLOB_RECURSE FLATBUFFERS_SCHEMAS ${CMAKE_CURRENT_SOURCE_DIR}/schemas/*.fbs)
 
 # Generate rules to build the set of output files from the set of input
 # schema files.
-unset(FLATBUFFERS_GENERATED_INCLUDES)
-foreach(flatbuffers_schema ${FLATBUFFERS_SCHEMAS})
-  get_filename_component(filename ${flatbuffers_schema} NAME_WE)
-  set(flatbuffers_include
-    ${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR}/${filename}_generated.h)
-  add_custom_command(
-    OUTPUT ${flatbuffers_include}
-    COMMAND flatc
-        -o ${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR}
-        -c ${flatbuffers_schema}
-    DEPENDS flatc ${flatbuffers_schema})
-  list(APPEND FLATBUFFERS_GENERATED_INCLUDES ${flatbuffers_include})
-endforeach()
-add_custom_target(motive_generated_includes DEPENDS
-                  ${FLATBUFFERS_GENERATED_INCLUDES})
-set_property(TARGET motive_generated_includes PROPERTY MOTIVE_DIR
-             ${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR})
+build_flatbuffers("${FLATBUFFERS_SCHEMAS}"
+                  ""
+                  motive_generated_includes
+                  ""
+                  ${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR}
+                  ""
+                  "")
 
 # Motive source files.
 set(motive_SRCS
@@ -155,7 +145,6 @@ include_directories(src include)
 if(WIN32)
   include_directories(external/include/windows)
 endif()
-include_directories(${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${dependencies_fplutil_dir}/libfplutil/include)
 include_directories(${dependencies_mathfu_dir}/benchmarks)
