@@ -215,7 +215,7 @@ int main() {
     points.push_back(vec2(static_cast<float>(t), linear_motivator.Value()));
     engine.AdvanceFrame(1);
   }
-  printf("\n%s", fpl::Graph2DPoints(&points[0], points.size()).c_str());
+  printf("\n%s", motive::Graph2DPoints(&points[0], points.size()).c_str());
   //! [Own Processor Advance Simulation]
 
   return 0;

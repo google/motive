@@ -16,10 +16,10 @@
 #include "motive/math/bulk_spline_evaluator.h"
 #include "motive/common.h"
 
-using fpl::QuadraticCurve;
-using fpl::CubicCurve;
-using fpl::CubicInit;
-using fpl::Range;
+using motive::QuadraticCurve;
+using motive::CubicCurve;
+using motive::CubicInit;
+using motive::Range;
 using mathfu::vec2;
 using mathfu::vec2i;
 

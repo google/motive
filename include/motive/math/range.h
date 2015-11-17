@@ -18,7 +18,7 @@
 #include <vector>
 #include "mathfu/utilities.h"
 
-namespace fpl {
+namespace motive {
 
 // If using modular arithmetic, there are two paths to the target: one that
 // goes directly and one that wraps around. This enum represents differet ways
@@ -487,6 +487,6 @@ typedef RangeFloat Range;
 static const Range kAngleRange(-static_cast<float>(M_PI),
                                static_cast<float>(M_PI));
 
-}  // namespace fpl
+}  // namespace motive
 
 #endif  // MOTIVE_MATH_RANGE_H_

@@ -17,8 +17,8 @@
 #include "motive/common.h"
 #include "motive/math/angle.h"
 
-using fpl::Range;
-using fpl::kPi;
+using motive::Range;
+using motive::kPi;
 
 static const float kInf = std::numeric_limits<float>::infinity();
 static const float kAngleEpsilon = 0.0001f;

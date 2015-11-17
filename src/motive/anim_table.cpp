@@ -16,22 +16,13 @@
 #include "motive/anim_table.h"
 #include "motive/io/flatbuffers.h"
 
-using fpl::Range;
+using motive::Range;
 
 namespace motive {
 
 static const MatrixOperationType kCanonicalRigAnimOps[] = {
-  kTranslateX,
-  kTranslateY,
-  kTranslateZ,
-  kRotateAboutZ,
-  kRotateAboutY,
-  kRotateAboutX,
-  kScaleX,
-  kScaleY,
-  kScaleZ,
-  kScaleUniformly,
-};
+    kTranslateX,   kTranslateY, kTranslateZ, kRotateAboutZ, kRotateAboutY,
+    kRotateAboutX, kScaleX,     kScaleY,     kScaleZ,       kScaleUniformly, };
 
 #if !defined(NDEBUG)  // Since only called in assert statement.
 static bool IsCanonicalAnim(const RigAnim& anim) {
@@ -42,8 +33,7 @@ static bool IsCanonicalAnim(const RigAnim& anim) {
       const MatrixOperationInit& op_init = ops[j];
       while (kCanonicalRigAnimOps[canon_idx] != op_init.type) {
         canon_idx++;
-        if (canon_idx == MOTIVE_ARRAY_SIZE(kCanonicalRigAnimOps))
-          return false;
+        if (canon_idx == MOTIVE_ARRAY_SIZE(kCanonicalRigAnimOps)) return false;
       }
       canon_idx++;
     }
@@ -90,8 +80,8 @@ static void CreateDefiningAnim(const RigAnim** anims, size_t num_anims,
   // For each bone, consider adding each operation in the canonical operations.
   for (BoneIndex j = 0; j < num_bones; ++j) {
     // Start initializing this bone.
-    MatrixAnim& matrix_anim = defining_anim->InitMatrixAnim(
-        j, parents[j], complete_rig->BoneName(j));
+    MatrixAnim& matrix_anim =
+        defining_anim->InitMatrixAnim(j, parents[j], complete_rig->BoneName(j));
     MatrixOpArray& ops = matrix_anim.ops();
 
     // Loop through all possible operations for this bone.

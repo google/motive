@@ -21,8 +21,8 @@
 #include "motive/math/angle.h"
 #include "motive/math/bulk_spline_evaluator.h"
 
-using fpl::Angle;
-using fpl::kPi;
+using motive::Angle;
+using motive::kPi;
 using mathfu::AffineTransform;
 using mathfu::mat4;
 using mathfu::vec4;
@@ -69,7 +69,7 @@ class RigData {
     global_transforms_ = nullptr;
   }
 
-  void BlendToAnim(const RigAnim& anim, const fpl::SplinePlayback& playback,
+  void BlendToAnim(const RigAnim& anim, const motive::SplinePlayback& playback,
                    MotiveTime start_time) {
     end_time_ = start_time + anim.end_time();
 
@@ -217,7 +217,7 @@ class MotiveRigProcessor : public RigProcessor {
   }
 
   virtual void BlendToAnim(MotiveIndex index, const RigAnim& anim,
-                           const fpl::SplinePlayback& playback) {
+                           const motive::SplinePlayback& playback) {
     Data(index).BlendToAnim(anim, playback, time_);
   }
 

@@ -20,7 +20,7 @@
 #include "motive/common.h"
 #include "motive/math/range.h"
 
-namespace fpl {
+namespace motive {
 
 enum CurveValueType {
   kCurveValue,
@@ -363,6 +363,6 @@ std::string GraphCurve(const T& curve, const CurveValueType value_type,
                             Range(curve.StartX(), curve.EndX()), size);
 }
 
-}  // namespace fpl
+}  // namespace motive
 
 #endif  // MOTIVE_MATH_CURVE_H_

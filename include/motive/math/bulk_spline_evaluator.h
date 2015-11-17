@@ -18,7 +18,7 @@
 #include "motive/math/compact_spline.h"
 #include "motive/util/optimizations.h"
 
-namespace fpl {
+namespace motive {
 
 /// @class BulkSplineEvaluator
 /// @brief Traverse through a set of splines in a performant way.
@@ -53,7 +53,7 @@ class BulkSplineEvaluator {
   /// holes with MoveIndex(), to move items from the last index into the hole.
   /// Once all holes have been moved to the highest indices, you can call
   /// SetNumIndices() to stop processing these highest indices. Note that this
-  /// is exactly what fpl::IndexAllocator does. You should use that class to
+  /// is exactly what fplutil::IndexAllocator does. You should use that class to
   /// keep your indices contiguous.
   void MoveIndex(const Index old_index, const Index new_index);
 
@@ -246,7 +246,7 @@ class BulkSplineEvaluator {
     bool repeat;
 
     Source()
-        : spline(nullptr), x_index(fpl::kInvalidSplineIndex), repeat(false) {}
+      : spline(nullptr), x_index(motive::kInvalidSplineIndex), repeat(false) {}
   };
 
   struct YRange {
@@ -319,6 +319,6 @@ class BulkSplineEvaluator {
   ProcessorOptimization optimization_;
 };
 
-}  // namespace fpl
+}  // namespace motive
 
 #endif  // MOTIVE_MATH_BULK_SPLINE_EVALUATOR_H_

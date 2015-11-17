@@ -18,9 +18,9 @@
 
 namespace motive {
 
-using fpl::CompactSpline;
-using fpl::BulkSplineEvaluator;
-using fpl::Range;
+using motive::CompactSpline;
+using motive::BulkSplineEvaluator;
+using motive::Range;
 
 // Add some buffer to the y-range to allow for intermediate nodes
 // that go above or below the supplied nodes.
@@ -114,17 +114,17 @@ class SmoothMotiveProcessor : public VectorProcessor {
       const MotiveNode1f& n = t.Node(i);
       const float y = interpolator_.NextY(index, prev_y, n.value, n.direction);
       d.local_spline->AddNode(static_cast<float>(n.time), y, n.velocity,
-                              fpl::kAddWithoutModification);
+                              motive::kAddWithoutModification);
       prev_y = y;
     }
 
     // Point the interpolator at the spline we just created. Always start our
     // spline at time 0.
-    interpolator_.SetSpline(index, *d.local_spline, fpl::SplinePlayback());
+    interpolator_.SetSpline(index, *d.local_spline, motive::SplinePlayback());
   }
 
-  virtual void SetSpline(MotiveIndex index, const fpl::CompactSpline& spline,
-                         const fpl::SplinePlayback& playback) {
+  virtual void SetSpline(MotiveIndex index, const motive::CompactSpline& spline,
+                         const motive::SplinePlayback& playback) {
     SmoothData& d = Data(index);
 
     // Return the local spline to the spline pool. We use external splines now.

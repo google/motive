@@ -42,7 +42,7 @@
 #include "motive/init.h"
 #include "motive/math/angle.h"
 
-namespace fpl {
+namespace motive {
 
 using motive::MatrixOperationType;
 using motive::kInvalidMatrixOperation;
@@ -58,15 +58,15 @@ enum RepeatPreference {
 };
 
 static const int kTimeGranularityMiliseconds = 10;
-static const int kDefaultChannelOrder[] = { 0, 1, 2 };
+static const int kDefaultChannelOrder[] = {0, 1, 2};
 static const int kRotationOrderToChannelOrder[][3] = {
-  { 2, 1, 0 }, // eOrderXYZ,
-  { 2, 0, 1 }, // eOrderXZY,
-  { 1, 0, 2 }, // eOrderYZX,
-  { 1, 2, 0 }, // eOrderYXZ,
-  { 0, 2, 1 }, // eOrderZXY,
-  { 0, 1, 2 }, // eOrderZYX,
-  { 2, 1, 0 }, // eOrderSphericXYZ
+    {2, 1, 0},  // eOrderXYZ,
+    {2, 0, 1},  // eOrderXZY,
+    {1, 0, 2},  // eOrderYZX,
+    {1, 2, 0},  // eOrderYXZ,
+    {0, 2, 1},  // eOrderZXY,
+    {0, 1, 2},  // eOrderZYX,
+    {2, 1, 0},  // eOrderSphericXYZ
 };
 
 // Each log message is given a level of importance.
@@ -81,12 +81,11 @@ enum LogLevel {
 };
 
 // Prefix log messages at this level with this message.
-static const char* kLogPrefix[] = {
-    "",           // kLogVerbose
-    "",           // kLogInfo
-    "",           // kLogImportant
-    "Warning: ",  // kLogWarning
-    "Error: "     // kLogError
+static const char* kLogPrefix[] = {"",           // kLogVerbose
+                                   "",           // kLogInfo
+                                   "",           // kLogImportant
+                                   "Warning: ",  // kLogWarning
+                                   "Error: "     // kLogError
 };
 static_assert(MOTIVE_ARRAY_SIZE(kLogPrefix) == kNumLogLevels,
               "kLogPrefix length is incorrect");
@@ -142,8 +141,8 @@ static const float kDefaultRepeatDerivativeAngleTolerance = 0.1745f;
 static const uint32_t kScaleXBitfield = 1 << motive::kScaleX;
 static const uint32_t kScaleYBitfield = 1 << motive::kScaleY;
 static const uint32_t kScaleZBitfield = 1 << motive::kScaleZ;
-static const uint32_t kScaleXyzBitfield = kScaleXBitfield | kScaleYBitfield |
-                                          kScaleZBitfield;
+static const uint32_t kScaleXyzBitfield =
+    kScaleXBitfield | kScaleYBitfield | kScaleZBitfield;
 
 /// @brief Convert derivative to its angle in x/y space.
 ///  derivative 0 ==> angle 0
@@ -291,8 +290,8 @@ class FlatAnim {
     for (size_t i = 0; i < n.size();) {
       size_t next_i = i + 1;
       for (size_t j = i + 2; j < n.size(); ++j) {
-        const bool redundant = IntermediateNodesRedundant(&n[i], j - i + 1,
-                                                          tolerance);
+        const bool redundant =
+            IntermediateNodesRedundant(&n[i], j - i + 1, tolerance);
         if (redundant) {
           prune[j - 1] = true;
           next_i = j;
@@ -357,20 +356,22 @@ class FlatAnim {
   }
 
   void LogAllChannels() const {
-    log_.Log(kLogInfo, "  %30s %16s  %9s   %s\n",
-             "bone name", "operation", "time range", "values");
+    log_.Log(kLogInfo, "  %30s %16s  %9s   %s\n", "bone name", "operation",
+             "time range", "values");
     for (BoneIndex bone_idx = 0; bone_idx < bones_.size(); ++bone_idx) {
       const Bone& bone = bones_[bone_idx];
       const Channels& channels = bone.channels;
       if (channels.size() == 0) continue;
 
       for (auto c = channels.begin(); c != channels.end(); ++c) {
-        log_.Log(kLogInfo, "  %30s %16s   ",
-                 BoneBaseName(bone.name), MatrixOpName(c->op));
-        const char* format = motive::RotateOp(c->op) ? "%.0f "
-                           : motive::TranslateOp(c->op) ? "%.1f " : "%.2f ";
-        const float factor = motive::RotateOp(c->op)
-                           ? fpl::kRadiansToDegrees : 1.0f;
+        log_.Log(kLogInfo, "  %30s %16s   ", BoneBaseName(bone.name),
+                 MatrixOpName(c->op));
+        const char* format =
+            motive::RotateOp(c->op) ? "%.0f " : motive::TranslateOp(c->op)
+                                                    ? "%.1f "
+                                                    : "%.2f ";
+        const float factor =
+            motive::RotateOp(c->op) ? motive::kRadiansToDegrees : 1.0f;
 
         const Nodes& n = c->nodes;
         if (n.size() <= 1) {
@@ -390,8 +391,8 @@ class FlatAnim {
   bool OutputFlatBuffer(const string& output_file,
                         RepeatPreference repeat_preference) const {
     // Ensure output directory exists.
-    const string output_dir = DirectoryName(output_file);
-    if (!CreateDirectory(output_dir.c_str())) {
+    const string output_dir = fplutil::DirectoryName(output_file);
+    if (!fplutil::CreateDirectory(output_dir.c_str())) {
       log_.Log(kLogError, "Could not create output directory %s\n",
                output_dir.c_str());
       return false;
@@ -456,7 +457,6 @@ class FlatAnim {
                                        bone_names_fb, repeat);
     motive::FinishRigAnimFbBuffer(fbb, rig_anim_fb);
 
-
     // Create the output file.
     FILE* file = fopen(output_file.c_str(), "wb");
     if (file == nullptr) {
@@ -472,7 +472,7 @@ class FlatAnim {
 
     // Log summary.
     log_.Log(kLogImportant, "  %s (%d bytes)\n",
-             RemoveDirectoryFromName(output_file).c_str(), NumBytes());
+             fplutil::RemoveDirectoryFromName(output_file).c_str(), NumBytes());
     return true;
   }
 
@@ -494,8 +494,8 @@ class FlatAnim {
 
   int NumBytes() const {
     static const size_t kBytesPerSplineNode = 6;
-    size_t num_bytes = sizeof(motive::RigAnim) +
-                       bones_.size() * sizeof(motive::MatrixAnim);
+    size_t num_bytes =
+        sizeof(motive::RigAnim) + bones_.size() * sizeof(motive::MatrixAnim);
 
     for (size_t i = 0; i < bones_.size(); ++i) {
       auto channels = bones_[i].channels;
@@ -597,14 +597,15 @@ class FlatAnim {
       if (bone_idx != kInvalidBoneIdx) {
         const Bone& bone = bones_[bone_idx];
         const Channel& channel = bone.channels[channel_id];
-        log_.Log(kLogWarning, "Animation marked as repeating (as requested),"
-                              " but it does not repeat on bone %s's"
-                              " `%s` channel\n",
-                              bone.name.c_str(), MatrixOpName(channel.op));
+        log_.Log(kLogWarning,
+                 "Animation marked as repeating (as requested),"
+                 " but it does not repeat on bone %s's"
+                 " `%s` channel\n",
+                 bone.name.c_str(), MatrixOpName(channel.op));
       }
     } else if (repeat_preference == kRepeatIfRepeatable) {
-      log_.Log(kLogVerbose, repeat ? "Animation repeats.\n" :
-                                     "Animation does not repeat.\n");
+      log_.Log(kLogVerbose, repeat ? "Animation repeats.\n"
+                                   : "Animation does not repeat.\n");
     }
 
     return repeat;
@@ -672,7 +673,7 @@ class FlatAnim {
     // If the start and end nodes occur at the same time and are equal,
     // then ignore everything inbetween them.
     const SplineNode& start = n[0];
-    const SplineNode& end = n[len -1];
+    const SplineNode& end = n[len - 1];
     if (EqualNodes(start, end, tolerance, tolerances_.derivative_angle))
       return true;
 
@@ -864,9 +865,10 @@ class FbxAnimParser {
   bool Load(const char* file_name) {
     if (!Valid()) return false;
 
-    log_.Log(kLogInfo,
+    log_.Log(
+        kLogInfo,
         "---- anim_pipeline: %s ------------------------------------------\n",
-        BaseFileName(file_name).c_str());
+        fplutil::BaseFileName(file_name).c_str());
 
     // Create the importer and initialize with the file.
     FbxImporter* importer = FbxImporter::Create(manager_, "");
@@ -880,10 +882,9 @@ class FbxAnimParser {
     importer->GetFileVersion(file_major, file_minor, file_revision);
 
     // Report version information.
-    log_.Log(kLogVerbose,
-             "File version %d.%d.%d, SDK version %d.%d.%d\n",
-             file_major, file_minor, file_revision,
-             sdk_major, sdk_minor, sdk_revision);
+    log_.Log(kLogVerbose, "File version %d.%d.%d, SDK version %d.%d.%d\n",
+             file_major, file_minor, file_revision, sdk_major, sdk_minor,
+             sdk_revision);
 
     // Exit on load error.
     if (!init_status) {
@@ -1050,8 +1051,7 @@ class FbxAnimParser {
     const AnimProperty properties[] = {
         {&node->LclTranslation, motive::kTranslateX},
         {&node->LclRotation, motive::kRotateAboutX},
-        {&node->LclScaling, motive::kScaleX},
-    };
+        {&node->LclScaling, motive::kScaleX}, };
 
     for (size_t i = 0; i < MOTIVE_ARRAY_SIZE(properties); ++i) {
       const AnimProperty& p = properties[i];
@@ -1203,17 +1203,17 @@ class FbxAnimParser {
 };
 
 struct AnimPipelineArgs {
-  AnimPipelineArgs() :
-      fbx_file(""),
-      output_file(""),
-      log_level(kLogWarning),
-      repeat_preference(kRepeatIfRepeatable) {}
+  AnimPipelineArgs()
+      : fbx_file(""),
+        output_file(""),
+        log_level(kLogWarning),
+        repeat_preference(kRepeatIfRepeatable) {}
 
-  string fbx_file;    /// FBX input file to convert.
-  string output_file; /// File to write .fplanim to.
-  LogLevel log_level;      /// Amount of logging to dump during conversion.
-  Tolerances tolerances;   /// Amount output curves can deviate from input.
-  RepeatPreference repeat_preference; /// Loop back to start when reaches end.
+  string fbx_file;        /// FBX input file to convert.
+  string output_file;     /// File to write .fplanim to.
+  LogLevel log_level;     /// Amount of logging to dump during conversion.
+  Tolerances tolerances;  /// Amount output curves can deviate from input.
+  RepeatPreference repeat_preference;  /// Loop back to start when reaches end.
 };
 
 static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
@@ -1223,7 +1223,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
   // Last parameter is used as file name.
   if (argc > 1) {
     args->fbx_file = string(argv[argc - 1]);
-    args->output_file = RemoveExtensionFromName(args->fbx_file) + "." +
+    args->output_file = fplutil::RemoveExtensionFromName(args->fbx_file) + "." +
                         motive::RigAnimFbExtension();
   }
 
@@ -1268,7 +1268,8 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         log.Log(kLogError, "rotate_tolerance must be >0 and <=180.");
         valid_args = false;
       } else {
-        args->tolerances.rotate = fpl::Angle::FromDegrees(degrees).ToRadians();
+        args->tolerances.rotate =
+            motive::Angle::FromDegrees(degrees).ToRadians();
       }
 
     } else if (arg == "-t" || arg == "--translate") {
@@ -1285,7 +1286,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         valid_args = false;
       } else {
         args->tolerances.derivative_angle =
-            fpl::Angle::FromDegrees(degrees).ToRadians();
+            motive::Angle::FromDegrees(degrees).ToRadians();
       }
 
     } else if (arg == "--repeat" || arg == "--norepeat") {
@@ -1351,32 +1352,31 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
   return valid_args;
 }
 
-}  // namespace fpl
+}  // namespace motive
 
 int main(int argc, char** argv) {
-  using namespace fpl;
-  Logger log;
+  motive::Logger log;
 
   // Parse the command line arguments.
-  AnimPipelineArgs args;
+  motive::AnimPipelineArgs args;
   if (!ParseAnimPipelineArgs(argc, argv, log, &args)) return 1;
 
   // Update the amount of information we're dumping.
   log.set_level(args.log_level);
 
   // Load the FBX file.
-  FbxAnimParser pipe(log);
+  motive::FbxAnimParser pipe(log);
   const bool load_status = pipe.Load(args.fbx_file.c_str());
   if (!load_status) return 1;
 
   // Gather data into a format conducive to our FlatBuffer format.
-  FlatAnim anim(args.tolerances, log);
+  motive::FlatAnim anim(args.tolerances, log);
   pipe.GatherFlatAnim(&anim);
 
   // Output gathered data to a binary FlatBuffer.
   anim.LogAllChannels();
-  const bool output_status = anim.OutputFlatBuffer(args.output_file,
-                                                   args.repeat_preference);
+  const bool output_status =
+      anim.OutputFlatBuffer(args.output_file, args.repeat_preference);
   if (!output_status) return 1;
 
   // Success.

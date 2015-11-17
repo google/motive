@@ -22,12 +22,12 @@
 
 #define DEBUG_PRINT_MATRICES 0
 
-using fpl::Angle;
-using fpl::kPi;
-using fpl::kHalfPi;
-using fpl::Range;
-using fpl::CompactSpline;
-using fpl::SplinePlayback;
+using motive::Angle;
+using motive::kPi;
+using motive::kHalfPi;
+using motive::Range;
+using motive::CompactSpline;
+using motive::SplinePlayback;
 using motive::MatrixMotivator4f;
 using motive::MotiveDimension;
 using motive::MotiveEngine;
@@ -135,12 +135,15 @@ bool VectorNear(const T& lhs, const T& rhs, const T& precision) {
   return -precision <= diff && diff <= precision;
 }
 
-
 class MotiveTests : public ::testing::Test {
  public:
   MotiveEngine& engine() { return engine_; }
-  const OvershootInit& overshoot_angle_init() const { return overshoot_angle_init_; }
-  const OvershootInit& overshoot_percent_init() const { return overshoot_percent_init_; }
+  const OvershootInit& overshoot_angle_init() const {
+    return overshoot_angle_init_;
+  }
+  const OvershootInit& overshoot_percent_init() const {
+    return overshoot_percent_init_;
+  }
   const SmoothInit& smooth_angle_init() const { return smooth_angle_init_; }
   const SmoothInit& smooth_scalar_init() const { return smooth_scalar_init_; }
   const CompactSpline& simple_spline() const { return simple_spline_; }
@@ -188,8 +191,7 @@ class MotiveTests : public ::testing::Test {
   }
 
  protected:
-  virtual void SetUp()
-  {
+  virtual void SetUp() {
     const Range angle_range(-3.14159265359f, 3.14159265359f);
     motive::OvershootInit::Register();
     motive::SmoothInit::Register();
@@ -333,8 +335,7 @@ void Defragment(MotiveTests& t) {
     const int compare = hole == 0 ? 1 : 0;
     EXPECT_TRUE(motivators[compare].Valid());
     for (int i = 0; i < len; ++i) {
-      if (i == hole || i == compare)
-        continue;
+      if (i == hole || i == compare) continue;
 
       // All the motivators should be valid and have the same values.
       EXPECT_TRUE(motivators[i].Valid());
@@ -433,9 +434,8 @@ void AssignmentOperatorValidToValid(MotiveTests& t) {
   const typename MotivatorT::ExT orig_value = orig_motivator.Value();
 
   MotivatorT new_motivator;
-  new_motivator.InitializeWithTarget(
-      t.overshoot_angle_init(), &t.engine(),
-      Tar::Current(Vec(orig_value + 1)));
+  new_motivator.InitializeWithTarget(t.overshoot_angle_init(), &t.engine(),
+                                     Tar::Current(Vec(orig_value + 1)));
   EXPECT_TRUE(new_motivator.Valid());
   const typename MotivatorT::ExT new_value = new_motivator.Value();
 
@@ -450,7 +450,6 @@ void AssignmentOperatorValidToValid(MotiveTests& t) {
   EXPECT_TRUE(VectorEqual(new_motivator.Value(), orig_value));
 }
 TEST_ALL_VECTOR_MOTIVATORS_F(AssignmentOperatorValidToValid)
-
 
 template <class MotivatorT>
 void VectorResize(MotiveTests& t) {
@@ -510,12 +509,13 @@ TEST_ALL_VECTOR_MOTIVATORS_F(SmoothModular)
 
 // Print matrices with columns vertically.
 static void PrintMatrix(const char* name, const mat4& m) {
-  (void)name; (void)m;
-  #if DEBUG_PRINT_MATRICES
+  (void)name;
+  (void)m;
+#if DEBUG_PRINT_MATRICES
   printf("%s\n(%f %f %f %f)\n(%f %f %f %f)\n(%f %f %f %f)\n(%f %f %f %f)\n",
-         name, m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13],
-         m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]);
-  #endif // DEBUG_PRINT_MATRICES
+         name, m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6],
+         m[10], m[14], m[3], m[7], m[11], m[15]);
+#endif  // DEBUG_PRINT_MATRICES
 }
 
 // Create a matrix that performs the transformation specified in 'op_init'.
@@ -523,16 +523,26 @@ static mat4 CreateMatrixFromOp(const MatrixOperationInit& op_init) {
   const float v = op_init.initial_value;
 
   switch (op_init.type) {
-    case kRotateAboutX: return mat4::FromRotationMatrix(mat3::RotationX(v));
-    case kRotateAboutY: return mat4::FromRotationMatrix(mat3::RotationY(v));
-    case kRotateAboutZ: return mat4::FromRotationMatrix(mat3::RotationZ(v));
-    case kTranslateX: return mat4::FromTranslationVector(vec3(v, 0.0f, 0.0f));
-    case kTranslateY: return mat4::FromTranslationVector(vec3(0.0f, v, 0.0f));
-    case kTranslateZ: return mat4::FromTranslationVector(vec3(0.0f, 0.0f, v));
-    case kScaleX: return mat4::FromScaleVector(vec3(v, 1.0f, 1.0f));
-    case kScaleY: return mat4::FromScaleVector(vec3(1.0f, v, 1.0f));
-    case kScaleZ: return mat4::FromScaleVector(vec3(1.0f, 1.0f, v));
-    case kScaleUniformly: return mat4::FromScaleVector(vec3(v));
+    case kRotateAboutX:
+      return mat4::FromRotationMatrix(mat3::RotationX(v));
+    case kRotateAboutY:
+      return mat4::FromRotationMatrix(mat3::RotationY(v));
+    case kRotateAboutZ:
+      return mat4::FromRotationMatrix(mat3::RotationZ(v));
+    case kTranslateX:
+      return mat4::FromTranslationVector(vec3(v, 0.0f, 0.0f));
+    case kTranslateY:
+      return mat4::FromTranslationVector(vec3(0.0f, v, 0.0f));
+    case kTranslateZ:
+      return mat4::FromTranslationVector(vec3(0.0f, 0.0f, v));
+    case kScaleX:
+      return mat4::FromScaleVector(vec3(v, 1.0f, 1.0f));
+    case kScaleY:
+      return mat4::FromScaleVector(vec3(1.0f, v, 1.0f));
+    case kScaleZ:
+      return mat4::FromScaleVector(vec3(1.0f, 1.0f, v));
+    case kScaleUniformly:
+      return mat4::FromScaleVector(vec3(v));
     default:
       assert(false);
       return mat4::Identity();
@@ -550,7 +560,7 @@ static mat4 CreateMatrixFromOps(const MatrixInit& matrix_init) {
   return m;
 }
 
-static void ExpectMatricesEqual(const mat4& a, const mat4&b, float epsilon) {
+static void ExpectMatricesEqual(const mat4& a, const mat4& b, float epsilon) {
   for (int i = 0; i < 4; ++i) {
     for (int j = 0; j < 4; ++j) {
       EXPECT_NEAR(a(i, j), b(i, j), epsilon);
@@ -674,8 +684,7 @@ TEST_F(MotiveTests, MatrixTranslateRotateScaleGoneWild) {
   ops.AddOp(motive::kRotateAboutX, smooth_angle_init_, kHalfPi * 0.1f);
   ops.AddOp(motive::kRotateAboutY, smooth_angle_init_, kHalfPi * 0.33f);
   ops.AddOp(motive::kScaleZ, smooth_scalar_init_, -1.4f);
-  ops.AddOp(motive::kRotateAboutY, smooth_angle_init_,
-                    -kHalfPi * 0.33f);
+  ops.AddOp(motive::kRotateAboutY, smooth_angle_init_, -kHalfPi * 0.33f);
   ops.AddOp(motive::kTranslateX, smooth_scalar_init_, -1.2f);
   ops.AddOp(motive::kTranslateY, smooth_scalar_init_, -1.5f);
   ops.AddOp(motive::kTranslateZ, smooth_scalar_init_, -2.2f);
@@ -691,7 +700,8 @@ void SplineTime(MotiveTests& t) {
   static const MotiveTime kStartTime = 250;
   static const MotiveTime kDeltaTime = 500;
 
-  const fpl::CompactSpline* splines = t.simple_splines(MotivatorT::kDimensions);
+  const motive::CompactSpline* splines =
+      t.simple_splines(MotivatorT::kDimensions);
   const MotiveTime end_time = static_cast<MotiveTime>(splines[0].EndX());
 
   // Two updates of kDeltaTime should wrap past end_time.
@@ -724,7 +734,8 @@ void SetSplineTime(MotiveTests& t) {
   static const MotiveTime kStartTime = 250;
   static const MotiveTime kDeltaTime = 500;
 
-  const fpl::CompactSpline* splines = t.simple_splines(MotivatorT::kDimensions);
+  const motive::CompactSpline* splines =
+      t.simple_splines(MotivatorT::kDimensions);
   const MotiveTime end_time = static_cast<MotiveTime>(splines[0].EndX());
 
   // Create a motivator that plays `spline` from kStartTime.
@@ -764,10 +775,11 @@ TEST_ALL_VECTOR_MOTIVATORS_F(SetSplineTime)
 template <class MotivatorT>
 void PlaybackRate(MotiveTests& t) {
   static const MotiveTime kDeltaTime = 10;
-  static const float kPlaybackRates[] = { 0.0f, 0.5f, 1.0f, 2.0f };
+  static const float kPlaybackRates[] = {0.0f, 0.5f, 1.0f, 2.0f};
   static const float kMidPlaybackRateOffset = 0.1f;
 
-  const fpl::CompactSpline* splines = t.simple_splines(MotivatorT::kDimensions);
+  const motive::CompactSpline* splines =
+      t.simple_splines(MotivatorT::kDimensions);
   const MotiveTime end_time = static_cast<MotiveTime>(splines[0].EndX());
 
   // Create a motivator that plays `spline` from kStartTime, and repeats
@@ -799,7 +811,7 @@ void PlaybackRate(MotiveTests& t) {
 }
 TEST_ALL_VECTOR_MOTIVATORS_F(PlaybackRate)
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

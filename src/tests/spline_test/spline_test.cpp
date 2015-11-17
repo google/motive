@@ -18,15 +18,15 @@
 #include "motive/math/angle.h"
 #include "motive/math/compact_spline.h"
 
-using fpl::QuadraticCurve;
-using fpl::CubicCurve;
-using fpl::CubicInit;
-using fpl::Range;
-using fpl::CompactSpline;
-using fpl::CompactSplineIndex;
-using fpl::BulkSplineEvaluator;
-using fpl::Angle;
-using fpl::kPi;
+using motive::QuadraticCurve;
+using motive::CubicCurve;
+using motive::CubicInit;
+using motive::Range;
+using motive::CompactSpline;
+using motive::CompactSplineIndex;
+using motive::BulkSplineEvaluator;
+using motive::Angle;
+using motive::kPi;
 using mathfu::vec2;
 using mathfu::vec2i;
 using mathfu::vec3;
@@ -54,8 +54,8 @@ struct GraphData {
   std::vector<GraphDerivatives> derivatives;
 };
 
-static const int kNumCheckPoints = fpl::kDefaultGraphWidth;
-static const vec2i kGraphSize(kNumCheckPoints, fpl::kDefaultGraphHeight);
+static const int kNumCheckPoints = motive::kDefaultGraphWidth;
+static const vec2i kGraphSize(kNumCheckPoints, motive::kDefaultGraphHeight);
 static const float kFixedPointEpsilon = 0.02f;
 static const float kDerivativePrecision = 0.01f;
 static const float kSecondDerivativePrecision = 0.26f;
@@ -90,7 +90,7 @@ static const CubicInit CubicInitScaleX(const CubicInit& init, float scale) {
 }
 
 static Range CubicInitYRange(const CubicInit& init, float buffer_percent) {
-  return fpl::CreateValidRange(init.start_y,
+  return motive::CreateValidRange(init.start_y,
                                init.end_y).Lengthen(buffer_percent);
 }
 
@@ -144,7 +144,7 @@ static void PrintSplineAsAsciiGraph(const GraphData& d) {
   (void)d;
 #if PRINT_SPLINES_AS_ASCII_GRAPHS
   printf("\n%s\n\n",
-         fpl::Graph2DPoints(&d.points[0], d.points.size(), kGraphSize).c_str());
+         motive::Graph2DPoints(&d.points[0], d.points.size(), kGraphSize).c_str());
 #endif // PRINT_SPLINES_AS_ASCII_GRAPHS
 }
 
@@ -158,7 +158,7 @@ static void GatherGraphData(const CubicInit& init, GraphData* d,
   if (is_angle) {
     interpolator.SetYRange(0, kAngleRange, true);
   }
-  interpolator.SetSpline(0, spline, fpl::SplinePlayback());
+  interpolator.SetSpline(0, spline, motive::SplinePlayback());
 
   ExecuteInterpolator(interpolator, kNumCheckPoints, d);
 
@@ -170,11 +170,11 @@ class SplineTests : public ::testing::Test {
 protected:
   virtual void SetUp() {
     short_spline_.Init(Range(0.0f, 1.0f), 0.01f, 4);
-    short_spline_.AddNode(0.0f, 0.1f, 0.0f, fpl::kAddWithoutModification);
-    short_spline_.AddNode(1.0f, 0.4f, 0.0f, fpl::kAddWithoutModification);
-    short_spline_.AddNode(4.0f, 0.2f, 0.0f, fpl::kAddWithoutModification);
-    short_spline_.AddNode(40.0f, 0.2f, 0.0f, fpl::kAddWithoutModification);
-    short_spline_.AddNode(100.0f, 1.0f, 0.0f, fpl::kAddWithoutModification);
+    short_spline_.AddNode(0.0f, 0.1f, 0.0f, motive::kAddWithoutModification);
+    short_spline_.AddNode(1.0f, 0.4f, 0.0f, motive::kAddWithoutModification);
+    short_spline_.AddNode(4.0f, 0.2f, 0.0f, motive::kAddWithoutModification);
+    short_spline_.AddNode(40.0f, 0.2f, 0.0f, motive::kAddWithoutModification);
+    short_spline_.AddNode(100.0f, 1.0f, 0.0f, motive::kAddWithoutModification);
   }
   virtual void TearDown() {}
 
@@ -183,7 +183,7 @@ protected:
 
 // Ensure the index lookup is accurate for x's before the range.
 TEST_F(SplineTests, IndexForXBefore) {
-  EXPECT_EQ(fpl::kBeforeSplineIndex,
+  EXPECT_EQ(motive::kBeforeSplineIndex,
             short_spline_.IndexForX(-1.0f, kRidiculousSplineIndex));
 }
 
@@ -199,13 +199,13 @@ TEST_F(SplineTests, IndexForXBiggerThanGranularityAtStart) {
 
 // Ensure the index lookup is accurate for x's after the range.
 TEST_F(SplineTests, IndexForXAfter) {
-  EXPECT_EQ(fpl::kAfterSplineIndex,
+  EXPECT_EQ(motive::kAfterSplineIndex,
             short_spline_.IndexForX(101.0f, kRidiculousSplineIndex));
 }
 
 // Ensure the index lookup is accurate for x's barely after the range.
 TEST_F(SplineTests, IndexForXJustAfter) {
-  EXPECT_EQ(fpl::kAfterSplineIndex,
+  EXPECT_EQ(motive::kAfterSplineIndex,
             short_spline_.IndexForX(100.0001f, kRidiculousSplineIndex));
 }
 
@@ -216,13 +216,13 @@ TEST_F(SplineTests, IndexForXStart) {
 
 // Ensure the index lookup is accurate for x right at end.
 TEST_F(SplineTests, IndexForXEnd) {
-  EXPECT_EQ(fpl::kAfterSplineIndex,
+  EXPECT_EQ(motive::kAfterSplineIndex,
             short_spline_.IndexForX(100.0f, kRidiculousSplineIndex));
 }
 
 // Ensure the index lookup is accurate for x just inside end.
 TEST_F(SplineTests, IndexForXAlmostEnd) {
-  EXPECT_EQ(fpl::kAfterSplineIndex,
+  EXPECT_EQ(motive::kAfterSplineIndex,
             short_spline_.IndexForX(99.9999f, kRidiculousSplineIndex));
 }
 

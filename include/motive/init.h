@@ -67,12 +67,13 @@ inline bool ModularOp(MatrixOperationType op) { return RotateOp(op); }
 /// Returns the range of the matrix operation's spline. Most ranges are just
 /// the extents of the splines, but rotations we want to normalize within
 /// +-pi before blending to another curve.
-inline fpl::Range RangeOfOp(MatrixOperationType op, const fpl::Range& extents) {
-  return ModularOp(op) ? fpl::kAngleRange : extents;
+inline Range RangeOfOp(MatrixOperationType op,
+                                const Range& extents) {
+  return ModularOp(op) ? kAngleRange : extents;
 }
 
 /// Return a string with the operation name. Used for debugging.
-const char* MatrixOpName(const motive::MatrixOperationType op);
+const char* MatrixOpName(const MatrixOperationType op);
 
 /// @class ModularInit
 /// Base-class for OvershootInit and SmoothInit. Holds parameters related
@@ -80,7 +81,7 @@ const char* MatrixOpName(const motive::MatrixOperationType op);
 class ModularInit : public MotivatorInit {
  public:
   explicit ModularInit(MotivatorType type)
-      : MotivatorInit(type), range_(fpl::Range::Full()), modular_(false) {}
+      : MotivatorInit(type), range_(Range::Full()), modular_(false) {}
 
   /// The derived type must call this constructor with it's MotivatorType
   /// identifier.
@@ -90,7 +91,7 @@ class ModularInit : public MotivatorInit {
   /// @param modular Option to use modular arithmetic for Motivator::Value().
   ///                If true, all values are wrapped around to stay within
   ///                `range`.
-  ModularInit(MotivatorType type, const fpl::Range& range, bool modular)
+  ModularInit(MotivatorType type, const Range& range, bool modular)
       : MotivatorInit(type), range_(range), modular_(modular) {}
 
   /// Ensure position `x` is within the valid constraint range.
@@ -118,8 +119,8 @@ class ModularInit : public MotivatorInit {
   /// Return maximum value of the range.
   float Max() const { return range_.end(); }
 
-  const fpl::Range& range() const { return range_; }
-  void set_range(const fpl::Range& r) { range_ = r; }
+  const Range& range() const { return range_; }
+  void set_range(const Range& r) { range_ = r; }
 
   bool modular() const { return modular_; }
   void set_modular(bool modular) { modular_ = modular; }
@@ -128,7 +129,7 @@ class ModularInit : public MotivatorInit {
   /// Minimum and maximum values for Motivator::Value().
   /// Clamp (if modular_ is false) or wrap-around (if modular_ is true) when
   /// we reach these boundaries.
-  fpl::Range range_;
+  Range range_;
 
   /// A modular value wraps around from min to max. For example, an angle
   /// is modular, where -pi is equivalent to +pi. Setting this to true ensures
@@ -230,7 +231,7 @@ class SmoothInit : public ModularInit {
   MOTIVE_INTERFACE();
 
   SmoothInit() : ModularInit(kType) {}
-  SmoothInit(const fpl::Range& range, bool modular)
+  SmoothInit(const Range& range, bool modular)
       : ModularInit(kType, range, modular) {}
 };
 
@@ -269,7 +270,7 @@ struct MatrixOperationInit {
       : init(&init), type(type), union_type(kUnionTarget), target(&target) {}
 
   MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init,
-                      const fpl::CompactSpline& spline)
+                      const CompactSpline& spline)
       : init(&init), type(type), union_type(kUnionSpline), spline(&spline) {}
 
   const MotivatorInit* init;
@@ -278,7 +279,7 @@ struct MatrixOperationInit {
   union {
     float initial_value;
     const MotiveTarget1f* target;
-    const fpl::CompactSpline* spline;
+    const CompactSpline* spline;
   };
 };
 
@@ -351,7 +352,7 @@ class MatrixOpArray {
   /// Operation is driven by a one dimensional motivator, which is initialized
   /// to follow the predefined curve specified in `spline`.
   void AddOp(MatrixOperationType type, const MotivatorInit& init,
-             const fpl::CompactSpline& spline) {
+             const CompactSpline& spline) {
     ops_.push_back(MatrixOperationInit(type, init, spline));
   }
 
@@ -361,8 +362,8 @@ class MatrixOpArray {
     for (size_t i = 0; i < ops_.size(); ++i) {
       const MatrixOperationInit& op = ops_[i];
       if (op.union_type == MatrixOperationInit::kUnionSpline) {
-        end_time = std::max(end_time,
-                            static_cast<MotiveTime>(op.spline->EndX()));
+        end_time =
+            std::max(end_time, static_cast<MotiveTime>(op.spline->EndX()));
       }
     }
     return end_time;

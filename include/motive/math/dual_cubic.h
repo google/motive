@@ -17,7 +17,7 @@
 
 #include "motive/math/curve.h"
 
-namespace fpl {
+namespace motive {
 
 /// Find a point in between init.start_x and init.end_x such that the two
 /// cubic functions look smoother than the one cubic function created by init.
@@ -32,6 +32,6 @@ namespace fpl {
 void CalculateDualCubicMidNode(const CubicInit &init, float *x, float *y,
                                float *derivative);
 
-}  // namespace fpl
+}  // namespace motive
 
 #endif  // MOTIVE_MATH_DUAL_CUBIC_H_
