@@ -3,10 +3,10 @@ Building for OS X    {#motive_guide_osx}
 
 # Version Requirements    {#motive_guide_osx_version}
 
-Following are the minimum required versions of tools and libraries you
-need to build [Motive][] for [OS X]:
+Following are the tested versions of tools and libraries we use to build
+[Motive][] for [OS X][]:
 
-   * [OS X][]: Mavericks 10.9.1.
+   * [OS X][]: Yosemite 10.10.5.
    * [Xcode][]: 5.0.1
    * [CMake][]: 2.8.12.1
 

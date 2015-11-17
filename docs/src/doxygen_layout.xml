@@ -28,6 +28,8 @@
            title="Windows"/>
       <tab type="user" url="@ref motive_guide_loose_cpps"
            title="Loose Cpps"/>
+      <tab type="user" url="@ref motive_guide_building_anim_pipeline"
+           title="anim_pipeline"/>
     </tab>
     <tab type="usergroup" url="" title="Programmer's Guide">
       <tab type="usergroup" url="@ref motive_guide_introduction"
@@ -63,7 +65,7 @@
            title="Animation Containers">
       </tab>
       <tab type="usergroup" url="@ref motive_guide_anim_pipeline"
-           title="Animation Pipeline">
+           title="anim_pipeline">
       </tab>
       <tab type="usergroup" url="@ref motive_guide_vector_types"
            title="Vector Types">

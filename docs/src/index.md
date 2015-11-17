@@ -3,15 +3,19 @@ The Motive Animation System
 
 # Overview    {#motive_overview}
 
-Motive is a cross-platform animation system. It's designed to be,
+Motive is an animation system written in cross-platform C++.
+It's designed to be,
   * **performant** -- data is stored centrally and processed in bulk so that we
     can take advantage of [SIMD] and multi-threading opportunities.
-  * **compact** -- spline data is preferred over sampled data, so animation
-    data requires less memory.
-  * **expandable** -- new animation algorithms can be registered and executed
+  * **compact** -- spline data is preferred over sampled data, so animations
+    requires less memory.
+  * **expandable** -- new animation algorithms can be registered and utilized
     without touching central code.
-Motive is distributed as portable C++. It has been tested on [Android],
-[Windows], [OS X], and [Linux].
+Motive has been tested on [Android], [Windows], [OS X], and [Linux], but
+should be portable to any platform that supports C++.
+
+You can see Motive animation in use in the [Zooshi] and [Pie Noon].
+sample games.
 
 # Motivation
 
@@ -76,6 +80,8 @@ appreciate if you would leave it in.
      animation**.
 
   [Android]: http://www.android.com
+  [Pie Noon]: https://github.com/google/pienoon
+  [Zooshi]:  https://github.com/google/zooshi
   [FlatBuffers]: https://github.com/google/flatbuffers
   [FplUtil]: https://github.com/google/fplutil
   [Linux]: http://en.m.wikipedia.org/wiki/Linux

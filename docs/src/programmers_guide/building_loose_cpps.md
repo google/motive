@@ -3,10 +3,10 @@ Building Motive from Loose Cpp Files   {#motive_guide_loose_cpps}
 
 If you prefer, you can ignore the included build scripts, and manually add
 [Motive][] to your build system by simply,
-   * compliling the files under `motive/src`
+   * compliling the files under `motive/src/motive`
    * adding `motive/include` to your list of include directories
 
-Note that, when compiling `motive/src`, you'll also need these include
+Note that, when compiling `motive/src/motive`, you'll also need these include
 directories: `mathfu/include`, `mathfu/benchmarks`, and
 `fplutil/libfplutil/include`.
 
@@ -16,7 +16,7 @@ Note also that compilation of `motive/src/io/flatbuffers.cpp` is optional
 # Enabling SIMD   {#motive_guide_simd}
 
 [Motive][] runs best with `mathfu`'s [SIMD][] support enabled. Support is
-enabled by default, but you may have to add a compiler flags to enable [SIMD][]
+enabled by default, but you may have to add a compiler flag to enable [SIMD][]
 instructions on your compiler. Please see the `enable_simd` section of
 [MathFu][]'s `CMakeLists.txt` file for details.
 

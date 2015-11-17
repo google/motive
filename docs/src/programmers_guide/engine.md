@@ -7,9 +7,9 @@ The [Motivator][] queries the `MotiveEngine` to initialize itself with the
 appropriate [MotiveProcessor][].
 
 All [Motivator][]s under a `MotiveEngine` are updated at the same time, by
-calling `MotiveEngine::AdvanceFrame()`. This eliminates overhead of updating
-every [Motivator][] individually, and indeed, it provides many opportunities
-for optimizations.
+calling `MotiveEngine::AdvanceFrame()`. This eliminates the overhead of updating
+every [Motivator][] individually, and indeed, it provides many other
+opportunities for optimizations.
 
 You can have several `MotiveEngines` in your program, if you like, but you
 will have the best performance by sticking to just one, if possible.

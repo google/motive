@@ -27,20 +27,13 @@ using mathfu::vec2;
 
 int main() {
 
-  // Since we will be using the ‘smooth’ animation algorithm, we must register it
-  // with the engine.
+  // Since we use the ‘smooth’ animation algorithm, we must register it.
   motive::SmoothInit::Register();
 
-  // The engine is the central place where animation data is stored and processed.
+  // The engine is the central place for animation data.
   motive::MotiveEngine engine;
 
   // In this example, we animate a one-dimensional floating point value.
-  // It's also possible to animate a mathfu::vec2 with motive::Motivator2f, and
-  // similarly for higher dimensional vectors. We can even animate a mathfu::mat4
-  // (a 4x4 matrix) with motive::MatrixMotivator4f.
-  //
-  // If you have your own math library, you can also animate those instead of
-  // mathfu types. See [Using Your Own Math Types][].
   motive::Motivator1f facing_angle;
 
   // Initialize facing_angle Motivator to animate as a 'Smooth' Motivator.
@@ -72,15 +65,13 @@ int main() {
 
   std::vector<vec2> points(target_time / delta_time + 1);
   for (motive::MotiveTime t = 0; t <= target_time; t += delta_time) {
-    // That is, all Motivators created with 'engine' are animated here.
+    // All Motivators created with 'engine' are animated here.
     engine.AdvanceFrame(delta_time);
 
     // The current value of the variable being animated is always available.
-    // Additionally, we can also access facing_angle.Velocity() for the angular
-    // velocity.
-    const Angle facing_angle_at_time_t(facing_angle.Value());
+    const Angle angle_at_t = Angle::FromWithinThreePi(facing_angle.Value());
     points.push_back(
-        vec2(static_cast<float>(t), facing_angle_at_time_t.ToDegrees()));
+        vec2(static_cast<float>(t), angle_at_t.ToDegrees()));
   }
 
   printf("\n%s", Graph2DPoints(&points[0], points.size()).c_str());

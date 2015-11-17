@@ -58,11 +58,21 @@ about its x-axis, then the `MatrixAnim` will contain a single operation for
 scale, rotation, and translation values for every bone.
 
 The bone heirarchy output by `anim_pipeline` matches the bone hierarchy
-output by `mesh_pipeline` with the `-h` (hierarchy).
+output by `anim_pipeline` with the `-h` (hierarchy).
+
+# Pre-built Binaries  {#motive_guide_anim_pipeline_prebuilts}
+
+Pre-built binaries for the `anim_pipeline` are distributed in the `bin`
+directory.
+- Windows 7: bin/Windows/Release/anim_pipeline.exe
+- Mac OS X (10.10.5 Yosemite): bin/Darwin/anim_pipeline
+- Linux (Ubuntu 64-bit): bin/Linux/anim_pipeline
+
+To build the `anim_pipeline` from source, please see [building anim_pipeline].
 
 
-  [FBX files]: https://en.wikipedia.org/wiki/Spline_(mathematics)
+  [FBX files]: https://en.wikipedia.org/wiki/FBX
   [FlatBuffer]: http://google.github.io/flatbuffers/
   [depth-first order]: https://en.wikipedia.org/wiki/Depth-first_search
-
+  [building anim_pipeline]: @ref motive_guide_building_anim_pipeline
 
