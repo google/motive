@@ -3,6 +3,7 @@ libs/
 obj/
 bin/flatc
 bin/flathash
+bin/benchmarker
 bin/*_test
 bin/*_sample
 *.bin

@@ -17,19 +17,30 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(anim_pipeline)
 
-# This is the directory into which the executables are built.
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../bin/${CMAKE_SYSTEM_NAME})
+# This is the motive directory, which is a parent of the current directory.
+get_filename_component(motive_dir "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
 
+# This is the directory into which the executables are built.
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${motive_dir}/bin/${CMAKE_SYSTEM_NAME})
 set(tmp_dir ${CMAKE_BINARY_DIR}/obj)
-get_filename_component(fpl_root "${CMAKE_SOURCE_DIR}/../../.." ABSOLUTE)
+
+# If the dependencies directory exists, assume this is the root directory for
+# all libraries required by this project.
+get_filename_component(fpl_root "${motive_dir}/.." ABSOLUTE)
+if(NOT DEFINED dependencies_root)
+  set(dependencies_root "${motive_dir}/dependencies")
+  if(EXISTS "${dependencies_root}")
+    set(fpl_root "${dependencies_root}")
+  endif()
+endif()
+
 set(dependencies_flatbuffers_dir "${fpl_root}/flatbuffers"
     CACHE PATH "Directory containing the Flatbuffers library.")
 set(dependencies_fplutil_dir "${fpl_root}/fplutil"
     CACHE PATH "Directory containing the FplUtil library.")
 set(dependencies_mathfu_dir "${fpl_root}/mathfu"
     CACHE PATH "Directory containing the MathFu library.")
-set(dependencies_motive_dir "${fpl_root}/motive"
+set(dependencies_motive_dir "${motive_dir}"
     CACHE PATH "Directory containing the motive animation library.")
 
 # Autodesk's FBX SDK must be installed to build the pipeline.
