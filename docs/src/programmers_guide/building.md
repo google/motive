@@ -5,7 +5,7 @@ Build Targets    {#motive_guide_build_targets}
 [Android][] build scripts.
 
 The CMake build script can be used to generate standard
-makefiles on [Linux][] and [OS X][], [Xcode][] projects on OSX,
+makefiles on [Linux][] and [OS X][], [Xcode][] projects on [OS X][],
 and [Visual Studio][] solutions on [Windows][]. See,
 
    * [Building for Linux][]

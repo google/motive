@@ -28,31 +28,31 @@ from the current value to the target value, in the target time.
 
 Put your initialization code in a header file:
 
-\snippet src/samples/linear_processor.cpp Own Processor LinearInit
+\snippet src/samples/linear_processor/linear_processor.cpp Own Processor LinearInit
 
 The remaining code can be in a .cpp file. There is no need to expose it, since
 it gets registered with the `MotiveEngine`, and all calls to it come through
 `MotiveEngine`.
 
-\snippet src/samples/linear_processor.cpp Own Processor LinearMotiveProcessor
+\snippet src/samples/linear_processor/linear_processor.cpp Own Processor LinearMotiveProcessor
 
 The MOTIVE_INSTANCE() macro sets up the LinearMotiveProcessor to be registered
 with the `MotiveEngine`, but it does not actually register it. The registration
 must happen in the main program.
 
-\snippet src/samples/linear_processor.cpp Own Processor Register
+\snippet src/samples/linear_processor/linear_processor.cpp Own Processor Register
 
 The `Register()` call is under `LinearInit` since it is generally the only
 thing exposed in a header file.
 
 Now that your processor is registered, you can instantiate a motivator like so,
 
-\snippet src/samples/linear_processor.cpp Own Processor Create Instance
+\snippet src/samples/linear_processor/linear_processor.cpp Own Processor Create Instance
 
 Your processor gets updated with all the other processors, during
 `MotiveEngine::AdvanceFrame()`.
 
-\snippet src/samples/linear_processor.cpp Own Processor Advance Simulation
+\snippet src/samples/linear_processor/linear_processor.cpp Own Processor Advance Simulation
 
 The final output of our example is below. Notice that the variable animates
 linearly from 10 down to -5.
@@ -92,4 +92,4 @@ linearly from 10 down to -5.
     y = -5.000000
 
 If you'd like to experiment more with this program, it is compiled for you
-from `src/samples/linear_processor.cpp`.
+from `src/samples/linear_processor/linear_processor.cpp`.

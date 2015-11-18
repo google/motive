@@ -90,7 +90,7 @@ Using `fplutil`:
 
 # The Benchmarker App   {#motive_guide_android_benchmarker_app}
 
-The `Benchmarker` app is in motive/benchmarker. It creates and updates 40000
+The `Benchmarker` app is in motive/src/benchmarker. It creates and updates 40000
 [Motivators][] of various flavors, and measures their various execution times.
 
 To install and run the `Benchmarker` app on an Android device:

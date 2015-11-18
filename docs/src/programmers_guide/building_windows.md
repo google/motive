@@ -4,10 +4,10 @@ Building for Windows    {#motive_guide_windows}
 # Version Requirements    {#motive_guide_windows_version}
 
 Following are the minimum required versions of tools and libraries you
-need to build [Motive][] for Android:
+need to build [Motive][] for Windows:
 
    * [Windows][]: 7
-   * [Visual Studio][]: 2012
+   * [Visual Studio][]: 2010
    * [CMake][]: 2.8.12.1
 
 # Prerequisites    {#motive_guide_windows_prerequisites}

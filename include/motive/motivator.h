@@ -253,7 +253,7 @@ class MotivatorVectorTemplate : public Motivator {
 
   /// Follow the curve specified in `spline`. Overrides the existing current
   /// value.
-  /// @param splines The splines to follow. Array of length Dimensions().
+  /// @param spline The spline to follow. Array of length Dimensions().
   /// @param playback The time into the splines to initiate playback,
   ///                 the blend time to the splines, and whether to repeat
   ///                 from the beginning after the end of the spline is reached.

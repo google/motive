@@ -3,14 +3,19 @@ Introduction    {#motive_guide_introduction}
 
 # About Motive    {#motive_guide_about_motive}
 
-[Motive][] is an animation system written for speed and low memory usage.
+[Motive][] is an animation system written in cross-platform C++.
+It's designed to be,
+  * **performant** -- data is stored centrally and processed in bulk so that we
+    can take advantage of [SIMD] and multi-threading opportunities.
+  * **compact** -- spline data is preferred over sampled data, so animations
+    requires less memory.
+  * **expandable** -- new animation algorithms can be registered and utilized
+    without touching central code.
+Motive has been tested on [Android], [Windows], [OS X], and [Linux], but
+should be portable to any platform that supports C++.
 
-The current version is feature light. It's suitable for procedural animation
-of props, cameras, and UI elements. It currently lacks the data pipeline
-required for full character animation, so it is not suitable for that.
-
-You can see [Motive][] animation in use in the [Pie Noon][]
-sample game.
+You can see [Motive][] animation in use in the [Zooshi][] and [Pie Noon][]
+sample games.
 
 # Prerequisites    {#motive_guide_prerequisites}
 
@@ -53,5 +58,10 @@ you should use the [SIMD][] implementation of [MathFu][] by specifying
   [MotiveProcessor]: @ref motive_guide_processors
   [MotiveEngine]: @ref motive_guide_engine
   [Pie Noon]: https://github.com/google/pienoon
+  [Zooshi]:  https://github.com/google/zooshi
   [SIMD]: http://en.wikipedia.org/wiki/SIMD
   [NEON]: http://www.arm.com/products/processors/technologies/neon.php
+  [Android]: http://www.android.com
+  [Linux]: http://en.m.wikipedia.org/wiki/Linux
+  [OS X]: http://www.apple.com/osx/
+  [Windows]: http://windows.microsoft.com/
