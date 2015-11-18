@@ -13,6 +13,8 @@
 // limitations under the License.
 
 // Suppress warnings in external header.
+#pragma warning(push)            // for Visual Studio
+#pragma warning(disable : 4068)  // "unknown pragma" -- for Visual Studio
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -21,6 +23,7 @@
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #include <fbxsdk.h>
 #pragma GCC diagnostic pop
+#pragma warning(pop)
 
 #include <assert.h>
 #include <fstream>
@@ -31,19 +34,40 @@
 #include <unordered_set>
 #include <vector>
 
+#include "anim_generated.h"
 #include "fplutil/file_utils.h"
 #include "mathfu/glsl_mappings.h"
-#include "matrix_anim_generated.h"
+#include "motive/anim.h"
 #include "motive/common.h"
 #include "motive/init.h"
 #include "motive/math/angle.h"
 
-namespace fpl {
+namespace motive {
 
 using motive::MatrixOperationType;
 using motive::kInvalidMatrixOperation;
+using motive::kNumMatrixOperationTypes;
+using motive::BoneIndex;
+using motive::kInvalidBoneIdx;
+using std::string;
+
+enum RepeatPreference {
+  kRepeatIfRepeatable,
+  kAlwaysRepeat,
+  kNeverRepeat
+};
 
 static const int kTimeGranularityMiliseconds = 10;
+static const int kDefaultChannelOrder[] = {0, 1, 2};
+static const int kRotationOrderToChannelOrder[][3] = {
+    {2, 1, 0},  // eOrderXYZ,
+    {2, 0, 1},  // eOrderXZY,
+    {1, 0, 2},  // eOrderYZX,
+    {1, 2, 0},  // eOrderYXZ,
+    {0, 2, 1},  // eOrderZXY,
+    {0, 1, 2},  // eOrderZYX,
+    {2, 1, 0},  // eOrderSphericXYZ
+};
 
 // Each log message is given a level of importance.
 // We only output messages that have level >= our current logging level.
@@ -57,12 +81,11 @@ enum LogLevel {
 };
 
 // Prefix log messages at this level with this message.
-static const char* kLogPrefix[] = {
-    "",           // kLogVerbose
-    "",           // kLogInfo
-    "",           // kLogImportant
-    "Warning: ",  // kLogWarning
-    "Error: "     // kLogError
+static const char* kLogPrefix[] = {"",           // kLogVerbose
+                                   "",           // kLogInfo
+                                   "",           // kLogImportant
+                                   "Warning: ",  // kLogWarning
+                                   "Error: "     // kLogError
 };
 static_assert(MOTIVE_ARRAY_SIZE(kLogPrefix) == kNumLogLevels,
               "kLogPrefix length is incorrect");
@@ -98,30 +121,64 @@ class Logger {
   LogLevel level_;
 };
 
-static const float kDefaultScaleTolerance = 0.005f;  // half a percent
-static const float kDefaultRotateTolerance =
-    0.00873f;  // 0.5 degrees in radians
-static const float kDefaultTranslateTolerance = 0.01f;  // totally arbitrary
+// Half a percent.
+static const float kDefaultScaleTolerance = 0.005f;
+
+// 0.5 degrees in radians.
+static const float kDefaultRotateTolerance = 0.00873f;
+
+// Totally arbitrary. TODO: make a percentage of the model size.
+static const float kDefaultTranslateTolerance = 0.01f;
+
+// 0.5 degrees in radians.
+static const float kDefaultDerivativeAngleTolerance = 0.00873f;
+
+// 10 degrees in radians.
+static const float kDefaultRepeatDerivativeAngleTolerance = 0.1745f;
 
 // Use these bitfields to find situations where scale x, y, and z occur, in
 // any order, in a row.
 static const uint32_t kScaleXBitfield = 1 << motive::kScaleX;
 static const uint32_t kScaleYBitfield = 1 << motive::kScaleY;
 static const uint32_t kScaleZBitfield = 1 << motive::kScaleZ;
-static const uint32_t kScaleXyzBitfield = kScaleXBitfield | kScaleYBitfield |
-                                          kScaleZBitfield;
+static const uint32_t kScaleXyzBitfield =
+    kScaleXBitfield | kScaleYBitfield | kScaleZBitfield;
+
+/// @brief Convert derivative to its angle in x/y space.
+///  derivative 0 ==> angle 0
+///  derivative 1 ==> angle 45 degrees
+///  derivative +inf ==> angle 90 degrees
+///  derivative -2 ==> angle -63.4 degrees
+/// @returns Angle, in radians, >= -pi and <= pi
+static inline float DerivativeAngle(float derivative) {
+  return atan(derivative);
+}
 
 /// @brief Amount the output curves are allowed to deviate from the input
 ///        curves.
 struct Tolerances {
-  float scale;      /// Amount output scale curves can deviate, unitless.
-  float rotate;     /// Amount output rotate curves can deviate, in radians.
-  float translate;  /// Amount output translate curves can deviate, in scene's
-                    /// distance units.
+  /// Amount output scale curves can deviate, unitless.
+  float scale;
+
+  /// Amount output rotate curves can deviate, in radians.
+  float rotate;
+
+  /// Amount output translate curves can deviate, in scene's distance units.
+  float translate;
+
+  /// Amount derivative--converted to an angle in x/y--can deviate, in radians.
+  float derivative_angle;
+
+  /// Amount derivative--converted to an angle in x/y--can deviate, in radians,
+  /// This value used when determining if an animation repeats or not.
+  float repeat_derivative_angle;
+
   Tolerances()
       : scale(kDefaultScaleTolerance),
         rotate(kDefaultRotateTolerance),
-        translate(kDefaultTranslateTolerance) {}
+        translate(kDefaultTranslateTolerance),
+        derivative_angle(kDefaultDerivativeAngleTolerance),
+        repeat_derivative_angle(kDefaultRepeatDerivativeAngleTolerance) {}
 };
 
 // Unique id identifying a single float curve being animated.
@@ -144,13 +201,19 @@ class FlatAnim {
   explicit FlatAnim(const Tolerances& tolerances, Logger& log)
       : tolerances_(tolerances), log_(log) {}
 
-  FlatChannelId AllocChannel(const char* channel_name, MatrixOperationType op) {
-    channels_.push_back(Channel(channel_name, op));
-    return static_cast<FlatChannelId>(channels_.size() - 1);
+  void AllocBone(const char* bone_name, int depth) {
+    bones_.push_back(Bone(bone_name, depth));
+  }
+
+  FlatChannelId AllocChannel(MatrixOperationType op) {
+    Channels& channels = CurChannels();
+    channels.push_back(Channel(op));
+    return static_cast<FlatChannelId>(channels.size() - 1);
   }
 
   void AddConstant(FlatChannelId channel_id, FlatVal const_val) {
-    Nodes& n = channels_[channel_id].nodes;
+    Channels& channels = CurChannels();
+    Nodes& n = channels[channel_id].nodes;
     n.resize(0);
     n.push_back(SplineNode(0, const_val, 0.0f));
   }
@@ -173,8 +236,8 @@ class FlatAnim {
     float time = time_inc;
     float worst_diff = 0.0f;
     float worst_time = 0.0f;
-    int worst_idx = 0;
-    for (int i = 1; i < count - 1; ++i) {
+    size_t worst_idx = 0;
+    for (size_t i = 1; i < count - 1; ++i) {
       const float cubic_val = c.Evaluate(time);
       const float curve_val = vals[i];
       const float diff_val = fabs(cubic_val - curve_val);
@@ -191,7 +254,8 @@ class FlatAnim {
     const float tolerance = Tolerance(channel_id);
     if (worst_idx > 0 && worst_diff > tolerance) {
       const FlatTime time_mid = time_start + static_cast<FlatTime>(worst_time);
-      AddCurve(channel_id, time_start, time_mid, vals, derivatives, worst_idx);
+      AddCurve(channel_id, time_start, time_mid, vals, derivatives,
+               worst_idx + 1);
       AddCurve(channel_id, time_mid, time_end, &vals[worst_idx],
                &derivatives[worst_idx], count - worst_idx);
       return;
@@ -204,7 +268,8 @@ class FlatAnim {
 
     // Only push the start node if it differs from the previously pushed end
     // node. Most of the time it will be the same.
-    Nodes& n = channels_[channel_id].nodes;
+    Channels& channels = CurChannels();
+    Nodes& n = channels[channel_id].nodes;
     const bool start_matches_prev = n.size() > 0 && n.back() == start_node;
     if (!start_matches_prev) {
       n.push_back(start_node);
@@ -216,45 +281,42 @@ class FlatAnim {
   void PruneNodes(FlatChannelId channel_id) {
     const float tolerance = Tolerance(channel_id);
 
-    // For every consecutive group of three nodes, determine if the middle
-    // node is redundant. If so, remove it.
-    // Iterate backwards through the array to minimize the cost of `erase()`
-    // for the common case of all the nodes being the same.
-    Nodes& n = channels_[channel_id].nodes;
-    for (int i = static_cast<int>(n.size() - 1); i >= 2; --i) {
-      // Construct cubic curve `c` that skips the `mid` node.
-      const SplineNode& start = n[i - 2];
-      const SplineNode& mid = n[i - 1];
-      const SplineNode& end = n[i];
-      const float cubic_width = static_cast<float>(end.time - start.time);
-      const CubicCurve c(CubicInit(start.val, start.derivative, end.val,
-                                   end.derivative, cubic_width));
-
-      // Evaluate `c` at the time of `mid`.
-      const float mid_time = static_cast<float>(mid.time - start.time);
-      const float mid_val = c.Evaluate(mid_time);
-      const float mid_derivative = c.Derivative(mid_time);
-
-      // Scale the tolerance as a function of time. As time stretches out,
-      // the derivatives get more sensitive.
-      const float derivative_tolerance = tolerance / cubic_width;
-
-      // If the mid point is on the curve, or at the same time as start and end,
-      // just delete it. It's redundant.
-      const bool mid_at_same_time = cubic_width == 0.0f;
-      const bool mid_on_c =
-          fabs(mid_val - mid.val) < tolerance &&
-          fabs(mid_derivative - mid.derivative) < derivative_tolerance;
-      if (mid_at_same_time || mid_on_c) {
-        n.erase(n.begin() + (i - 1));
+    // For every node try to prune as many redunant nodes that come after it.
+    // A node is redundant if the spline evaluates to the same value even if
+    // it doesn't exists (note: here "same value" means within `tolerances_`).
+    Channels& channels = CurChannels();
+    Nodes& n = channels[channel_id].nodes;
+    std::vector<bool> prune(n.size(), false);
+    for (size_t i = 0; i < n.size();) {
+      size_t next_i = i + 1;
+      for (size_t j = i + 2; j < n.size(); ++j) {
+        const bool redundant =
+            IntermediateNodesRedundant(&n[i], j - i + 1, tolerance);
+        if (redundant) {
+          prune[j - 1] = true;
+          next_i = j;
+        }
       }
+      i = next_i;
     }
+
+    // Compact to remove all pruned nodes.
+    size_t write = 0;
+    for (size_t read = 0; read < n.size(); ++read) {
+      if (prune[read]) continue;
+      if (write < read) {
+        n[write] = n[read];
+      }
+      write++;
+    }
+    n.resize(write);
 
     // If value is constant for the entire time, remove the second node so that
     // we know to output a constant value in `OutputFlatBuffer()`.
     const bool is_const =
         n.size() == 2 && fabs(n[0].val - n[1].val) < tolerance &&
-        fabs(n[0].derivative) < tolerance && fabs(n[1].derivative) < tolerance;
+        fabs(DerivativeAngle(n[0].derivative)) < tolerances_.derivative_angle &&
+        fabs(DerivativeAngle(n[1].derivative)) < tolerances_.derivative_angle;
     if (is_const) {
       n.resize(1);
     }
@@ -262,84 +324,138 @@ class FlatAnim {
 
   /// @brief Collapse multiple channels into one, when possible.
   void PruneChannels() {
-    // Iterate from the end to minimize the cost of the erase operations.
-    for (FlatChannelId ch = static_cast<FlatChannelId>(channels_.size() - 1);
-         ch >= 0; ch--) {
-      // Collapse kScaleX,Y,Z into kScaleUniformly.
-      const bool uniform_scale = UniformScaleChannels(ch);
-      if (uniform_scale) {
-        log_.Log(kLogVerbose,
-                 "Collapsing scale x, y, z channels %d~%d into"
-                 " one scale-uniformly channel\n",
-                 ch, ch + 2);
+    for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
+      // Iterate from the end to minimize the cost of the erase operations.
+      Channels& channels = bone->channels;
+      for (FlatChannelId ch = static_cast<FlatChannelId>(channels.size() - 1);
+           ch >= 0; ch--) {
+        // Collapse kScaleX,Y,Z into kScaleUniformly.
+        const bool uniform_scale = UniformScaleChannels(channels, ch);
+        if (uniform_scale) {
+          log_.Log(kLogVerbose,
+                   "  Collapsing scale x, y, z channels %d~%d into"
+                   " one scale-uniformly channel\n",
+                   ch, ch + 2);
 
-        channels_[ch].op = motive::kScaleUniformly;
-        channels_.erase(channels_.begin() + (ch + 1),
-                        channels_.begin() + (ch + 3));
-      }
-
-      // Remove constant channels that have the default value.
-      const bool default_const = DefaultConstChannel(ch);
-      if (default_const) {
-        log_.Log(kLogVerbose,
-                 "Pruning constant channel %d that sets to default value %f\n",
-                 ch, channels_[ch].nodes[0].val);
-        channels_.erase(channels_.begin() + ch);
+          channels[ch].op = motive::kScaleUniformly;
+          channels.erase(channels.begin() + (ch + 1),
+                         channels.begin() + (ch + 3));
+        }
       }
     }
   }
 
   void LogChannel(FlatChannelId channel_id) const {
-    const Nodes& n = channels_[channel_id].nodes;
+    const Channels& channels = CurChannels();
+    const Nodes& n = channels[channel_id].nodes;
     for (size_t i = 0; i < n.size(); ++i) {
       const SplineNode& node = n[i];
-      log_.Log(kLogVerbose, "  flat, %d, %d, %f, %f\n", i, node.time, node.val,
-               node.derivative);
+      log_.Log(kLogVerbose, "    flat, %d, %d, %f, %f\n", i, node.time,
+               node.val, node.derivative);
     }
   }
 
-  bool OutputFlatBuffer(const std::string& input_file,
-                        const std::string& output_file) const {
+  void LogAllChannels() const {
+    log_.Log(kLogInfo, "  %30s %16s  %9s   %s\n", "bone name", "operation",
+             "time range", "values");
+    for (BoneIndex bone_idx = 0; bone_idx < bones_.size(); ++bone_idx) {
+      const Bone& bone = bones_[bone_idx];
+      const Channels& channels = bone.channels;
+      if (channels.size() == 0) continue;
+
+      for (auto c = channels.begin(); c != channels.end(); ++c) {
+        log_.Log(kLogInfo, "  %30s %16s   ", BoneBaseName(bone.name),
+                 MatrixOpName(c->op));
+        const char* format =
+            motive::RotateOp(c->op) ? "%.0f " : motive::TranslateOp(c->op)
+                                                    ? "%.1f "
+                                                    : "%.2f ";
+        const float factor =
+            motive::RotateOp(c->op) ? motive::kRadiansToDegrees : 1.0f;
+
+        const Nodes& n = c->nodes;
+        if (n.size() <= 1) {
+          log_.Log(kLogInfo, " constant   ");
+        } else {
+          log_.Log(kLogInfo, "%4d~%4d   ", n[0].time, n[n.size() - 1].time);
+        }
+
+        for (size_t i = 0; i < n.size(); ++i) {
+          log_.Log(kLogInfo, format, factor * n[i].val);
+        }
+        log_.Log(kLogInfo, "\n");
+      }
+    }
+  }
+
+  bool OutputFlatBuffer(const string& output_file,
+                        RepeatPreference repeat_preference) const {
     // Ensure output directory exists.
-    const std::string output_dir = DirectoryName(output_file);
-    if (!CreateDirectory(output_dir.c_str())) {
+    const string output_dir = fplutil::DirectoryName(output_file);
+    if (!fplutil::CreateDirectory(output_dir.c_str())) {
       log_.Log(kLogError, "Could not create output directory %s\n",
                output_dir.c_str());
       return false;
     }
 
+    // All the channels should end at the same time.
+    const FlatTime end_time = MaxAnimatedTime();
+
     flatbuffers::FlatBufferBuilder fbb;
+    std::vector<flatbuffers::Offset<motive::MatrixAnimFb>> matrix_anims;
+    std::vector<flatbuffers::Offset<flatbuffers::String>> bone_names;
+    std::vector<BoneIndex> bone_parents;
+    const size_t num_bones = bones_.size();
+    matrix_anims.reserve(num_bones);
+    bone_names.reserve(num_bones);
+    bone_parents.reserve(num_bones);
+    for (BoneIndex bone_idx = 0; bone_idx < num_bones; ++bone_idx) {
+      const Bone& bone = bones_[bone_idx];
+      const Channels& channels = bone.channels;
 
-    // Output each channel as a MatrixOp, and gather in the `ops` vector.
-    std::vector<flatbuffers::Offset<motive::MatrixOpFb>> ops;
-    for (auto c = channels_.begin(); c != channels_.end(); ++c) {
-      const Nodes& n = c->nodes;
-      assert(n.size() > 0);
+      // Output each channel as a MatrixOp, and gather in the `ops` vector.
+      std::vector<flatbuffers::Offset<motive::MatrixOpFb>> ops;
+      for (auto c = channels.begin(); c != channels.end(); ++c) {
+        const Nodes& n = c->nodes;
+        assert(n.size() > 0);
 
-      flatbuffers::Offset<void> value;
-      motive::MatrixOpValueFb value_type;
-      if (n.size() <= 1) {
-        // Output constant value MatrixOp.
-        value = motive::CreateConstantOpFb(fbb, n[0].val).Union();
-        value_type = motive::MatrixOpValueFb_ConstantOpFb;
+        flatbuffers::Offset<void> value;
+        motive::MatrixOpValueFb value_type;
+        if (n.size() <= 1) {
+          // Output constant value MatrixOp.
+          value = motive::CreateConstantOpFb(fbb, n[0].val).Union();
+          value_type = motive::MatrixOpValueFb_ConstantOpFb;
 
-      } else {
-        // Output spline MatrixOp.
-        CompactSpline s;
-        CreateCompactSpline(*c, &s);
-        value = CreateSplineFlatBuffer(fbb, s, ModularOp(c->op)).Union();
-        value_type = motive::MatrixOpValueFb_CompactSplineFb;
+        } else {
+          // Output spline MatrixOp.
+          CompactSpline s;
+          CreateCompactSpline(*c, end_time, &s);
+          value = CreateSplineFlatBuffer(fbb, s).Union();
+          value_type = motive::MatrixOpValueFb_CompactSplineFb;
+        }
+
+        ops.push_back(motive::CreateMatrixOpFb(
+            fbb, static_cast<motive::MatrixOperationTypeFb>(c->op), value_type,
+            value));
       }
 
-      ops.push_back(motive::CreateMatrixOpFb(
-          fbb, static_cast<motive::MatrixOperationTypeFb>(c->op), value_type,
-          value));
+      // Convert vector into a FlatBuffers vector, and create the
+      // MatrixAnimation.
+      auto ops_fb = fbb.CreateVector(ops);
+      auto matrix_anim_fb = CreateMatrixAnimFb(fbb, ops_fb);
+      matrix_anims.push_back(matrix_anim_fb);
+      bone_names.push_back(fbb.CreateString(bone.name));
+      bone_parents.push_back(BoneParent(bone_idx));
     }
 
-    // Convert vector into a FlatBuffers vector, and create the MatrixAnimation.
-    auto ops_fb = fbb.CreateVector(ops);
-    auto matrix_anim_fb = CreateMatrixAnimFb(fbb, ops_fb);
-    motive::FinishMatrixAnimFbBuffer(fbb, matrix_anim_fb);
+    // Finish off the FlatBuffer by creating the root RigAnimFb table.
+    auto bone_names_fb = fbb.CreateVector(bone_names);
+    auto bone_parents_fb = fbb.CreateVector(bone_parents);
+    auto matrix_anims_fb = fbb.CreateVector(matrix_anims);
+    const bool repeat = Repeat(repeat_preference);
+    auto rig_anim_fb = CreateRigAnimFb(fbb, matrix_anims_fb, bone_parents_fb,
+                                       bone_names_fb, repeat);
+    motive::FinishRigAnimFbBuffer(fbb, rig_anim_fb);
 
     // Create the output file.
     FILE* file = fopen(output_file.c_str(), "wb");
@@ -350,16 +466,15 @@ class FlatAnim {
     }
 
     // Write the binary data to the file and close it.
-    log_.Log(kLogVerbose, "Writing %s\n", output_file.c_str());
+    log_.Log(kLogVerbose, "Writing %s", output_file.c_str());
     fwrite(fbb.GetBufferPointer(), 1, fbb.GetSize(), file);
     fclose(file);
+
+    // Log summary.
+    log_.Log(kLogImportant, "  %s (%d bytes)\n",
+             fplutil::RemoveDirectoryFromName(output_file).c_str(), NumBytes());
     return true;
   }
-
- private:
-  struct SplineNode;
-  struct Channel;
-  typedef typename std::vector<SplineNode> Nodes;
 
   float ToleranceForOp(MatrixOperationType op) const {
     return motive::RotateOp(op)
@@ -369,20 +484,144 @@ class FlatAnim {
                      : motive::ScaleOp(op) ? tolerances_.scale : 0.1f;
   }
 
+  float ToleranceForDerivativeAngle() const {
+    return tolerances_.derivative_angle;
+  }
+
+  bool IsDefaultValue(MatrixOperationType op, float value) const {
+    return fabs(value - DefaultOpValue(op)) < ToleranceForOp(op);
+  }
+
+  int NumBytes() const {
+    static const size_t kBytesPerSplineNode = 6;
+    size_t num_bytes =
+        sizeof(motive::RigAnim) + bones_.size() * sizeof(motive::MatrixAnim);
+
+    for (size_t i = 0; i < bones_.size(); ++i) {
+      auto channels = bones_[i].channels;
+
+      num_bytes += channels.size() * sizeof(motive::MatrixOperationInit);
+      for (size_t j = 0; j < channels.size(); ++j) {
+        Nodes nodes = channels[j].nodes;
+        num_bytes += sizeof(CompactSpline) + nodes.size() * kBytesPerSplineNode;
+      }
+    }
+    return static_cast<int>(num_bytes);
+  }
+
+ private:
+  MOTIVE_DISALLOW_COPY_AND_ASSIGN(FlatAnim);
+
+  struct SplineNode;
+  struct Channel;
+  typedef std::vector<SplineNode> Nodes;
+  typedef std::vector<Channel> Channels;
+
+  Channels& CurChannels() {
+    assert(bones_.size() > 0);
+    return bones_.back().channels;
+  }
+  const Channels& CurChannels() const {
+    assert(bones_.size() > 0);
+    return bones_.back().channels;
+  }
+
   float Tolerance(FlatChannelId channel_id) const {
-    return ToleranceForOp(channels_[channel_id].op);
+    const Channels& channels = CurChannels();
+    return ToleranceForOp(channels[channel_id].op);
+  }
+
+  /// Return the time of the channel that requires the most time.
+  FlatTime MaxAnimatedTime() const {
+    FlatTime max_time = 0;
+    for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
+      const Channels& channels = bone->channels;
+      for (auto ch = channels.begin(); ch != channels.end(); ++ch) {
+        if (ch->nodes.size() > 0) {
+          max_time = std::max(max_time, ch->nodes.back().time);
+        }
+      }
+    }
+    return max_time;
+  }
+
+  /// Return the first channel of the first bone that isn't repeatable.
+  /// If all channels are repeatable, return kInvalidBoneIdx.
+  /// A channel is repeatable if its start and end values and derivatives
+  /// are within `tolerances_`.
+  BoneIndex FirstNonRepeatingBone(FlatChannelId* first_channel_id) const {
+    for (BoneIndex bone_idx = 0; bone_idx < bones_.size(); ++bone_idx) {
+      const Bone& bone = bones_[bone_idx];
+      const Channels& channels = bone.channels;
+
+      for (FlatChannelId channel_id = 0;
+           channel_id < static_cast<FlatChannelId>(channels.size());
+           ++channel_id) {
+        const Channel& channel = channels[channel_id];
+
+        // Get deltas for the start and end of the channel.
+        const SplineNode& start = channel.nodes.front();
+        const SplineNode& end = channel.nodes.back();
+        const float diff_val = fabs(start.val - end.val);
+        const float diff_derivative_angle =
+            fabs(DerivativeAngle(start.derivative - end.derivative));
+
+        // Return false unless the start and end of the channel are the same.
+        const float tolerance = ToleranceForOp(channel.op);
+        const bool same =
+            diff_val < tolerance &&
+            diff_derivative_angle < tolerances_.repeat_derivative_angle;
+        if (!same) {
+          *first_channel_id = channel_id;
+          return bone_idx;
+        }
+      }
+    }
+    return kInvalidBoneIdx;
+  };
+
+  // Determine if the animation should repeat back to start after it reaches
+  // the end.
+  bool Repeat(RepeatPreference repeat_preference) const {
+    if (repeat_preference == kNeverRepeat) return false;
+
+    // Check to see if the animation is repeatable.
+    FlatChannelId channel_id = 0;
+    const BoneIndex bone_idx = FirstNonRepeatingBone(&channel_id);
+    const bool repeat = repeat_preference == kAlwaysRepeat ||
+                        (repeat_preference == kRepeatIfRepeatable &&
+                         bone_idx == kInvalidBoneIdx);
+
+    // Log repeat information.
+    if (repeat_preference == kAlwaysRepeat) {
+      if (bone_idx != kInvalidBoneIdx) {
+        const Bone& bone = bones_[bone_idx];
+        const Channel& channel = bone.channels[channel_id];
+        log_.Log(kLogWarning,
+                 "Animation marked as repeating (as requested),"
+                 " but it does not repeat on bone %s's"
+                 " `%s` channel\n",
+                 bone.name.c_str(), MatrixOpName(channel.op));
+      }
+    } else if (repeat_preference == kRepeatIfRepeatable) {
+      log_.Log(kLogVerbose, repeat ? "Animation repeats.\n"
+                                   : "Animation does not repeat.\n");
+    }
+
+    return repeat;
   }
 
   /// @brief Return true if the three channels starting at `channel_id`
   ///        can be replaced with a single kScaleUniformly channel.
-  bool UniformScaleChannels(FlatChannelId channel_id) const {
-    if (channel_id + 2 >= static_cast<FlatChannelId>(channels_.size()))
+  bool UniformScaleChannels(const Channels& channels,
+                            FlatChannelId channel_id) const {
+    if (channel_id + 2 >= static_cast<FlatChannelId>(channels.size()))
       return false;
 
     // Consider the three channels starting at `channel_id`.
-    const Channel& c0 = channels_[channel_id];
-    const Channel& c1 = channels_[channel_id + 1];
-    const Channel& c2 = channels_[channel_id + 2];
+    const Channel& c0 = channels[channel_id];
+    const Channel& c1 = channels[channel_id + 1];
+    const Channel& c2 = channels[channel_id + 2];
 
     // The order is not important, but we need kScaleX, Y, and Z.
     const uint32_t op_bits = (1 << c0.op) | (1 << c1.op) | (1 << c2.op);
@@ -402,30 +641,80 @@ class FlatAnim {
       const SplineNode v0 = n0[i];
       const SplineNode v1 = n1[i];
       const SplineNode v2 = n2[i];
-      const float derivative_tolerance =
-          i == n0.size() - 1
-              ? std::numeric_limits<float>::infinity()
-              : tolerance * static_cast<float>(n0[i + 1].time - v0.time);
       const bool are_equal =
-          EqualNodes(v0, v1, tolerance, derivative_tolerance) &&
-          EqualNodes(v0, v2, tolerance, derivative_tolerance) &&
-          EqualNodes(v1, v2, tolerance, derivative_tolerance);
+          EqualNodes(v0, v1, tolerance, tolerances_.derivative_angle) &&
+          EqualNodes(v0, v2, tolerance, tolerances_.derivative_angle) &&
+          EqualNodes(v1, v2, tolerance, tolerances_.derivative_angle);
       if (!are_equal) return false;
     }
 
     return true;
   }
 
-  bool DefaultConstChannel(FlatChannelId channel_id) const {
-    const Channel& c = channels_[channel_id];
-    return ConstOp(c) &&
-           fabs(c.nodes[0].val - DefaultOpValue(c.op)) < Tolerance(c.op);
+  BoneIndex BoneParent(int bone_idx) const {
+    // If at top level, there is no parent, so return
+    const int bone_depth = bones_[bone_idx].depth;
+    if (bone_depth == 0) return kInvalidBoneIdx;
+
+    // `bones_` are in depth-first order, so the parent is the previous
+    // non-sibling.
+    for (int i = bone_idx - 1; i >= 0; --i) {
+      assert(bones_[i].depth >= bone_depth - 1);
+      if (bones_[i].depth < bone_depth) return static_cast<BoneIndex>(i);
+    }
+    assert(false);
+    return kInvalidBoneIdx;
+  }
+
+  /// @brief Returns true if all nodes between the first and last in `n`
+  ///        can be deleted without noticable difference to the curve.
+  bool IntermediateNodesRedundant(const SplineNode* n, size_t len,
+                                  float tolerance) const {
+    // If the start and end nodes occur at the same time and are equal,
+    // then ignore everything inbetween them.
+    const SplineNode& start = n[0];
+    const SplineNode& end = n[len - 1];
+    if (EqualNodes(start, end, tolerance, tolerances_.derivative_angle))
+      return true;
+
+    // Construct cubic curve `c` that skips all the intermediate nodes.
+    const float cubic_width = static_cast<float>(end.time - start.time);
+    const CubicCurve c(CubicInit(start.val, start.derivative, end.val,
+                                 end.derivative, cubic_width));
+
+    // For each intermediate node, check if the cubic `c` is close.
+    for (size_t i = 1; i < len - 1; ++i) {
+      // Evaluate `c` at the time of `mid`.
+      const SplineNode& mid = n[i];
+      const float mid_time = static_cast<float>(mid.time - start.time);
+      const float mid_val = c.Evaluate(mid_time);
+      const float mid_derivative = c.Derivative(mid_time);
+
+      // If the mid point is on the curve, it's redundant.
+      const float derivative_angle_error =
+          DerivativeAngle(mid_derivative - mid.derivative);
+      const bool mid_on_c =
+          fabs(mid_val - mid.val) < tolerance &&
+          fabs(derivative_angle_error) < tolerances_.derivative_angle;
+      if (!mid_on_c) return false;
+    }
+
+    // All mid points are redundant.
+    return true;
+  }
+
+  // Remove the namespacing from the bone name.
+  static const char* BoneBaseName(const string& name) {
+    const size_t colon = name.find_last_of(':');
+    const size_t base_idx = colon == string::npos ? 0 : colon + 1;
+    return &name[base_idx];
   }
 
   static bool EqualNodes(const SplineNode& a, const SplineNode& b,
                          float tolerance, float derivative_tolerance) {
     return a.time == b.time && fabs(a.val - a.val) < tolerance &&
-           fabs(a.derivative - b.derivative) < derivative_tolerance;
+           fabs(DerivativeAngle(a.derivative - b.derivative)) <
+               derivative_tolerance;
   }
 
   static bool ConstOp(const Channel& c) { return c.nodes.size() <= 1; }
@@ -439,24 +728,19 @@ class FlatAnim {
   }
 
   static flatbuffers::Offset<motive::CompactSplineFb> CreateSplineFlatBuffer(
-      flatbuffers::FlatBufferBuilder& fbb, const CompactSpline& s,
-      bool modular_arithmetic) {
+      flatbuffers::FlatBufferBuilder& fbb, const CompactSpline& s) {
     auto nodes_fb = fbb.CreateVectorOfStructs(
         reinterpret_cast<const motive::CompactSplineNodeFb*>(s.nodes()),
         s.NumNodes());
 
-    auto spline_fb = motive::CreateCompactSplineFb(
-        fbb, s.y_range().start(), s.y_range().end(), s.x_granularity(),
-        modular_arithmetic, nodes_fb);
+    auto spline_fb = motive::CreateCompactSplineFb(fbb, s.y_range().start(),
+                                                   s.y_range().end(),
+                                                   s.x_granularity(), nodes_fb);
 
     return spline_fb;
   }
 
   static Range SplineYRange(const Channel& ch) {
-    // Angles always occupy the full angular range, in case they traverse the
-    // pi boundary to -pi, or vice versa.
-    if (motive::RotateOp(ch.op)) return Range(-kPi, kPi);
-
     // Find extreme values for nodes.
     Range y_range(Range::Empty());
     for (auto n = ch.nodes.begin(); n != ch.nodes.end(); ++n) {
@@ -465,20 +749,28 @@ class FlatAnim {
     return y_range;
   }
 
-  static void CreateCompactSpline(const Channel& ch, CompactSpline* s) {
+  static void CreateCompactSpline(const Channel& ch, FlatTime end_time,
+                                  CompactSpline* s) {
     const Nodes& nodes = ch.nodes;
     assert(nodes.size() > 1);
 
     // Maximize the bits we get for x by making the last time the maximum
     // x-value.
-    const float x_granularity = CompactSpline::RecommendXGranularity(
-        static_cast<float>(nodes.back().time));
+    const float x_granularity =
+        CompactSpline::RecommendXGranularity(static_cast<float>(end_time));
     const Range y_range = SplineYRange(ch);
 
     // Construct the Spline from the node data directly.
     s->Init(y_range, x_granularity, static_cast<int>(nodes.size()));
     for (auto n = nodes.begin(); n != nodes.end(); ++n) {
       s->AddNode(static_cast<float>(n->time), n->val, n->derivative,
+                 kAddWithoutModification);
+    }
+
+    // Append one more node so that all channels end at the same time.
+    const SplineNode& back_node = nodes.back();
+    if (back_node.time < end_time) {
+      s->AddNode(static_cast<float>(end_time), back_node.val, 0.0f,
                  kAddWithoutModification);
     }
   }
@@ -497,16 +789,32 @@ class FlatAnim {
   };
 
   struct Channel {
-    std::string name;
     MatrixOperationType op;
     Nodes nodes;
 
     Channel() : op(kInvalidMatrixOperation) {}
-    Channel(const char* name, MatrixOperationType op) : name(name), op(op) {}
+    explicit Channel(MatrixOperationType op) : op(op) {}
   };
 
-  // Hold animation data. One curve per channel.
-  std::vector<Channel> channels_;
+  struct Bone {
+    // Unique name for this bone. Taken from mesh hierarchy.
+    string name;
+
+    // Hierarchy depth. From this we can derive the tree, since bones are
+    // listed in depth-first order.
+    int depth;
+
+    // Hold animation data. One curve per channel.
+    Channels channels;
+
+    Bone(const char* name, int depth) : name(name), depth(depth) {
+      // There probably won't be more than one of each op type.
+      channels.reserve(kNumMatrixOperationTypes);
+    }
+  };
+
+  // Hold animation data for each bone that's animated.
+  std::vector<Bone> bones_;
 
   // Amount output curves are allowed to deviate from input.
   Tolerances tolerances_;
@@ -519,24 +827,6 @@ struct ChannelNameToMatrixOp {
   const char* name;
   MatrixOperationType op;
 };
-
-// Convert from Maya channel name to MatrixOp.
-// TODO: Add channel names from other programs.
-static const ChannelNameToMatrixOp kChannelNameToMatrixOp[] = {
-    {"T.X", motive::kTranslateX},   {"T.Y", motive::kTranslateY},
-    {"T.Z", motive::kTranslateZ},   {"R.X", motive::kRotateAboutX},
-    {"R.Y", motive::kRotateAboutY}, {"R.Z", motive::kRotateAboutZ},
-    {"S.X", motive::kScaleX},       {"S.Y", motive::kScaleY},
-    {"S.Z", motive::kScaleZ},
-};
-
-static MatrixOperationType MatrixOpFromChannelName(const char* name) {
-  for (size_t i = 0; i < MOTIVE_ARRAY_SIZE(kChannelNameToMatrixOp); ++i) {
-    const ChannelNameToMatrixOp& m = kChannelNameToMatrixOp[i];
-    if (strcmp(m.name, name) == 0) return m.op;
-  }
-  return kInvalidMatrixOperation;
-}
 
 /// @class FbxParser
 /// @brief Load FBX files and save their geometry and animations in our
@@ -575,6 +865,11 @@ class FbxAnimParser {
   bool Load(const char* file_name) {
     if (!Valid()) return false;
 
+    log_.Log(
+        kLogInfo,
+        "---- anim_pipeline: %s ------------------------------------------\n",
+        fplutil::BaseFileName(file_name).c_str());
+
     // Create the importer and initialize with the file.
     FbxImporter* importer = FbxImporter::Create(manager_, "");
     const bool init_status =
@@ -587,10 +882,9 @@ class FbxAnimParser {
     importer->GetFileVersion(file_major, file_minor, file_revision);
 
     // Report version information.
-    log_.Log(kLogImportant,
-             "Loading %s (version %d.%d.%d) with SDK version %d.%d.%d\n",
-             file_name, file_major, file_minor, file_revision, sdk_major,
-             sdk_minor, sdk_revision);
+    log_.Log(kLogVerbose, "File version %d.%d.%d, SDK version %d.%d.%d\n",
+             file_major, file_minor, file_revision, sdk_major, sdk_minor,
+             sdk_revision);
 
     // Exit on load error.
     if (!init_status) {
@@ -612,49 +906,28 @@ class FbxAnimParser {
     // Exit if the import failed.
     if (!import_status) return false;
 
-    // Convert to our exported co-ordinate system: z-up, y-front, right-handed.
-    const FbxAxisSystem export_axes(FbxAxisSystem::EUpVector::eZAxis,
-                                    FbxAxisSystem::EFrontVector::eParityOdd,
-                                    FbxAxisSystem::eRightHanded);
-    export_axes.ConvertScene(scene_);
-
     // Get global scale from the internal units.
     global_scale_ =
-        scene_->GetGlobalSettings().GetSystemUnit().GetScaleFactor();
-    log_.Log(kLogInfo, "Scene scale factor is %f\n", global_scale_);
+        1.0 / scene_->GetGlobalSettings().GetSystemUnit().GetScaleFactor();
+    log_.Log(kLogVerbose, "Scene scale factor is %f\n", global_scale_);
 
     // Remember the source file name so we can search for textures nearby.
-    anim_file_name_ = std::string(file_name);
+    anim_file_name_ = string(file_name);
     return true;
   }
 
-  FbxAnimLayer* BaseAnimLayer() const {
-    // Traverse the scene and output one surface per mesh.
-    FbxAnimStack* anim_stack = scene_->GetCurrentAnimationStack();
-    if (anim_stack == nullptr) {
-      log_.Log(kLogWarning, "FBX scene has no animation.\n");
-      return nullptr;
-    }
-
-    // Check that there is exactly one animation layer.
-    const int num_layers = anim_stack->GetMemberCount<FbxAnimLayer>();
-    if (num_layers <= 0) {
-      log_.Log(kLogWarning, "FBX animation stack has no animation layers\n");
-      return nullptr;
-    }
-    if (num_layers > 1) {
-      log_.Log(kLogWarning,
-               "FBX animation stack multiple layers."
-               " Ignoring all but the base layer.\n");
-    }
-
-    // Return the base animation layer.
-    FbxAnimLayer* anim_layer = anim_stack->GetMember<FbxAnimLayer>(0);
-    assert(anim_layer != nullptr);
-    log_.Log(kLogInfo, "Processing animation layer `%s`\n",
-             anim_layer->GetName());
-    return anim_layer;
+  void GatherFlatAnim(FlatAnim* out) const {
+    // Initial depth is -1 since root node is always ignored.
+    GatherFlatAnimRecursive(scene_->GetRootNode(), -1, out);
   }
+
+ private:
+  MOTIVE_DISALLOW_COPY_AND_ASSIGN(FbxAnimParser);
+
+  struct AnimProperty {
+    FbxPropertyT<FbxDouble3>* property;
+    motive::MatrixOperationType x_op;
+  };
 
   static FlatTime FbxToFlatTime(const FbxTime& t) {
     const FbxLongLong milliseconds = t.GetMilliSeconds();
@@ -662,9 +935,11 @@ class FbxAnimParser {
     return static_cast<FlatTime>(milliseconds);
   }
 
-  FlatVal FbxToFlatValue(const float x, const MatrixOperationType op) const {
-    return motive::RotateOp(op) ? Angle::FromDegrees(x).ToRadians() :
-           motive::ScaleOp(op) ? global_scale_ * x : x;
+  FlatVal FbxToFlatValue(const double x, const MatrixOperationType op) const {
+    return motive::RotateOp(op) ? static_cast<float>(FBXSDK_DEG_TO_RAD * x)
+                                : motive::TranslateOp(op)
+                                      ? static_cast<FlatVal>(global_scale_ * x)
+                                      : static_cast<float>(x);
   }
 
   FlatDerivative FbxToFlatDerivative(const float d,
@@ -675,18 +950,181 @@ class FbxAnimParser {
     return FbxToFlatValue(d_time_scaled, op);
   }
 
+  void GatherFlatAnimRecursive(FbxNode* node, int depth, FlatAnim* out) const {
+    // We're only interested in mesh nodes. If a node and all nodes under it
+    // have no meshes, we early out.
+    if (node == nullptr || !NodeHasMesh(node)) return;
+    log_.Log(kLogVerbose, "Node: %s\n", node->GetName());
+
+    // The root node cannot have a transform applied to it, so we do not
+    // export it as a bone.
+    if (node != scene_->GetRootNode()) {
+      // Add a bone for this node, and gather the animation data that drives it.
+      out->AllocBone(node->GetName(), depth);
+      GatherFlatAnimForNode(node, out);
+    }
+
+    // Recursively traverse each node in the scene
+    for (int i = 0; i < node->GetChildCount(); i++) {
+      GatherFlatAnimRecursive(node->GetChild(i), depth + 1, out);
+    }
+  }
+
+  static FbxAnimCurveNode* AnimCurveNodeDrivingProperty(FbxProperty& property) {
+    const int count = property.GetSrcObjectCount();
+    for (int i = 0; i < count; ++i) {
+      FbxObject* obj = property.GetSrcObject(i);
+      if (obj->GetClassId() == FbxAnimCurveNode::ClassId)
+        return static_cast<FbxAnimCurveNode*>(obj);
+    }
+    return nullptr;
+  }
+
+  bool AnimConst(const AnimProperty& p, int channel, float tolerance,
+                 float derivative_tolerance, FbxAnimCurveNode* anim_node,
+                 float* const_value) const {
+    // If anim_node can provide no data, return the value from the property.
+    if (anim_node == nullptr ||
+        channel >= static_cast<int>(anim_node->GetChannelsCount())) {
+      *const_value = FbxToFlatValue(p.property->Get()[channel], p.x_op);
+      return true;
+    }
+
+    // Grab the start value from the anim_node. If const, this will be the
+    // constant value.
+    *const_value =
+        FbxToFlatValue(anim_node->GetChannelValue(channel, 0.0f), p.x_op);
+
+    // If there is no animation curve, or the curve has no keys, then must be
+    // const.
+    FbxAnimCurve* curve = anim_node->GetCurve(channel);
+    if (curve == nullptr || curve->KeyGetCount() <= 0) return true;
+
+    // The first value may be different from the value at time 0.
+    // The value at time 0 may actually be the end value, if the first key
+    // doesn't start at time 0 and the channel cycles.
+    const float first_value = FbxToFlatValue(curve->KeyGetValue(0), p.x_op);
+
+    // If any keys has a different value, or non-zero slope, then not const.
+    const int num_keys = curve->KeyGetCount();
+    for (int i = 0; i < num_keys - 1; ++i) {
+      const float left_derivative =
+          FbxToFlatDerivative(curve->KeyGetLeftDerivative(i), p.x_op);
+      const float right_derivative =
+          FbxToFlatDerivative(curve->KeyGetRightDerivative(i), p.x_op);
+      const float value = FbxToFlatValue(curve->KeyGetValue(i + 1), p.x_op);
+      if (fabs(DerivativeAngle(left_derivative)) > derivative_tolerance ||
+          fabs(DerivativeAngle(right_derivative)) > derivative_tolerance ||
+          fabs(value - first_value) > tolerance)
+        return false;
+    }
+    return true;
+  }
+
+  static const int* ChannelOrder(const FbxNode* node,
+                                 const MatrixOperationType op) {
+    // X,y,z order is significant only for rotations.
+    if (!motive::RotateOp(op)) return kDefaultChannelOrder;
+
+    // We output the last channel first, since they're applied in reverse
+    // order.
+    FbxEuler::EOrder rotation_order;
+    node->GetRotationOrder(FbxNode::eSourcePivot, rotation_order);
+    assert(0 <= rotation_order &&
+           rotation_order < MOTIVE_ARRAY_SIZE(kRotationOrderToChannelOrder));
+    return kRotationOrderToChannelOrder[rotation_order];
+  }
+
+  void GatherFlatAnimForNode(FbxNode* node, FlatAnim* out) const {
+    // The FBX tranform format is defined as below (see
+    // http://help.autodesk.com/view/FBX/2016/ENU/?guid=__files_GUID_10CDD63C_79C1_4F2D_BB28_AD2BE65A02ED_htm):
+    //
+    // WorldTransform = ParentWorldTransform * T * Roff * Rp * Rpre * R *
+    //                  Rpost_inv * Rp_inv * Soff * Sp * S * Sp_inv
+    //
+    // But for now, we simplify as (see mesh_pipeline.cpp for details),
+    //
+    // WorldTransform = ParentWorldTransform * Roff * T * R * S
+    //
+    // TODO: Add in support for animating other properties. Not a big deal,
+    //       just a few more lines of code in this function.
+    const AnimProperty properties[] = {
+        {&node->LclTranslation, motive::kTranslateX},
+        {&node->LclRotation, motive::kRotateAboutX},
+        {&node->LclScaling, motive::kScaleX}, };
+
+    for (size_t i = 0; i < MOTIVE_ARRAY_SIZE(properties); ++i) {
+      const AnimProperty& p = properties[i];
+
+      // Skeletons have a fixed translate that cannot be animated.
+      // Skeletal translates are applied in mesh_pipeline and output in the
+      // constant bone transform.
+      if (motive::TranslateOp(p.x_op) && node->GetSkeleton() != nullptr)
+        continue;
+
+      // Get the curve attached to the property that's animated.
+      FbxAnimCurveNode* anim_node = AnimCurveNodeDrivingProperty(*p.property);
+      if (anim_node == nullptr) continue;
+
+      // Ensure we have three channels (x, y, z).
+      const int num_channels = anim_node->GetChannelsCount();
+      if (num_channels != 3) {
+        log_.Log(kLogError, "Animation property has %d channels instead of 3\n",
+                 num_channels);
+        continue;
+      }
+
+      // Rotations must be applied in the correct order.
+      const int* channel_order = ChannelOrder(node, p.x_op);
+      for (int channel_idx = 0; channel_idx < 3; ++channel_idx) {
+        // Proceed through each channel: x, y, z.
+        const int channel = channel_order[channel_idx];
+        const motive::MatrixOperationType op =
+            static_cast<motive::MatrixOperationType>(p.x_op + channel);
+
+        // If the channel is const, only output if it's not the default value.
+        float const_value = 0.0f;
+        const bool anim_const = AnimConst(p, channel, out->ToleranceForOp(op),
+                                          out->ToleranceForDerivativeAngle(),
+                                          anim_node, &const_value);
+        if (anim_const && out->IsDefaultValue(op, const_value)) continue;
+
+        // Allocate a channel_id for the output data.
+        const FlatChannelId channel_id = out->AllocChannel(op);
+
+        // Record constant value for this channel.
+        if (anim_const) {
+          out->AddConstant(channel_id, const_value);
+          log_.Log(kLogVerbose, "  %s: constant %f\n", MatrixOpName(op),
+                   const_value);
+          continue;
+        }
+
+        // We process only the first curve, for simplicity.
+        // If we run into animations with multiple curves, we should add
+        // extra logic here.
+        const int num_curves = anim_node->GetCurveCount(channel);
+        if (num_curves > 1) {
+          log_.Log(kLogWarning, "%s has %d curves. Only using the first one.\n",
+                   MatrixOpName(op), num_curves);
+        }
+
+        // For every key in the curve, log data to `out`.
+        log_.Log(kLogVerbose, "  %s: curve\n", MatrixOpName(op));
+        FbxAnimCurve* curve = anim_node->GetCurve(channel);
+        GatherFlatAnimCurve(channel_id, curve, op, out);
+      }
+    }
+
+    // Collapse unnecesary channels, when possible.
+    out->PruneChannels();
+  }
+
   void GatherFlatAnimCurve(const FlatChannelId channel_id, FbxAnimCurve* curve,
                            const MatrixOperationType op, FlatAnim* out) const {
-    log_.Log(kLogVerbose, "  source, key, x, y, slope\n");
+    log_.Log(kLogVerbose, "    source, key, x, y, slope\n");
     const int num_keys = curve->KeyGetCount();
-
-    // If there is only one key, then the value can never change.
-    if (num_keys == 1) {
-      const float const_val = FbxToFlatValue(curve->EvaluateIndex(0.0), op);
-      log_.Log(kLogVerbose, "  constant %f\n", const_val);
-      out->AddConstant(channel_id, const_val);
-      return;
-    }
+    assert(num_keys > 1);  // Since we checked for constant values earlier.
 
     // If there are multiple keys, then add at least one cubic for each
     // key interval.
@@ -718,10 +1156,10 @@ class FbxAnimParser {
                     derivatives, kNumIntermediateValues);
 
       // Log the input key points.
-      log_.Log(kLogVerbose, "  fbx, %d, %d, %f, %f\n", k, start_time_flat,
+      log_.Log(kLogVerbose, "    fbx, %d, %d, %f, %f\n", k, start_time_flat,
                values[0], derivatives[0]);
       if (k == num_keys - 2) {
-        log_.Log(kLogVerbose, "  fbx, %d, %d, %f, %f\n", k + 1, end_time_flat,
+        log_.Log(kLogVerbose, "    fbx, %d, %d, %f, %f\n", k + 1, end_time_flat,
                  values[kNumIntermediateValues - 1],
                  derivatives[kNumIntermediateValues - 1]);
       }
@@ -734,77 +1172,17 @@ class FbxAnimParser {
     out->LogChannel(channel_id);
   }
 
-  // Gather converted geometry into our `FlatMesh` class.
-  void GatherFlatAnim(FlatAnim* out) const {
-    FbxAnimLayer* anim_layer = BaseAnimLayer();
+  // Return true if `node` or any of its children has a mesh.
+  static bool NodeHasMesh(FbxNode* node) {
+    if (node->GetMesh() != nullptr) return true;
 
-    // Iterate through each anim node in the anim layer.
-    // An anim node connects animation curves to properties in the scene.
-    const int num_anim_nodes = anim_layer->GetMemberCount<FbxAnimCurveNode>();
-    for (int i = 0; i < num_anim_nodes; ++i) {
-      FbxAnimCurveNode* anim_node = anim_layer->GetMember<FbxAnimCurveNode>(i);
-      const int num_channels = anim_node->GetChannelsCount();
-      log_.Log(kLogInfo,
-               "Processing animation node %d, `%s`, with %d channels\n", i,
-               anim_node->GetName(), num_channels);
-
-      // Iterate through each anim channel in the anim node.
-      // An anim channel is a one-dimensional curve.
-      for (int channel = 0; channel < num_channels; ++channel) {
-        // Calculate the channel name, and find the operation for it.
-        // Maya has some standard names it assigns channels.
-        // We assume that these standard names are being used.
-        const std::string channel_name(
-            std::string(anim_node->GetName()) + "." +
-            std::string(anim_node->GetChannelName(channel).Buffer()));
-        const MatrixOperationType op =
-            MatrixOpFromChannelName(channel_name.c_str());
-        if (op == kInvalidMatrixOperation) {
-          log_.Log(kLogWarning,
-                   "Channel %d (`%s`): cannot determine operation.\n", channel,
-                   channel_name.c_str());
-          continue;
-        }
-
-        // Allocate a channel_id for the output data.
-        const FlatChannelId channel_id =
-            out->AllocChannel(channel_name.c_str(), op);
-
-        // Handle case where the channel has no curves.
-        // Record constant value for this channel.
-        const int num_curves = anim_node->GetCurveCount(channel);
-        if (num_curves <= 0) {
-          const float const_value =
-              FbxToFlatValue(anim_node->GetChannelValue(channel, 0.0f), op);
-          out->AddConstant(channel_id, const_value);
-          log_.Log(kLogInfo, "Processing channel %d (`%s`): constant %f\n",
-                   channel_id, channel_name.c_str(), const_value);
-          continue;
-        }
-
-        // We process only the first curve, for simplicity.
-        // If we run into animations with multiple curves, we should add
-        // extra logic here.
-        if (num_curves > 1) {
-          log_.Log(kLogWarning,
-                   "Channel %d (`%s`) has %d curves."
-                   " Only using the first one.\n",
-                   channel_id, channel_name.c_str(), num_curves);
-        }
-
-        // For every key in the curve, log data to `out`.
-        log_.Log(kLogInfo, "Processing channel %d (`%s`): curve\n", channel_id,
-                 channel_name.c_str());
-        FbxAnimCurve* curve = anim_node->GetCurve(channel);
-        GatherFlatAnimCurve(channel_id, curve, op, out);
-      }
+    // Recursively traverse each child node.
+    for (int i = 0; i < node->GetChildCount(); i++) {
+      if (NodeHasMesh(node->GetChild(i))) return true;
     }
-
-    // Collapse unnecesary channels, when possible.
-    out->PruneChannels();
+    return false;
   }
 
- private:
   // Entry point to the FBX SDK.
   FbxManager* manager_;
 
@@ -818,19 +1196,24 @@ class FbxAnimParser {
 
   // Name of source mesh file. Used to search for textures, when the textures
   // are not found in their referenced location.
-  std::string anim_file_name_;
+  string anim_file_name_;
 
   // Information and warnings.
   Logger& log_;
 };
 
 struct AnimPipelineArgs {
-  AnimPipelineArgs() : fbx_file(""), output_file(""), log_level(kLogImportant) {}
+  AnimPipelineArgs()
+      : fbx_file(""),
+        output_file(""),
+        log_level(kLogWarning),
+        repeat_preference(kRepeatIfRepeatable) {}
 
-  std::string fbx_file;    /// FBX input file to convert.
-  std::string output_file; /// File to write .fplanim to.
-  LogLevel log_level;      /// Amount of logging to dump during conversion.
-  Tolerances tolerances;   /// Amount output curves can deviate from input.
+  string fbx_file;        /// FBX input file to convert.
+  string output_file;     /// File to write .fplanim to.
+  LogLevel log_level;     /// Amount of logging to dump during conversion.
+  Tolerances tolerances;  /// Amount output curves can deviate from input.
+  RepeatPreference repeat_preference;  /// Loop back to start when reaches end.
 };
 
 static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
@@ -839,9 +1222,9 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
 
   // Last parameter is used as file name.
   if (argc > 1) {
-    args->fbx_file = std::string(argv[argc - 1]);
-    args->output_file = RemoveExtensionFromName(args->fbx_file) + "." +
-                        motive::MatrixAnimFbExtension();
+    args->fbx_file = string(argv[argc - 1]);
+    args->output_file = fplutil::RemoveExtensionFromName(args->fbx_file) + "." +
+                        motive::RigAnimFbExtension();
   }
 
   // Ensure file name is valid.
@@ -853,45 +1236,69 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
 
   // Parse switches.
   for (int i = 1; i < argc - 1; ++i) {
-    const std::string arg = argv[i];
+    const string arg = argv[i];
 
-    // -v switch
     if (arg == "-v" || arg == "--verbose") {
       args->log_level = kLogVerbose;
 
-      // -o switch
-    } else if (arg == "-o") {
+    } else if (arg == "-d" || arg == "--details") {
+      args->log_level = kLogImportant;
+
+    } else if (arg == "-i" || arg == "--info") {
+      args->log_level = kLogInfo;
+
+    } else if (arg == "-o" || arg == "--out") {
       if (i + 1 < argc - 1) {
-        args->output_file = std::string(argv[i + 1]);
+        args->output_file = string(argv[i + 1]);
         i++;
       } else {
         valid_args = false;
       }
 
-      // -s switch
-    } else if (arg == "-s") {
+    } else if (arg == "-s" || arg == "--scale") {
       args->tolerances.scale = static_cast<float>(atof(arg.c_str()));
       if (args->tolerances.scale <= 0.0f) {
         log.Log(kLogError, "scale_tolerance must be > 0.");
         valid_args = false;
       }
 
-      // -q switch
-    } else if (arg == "-q") {
+    } else if (arg == "-r" || arg == "--rotate") {
       const float degrees = static_cast<float>(atof(arg.c_str()));
-      if (0.0f < degrees && degrees < 180.0f) {
-        log.Log(kLogError, "rotate_tolerance must be >0 and <180.");
+      if (degrees <= 0.0f || degrees > 180.0f) {
+        log.Log(kLogError, "rotate_tolerance must be >0 and <=180.");
         valid_args = false;
       } else {
-        args->tolerances.rotate = fpl::Angle::FromDegrees(degrees).ToRadians();
+        args->tolerances.rotate =
+            motive::Angle::FromDegrees(degrees).ToRadians();
       }
 
-      // -t switch
-    } else if (arg == "-t") {
+    } else if (arg == "-t" || arg == "--translate") {
       args->tolerances.translate = static_cast<float>(atof(arg.c_str()));
       if (args->tolerances.translate <= 0.0f) {
         log.Log(kLogError, "translate_tolerance must be > 0.");
         valid_args = false;
+      }
+
+    } else if (arg == "-a" || arg == "--angle") {
+      const float degrees = static_cast<float>(atof(arg.c_str()));
+      if (degrees <= 0.0f || degrees > 90.0f) {
+        log.Log(kLogError, "derivative_tolerance must be >0 and <=90.");
+        valid_args = false;
+      } else {
+        args->tolerances.derivative_angle =
+            motive::Angle::FromDegrees(degrees).ToRadians();
+      }
+
+    } else if (arg == "--repeat" || arg == "--norepeat") {
+      const RepeatPreference repeat_preference =
+          arg == "--repeat" ? kAlwaysRepeat : kNeverRepeat;
+      if (args->repeat_preference != kRepeatIfRepeatable &&
+          args->repeat_preference != repeat_preference) {
+        log.Log(kLogError,
+                "Only one of --repeat and --norepeat can be specified.\n");
+        valid_args = false;
+      } else {
+        args->repeat_preference = repeat_preference;
       }
 
     } else {
@@ -904,54 +1311,72 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
   if (!valid_args) {
     log.Log(
         kLogImportant,
-        "Usage: anim_pipeline [-v] [-o OUTPUT_FILE] [-s scale_tolerance]\n"
-        "           [-q rotate_tolerance] [-t translate_tolerance]\n"
-        " FBX_FILE\n"
+        "Usage: anim_pipeline [-v|-d|-i] [-o OUTPUT_FILE]\n"
+        "           [-s SCALE_TOLERANCE] [-r ROTATE_TOLERANCE]\n"
+        "           [-t TRANSLATE_TOLERANCE] [-a DERIVATIVE_TOLERANCE]\n"
+        "           [--repeat|--norepeat] FBX_FILE\n"
+        "\n"
         "Pipeline to convert FBX animations into FlatBuffer animations.\n"
-        "Outputs an .fplanim file with the same base name as FBX_FILE.\n\n"
+        "Outputs a .motiveanim file with the same base name as FBX_FILE.\n\n"
         "Options:\n"
-        "  -v, --verbose             output all informative messages\n"
-        "  -o OUTPUT_FILE            file to write .fplanim file to;\n"
-        "                            can be an absolute or relative path;\n"
-        "                            when unspecified, use base FBX name\n"
-        "                            + .fplanim\n"
-        "  -s scale_tolerance        max deviation of output scale curves\n"
-        "                            from input scale curves, unitless\n"
-        "  -q rotate_tolerance       max deviation of output rotate curves\n"
-        "                            from intput rotate curves, in degrees\n"
-        "  -t translate_tolerance    max deviation of output translate curves\n"
-        "                            from input translate curves, in scene's\n"
-        "                            units of distance\n");
+        "  -v, --verbose         output all informative messages\n"
+        "  -d, --details         output important informative messages\n"
+        "  -i, --info            output more than details, less than verbose.\n"
+        "  -o, --out OUTPUT_FILE file to write .motiveanim file to;\n"
+        "                        can be an absolute or relative path;\n"
+        "                        when unspecified, uses base FBX name\n"
+        "                        + .motiveanim\n"
+        "  -s, --scale SCALE_TOLERANCE\n"
+        "                        max deviation of output scale curves\n"
+        "                        from input scale curves, unitless\n"
+        "  -r, --rotate ROTATE_TOLERANCE\n"
+        "                        max deviation of output rotate curves\n"
+        "                        from intput rotate curves, in degrees\n"
+        "  -t, --translate TRANSLATE_TOLERANCE\n"
+        "                        max deviation of output translate curves\n"
+        "                        from input translate curves, in scene's\n"
+        "                        units of distance\n"
+        "  -a, --angle DERIVATIVE_TOLERANCE\n"
+        "                        max deviation of curve derivatives,\n"
+        "                        considered as an angle in the x/y plane\n"
+        "                        (e.g. derivative 1 ==> 45 degrees),\n"
+        "                        in degrees.\n"
+        "  --repeat, --norepeat  mark the animation as repeating or not\n"
+        "                        repeating. A repeating animation cycles\n"
+        "                        over and over. If neither option is\n"
+        "                        specified, the animation is marked as\n"
+        "                        repeating when it starts and ends\n"
+        "                        with the same pose and derivatives.\n");
   }
 
   return valid_args;
 }
 
-}  // namespace fpl
+}  // namespace motive
 
 int main(int argc, char** argv) {
-  using namespace fpl;
-  Logger log;
+  motive::Logger log;
 
   // Parse the command line arguments.
-  AnimPipelineArgs args;
+  motive::AnimPipelineArgs args;
   if (!ParseAnimPipelineArgs(argc, argv, log, &args)) return 1;
 
   // Update the amount of information we're dumping.
   log.set_level(args.log_level);
 
   // Load the FBX file.
-  FbxAnimParser pipe(log);
+  motive::FbxAnimParser pipe(log);
   const bool load_status = pipe.Load(args.fbx_file.c_str());
   if (!load_status) return 1;
 
   // Gather data into a format conducive to our FlatBuffer format.
-  FlatAnim anim(args.tolerances, log);
+  motive::FlatAnim anim(args.tolerances, log);
   pipe.GatherFlatAnim(&anim);
 
   // Output gathered data to a binary FlatBuffer.
+  anim.LogAllChannels();
   const bool output_status =
-      anim.OutputFlatBuffer(args.fbx_file, args.output_file);
+      anim.OutputFlatBuffer(args.output_file, args.repeat_preference);
   if (!output_status) return 1;
 
   // Success.

@@ -15,12 +15,14 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include "motive/math/angle.h"
 #include "motive/math/bulk_spline_evaluator.h"
 #include "motive/math/dual_cubic.h"
+#include "motive/util/benchmark.h"
 
 using mathfu::Lerp;
 
-namespace fpl {
+namespace motive {
 
 static const uint32_t kMask32True = 0xFFFFFFFF;
 static const uint32_t kMask32False = 0x00000000;
@@ -65,14 +67,115 @@ void BulkSplineEvaluator::SetYRange(const Index index, const Range& valid_y,
   r.modular_arithmetic = modular_arithmetic ? kMask32True : kMask32False;
 }
 
-void BulkSplineEvaluator::SetSpline(const Index index,
-                                    const SplinePlayback& playback) {
+CubicInit BulkSplineEvaluator::CalculateBlendInit(
+    const Index index, const CompactSpline& spline,
+    const SplinePlayback& playback) const {
+
+  // Calculate spline segment where the blend will end.
+  const float blend_width = playback.blend_x * playback.playback_rate;
+  float blend_end_x = 0.0f;
+  const CompactSplineIndex blend_end_index = spline.IndexForXAllowingRepeat(
+      playback.start_x + blend_width, kInvalidSplineIndex, playback.repeat,
+      &blend_end_x);
+
+  // Gather the spline values. Only create the cubic if we have to.
+  float end_y = 0.0f;
+  float end_derivative = 0.0f;
+  if (OutsideSpline(blend_end_index)) {
+    // Get the start or end y-values of the spline.
+    end_y = spline.NodeY(blend_end_index);
+
+  } else {
+    // Create the cubic for the end segment.
+    const float curve_x = blend_end_x - spline.NodeX(blend_end_index);
+    const CubicInit curve_init = spline.CreateCubicInit(blend_end_index);
+    const CubicCurve curve(curve_init);
+    end_y = curve.Evaluate(curve_x);
+    end_derivative = curve.Derivative(curve_x);
+  }
+
+  // Use the current values for the curve start.
+  float start_y = ys_[index];
+  const float start_derivative = Derivative(index);
+
+  // Account for modular arithmentic. Always start in the normalized range.
+  const YRange& r = y_ranges_[index];
+  if (r.modular_arithmetic != 0) {
+    // We take the shortest modular path to the new curve.
+    // So if we're blending from angle 170 to angle -170 (=+190),
+    // we will blend from 170-->190 instead of 170-->-170.
+    const Range& valid_y = r.valid_y;
+    start_y = valid_y.NormalizeCloseValue(start_y);
+    const float end_y_normalized = valid_y.NormalizeCloseValue(end_y);
+    const float diff_y = valid_y.Normalize(end_y_normalized - start_y);
+    end_y = start_y + diff_y;
+  }
+
+  // Return the cubic parameters.
+  return CubicInit(start_y, start_derivative, end_y, end_derivative,
+                   blend_width);
+}
+
+void BulkSplineEvaluator::BlendToSpline(const Index index,
+                                        const CompactSpline& spline,
+                                        const SplinePlayback& playback) {
+  // Calculate the spline that transitions from the current curve state
+  // to the target spline's state.
+  // Transition spline runs from x=0-->playback.blend_time.
+  const CubicInit blend_init = CalculateBlendInit(index, spline, playback);
+
+  // Shift the transition spline so that it overlaps perfectly onto the target
+  // spline. Initialize all the x-parameters as if we were initializing the
+  // target spline. This will let us transition out of the transition spline
+  // straight into the target spline without special casing.
+  float blend_start_x = 0.0f;
+  const CompactSplineIndex blend_start_index = spline.IndexForXAllowingRepeat(
+      playback.start_x, kInvalidSplineIndex, playback.repeat, &blend_start_x);
+  const float cubic_start_x = blend_start_x - spline.NodeX(blend_start_index);
+
   Source& s = sources_[index];
-  s.spline = playback.splines[0];
+  s.spline = &spline;
+  s.x_index = blend_start_index;
+  s.repeat = playback.repeat;
+  playback_rates_[index] = playback.playback_rate;
+  cubic_xs_[index] = cubic_start_x;
+  cubic_x_ends_[index] = cubic_start_x + playback.blend_x;
+  cubics_[index].Init(blend_init);
+  cubics_[index].ShiftRight(cubic_start_x);
+}
+
+void BulkSplineEvaluator::JumpToSpline(const Index index,
+                                       const CompactSpline& spline,
+                                       const SplinePlayback& playback) {
+  Source& s = sources_[index];
+  s.spline = &spline;
   s.x_index = kInvalidSplineIndex;
   s.repeat = playback.repeat;
   playback_rates_[index] = playback.playback_rate;
   InitCubic(index, playback.start_x);
+}
+
+void BulkSplineEvaluator::SetSpline(
+    const Index index, const CompactSpline& spline,
+    const SplinePlayback& playback) {
+
+  // If we're already playing a spline, and the blend time is specified,
+  // create a curve that blends from the current state to a point later in
+  // the new spline.
+  const Source& s = sources_[index];
+  const bool should_blend = s.spline != nullptr && playback.blend_x > 0.0f;
+  if (should_blend) {
+    BlendToSpline(index, spline, playback);
+  } else {
+    JumpToSpline(index, spline, playback);
+  }
+
+  // Update the results.
+  EvaluateIndex(index);
+}
+
+void BulkSplineEvaluator::SetX(const Index index, const float x) {
+  InitCubic(index, x);
   EvaluateIndex(index);
 }
 
@@ -146,22 +249,19 @@ void BulkSplineEvaluator::InitCubic(const Index index, const float start_x) {
   Source& s = sources_[index];
   if (s.spline == nullptr) return;
 
-  // Do nothing if the current cubic matches the current spline segment.
-  float new_start_x = start_x;
-  CompactSplineIndex x_index = s.spline->IndexForX(new_start_x, s.x_index + 1);
-  assert(s.x_index != x_index);
-  if (s.repeat && x_index == kAfterSplineIndex) {
-    new_start_x -= s.spline->LengthX();
-    x_index = s.spline->IndexForX(new_start_x, 0);
-  }
+  // Get the spline index for start_x.
+  float new_start_x = 0.0f;
+  const CompactSplineIndex x_index = s.spline->IndexForXAllowingRepeat(
+      start_x, s.x_index + 1, s.repeat, &new_start_x);
 
   // Update the x values for the new index.
   const Range x_range = s.spline->RangeX(x_index);
   cubic_xs_[index] = new_start_x - x_range.start();
 
-  // If the index hasn't changed (perhaps we've wrapped around all the way to
-  // the current index), then we don't have to recreate the cubic.
-  if (s.x_index == x_index) return;
+  // TODO OPT: Exit early if s.x_index == x_index, since we've already
+  //   initialized the cubic. This is tricky, since if we're blending then the
+  //   index might match, but the cubic curve will not mach. We should refactor
+  //   to detect that case, so we can skip over the CreateCubicInit() call.
   s.x_index = x_index;
 
   // Initialize the cubic to interpolate the new spline segment.
@@ -169,37 +269,12 @@ void BulkSplineEvaluator::InitCubic(const Index index, const float start_x) {
   CubicCurve& c = cubics_[index];
   const CubicInit init = s.spline->CreateCubicInit(x_index);
   c.Init(init);
-
-  // The start y value of the cubic is d.cubic.Coeff(0) (the constant
-  // coefficient) since cubic_x=0 at the start. So to ensure that the cubic
-  // is normalized, it sufficents to ensure that d.cubic.Coeff(0) is normalized.
-  const YRange& r = y_ranges_[index];
-  if (r.modular_arithmetic) {
-    c.SetCoeff(0, r.valid_y.NormalizeWildValue(c.Coeff(0)));
-  }
 }
 
 void BulkSplineEvaluator::EvaluateIndex(const Index index) {
   // Evaluate the cubic spline.
   CubicCurve& c = cubics_[index];
-  float y = c.Evaluate(cubic_xs_[index]);
-
-  // Clamp or normalize the y value, to bring into the valid y range.
-  // Also adjust the constant of the cubic so that next time we evaluate the
-  // cubic it will be inside the normalized range.
-  const YRange& r = y_ranges_[index];
-  if (r.modular_arithmetic) {
-    const float adjustment = r.valid_y.ModularAdjustment(y);
-    y += adjustment;
-    c.SetCoeff(0, c.Coeff(0) + adjustment);
-    assert(r.valid_y.Contains(y));
-
-  } else {
-    y = r.valid_y.Clamp(y);
-  }
-
-  // Remember this value in our results array.
-  ys_[index] = y;
+  ys_[index] = c.Evaluate(cubic_xs_[index]);
 }
 
 void BulkSplineEvaluator::EvaluateCubics_C() {
@@ -339,4 +414,4 @@ inline void BulkSplineEvaluator::EvaluateCubics() {
 #endif  // not defined(MOTIVE_ASSEMBLY_TEST)
 }
 
-}  // namespace fpl
+}  // namespace motive

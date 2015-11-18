@@ -18,7 +18,7 @@
 #include "motive/math/compact_spline.h"
 #include "motive/util/optimizations.h"
 
-namespace fpl {
+namespace motive {
 
 /// @class BulkSplineEvaluator
 /// @brief Traverse through a set of splines in a performant way.
@@ -53,7 +53,7 @@ class BulkSplineEvaluator {
   /// holes with MoveIndex(), to move items from the last index into the hole.
   /// Once all holes have been moved to the highest indices, you can call
   /// SetNumIndices() to stop processing these highest indices. Note that this
-  /// is exactly what fpl::IndexAllocator does. You should use that class to
+  /// is exactly what fplutil::IndexAllocator does. You should use that class to
   /// keep your indices contiguous.
   void MoveIndex(const Index old_index, const Index new_index);
 
@@ -65,7 +65,16 @@ class BulkSplineEvaluator {
 
   /// Initialize `index` to process `s.spline` starting from `s.start_x`.
   /// The Y() and Derivative() values are immediately available.
-  void SetSpline(const Index index, const SplinePlayback& s);
+  void SetSpline(const Index index, const CompactSpline& spline,
+                 const SplinePlayback& playback);
+
+  /// Mark spline as invalid.
+  void ClearSpline(const Index index) { sources_[index].spline = nullptr; }
+
+  /// Reposition the spline at `index` evaluate from `x`.
+  /// Same as calling SetSpline() with the same spline and
+  /// `playback.start_x = x`.
+  void SetX(const Index index, const float x);
 
   /// Set conversion rate from AdvanceFrame's delta_x to the speed at which
   /// we traverse the spline.
@@ -93,6 +102,12 @@ class BulkSplineEvaluator {
   /// Return the current y value for the spline at `index`.
   float Y(const Index index) const { return ys_[index]; }
 
+  /// Return the current y value for the spline at `index`, normalized to be
+  /// within the valid y_range.
+  float NormalizedY(const Index index) const {
+    return NormalizeY(index, ys_[index]);
+  }
+
   /// Return the current y value for spline indices
   /// `index` ~ `index + count - 1`.
   void Ys(const Index index, const Index count, float* ys) const {
@@ -102,7 +117,19 @@ class BulkSplineEvaluator {
 
   /// Return the current slope for the spline at `index`.
   float Derivative(const Index index) const {
+    return PlaybackRate(index) * Cubic(index).Derivative(cubic_xs_[index]);
+  }
+
+  /// Return the current slope for the spline at `index`. Ignore the playback
+  /// rate. This is useful for times when the playback rate is 0, but you
+  /// still want to get information about the underlying spline.
+  float DerivativeWithoutPlayback(const Index index) const {
     return Cubic(index).Derivative(cubic_xs_[index]);
+  }
+
+  /// Return the current playback rate of the spline at `index`.
+  float PlaybackRate(const Index index) const {
+    return playback_rates_[index];
   }
 
   /// Return the spline that is currently being traversed at `index`.
@@ -127,6 +154,13 @@ class BulkSplineEvaluator {
 
   /// Return slope at the end of the spline.
   float EndDerivative(const Index index) const {
+    return PlaybackRate(index) * sources_[index].spline->EndDerivative();
+  }
+
+  /// Return slope at the end of the spline, at `index`. Ignore the playback
+  /// rate. This is useful for times when the playback rate is 0, but you
+  /// still want to get information about the underlying spline.
+  float EndDerivativeWithoutPlayback(const Index index) const {
     return sources_[index].spline->EndDerivative();
   }
 
@@ -140,7 +174,7 @@ class BulkSplineEvaluator {
   /// Apply modular arithmetic to ensure that `y` is within the valid y_range.
   float NormalizeY(const Index index, const float y) const {
     const YRange& r = y_ranges_[index];
-    return r.modular_arithmetic ? r.valid_y.Normalize(y) : y;
+    return r.modular_arithmetic ? r.valid_y.NormalizeCloseValue(y) : y;
   }
 
   /// Helper function to calculate the next y-value in a series of y-values
@@ -157,6 +191,20 @@ class BulkSplineEvaluator {
     return current_y + diff;
   }
 
+  /// True if using modular arithmetic on this `index`. Modular arithmetic is
+  /// used for types such as angles, which are equivalent modulo 2pi
+  /// (e.g. -pi and +pi represent the same angle).
+  bool ModularArithmetic(const Index index) const {
+    return y_ranges_[index].modular_arithmetic != 0;
+  }
+
+  /// The modular range for values that use ModularArithmetic(). Note that Y()
+  /// can be outside of this range. However, we always normalize to this range
+  /// before blending to a new spline.
+  const Range& ModularRange(const Index index) const {
+    return y_ranges_[index].valid_y;
+  }
+
  private:
   void InitCubic(const Index index, const float start_x);
   Index NumIndices() const { return static_cast<Index>(sources_.size()); }
@@ -167,6 +215,12 @@ class BulkSplineEvaluator {
     const Source& s = sources_[index];
     return s.spline->NodeX(s.x_index);
   }
+  CubicInit CalculateBlendInit(const Index index, const CompactSpline& spline,
+                               const SplinePlayback& playback) const;
+  void BlendToSpline(const Index index, const CompactSpline& spline,
+                     const SplinePlayback& playback);
+  void JumpToSpline(const Index index, const CompactSpline& spline,
+                    const SplinePlayback& playback);
 
   // These functions have C and assembly language variants.
   void UpdateCubicXsAndGetMask(const float delta_x, uint8_t* masks);
@@ -192,16 +246,16 @@ class BulkSplineEvaluator {
     bool repeat;
 
     Source()
-        : spline(nullptr), x_index(fpl::kInvalidSplineIndex), repeat(false) {}
+      : spline(nullptr), x_index(motive::kInvalidSplineIndex), repeat(false) {}
   };
 
   struct YRange {
     YRange() : valid_y(Range::Full()), modular_arithmetic(0) {}
 
-    /// Hold min and max values for the y result, or for the modular range.
-    /// Modular ranges are used for things like angles, the wrap around from
+    /// Hold the min and max extents of the modular range.
+    /// Modular ranges are used for things like angles, which wrap around from
     /// -pi to +pi.
-    Range valid_y;
+    Range valid_y; // TODO: change name to modular_range.
 
     /// True if y values wrap around when they exit the valid_y range.
     /// False if y values clamp to the edges of the valid_y range.
@@ -265,6 +319,6 @@ class BulkSplineEvaluator {
   ProcessorOptimization optimization_;
 };
 
-}  // namespace fpl
+}  // namespace motive
 
 #endif  // MOTIVE_MATH_BULK_SPLINE_EVALUATOR_H_

@@ -15,41 +15,135 @@
 #ifndef MOTIVE_ANIM_H
 #define MOTIVE_ANIM_H
 
+#include <vector>
 #include "motive/init.h"
 #include "motive/math/compact_spline.h"
 
 namespace motive {
 
 /// @class MatrixAnim
-/// @brief Animation for a MatrixMotivator.
+/// @brief Animation for a MatrixMotivator. Drives a single bone's transform.
 class MatrixAnim {
  public:
   struct Spline {
-    fpl::CompactSpline spline;
+    motive::CompactSpline spline;
     SmoothInit init;
-    fpl::SplinePlayback playback;
   };
 
-  // For construction. Allocate storage for spline data.
+  explicit MatrixAnim(int expected_num_ops = 0) : ops_(expected_num_ops) {}
+
+  /// For construction. Allocates storage for spline data, and returns it.
+  /// @param num_splines Total number of splines in the animation. Not all ops
+  ///                    use a spline (some are const ops).
   Spline* Construct(int num_splines) {
+    if (num_splines == 0) return nullptr;
+
+    // Note: It's important that the `splines_` array is not moved, since
+    //       `ops_` points into it.
+    // TODO: Revisit this layout to eliminate the internal pointers, making it
+    //       more robust.
     splines_.resize(num_splines);
     return &splines_[0];
   }
 
-  // Non-const version is for construction.
-  MatrixInit& init() { return init_; }
+  /// Return the op array. Non-const version is for construction.
+  MatrixOpArray& ops() { return ops_; }
 
-  // Const version is to initialize a MatrixMotivator.
-  const MatrixInit& init() const { return init_; }
+  /// Return the op array. Const version is to initialize a MatrixMotivator.
+  const MatrixOpArray& ops() const { return ops_; }
 
  private:
   /// Initialization structure for a MatrixMotivator.
   /// When initialized with this struct, the MatrixMotivator will play back
   /// the animation described in this class.
-  MatrixInit init_;
+  MatrixOpArray ops_;
 
   /// Hold spline animation data that is referenced by `init_`.
   std::vector<Spline> splines_;
+};
+
+/// @class RigAnim
+/// @brief Animation for a RigMotivator. Drives a fully rigged model.
+class RigAnim {
+ public:
+  RigAnim() : end_time_(0), repeat_(false) {}
+
+  /// Initialize the basic data. After calling this function, `InitMatrixAnim()`
+  /// should be called once for every bone in the animation.
+  void Init(const char* anim_name, BoneIndex num_bones, bool record_names);
+
+  /// For construction. Return the `idx`th bone's animation for initialization.
+  /// @param idx The bone whose animation you want to initialize.
+  /// @param parent If no parent exists, pass in kInvalidBoneIdx.
+  /// @param bone_name For debugging. Recorded if `record_names` was true in
+  ///                  `Init()`.
+  MatrixAnim& InitMatrixAnim(BoneIndex idx, BoneIndex parent,
+                             const char* bone_name);
+
+  /// Return the animation of the `idx`th bone. Each bone animates a matrix.
+  const MatrixAnim& Anim(BoneIndex idx) const {
+    assert(idx < anims_.size());
+    return anims_[idx];
+  }
+
+  /// Number of bones. Bones are arranged in an hierarchy. Each bone animates
+  /// a matrix. The matrix describes the transform of the bone from its parent.
+  BoneIndex NumBones() const { return static_cast<BoneIndex>(anims_.size()); }
+
+  /// For debugging. If `record_names` was specified in `Init()`, the names of
+  /// the bones are stored. Very useful when an animation is applied to a mesh
+  /// that doesn't match: with the bone names you can determine whether the
+  /// mesh or the animation is out of date.
+  const char* BoneName(BoneIndex idx) const {
+    return idx < bone_names_.size() ? bone_names_[idx].c_str() : "unknown";
+  }
+
+  /// Total number of matrix operations across all MatrixAnims in this RigAnim.
+  int NumOps() const;
+
+  /// For debugging. The number of lines in the header. You call them separately
+  /// in case you want to prefix or append extra columns.
+  int NumCsvHeaderLines() const { return 2; }
+
+  /// Output a line of comma-separated-values that has header information for
+  /// the CSV data output by RigMotivator::CsvValues().
+  std::string CsvHeaderForDebugging(int line) const;
+
+  /// Amount of time required by this animation. Time units are set by the
+  /// caller. If animation repeats, returns infinity.
+  /// TODO: Add function to return non-repeated end time, even when repeatable.
+  MotiveTime end_time() const { return end_time_; }
+
+  /// For construction. The end time should be set to the maximal end time of
+  /// all the `anims_`.
+  void set_end_time(MotiveTime t) { end_time_ = t; }
+
+  /// Returns an array of length NumBones() representing the bone heirarchy.
+  /// `bone_parents()[i]` is the bone index of the ith bone's parent.
+  /// `bone_parents()[i]` < `bone_parents()[j]` for all i < j.
+  /// For bones at the root (i.e. no parent) value is kInvalidBoneIdx.
+  const BoneIndex* bone_parents() const { return &bone_parents_[0]; }
+
+  /// Animation is repeatable. That is, when the end of the animation is
+  /// reached, it can be started at the beginning again without glitching.
+  /// Generally, an animation is repeatable if it's curves have the same values
+  /// and derivatives at the start and end.
+  bool repeat() const { return repeat_; }
+
+  /// Set the repeat flag.
+  bool set_repeat(bool repeat) { return repeat_ = repeat; }
+
+  /// For debugging. The name of the animation currently being played.
+  /// Only valid if `record_names` is true in `Init()`.
+  const std::string& anim_name() const { return anim_name_; }
+
+ private:
+  std::vector<MatrixAnim> anims_;
+  std::vector<BoneIndex> bone_parents_;
+  std::vector<std::string> bone_names_;
+  MotiveTime end_time_;
+  bool repeat_;
+  std::string anim_name_;
 };
 
 }  // namespace motive

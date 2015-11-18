@@ -1,4 +1,4 @@
-Motive Version 1.0.0    {#motive_readme}
+Motive Version 1.1.0    {#motive_readme}
 ====================
 
 # Overview
@@ -8,9 +8,10 @@ animation system.
 
 # Features
 
-The v1.0 release of Motive is feature light. It's focused primarily on
-procedural animation and simple hand-tunable motion. It is suitable for
-the animation of props, cameras, GUI elements, and simple rigs.
+The v1.1 release of Motive focusses on speed and scalability. Motive now
+supports rigged character animation and blending between those animations.
+Motive maintains its aptitude for procedural animation that was the focus of
+v1.0.
 
 # Downloading
 
@@ -37,10 +38,6 @@ Motive has optional features that depend upon:
 * [FlatBuffers][] -- allow animation data to be defined in json and then
   compiled to a small binary format.
 
-The Motive performance benchmark application also uses:
-
-* [SDL][] -- for crossplatform graphics rendering
-
 # Notes
 
 For applications on Google Play that integrate this tool, usage is tracked.
@@ -54,4 +51,3 @@ appreciate if you would leave it in.
   [MathFu]: http://google.github.io/mathfu/
   [FplUtil]: http://google.github.io/fplutil/
   [FlatBuffers]: http://google.github.io/flatbuffers/
-  [SDL]: https://www.libsdl.org/

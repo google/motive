@@ -24,18 +24,19 @@ namespace motive {
 /// @brief A waypoint in MotiveTarget1f.
 /// Describes one key point through which a value is animated.
 struct MotiveNode1f {
-  float value;                      /// Desired value to animate to at `time`.
-  float velocity;                   /// Speed when at `time`.
-  MotiveTime time;                  /// Time to achieve this key point.
-  fpl::ModularDirection direction;  /// When using modular arithmetic, which of
-                                    /// two directions to go.
+  float value;      /// Desired value to animate to at `time`.
+  float velocity;   /// Speed when at `time`.
+  MotiveTime time;  /// Time to achieve this key point.
+  motive::ModularDirection direction;  /// When using modular arithmetic, which
+                                        /// of
+                                        /// two directions to go.
   MotiveNode1f()
       : value(0.0f),
         velocity(0.0f),
         time(0),
-        direction(fpl::kDirectionClosest) {}
+        direction(motive::kDirectionClosest) {}
   MotiveNode1f(float value, float velocity, MotiveTime time,
-               fpl::ModularDirection direction = fpl::kDirectionClosest)
+               motive::ModularDirection direction = motive::kDirectionClosest)
       : value(value), velocity(velocity), time(time), direction(direction) {}
 };
 
@@ -105,7 +106,7 @@ class MotiveTarget1f {
   /// Return smallest range that covers the values of all waypoints.
   /// @param start_value An extra value to include in the min/max calculation.
   ///                    Most often is the current value of the Motivator1f.
-  fpl::Range ValueRange(float start_value) const {
+  motive::Range ValueRange(float start_value) const {
     assert(num_nodes_ > 0);
     float min = start_value;
     float max = start_value;
@@ -113,7 +114,7 @@ class MotiveTarget1f {
       min = std::min(nodes_[i].value, min);
       max = std::max(nodes_[i].value, max);
     }
-    return fpl::Range(min, max);
+    return motive::Range(min, max);
   }
 
   /// Return time of the last waypoint.
@@ -133,7 +134,9 @@ class MotiveTarget1f {
   MotiveNode1f nodes_[kMaxNodes];
 };
 
-// N-dimensional MotiveTargets are simply arrays of 1-dimensional MotiveTargets.
+/// @class MotiveTargetN
+/// @brief N-dimensional MotiveTargets are simply arrays of one dimensional
+///        MotiveTargets.
 template <int kDimensionsT>
 class MotiveTargetN {
  public:
@@ -195,9 +198,10 @@ inline MotiveTarget1f Current1f(float current_value,
 /// Keep the Motivator's current values, but set the Motivator's target values.
 /// If Motivator uses modular arithmetic, traverse from the current to the
 /// target according to 'direction'.
-inline MotiveTarget1f Target1f(
-    float target_value, float target_velocity, MotiveTime target_time,
-    fpl::ModularDirection direction = fpl::kDirectionClosest) {
+inline MotiveTarget1f Target1f(float target_value, float target_velocity,
+                               MotiveTime target_time,
+                               motive::ModularDirection direction =
+                                   motive::kDirectionClosest) {
   assert(target_time > 0);
   return MotiveTarget1f(
       MotiveNode1f(target_value, target_velocity, target_time, direction));
@@ -207,7 +211,7 @@ inline MotiveTarget1f Target1f(
 inline MotiveTarget1f CurrentToTarget1f(
     float current_value, float current_velocity, float target_value,
     float target_velocity, MotiveTime target_time,
-    fpl::ModularDirection direction = fpl::kDirectionClosest) {
+    motive::ModularDirection direction = motive::kDirectionClosest) {
   return MotiveTarget1f(
       MotiveNode1f(current_value, current_velocity, 0),
       MotiveNode1f(target_value, target_velocity, target_time, direction));
@@ -219,9 +223,9 @@ inline MotiveTarget1f CurrentToTargetConstVelocity1f(float current_value,
                                                      MotiveTime target_time) {
   assert(target_time > 0);
   const float velocity = (target_value - current_value) / target_time;
-  return MotiveTarget1f(
-      MotiveNode1f(current_value, velocity, 0),
-      MotiveNode1f(target_value, velocity, target_time, fpl::kDirectionDirect));
+  return MotiveTarget1f(MotiveNode1f(current_value, velocity, 0),
+                        MotiveNode1f(target_value, velocity, target_time,
+                                     motive::kDirectionDirect));
 }
 
 /// Keep the Motivator's current values, but set two targets for the Motivator.
@@ -254,9 +258,9 @@ class MotiveTargetBuilderTemplate {
 
  public:
   static const int kDimensions = kDimensionsT;
-  typedef
-      typename fpl::ExternalVectorT<VectorConverter, kDimensionsT>::type ExT;
-  typedef typename fpl::InternalVectorT<kDimensionsT>::type InT;
+  typedef typename motive::ExternalVectorT<VectorConverter, kDimensionsT>::type
+      ExT;
+  typedef typename motive::InternalVectorT<kDimensionsT>::type InT;
   typedef typename MotiveTargetT<kDimensionsT>::type MotiveTarget;
   typedef const ExT& ExIn;
 
@@ -277,9 +281,10 @@ class MotiveTargetBuilderTemplate {
   /// Keep the Motivator's current values, but set the Motivator's target
   /// values. If Motivator uses modular arithmetic, traverse from the current
   /// to the target according to 'direction'.
-  static MotiveTarget Target(
-      ExIn target_value, ExIn target_velocity, MotiveTime target_time,
-      fpl::ModularDirection direction = fpl::kDirectionClosest) {
+  static MotiveTarget Target(ExIn target_value, ExIn target_velocity,
+                             MotiveTime target_time,
+                             motive::ModularDirection direction =
+                                 motive::kDirectionClosest) {
     const InT target_value_in = C::From(target_value);
     const InT target_velocity_in = C::From(target_velocity);
 
@@ -292,10 +297,11 @@ class MotiveTargetBuilderTemplate {
   }
 
   /// Set both the current and target values for an Motivator.
-  static MotiveTarget CurrentToTarget(
-      ExIn current_value, ExIn current_velocity, ExIn target_value,
-      ExIn target_velocity, MotiveTime target_time,
-      fpl::ModularDirection direction = fpl::kDirectionClosest) {
+  static MotiveTarget CurrentToTarget(ExIn current_value, ExIn current_velocity,
+                                      ExIn target_value, ExIn target_velocity,
+                                      MotiveTime target_time,
+                                      motive::ModularDirection direction =
+                                          motive::kDirectionClosest) {
     const InT current_value_in = C::From(current_value);
     const InT current_velocity_in = C::From(current_velocity);
     const InT target_value_in = C::From(target_value);
@@ -342,16 +348,18 @@ class MotiveTargetBuilderTemplate<VectorConverter, 1> {
     return Current1f(current_value, current_velocity);
   }
 
-  static MotiveTarget Target(
-      ExIn target_value, ExIn target_velocity, MotiveTime target_time,
-      fpl::ModularDirection direction = fpl::kDirectionClosest) {
+  static MotiveTarget Target(ExIn target_value, ExIn target_velocity,
+                             MotiveTime target_time,
+                             motive::ModularDirection direction =
+                                 motive::kDirectionClosest) {
     return Target1f(target_value, target_velocity, target_time, direction);
   }
 
-  static MotiveTarget CurrentToTarget(
-      ExIn current_value, ExIn current_velocity, ExIn target_value,
-      ExIn target_velocity, MotiveTime target_time,
-      fpl::ModularDirection direction = fpl::kDirectionClosest) {
+  static MotiveTarget CurrentToTarget(ExIn current_value, ExIn current_velocity,
+                                      ExIn target_value, ExIn target_velocity,
+                                      MotiveTime target_time,
+                                      motive::ModularDirection direction =
+                                          motive::kDirectionClosest) {
     return CurrentToTarget1f(current_value, current_velocity, target_value,
                              target_velocity, target_time, direction);
   }
@@ -374,10 +382,14 @@ class MotiveTargetBuilderTemplate<VectorConverter, 1> {
 // These classes use mathfu types in their external API. If you have your own
 // vector types, create your own VectorConverter and your own typedefs.
 //
-typedef MotiveTargetBuilderTemplate<fpl::PassThroughVectorConverter, 1> Tar1f;
-typedef MotiveTargetBuilderTemplate<fpl::PassThroughVectorConverter, 2> Tar2f;
-typedef MotiveTargetBuilderTemplate<fpl::PassThroughVectorConverter, 3> Tar3f;
-typedef MotiveTargetBuilderTemplate<fpl::PassThroughVectorConverter, 4> Tar4f;
+typedef MotiveTargetBuilderTemplate<motive::PassThroughVectorConverter, 1>
+    Tar1f;
+typedef MotiveTargetBuilderTemplate<motive::PassThroughVectorConverter, 2>
+    Tar2f;
+typedef MotiveTargetBuilderTemplate<motive::PassThroughVectorConverter, 3>
+    Tar3f;
+typedef MotiveTargetBuilderTemplate<motive::PassThroughVectorConverter, 4>
+    Tar4f;
 
 }  // namespace motive
 

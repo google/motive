@@ -16,7 +16,7 @@
 
 using mathfu::Lerp;
 
-namespace fpl {
+namespace motive {
 
 static const float kMaxSteepness = 4.0f;
 static const float kMinMidPercent = 0.1f;
@@ -275,4 +275,4 @@ void CalculateDualCubicMidNode(const CubicInit& init, float* x, float* y,
   *derivative = mid.derivative / init.width_x;
 }
 
-}  // namespace fpl
+}  // namespace motive

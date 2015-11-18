@@ -15,10 +15,13 @@
 #ifndef MOTIVE_INIT_H_
 #define MOTIVE_INIT_H_
 
+#include "mathfu/constants.h"
 #include "motive/util.h"
 #include "motive/math/range.h"
 
 namespace motive {
+
+class RigAnim;
 
 enum MatrixOperationType {
   kInvalidMatrixOperation,
@@ -35,23 +38,51 @@ enum MatrixOperationType {
   kNumMatrixOperationTypes
 };
 
+/// Returns true if the operation is a rotate.
 inline bool RotateOp(MatrixOperationType op) {
   return kRotateAboutX <= op && op <= kRotateAboutZ;
 }
 
+/// Returns true if the operation is a translate.
 inline bool TranslateOp(MatrixOperationType op) {
   return kTranslateX <= op && op <= kTranslateZ;
 }
 
+/// Returns true if the operation is a scale.
 inline bool ScaleOp(MatrixOperationType op) {
   return kScaleX <= op && op <= kScaleUniformly;
 }
+
+/// Returns the default value of the operation. That is, the value of the
+/// operation that does nothing to the transformation. Any operation that
+/// constantly returns the default value can be removed.
+inline float OperationDefaultValue(MatrixOperationType op) {
+  return RotateOp(op) || TranslateOp(op) ? 0.0f : 1.0f;
+}
+
+/// Returns true if this operation uses modular arithmetic.
+/// Rotations are equivalence every 2pi, so they are modular.
+inline bool ModularOp(MatrixOperationType op) { return RotateOp(op); }
+
+/// Returns the range of the matrix operation's spline. Most ranges are just
+/// the extents of the splines, but rotations we want to normalize within
+/// +-pi before blending to another curve.
+inline Range RangeOfOp(MatrixOperationType op,
+                                const Range& extents) {
+  return ModularOp(op) ? kAngleRange : extents;
+}
+
+/// Return a string with the operation name. Used for debugging.
+const char* MatrixOpName(const MatrixOperationType op);
 
 /// @class ModularInit
 /// Base-class for OvershootInit and SmoothInit. Holds parameters related
 /// to modular arithmetic in a Motivator.
 class ModularInit : public MotivatorInit {
  public:
+  explicit ModularInit(MotivatorType type)
+      : MotivatorInit(type), range_(Range::Full()), modular_(false) {}
+
   /// The derived type must call this constructor with it's MotivatorType
   /// identifier.
   /// @param type The kType parameter of the derived init class.
@@ -60,9 +91,7 @@ class ModularInit : public MotivatorInit {
   /// @param modular Option to use modular arithmetic for Motivator::Value().
   ///                If true, all values are wrapped around to stay within
   ///                `range`.
-  explicit ModularInit(MotivatorType type)
-      : MotivatorInit(type), range_(fpl::Range::Full()), modular_(false) {}
-  ModularInit(MotivatorType type, const fpl::Range& range, bool modular)
+  ModularInit(MotivatorType type, const Range& range, bool modular)
       : MotivatorInit(type), range_(range), modular_(modular) {}
 
   /// Ensure position `x` is within the valid constraint range.
@@ -90,8 +119,8 @@ class ModularInit : public MotivatorInit {
   /// Return maximum value of the range.
   float Max() const { return range_.end(); }
 
-  const fpl::Range& range() const { return range_; }
-  void set_range(const fpl::Range& r) { range_ = r; }
+  const Range& range() const { return range_; }
+  void set_range(const Range& r) { range_ = r; }
 
   bool modular() const { return modular_; }
   void set_modular(bool modular) { modular_ = modular; }
@@ -100,7 +129,7 @@ class ModularInit : public MotivatorInit {
   /// Minimum and maximum values for Motivator::Value().
   /// Clamp (if modular_ is false) or wrap-around (if modular_ is true) when
   /// we reach these boundaries.
-  fpl::Range range_;
+  Range range_;
 
   /// A modular value wraps around from min to max. For example, an angle
   /// is modular, where -pi is equivalent to +pi. Setting this to true ensures
@@ -202,7 +231,7 @@ class SmoothInit : public ModularInit {
   MOTIVE_INTERFACE();
 
   SmoothInit() : ModularInit(kType) {}
-  SmoothInit(const fpl::Range& range, bool modular)
+  SmoothInit(const Range& range, bool modular)
       : ModularInit(kType, range, modular) {}
 };
 
@@ -241,7 +270,7 @@ struct MatrixOperationInit {
       : init(&init), type(type), union_type(kUnionTarget), target(&target) {}
 
   MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init,
-                      const fpl::SplinePlayback1f& spline)
+                      const CompactSpline& spline)
       : init(&init), type(type), union_type(kUnionSpline), spline(&spline) {}
 
   const MotivatorInit* init;
@@ -250,17 +279,17 @@ struct MatrixOperationInit {
   union {
     float initial_value;
     const MotiveTarget1f* target;
-    const fpl::SplinePlayback1f* spline;
+    const CompactSpline* spline;
   };
 };
 
 /// @class MatrixInit
-/// @brief Initialize a MotivatorMatrix4f to generate its matrix from
+/// @brief Initialize a MatrixMotivator4f to generate its matrix from
 ///        a series of operations.
 ///
-/// Initialize an MotivatorMatrix4f with these initialization parameters to
-/// create an motivator that generates a 4x4 matrix from a series of basic
-/// matrix operations. The basic matrix operations are driven by 1 dimensional
+/// Initialize a MatrixMotivator4f with these initialization parameters to
+/// create a motivator that generates a 4x4 matrix from a series of basic
+/// matrix operations. The basic matrix operations are driven by one dimensional
 /// motivators.
 ///
 /// The series of operations can transform an object from the coordinate space
@@ -272,9 +301,8 @@ struct MatrixOperationInit {
 ///      kRotateAboutY --> to make penguin face the correct direction
 ///      kTranslateX } --> to move penguin along to ground to target position
 ///      kTranslateZ }
-class MatrixInit : public MotivatorInit {
+class MatrixOpArray {
  public:
-  MOTIVE_INTERFACE();
   typedef std::vector<MatrixOperationInit> OpVector;
 
   // Guess at the number of operations we'll have. Better to high-ball a little
@@ -284,8 +312,7 @@ class MatrixInit : public MotivatorInit {
   /// By default expect a relatively high number of ops. Cost for allocating
   /// a bit too much temporary memory is small compared to cost of reallocating
   /// that memory.
-  explicit MatrixInit(int expected_num_ops = kDefaultExpectedNumOps)
-      : MotivatorInit(kType) {
+  explicit MatrixOpArray(int expected_num_ops = kDefaultExpectedNumOps) {
     ops_.reserve(expected_num_ops);
   }
 
@@ -301,38 +328,115 @@ class MatrixInit : public MotivatorInit {
     ops_.push_back(MatrixOperationInit(type, const_value));
   }
 
-  /// Operation is driven by a 1-dimensional motivator. For example, you can
+  /// Operation is driven by a one dimensional motivator. For example, you can
   /// control the face angle of a standing object with 'type' = kRotateAboutY
   /// and 'init' a curve specified by SmoothInit.
   void AddOp(MatrixOperationType type, const MotivatorInit& init) {
     ops_.push_back(MatrixOperationInit(type, init));
   }
 
-  /// Operation is driven by a 1-dimensional motivator, and initial value
+  /// Operation is driven by a one dimensional motivator, and initial value
   /// is specified.
   void AddOp(MatrixOperationType type, const MotivatorInit& init,
              float initial_value) {
     ops_.push_back(MatrixOperationInit(type, init, initial_value));
   }
 
-  /// Operation is driven by a 1-dimensional motivator, which is initialized
+  /// Operation is driven by a one dimensional motivator, which is initialized
   /// to traverse the key points specified in `target`.
   void AddOp(MatrixOperationType type, const MotivatorInit& init,
              const MotiveTarget1f& target) {
     ops_.push_back(MatrixOperationInit(type, init, target));
   }
 
-  /// Operation is driven by a 1-dimensional motivator, which is initialized
+  /// Operation is driven by a one dimensional motivator, which is initialized
   /// to follow the predefined curve specified in `spline`.
   void AddOp(MatrixOperationType type, const MotivatorInit& init,
-             const fpl::SplinePlayback1f& spline) {
+             const CompactSpline& spline) {
     ops_.push_back(MatrixOperationInit(type, init, spline));
+  }
+
+  // Maximum duration of any of the splines.
+  MotiveTime EndTime() const {
+    MotiveTime end_time = 0;
+    for (size_t i = 0; i < ops_.size(); ++i) {
+      const MatrixOperationInit& op = ops_[i];
+      if (op.union_type == MatrixOperationInit::kUnionSpline) {
+        end_time =
+            std::max(end_time, static_cast<MotiveTime>(op.spline->EndX()));
+      }
+    }
+    return end_time;
   }
 
   const OpVector& ops() const { return ops_; }
 
  private:
   OpVector ops_;
+};
+
+class MatrixInit : public MotivatorInit {
+ public:
+  MOTIVE_INTERFACE();
+  typedef std::vector<MatrixOperationInit> OpVector;
+
+  explicit MatrixInit(const MatrixOpArray& ops)
+      : MotivatorInit(kType),
+        ops_(&ops),
+        start_transform_(&mathfu::kAffineIdentity) {}
+  MatrixInit(const MatrixOpArray& ops,
+             const mathfu::AffineTransform& start_transform)
+      : MotivatorInit(kType), ops_(&ops), start_transform_(&start_transform) {}
+
+  const OpVector& ops() const { return ops_->ops(); }
+  const mathfu::AffineTransform& start_transform() const {
+    return *start_transform_;
+  }
+
+ private:
+  /// Reference to the union of all operations that this matrix will be able
+  /// to execute. Later calls to MotivatorMatrix4f::BlendToOps() must provide
+  /// operations that are a subset of those in `ops_`.
+  /// In `RigAnim`, these represent operations in the defining anim.
+  const MatrixOpArray* ops_;
+
+  /// Constant transform from which to start applying `ops_`.
+  /// For example, `RigAnim`s use it to represent the constant transformation
+  /// from a bone to its parent.
+  const mathfu::AffineTransform* start_transform_;
+};
+
+class RigInit : public MotivatorInit {
+ public:
+  MOTIVE_INTERFACE();
+
+  RigInit(const RigAnim& defining_anim,
+          const mathfu::AffineTransform* bone_transforms,
+          const BoneIndex* bone_parents, BoneIndex num_bones);
+  const RigAnim& defining_anim() const { return *defining_anim_; }
+  const mathfu::AffineTransform* bone_transforms() const {
+    return bone_transforms_;
+  }
+
+  // Utility functions. Ensure that animations are compatible with rigs.
+  static bool MatchesHierarchy(const BoneIndex* parents_a, BoneIndex len_a,
+                               const BoneIndex* parents_b, BoneIndex len_b);
+  static bool MatchesHierarchy(const RigAnim& anim, const BoneIndex* parents_b,
+                               BoneIndex len_b);
+  static bool MatchesHierarchy(const RigAnim& anim_a, const RigAnim& anim_b);
+
+ private:
+  /// Animation defining hierarchy and the union of matrix ops (across all
+  /// animations).
+  const RigAnim* defining_anim_;
+
+  /// Array defining default pose. That is, the transformation from a bone to
+  /// its parent. With just these, you can reconstruct the model in the pose
+  /// it was exported in (i.e. its default pose).
+  /// These transforms are used as the `start_transform_`s of the underlying
+  /// `MatrixInit`s. All the matrix operations are applied from the origin of
+  /// the bone they're animating.
+  const mathfu::AffineTransform* bone_transforms_;
 };
 
 }  // namespace motive

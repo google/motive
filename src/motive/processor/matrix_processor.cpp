@@ -20,7 +20,7 @@
 
 using mathfu::vec4;
 using mathfu::mat4;
-using fpl::Angle;
+using motive::Angle;
 
 namespace motive {
 
@@ -44,47 +44,14 @@ class MatrixOperation {
     SetType(init.type);
     SetAnimationType(animation_type);
 
-    switch (animation_type) {
-      case kMotivatorAnimation: {
-        // Manually construct the motivator in the union's memory buffer.
-        Motivator1f* motivator =
-            new (value_.motivator_memory) Motivator1f(*init.init, engine);
-
-        // Initialize the state if required.
-        switch (init.union_type) {
-          case MatrixOperationInit::kUnionEmpty:
-            break;
-
-          case MatrixOperationInit::kUnionInitialValue:
-            motivator->SetTarget(Current1f(init.initial_value));
-            break;
-
-          case MatrixOperationInit::kUnionTarget:
-            motivator->SetTarget(*init.target);
-            break;
-
-          case MatrixOperationInit::kUnionSpline:
-            motivator->SetSpline(*init.spline);
-            break;
-
-          default:
-            assert(false);
-        }
-        break;
-      }
-
-      case kConstValueAnimation:
-        // If this value is not driven by an motivator, it must have a constant
-        // value.
-        assert(init.union_type == MatrixOperationInit::kUnionInitialValue);
-
-        // Record the const value into the union.
-        value_.const_value = init.initial_value;
-        break;
-
-      default:
-        assert(false);
+    // Manually construct the motivator in the union's memory buffer.
+    if (animation_type == kMotivatorAnimation) {
+      new (value_.motivator_memory) Motivator1f(*init.init, engine);
     }
+
+    // Initialize the value. For defining animations, init.union_type will
+    // be kUnionEmpty, so this will not set up any splines.
+    BlendToOp(init, motive::SplinePlayback());
   }
 
   ~MatrixOperation() {
@@ -119,6 +86,70 @@ class MatrixOperation {
     assert(animation_type_ == kConstValueAnimation &&
            (!IsRotation(Type()) || Angle::IsAngleInRange(value)));
     value_.const_value = value;
+  }
+
+  void BlendToOp(const MatrixOperationInit& init,
+                 const motive::SplinePlayback& playback) {
+    switch (animation_type_) {
+      case kMotivatorAnimation: {
+        Motivator1f& motivator = Motivator();
+
+        // Initialize the state if required.
+        switch (init.union_type) {
+          case MatrixOperationInit::kUnionEmpty:
+            break;
+
+          case MatrixOperationInit::kUnionInitialValue:
+            motivator.SetTarget(Current1f(init.initial_value));
+            break;
+
+          case MatrixOperationInit::kUnionTarget:
+            motivator.SetTarget(*init.target);
+            break;
+
+          case MatrixOperationInit::kUnionSpline:
+            motivator.SetSpline(*init.spline, playback);
+            break;
+
+          default:
+            assert(false);
+        }
+        break;
+      }
+
+      case kConstValueAnimation:
+        // If this value is not driven by an motivator, it must have a constant
+        // value.
+        assert(init.union_type == MatrixOperationInit::kUnionInitialValue);
+
+        // Record the const value into the union. There is no blending for
+        // constant values.
+        value_.const_value = init.initial_value;
+        break;
+
+      default:
+        assert(false);
+    }
+  }
+
+  void BlendToDefault(MotiveTime blend_time) {
+    // Don't touch const value ones. Their default value is their const value.
+    if (animation_type_ == kConstValueAnimation) return;
+    assert(animation_type_ == kMotivatorAnimation);
+
+    // Create spline that eases out to the default_value.
+    Motivator1f& motivator = Motivator();
+    const float default_value = OperationDefaultValue(Type());
+    const MotiveTarget1f target =
+        blend_time == 0 ? Current1f(default_value)
+                        : Target1f(default_value, 0.0f, blend_time);
+    motivator.SetTarget(target);
+  }
+
+  void SetPlaybackRate(float playback_rate) {
+    if (animation_type_ == kConstValueAnimation) return;
+    assert(animation_type_ == kMotivatorAnimation);
+    Motivator().SetSplinePlaybackRate(playback_rate);
   }
 
  private:
@@ -186,6 +217,15 @@ static inline void RotateAboutAxis(const float angle, vec4* column0,
   *column1 = c * c1 - s * c0;
 }
 
+// Due to aliasing problems, mat4 does not have a GetColumn() function.
+// We load it using the load load operations, which is slightly slower since
+// the compiler doesn't know it's doing an aligned load.
+// TODO: Add a LoadColumn() funtion to mat4 that returns the vec4 instead of a
+//       vec4&, and uses an aligned load.
+static inline vec4 MatrixColumn(const mat4& m, int i) {
+  return vec4(&m[4 * i]);
+}
+
 // Hold a series of matrix operations, and their resultant matrix.
 //
 // This class is of variable size, to keep compact and to avoid cache misses
@@ -203,10 +243,10 @@ class MatrixData {
   // fast).
   mat4 CalculateResultMatrix() const {
     // Start with the identity matrix.
-    vec4 c0(mathfu::kAxisX4f);  // (1, 0, 0, 0)
-    vec4 c1(mathfu::kAxisY4f);  // (0, 1, 0, 0)
-    vec4 c2(mathfu::kAxisZ4f);  // (0, 0, 1, 0)
-    vec4 c3(mathfu::kAxisW4f);  // (0, 0, 0, 1)
+    vec4 c0 = start_matrix_[0];
+    vec4 c1 = start_matrix_[1];
+    vec4 c2 = start_matrix_[2];
+    vec4 c3 = start_matrix_[3];
 
     for (int i = 0; i < num_ops_; ++i) {
       const MatrixOperation& op = ops_[i];
@@ -276,6 +316,38 @@ class MatrixData {
 
   void UpdateResultMatrix() { result_matrix_ = CalculateResultMatrix(); }
 
+  void BlendToOps(const MatrixInit::OpVector& new_ops,
+                  const motive::SplinePlayback& playback) {
+    const int num_new_ops = static_cast<int>(new_ops.size());
+    assert(num_ops_ >= num_new_ops);
+
+    // Blend every operation to either the values in `ops` or, if `ops` doesn't
+    // contain the operation, to the default value (0 for rotates and
+    // translates, 1 for scales).
+    int new_op_idx = 0;
+    for (int i = 0; i < num_ops_; ++i) {
+      MatrixOperation& op = ops_[i];
+      const MatrixOperationType defining_type = op.Type();
+      const MatrixOperationType op_type = new_op_idx < num_new_ops ?
+          new_ops[new_op_idx].type : kInvalidMatrixOperation;
+
+      if (defining_type == op_type) {
+        op.BlendToOp(new_ops[new_op_idx], playback);
+        new_op_idx++;
+      } else {
+        op.BlendToDefault(static_cast<MotiveTime>(playback.blend_x));
+      }
+    }
+    assert(new_op_idx == num_new_ops);
+  }
+
+  void SetPlaybackRate(float playback_rate) {
+    for (int i = 0; i < num_ops_; ++i) {
+      MatrixOperation& op = ops_[i];
+      op.SetPlaybackRate(playback_rate);
+    }
+  }
+
   const MatrixOperation& Op(int child_index) const {
     assert(0 <= child_index && child_index < num_ops_);
     return ops_[child_index];
@@ -296,9 +368,12 @@ class MatrixData {
     const size_t size = SizeOfClass(num_ops);
     uint8_t* buffer = new uint8_t[size];
     MatrixData* d = new (buffer) MatrixData();
-
+    d->result_matrix_ = mat4::FromAffineTransform(init.start_transform());
     // Explicitly call constructors on members.
-    d->result_matrix_ = mat4::Identity();
+    for (size_t i = 0; i < MOTIVE_ARRAY_SIZE(d->start_matrix_); ++i) {
+      d->start_matrix_[i] =
+          MatrixColumn(d->result_matrix_, static_cast<int>(i));
+    }
     d->num_ops_ = num_ops;
     for (int i = 0; i < num_ops; ++i) {
       new (&d->ops_[i]) MatrixOperation(ops[i], engine);
@@ -321,20 +396,41 @@ class MatrixData {
 
  private:
   static size_t SizeOfClass(int num_ops) {
-    return sizeof(MatrixData) + sizeof(MatrixOperation) * (num_ops - 1);
+    return sizeof(MatrixData) +
+           sizeof(MatrixOperation) * std::max(0, num_ops - 1);
   }
 
+  /// Constants transforms that get applied before all other transforms.
+  /// Useful for skeletons, where it represents the transform from the
+  /// parent bone.
+  vec4 start_matrix_[4];
+
+  /// Result of the most recent matrix update.
   mat4 result_matrix_;
+
+  /// Length of the `ops_` array below, which extends past the end of the
+  /// defined class.
   int num_ops_;
+
+  /// Matrix operations to perform. Of length `num_ops_`. Class is initialized
+  /// in a chunk of memory that is big enough to hold
+  /// ops_[0] .. ops_[num_ops_ - 1]
   MatrixOperation ops_[1];
 };
 
 // See comments on MatrixInit for details on this class.
-class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
+class MatrixMotiveProcessor : public MatrixProcessor4f {
  public:
-  virtual ~MatrixMotiveProcessor() {}
+  MatrixMotiveProcessor() : time_(0) {}
 
-  virtual void AdvanceFrame(MotiveTime /*delta_time*/) {
+  virtual ~MatrixMotiveProcessor() {
+    const MotiveIndex num_indices = NumIndices();
+    for (MotiveIndex index = 0; index < num_indices; ++index) {
+      RemoveIndex(index);
+    }
+  }
+
+  virtual void AdvanceFrame(MotiveTime delta_time) {
     Defragment();
 
     // Process the series of matrix operations for each index.
@@ -343,6 +439,10 @@ class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
       MatrixData& d = Data(index);
       d.UpdateResultMatrix();
     }
+
+    // Update our global time. It shouldn't matter if this wraps
+    // around, since we only calculate times relative to it.
+    time_ += delta_time;
   }
 
   virtual MotivatorType Type() const { return MatrixInit::kType; }
@@ -352,19 +452,38 @@ class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
     return Data(index).result_matrix();
   }
 
+  virtual int NumChildren(MotiveIndex index) const {
+    return Data(index).num_ops();
+  }
+
   virtual float ChildValue1f(MotiveIndex index,
                              MotiveChildIndex child_index) const {
     return Data(index).Op(child_index).Value();
   }
 
+  virtual const Motivator1f* ChildMotivator1f(
+      MotiveIndex index, MotiveChildIndex child_index) const {
+    return Data(index).Op(child_index).ValueMotivator();
+  }
+
   virtual void SetChildTarget1f(MotiveIndex index, MotiveChildIndex child_index,
                                 const MotiveTarget1f& t) {
     Data(index).Op(child_index).SetTarget1f(t);
+    // TODO: Update end time.
   }
 
   virtual void SetChildValue1f(MotiveIndex index, MotiveChildIndex child_index,
                                float value) {
     Data(index).Op(child_index).SetValue1f(value);
+  }
+
+  virtual void BlendToOps(MotiveIndex index, const MatrixOpArray& ops,
+                          const motive::SplinePlayback& playback) {
+    Data(index).BlendToOps(ops.ops(), playback);
+  }
+
+  virtual void SetPlaybackRate(MotiveIndex index, float playback_rate) {
+    Data(index).SetPlaybackRate(playback_rate);
   }
 
  protected:
@@ -414,6 +533,7 @@ class MatrixMotiveProcessor : public MotiveProcessorMatrix4f {
   }
 
   std::vector<MatrixData*> data_;
+  MotiveTime time_;
 };
 
 MOTIVE_INSTANCE(MatrixInit, MatrixMotiveProcessor);

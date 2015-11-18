@@ -17,7 +17,7 @@
 
 #include "mathfu/glsl_mappings.h"
 
-namespace fpl {
+namespace motive {
 
 /// @class PassThroughVectorConverter
 /// @brief No-op conversion from mathfu types to mathfu types.
@@ -89,6 +89,6 @@ struct InternalVectorT<4> {
   typedef mathfu::vec4 type;
 };
 
-}  // namespace fpl
+}  // namespace motive
 
 #endif  // MOTIVE_MATH_VECTOR_CONVERTER_H

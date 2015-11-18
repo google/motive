@@ -17,14 +17,17 @@
 
 namespace motive {
 
+class AnimTable;
+class MatrixAnim;
+struct MatrixAnimFb;
 class OvershootInit;
 struct OvershootParameters;
+class RigAnim;
+struct RigAnimFb;
 class SmoothInit;
 struct SmoothParameters;
 struct Settled1f;
 struct Settled1fParameters;
-class MatrixAnim;
-struct MatrixAnimFb;
 
 /// Convert from FlatBuffer params to Motive init, for Overshoot.
 void OvershootInitFromFlatBuffers(const OvershootParameters& params,
@@ -39,7 +42,12 @@ void Settled1fFromFlatBuffers(const Settled1fParameters& params,
                               Settled1f* settled);
 
 /// Convert from FlatBuffer params to Motive MatrixAnim.
-void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim);
+void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, bool repeat,
+                               MatrixAnim* anim);
+
+/// Convert from FlatBuffer params to Motive MatrixAnim.
+void RigAnimFromFlatBuffers(const RigAnimFb& params, const char* anim_name,
+                            RigAnim* anim);
 
 }  // namespace motive
 

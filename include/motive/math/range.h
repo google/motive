@@ -18,7 +18,7 @@
 #include <vector>
 #include "mathfu/utilities.h"
 
-namespace fpl {
+namespace motive {
 
 // If using modular arithmetic, there are two paths to the target: one that
 // goes directly and one that wraps around. This enum represents differet ways
@@ -102,8 +102,51 @@ class RangeT {
   /// `x` must be within +-Length() of the range bounds. This is a reasonable
   /// restriction in most cases (such as after an arithmetic operation).
   /// For cases where `x` may be wildly outside the range, use
-  /// NormalizeWildValue() instead.
-  T Normalize(T x) const { return x + ModularAdjustment(x); }
+  /// NormalizeCloseValue() or NormalizeWildValue() instead.
+  T Normalize(T x) const {
+    const float normalized = x + ModularAdjustment(x);
+    assert(ContainsExcludingStart(normalized));
+    return normalized;
+  }
+
+  /// Ensure `x` is within the valid constraint range, by subtracting or
+  /// adding Length() to it repeatedly.
+  /// `x` must be within +-kMaxAdjustments * Length() of the range bounds
+  /// for this function to be effective. If its greater, we end up calling
+  /// NormalizeWildValue(), so you'd be better off calling NormalizeWildValue()
+  /// from the beginning.
+  /// This function is intended to be called in situations where `x` is almost
+  /// always within one or two lengths of being normalized, so we don't want to
+  /// incur the division cost of NormalizeWildValue(). It's still guaranteed
+  /// to return a normalized value, however.
+  T NormalizeCloseValue(T x) const {
+    static const int kMaxAdjustments = 4;
+
+    // Return without change if `x` is already normalized.
+    const bool below = x <= start_;
+    const bool above = x > end_;
+    if (!below && !above) return x;
+
+    // Each time through the loop, we'll adjust by one length closer to the
+    // valid interval.
+    const T length = Length();
+    int num_adjustments = 0;
+
+    if (below) {
+      // Keep adding until we're in the range.
+      do {
+        x += length;
+        if (num_adjustments++ > kMaxAdjustments) return NormalizeWildValue(x);
+      } while (x <= start_);
+    } else {
+      // Keep subtracting until we're in the range.
+      do {
+        x -= length;
+        if (num_adjustments++ > kMaxAdjustments) return NormalizeWildValue(x);
+      } while (x > end_);
+    }
+    return x;
+  }
 
   /// Ensure `x` is within the valid constraint range, by subtracting multiples
   /// of Length() from it until it is.
@@ -120,6 +163,7 @@ class RangeT {
     // outside the bounds, so we need to do a standard normalization afterwards.
     const T close = x - whole_units * length;
     const T normalized = close + ModularAdjustment(close);
+    assert(ContainsExcludingStart(normalized));
     return normalized;
   }
 
@@ -130,7 +174,6 @@ class RangeT {
   T ModularAdjustment(T x) const {
     const T length = Length();
     const T adjustment = x <= start_ ? length : x > end_ ? -length : 0.0f;
-    assert(start_ < x + adjustment && x + adjustment <= end_);
     return adjustment;
   }
 
@@ -181,7 +224,21 @@ class RangeT {
     return 0.0f;
   }
 
+  /// Return true if `x` is in [start_, end_], i.e. the **inclusive** range.
   bool Contains(const T x) const { return start_ <= x && x <= end_; }
+
+  /// Return true if `x` is in (start_, end_], i.e. the range that includes the
+  /// end bound but not the start bound.
+  bool ContainsExcludingStart(const T x) const {
+    return start_ < x && x <= end_;
+  }
+
+  /// Return true if `x` is in [start_, end_), i.e. the range that includes the
+  /// start bound but not the end bound.
+  bool ContainsExcludingEnd(const T x) const { return start_ <= x && x < end_; }
+
+  /// Return true if `x` is in (start_, end_), i.e. the **exclusive** range.
+  bool StrictlyContains(const T x) const { return start_ < x && x < end_; }
 
   /// Swap start and end. When 'a' and 'b' don't overlap, if you invert the
   /// return value of Range::Intersect(a, b), you'll get the gap between
@@ -238,6 +295,26 @@ class RangeT {
     //   intersection.end = min(a.end, b.end)
     // Note that ranges where start > end are considered invalid.
     return RangeT(std::max(a.start_, b.start_), std::min(a.end_, b.end_));
+  }
+
+  /// Return the smallest range that covers all of 'a' and 'b'.
+  static RangeT Union(const RangeT& a, const RangeT& b) {
+    // Possible cases:
+    // 1.  |-a---|    |-b---|  ==>  return (a.start, b.end)
+    // 2.  |-b---|    |-a---|  ==>  return (b.start, a.end)
+    // 3.  |-a---------|       ==>  return a
+    //        |-b---|
+    // 4.  |-b---------|       ==>  return b
+    //        |-a---|
+    // 5.  |-a---|             ==>  return (a.start, b.end)
+    //        |-b---|
+    // 6.  |-b---|             ==>  return (b.start, a.end)
+    //        |-a---|
+    //
+    // All satisfied by,
+    //   intersection.start = min(a.start, b.start)
+    //   intersection.end = max(a.end, b.end)
+    return RangeT(std::min(a.start_, b.start_), std::max(a.end_, b.end_));
   }
 
   /// Only keep entries in 'values' if they are in
@@ -350,6 +427,26 @@ class RangeT {
     return IndexOfShortest(ranges.arr, ranges.len);
   }
 
+  /// Return the index of the shortest range in `ranges`.
+  static T ClampToClosest(T x, const RangeT* ranges, size_t len) {
+    T closest_dist = std::numeric_limits<T>::infinity();
+    T closest_clamp = x;
+    for (size_t i = 0; i < len; ++i) {
+      const T clamp = ranges[i].Clamp(x);
+      const T dist = fabs(x - clamp);
+      if (dist < closest_dist) {
+        closest_dist = dist;
+        closest_clamp = clamp;
+      }
+    }
+    return closest_clamp;
+  }
+
+  template <size_t kMaxLen>
+  static T ClampToClosest(T x, const RangeArray<kMaxLen>& ranges) {
+    return ClampToClosest(x, ranges.arr, ranges.len);
+  }
+
   /// Returns the complete range. Every T is contained in this range.
   static RangeT<T> Full() {
     return RangeT<T>(-std::numeric_limits<T>::infinity(),
@@ -386,6 +483,10 @@ typedef RangeT<unsigned int> RangeUInt;
 // Since the float specialization will be most common, we give it a simple name.
 typedef RangeFloat Range;
 
-}  // namespace fpl
+// Useful constants.
+static const Range kAngleRange(-static_cast<float>(M_PI),
+                               static_cast<float>(M_PI));
+
+}  // namespace motive
 
 #endif  // MOTIVE_MATH_RANGE_H_

@@ -15,12 +15,9 @@
 #include "motive/engine.h"
 #include "motive/processor.h"
 #include "motive/version.h"
+#include "motive/util/benchmark.h"
 
 namespace motive {
-
-// If we benchmark other stuff besides the MotiveProcessor::AdvanceFrame(),
-// we'll have to move this to an enum of benchmarking ids.
-static const int kBenchmarkIdOfFirstProcessor = 0;
 
 // static
 MotiveEngine::FunctionMap MotiveEngine::function_map_;
@@ -33,8 +30,7 @@ void MotiveEngine::RegisterProcessorFactory(
 
 // Prevent the version string from being stripped from the binary by keeping
 // a reference to it here.
-MotiveEngine::MotiveEngine()
-  : version_(&Version()) {}
+MotiveEngine::MotiveEngine() : version_(&Version()) {}
 
 void MotiveEngine::Reset() {
   for (ProcessorMap::iterator it = mapped_processors_.begin();
@@ -66,12 +62,10 @@ MotiveProcessor* MotiveEngine::Processor(MotivatorType type) {
   // type in an engine
   ProcessorDetails details;
   details.processor = fns.create();
-  details.benchmark_id = kBenchmarkIdOfFirstProcessor +
-                         static_cast<int>(sorted_processors_.size());
+  details.processor->RegisterBenchmarks();
   mapped_processors_.insert(ProcessorPair(type, details.processor));
   sorted_processors_.insert(details);
 
-  fpl::SetBenchmarkDetails(details.benchmark_id, *type);
   return details.processor;
 }
 
@@ -84,10 +78,9 @@ void MotiveEngine::AdvanceFrame(MotiveTime delta_time) {
   // assume that one pass is sufficient.
   for (ProcessorSet::iterator it = sorted_processors_.begin();
        it != sorted_processors_.end(); ++it) {
-    const fpl::Benchmark b(it->benchmark_id);
+    const motive::Benchmark b(it->processor->benchmark_id_for_advance_frame());
     it->processor->AdvanceFrame(delta_time);
   }
 }
 
 }  // namespace motive
-

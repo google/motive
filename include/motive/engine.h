@@ -20,11 +20,9 @@
 
 #include "motive/common.h"
 #include "motive/processor.h"
-#include "motive/util/benchmark.h"
 
 namespace motive {
 
-struct MotiveProcessorFunctions;
 struct MotiveVersion;
 
 /// @class MotiveEngine
@@ -38,7 +36,6 @@ struct MotiveVersion;
 class MotiveEngine {
   struct ProcessorDetails {
     MotiveProcessor* processor;
-    int benchmark_id;
     bool operator<(const ProcessorDetails& rhs) const {
       return processor->Priority() < rhs.processor->Priority();
     }

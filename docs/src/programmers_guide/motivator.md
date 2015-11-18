@@ -4,12 +4,12 @@ Motivators   {#motive_guide_motivators}
 # Overview
 
 A `Motivator` is an animated variable. There are currently two kinds:
-`Motivator1f`--which animates a single `float`, and `MotivatorMatrix4f`--which
+`Motivator1f`--which animates a single `float`, and `MatrixMotivator4f`--which
 animates a 4x4 matrix of `floats`.
 
 One `Motivator` can drive another. For example, a series of `Motivator1fs` can
 drive the rotations, translations, and scales that compose a
-`MotivatorMatrix4f`.
+`MatrixMotivator4f`.
 
 Internally, a `Motivator` is a simple reference into a `MotiveProcessor`. The
 `MotiveProcessor` holds all the data and does all the animating. At any time,

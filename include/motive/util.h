@@ -60,8 +60,8 @@ struct Settled1f {
 };
 
 template <>
-inline bool Settled1f::Settled<Motivator1f>(
-    const Motivator1f& motivator) const {
+inline bool Settled1f::Settled<Motivator1f>(const Motivator1f& motivator)
+    const {
   return Settled(motivator.Difference(), motivator.Velocity());
 }
 

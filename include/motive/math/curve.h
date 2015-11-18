@@ -16,10 +16,11 @@
 #define MOTIVE_MATH_CURVE_H_
 
 #include <string>
+#include <cstring> // Required for memset, memcpy on Linux
 #include "motive/common.h"
 #include "motive/math/range.h"
 
-namespace fpl {
+namespace motive {
 
 enum CurveValueType {
   kCurveValue,
@@ -34,7 +35,8 @@ static const mathfu::vec2i kDefaultGraphSize(kDefaultGraphWidth,
                                              kDefaultGraphHeight);
 
 /// 2^22 = the max precision of significand.
-static const float kEpsilonScale = 1.0f / static_cast<float>(1 << 22);
+static const float kEpsilonPrecision = static_cast<float>(1 << 22);
+static const float kEpsilonScale = 1.0f / kEpsilonPrecision;
 
 /// @class QuadraticInitWithStartDerivative
 /// @brief Initialization parameters to create a quaternion with
@@ -68,6 +70,11 @@ class QuadraticCurve {
     c_[0] = c0;
   }
   QuadraticCurve(const float* c) { memcpy(c_, c, sizeof(c_)); }
+  QuadraticCurve(const QuadraticCurve& q, const float scale) {
+    for (int i = 0; i < kNumCoeff; ++i) {
+      c_[i] = scale * q.c_[i];
+    }
+  }
   QuadraticCurve(const QuadraticInitWithStartDerivative& init) { Init(init); }
   void Init(const QuadraticInitWithStartDerivative& init);
 
@@ -103,9 +110,22 @@ class QuadraticCurve {
   /// If we're testing for zero, for instance, we should test against this
   /// Epsilon().
   float Epsilon() const {
+    return Epsilon(MaxCoeff());
+  }
+
+  /// Given values in the range of `x`, returns a value below which should be
+  /// considered zero.
+  float Epsilon(float x) const {
+    return x * kEpsilonScale;
+  }
+
+  /// Returns the largest absolute value of the coefficients. Gives a sense
+  /// of the scale of the quaternion. If all the coefficients are tiny or
+  /// huge, we'll need to renormalize around 1, since we take reciprocals of
+  /// the coefficients, and floating point precision is poor for floats.
+  float MaxCoeff() const {
     using std::max;
-    const float max_c = max(max(fabs(c_[2]), fabs(c_[1])), fabs(c_[0]));
-    return max_c * kEpsilonScale;
+    return max(max(fabs(c_[2]), fabs(c_[1])), fabs(c_[0]));
   }
 
   /// Used for finding roots, and more.
@@ -217,6 +237,13 @@ class CubicCurve {
   CubicCurve(const float* c) { memcpy(c_, c, sizeof(c_)); }
   CubicCurve(const CubicInit& init) { Init(init); }
   void Init(const CubicInit& init);
+
+  /// Shift the curve along the x-axis: x_shift to the left.
+  /// That is x_shift becomes the curve's x=0.
+  void ShiftLeft(const float x_shift);
+
+  /// Shift the curve along the x-axis: x_shift to the right.
+  void ShiftRight(const float x_shift) { ShiftLeft(-x_shift); }
 
   /// Return the cubic function's value at `x`.
   /// f(x) = c3*x^3 + c2*x^2 + c1*x + c0
@@ -336,6 +363,6 @@ std::string GraphCurve(const T& curve, const CurveValueType value_type,
                             Range(curve.StartX(), curve.EndX()), size);
 }
 
-}  // namespace fpl
+}  // namespace motive
 
 #endif  // MOTIVE_MATH_CURVE_H_

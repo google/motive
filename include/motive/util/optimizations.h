@@ -15,7 +15,7 @@
 #ifndef MOTIVE_UTIL_OPTIMIZATIONS_H_
 #define MOTIVE_UTIL_OPTIMIZATIONS_H_
 
-namespace fpl {
+namespace motive {
 
 enum ProcessorOptimization {
   kNoOptimizations,
@@ -32,6 +32,6 @@ enum ProcessorOptimization {
 /// supported, return kNoOptimizations.
 ProcessorOptimization BestProcessorOptimization();
 
-}  // namespace fpl
+}  // namespace motive
 
 #endif  // MOTIVE_UTIL_OPTIMIZATIONS_H_

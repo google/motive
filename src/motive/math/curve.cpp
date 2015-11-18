@@ -20,9 +20,43 @@
 using mathfu::vec2;
 using mathfu::vec2i;
 
-namespace fpl {
+namespace motive {
 
-static float ClampNearZero(const float x, const float epsilon) {
+union IntFloatUnion {
+  uint32_t i;
+  float f;
+};
+
+static const uint32_t kExponentMask = 0x000000FF;
+static const int kExponentShift = 23;
+
+// Return floor(log2(f)), as an int.
+// See: https://en.wikipedia.org/wiki/Single-precision_floating-point_format
+static inline int ExponentAsInt(const float f) {
+  IntFloatUnion u;
+  u.f = f;
+  return ((u.i >> kExponentShift) & kExponentMask) - 127;
+}
+
+// Return 2^i as a float.
+// See: https://en.wikipedia.org/wiki/Single-precision_floating-point_format
+static inline float ExponentFromInt(const int i) {
+  IntFloatUnion u;
+  u.i = (i + 127) << kExponentShift;
+  return u.f;
+}
+
+// Returns the reciprocal of the exponent of f.
+// e.g. f = 2.0, 2.1, or 3.99999 --> returns 0.5
+// e.g. f = 1/4 = 0.25 --> returns 4
+static inline float ReciprocalExponent(const float f) {
+  return ExponentFromInt(-ExponentAsInt(f));
+}
+
+// If the absolute value of `x` is less than epsilon, return zero.
+// Otherwise, return `x`. This function is useful in situations where the
+// mathematical result depends on knowing if a number is zero or not.
+static inline float ClampNearZero(const float x, const float epsilon) {
   const bool is_near_zero = fabs(x) <= epsilon;
   return is_near_zero ? 0.0f : x;
 }
@@ -50,9 +84,23 @@ float QuadraticCurve::ReliableDiscriminant(const float epsilon) const {
 // http://en.wikipedia.org/wiki/Quadratic_formula
 // Roots returned in sorted order, smallest to largest.
 size_t QuadraticCurve::Roots(float roots[2]) const {
-  const float epsilon = Epsilon();
+  // The coefficients must be near 1, since we take the reciprocal when
+  // calculating `divisor` below. If they're not near one, we'll end up
+  // multiplying very small and very large numbers together, which will result
+  // in poor precision.
+  const float max_coeff = MaxCoeff();
+  const bool is_near_one = kEpsilonScale < max_coeff &&
+                           max_coeff < kEpsilonPrecision;
+  if (!is_near_one) {
+    // Multiplication by power-of-two exponents loses no precision.
+    // Note that scaling y does not change the x-roots.
+    const float reciprocal = ReciprocalExponent(max_coeff);
+    const QuadraticCurve normalized(*this, reciprocal);
+    return normalized.Roots(roots);
+  }
 
   // x^2 coefficient of zero means that curve is linear or constant.
+  const float epsilon = Epsilon(max_coeff);
   if (fabs(c_[2]) < epsilon) {
     // If constant, even if zero, return no roots. This is arbitrary.
     if (fabs(c_[1]) < epsilon) return 0;
@@ -182,6 +230,27 @@ void CubicCurve::Init(const CubicInit& init) {
           one_over_w_sq * (init.end_derivative + init.start_derivative);
 }
 
+void CubicCurve::ShiftLeft(const float x_shift) {
+  // Early out optimization.
+  if (x_shift == 0.0f) return;
+
+  // s = x_shift
+  // f(x) = dx^3 + cx^2 + bx + a
+  // f(x + s) = d(x+s)^3 + c(x+s)^2 + b(x+s) + a
+  //          = d(x^3 + 3sx^2 + 3s^2x + s^3) + c(x^2 + 2sx + s^2) + b(x + s) + a
+  //          = dx^3 + (3sd + c)x^2 + (3ds^2 + 2c + b)x + (ds^3 + cs^2 + bs + a)
+  //          = dx^3 + (f''(s)/2) x^2 + f'(s) x + f(s)
+  //
+  // Or, for an more general formulation, see:
+  //     http://math.stackexchange.com/questions/694565/polynomial-shift
+  const float new_c = SecondDerivative(x_shift) * 0.5f;
+  const float new_b = Derivative(x_shift);
+  const float new_a = Evaluate(x_shift);
+  c_[0] = new_a;
+  c_[1] = new_b;
+  c_[2] = new_c;
+}
+
 bool CubicCurve::UniformCurvature(const Range& x_limits) const {
   // Curvature is given by the second derivative. The second derivative is
   // linear. So, the curvature is uniformly positive or negative iff
@@ -290,4 +359,4 @@ std::string Graph2DPoints(const vec2* points, const int num_points,
 #endif  // defined(FPL_CURVE_GRAPH_FUNCTIONS)
 }
 
-}  // namespace fpl
+}  // namespace motive

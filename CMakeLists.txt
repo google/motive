@@ -11,17 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-cmake_minimum_required(VERSION 2.8.12)
+if(fpl_ios)
+  cmake_minimum_required(VERSION 3.3.1)
+else()
+  cmake_minimum_required(VERSION 2.8.12)
+endif()
 
 project(motive)
 
 # Compile the game with the debug flag
-set(motive_DEBUG ON)
+#set(motive_DEBUG ON)
+
+set(MOTIVE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
-get_directory_property(motive_has_parent PARENT_DIRECTORY)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${MOTIVE_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MOTIVE_BINARY_DIR})
 
 # Temporary files (like object files) created while compiling projects.
 set(tmp_dir ${CMAKE_CURRENT_BINARY_DIR}/obj)
@@ -30,13 +35,13 @@ set(tmp_dir ${CMAKE_CURRENT_BINARY_DIR}/obj)
 if(NOT DEFINED third_party_root)
   get_filename_component(
     third_party_root "${CMAKE_CURRENT_SOURCE_DIR}/../../../../external"
-    REALPATH)
+    ABSOLUTE)
 endif()
 
 # Directory which contains source for FPL libraries.
 if(NOT DEFINED fpl_root)
   get_filename_component(
-      fpl_root "${CMAKE_CURRENT_SOURCE_DIR}/../../libs" REALPATH)
+      fpl_root "${CMAKE_CURRENT_SOURCE_DIR}/../../libs" ABSOLUTE)
 endif()
 
 # If the dependencies directory exists, assume this is the root directory for
@@ -77,20 +82,6 @@ set(mathfu_build_benchmarks OFF CACHE BOOL "")
 set(mathfu_build_tests OFF CACHE BOOL "")
 add_subdirectory(${dependencies_mathfu_dir} ${tmp_dir}/mathfu)
 
-# Include SDL in this project while working around SDL requirement of out of
-# tree builds.
-set(SDL_SHARED OFF CACHE BOOL "Build a shared version of the library")
-# (hack) We redefine install to stop SDL's CMakeLists.txt from referring to SDL2 lib
-function(install)
-endfunction(install)
-# For some reason SDL defaults to these not being defined, and then defines their own,
-# causing linker errors.
-add_definitions(-DHAVE_LIBC)
-add_definitions(-DHAVE_STDIO_H)
-set(BIN_DIR ${CMAKE_CURRENT_BINARY_DIR})
-set(CMAKE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/.)
-set(CMAKE_BINARY_DIR ${BIN_DIR})
-
 # Include FlatBuffers in this project.
 set(FLATBUFFERS_BUILD_TESTS OFF CACHE BOOL "")
 if(NOT TARGET flatc)
@@ -101,27 +92,17 @@ endif()
 # directory.
 set(MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR
     ${CMAKE_CURRENT_SOURCE_DIR}${CMAKE_FILES_DIRECTORY}/include)
-if(motive_has_parent)
-  set(MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR
-      ${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR} PARENT_SCOPE)
-endif()
 file(GLOB_RECURSE FLATBUFFERS_SCHEMAS ${CMAKE_CURRENT_SOURCE_DIR}/schemas/*.fbs)
 
 # Generate rules to build the set of output files from the set of input
 # schema files.
-foreach(flatbuffers_schema ${FLATBUFFERS_SCHEMAS})
-  get_filename_component(filename ${flatbuffers_schema} NAME_WE)
-  set(flatbuffers_include
-    ${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR}/${filename}_generated.h)
-  add_custom_command(
-    OUTPUT ${flatbuffers_include}
-    COMMAND flatc --gen-includes
-        -o ${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR}
-        -c ${flatbuffers_schema}
-    DEPENDS flatc ${flatbuffers_schema})
-  list(APPEND FLATBUFFERS_GENERATED_INCLUDES ${flatbuffers_include})
-endforeach()
-add_custom_target(motive_generated_includes DEPENDS ${FLATBUFFERS_GENERATED_INCLUDES})
+build_flatbuffers("${FLATBUFFERS_SCHEMAS}"
+                  ""
+                  motive_generated_includes
+                  ""
+                  ${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR}
+                  ""
+                  "")
 
 # Motive source files.
 set(motive_SRCS
@@ -140,8 +121,11 @@ set(motive_SRCS
     include/motive/target.h
     include/motive/util.h
     include/motive/version.h
+    src/motive/anim.cpp
+    src/motive/anim_table.cpp
     src/motive/engine.cpp
     src/motive/motivator.cpp
+    src/motive/init.cpp
     src/motive/io/flatbuffers.cpp
     src/motive/math/bulk_spline_evaluator.cpp
     src/motive/math/compact_spline.cpp
@@ -150,6 +134,7 @@ set(motive_SRCS
     src/motive/processor.cpp
     src/motive/processor/matrix_processor.cpp
     src/motive/processor/overshoot_processor.cpp
+    src/motive/processor/rig_processor.cpp
     src/motive/processor/smooth_processor.cpp
     src/motive/util/benchmark.cpp
     src/motive/util/optimizations.cpp
@@ -160,17 +145,14 @@ include_directories(src include)
 if(WIN32)
   include_directories(external/include/windows)
 endif()
-include_directories(${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${dependencies_fplutil_dir}/libfplutil/include)
 include_directories(${dependencies_mathfu_dir}/benchmarks)
 include_directories(${dependencies_mathfu_dir}/include)
 
-# SDL includes.
-include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
-
 # Detect clang
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" OR
+   CMAKE_CXX_COMPILER_ID MATCHES ".*clang")
   set(CMAKE_COMPILER_IS_CLANGXX 1)
 endif()
 
@@ -190,7 +172,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${C_FLAGS_WARNINGS}")
 
 if(motive_DEBUG)
   # if we want to define this, it needs to be only in debug builds
-  #add_definitions(-D_DEBUG)
+  add_definitions(-D_DEBUG)
+  add_definitions(-DMOTIVE_VERIFY_INTERNAL_STATE)
 endif()
 
 if(motive_debug_functions)
@@ -201,15 +184,16 @@ if(motive_enable_benchmarks)
   add_definitions(-DBENCHMARK_MOTIVE)
 endif()
 
-set (SDL_LIBRARIES SDL2-static)
 if(WIN32)
   add_definitions(-D_USE_MATH_DEFINES)
-  set(SDL_LIBRARIES SDL2main ${SDL_LIBRARIES})
   link_directories("$ENV{DXSDK_DIR}/Lib/$ENV{PROCESSOR_ARCHITECTURE}")
 endif()
 
 # Executable target.
 add_library(motive ${motive_SRCS})
+
+# Set iOS specific attributes
+mathfu_set_ios_attributes(motive)
 
 # Dependencies for the executable target.
 add_dependencies(motive motive_generated_includes)
@@ -226,4 +210,3 @@ endif()
 if(motive_build_samples)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/samples)
 endif()
-

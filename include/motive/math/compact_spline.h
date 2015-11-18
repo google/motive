@@ -18,7 +18,7 @@
 #include "motive/common.h"
 #include "motive/math/curve.h"
 
-namespace fpl {
+namespace motive {
 
 class CompactSplineNode;
 
@@ -116,6 +116,12 @@ class CompactSpline {
   /// @param y Must be within the `y_range` specified in Init().
   /// @param derivative No restrictions, but excessively large values may still
   ///                   result in overshoot, even with an intermediate node.
+  /// @param method If kAddWithoutModification, adds the node and does nothing
+  ///               else. If kEnsureCubicWellBehaved, adds the node and
+  ///               (if required) inserts another node in the middle so that
+  ///               the individual cubics have uniform curvature.
+  ///               Uniform curvature means always curving upward or always
+  ///               curving downward. See docs/dual_cubics.pdf for details.
   void AddNode(const float x, const float y, const float derivative,
                const CompactSplineAddMethod method = kEnsureCubicWellBehaved);
 
@@ -138,6 +144,18 @@ class CompactSpline {
   ///                    If you have no idea, set to 0.
   CompactSplineIndex IndexForX(const float x,
                                const CompactSplineIndex guess_index) const;
+
+  /// If `repeat` is true, loop to x = 0 when `x` >= EndX().
+  /// If `repeat` is false, same as IndexForX().
+  CompactSplineIndex IndexForXAllowingRepeat(
+      const float x, const CompactSplineIndex guess_index,
+      const bool repeat, float* final_x) const;
+
+  /// Returns closest index between 0 and NumNodes() - 1.
+  /// Clamps `x` to a value in the range of index.
+  /// `index` must be a valid value: i.e. kBeforeSplineIndex, kAfterSplineIndex,
+  ///  or between 0..NumNodes()-1.
+  CompactSplineIndex ClampIndex(const CompactSplineIndex index, float* x) const;
 
   // First and last x, y, and derivatives in the spline.
   float StartX() const;
@@ -190,7 +208,8 @@ class CompactSpline {
   /// @param splines input splines of length `num_splines`.
   /// @param num_splines number of splines to evaluate.
   /// @param start_x starting point for every spline.
-  /// @param delta_x increment for each
+  /// @param delta_x increment for each output y.
+  /// @param num_ys length of the `ys` array.
   /// @param ys two dimensional output array, ys[num_ys][num_splines].
   ///           ys[0] are `splines` evaluated at start_x.
   ///           ys[num_ys - 1] are `splines` evaluated at
@@ -241,78 +260,22 @@ class CompactSpline {
   float x_granularity_;
 };
 
-/// @class SplinePlaybackN
+/// @class SplinePlayback
 /// @brief Parameters to specify how a spline should be traversed.
-template <int kDimensionsT>
-struct SplinePlaybackN {
-  static const int kDimensions = kDimensionsT;
-
-  /// Default constructor. Initializes to invalid values.
-  SplinePlaybackN() : start_x(-1.0f), playback_rate(-1.0f), repeat(false) {
-    for (int i = 0; i < kDimensions; ++i) {
-      splines[i] = nullptr;
-    }
-  }
-
+struct SplinePlayback {
   /// Initialize all channels with same spline.
   /// Especially useful when kDimensions = 1, since there is only one channel.
-  explicit SplinePlaybackN(const CompactSpline& s, float start_x = 0.0f,
-                           bool repeat = false, float playback_rate = 1.0f)
-      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
-    for (int i = 0; i < kDimensions; ++i) {
-      splines[i] = &s;
-    }
-  }
-
-  /// Initialize each channel with its own spline.
-  /// @param s An array pointers to splines, of length kDimensions.
-  explicit SplinePlaybackN(const CompactSpline* s, float start_x = 0.0f,
-                           bool repeat = false, float playback_rate = 1.0f)
-      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
-    for (int i = 0; i < kDimensions; ++i) {
-      splines[i] = &s[i];
-    }
-  }
-
-  /// Initialize 2D spline playback.
-  SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
-                  float start_x = 0.0f, bool repeat = false,
-                  float playback_rate = 1.0f)
-      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
-    assert(kDimensions == 2);
-    splines[0] = &x;
-    splines[1] = &y;
-  }
-
-  /// Initialize 3D spline playback.
-  SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
-                  const CompactSpline& z, float start_x = 0.0f,
-                  bool repeat = false, float playback_rate = 1.0f)
-      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
-    assert(kDimensions == 3);
-    splines[0] = &x;
-    splines[1] = &y;
-    splines[2] = &z;
-  }
-
-  /// Initialize 4D spline playback.
-  SplinePlaybackN(const CompactSpline& x, const CompactSpline& y,
-                  const CompactSpline& z, const CompactSpline& w,
-                  float start_x = 0.0f, bool repeat = false,
-                  float playback_rate = 1.0f)
-      : start_x(start_x), playback_rate(playback_rate), repeat(repeat) {
-    assert(kDimensions == 4);
-    splines[0] = &x;
-    splines[1] = &y;
-    splines[2] = &z;
-    splines[3] = &w;
-  }
-
-  /// The spline to follow.
-  const CompactSpline* splines[kDimensions];
+  explicit SplinePlayback(float start_x = 0.0f, bool repeat = false,
+                          float playback_rate = 1.0f, float blend_x = 0.0f)
+      : start_x(start_x), blend_x(blend_x), playback_rate(playback_rate),
+        repeat(repeat) {}
 
   /// The starting point from which to play.
   float start_x;
+
+  /// The point at which to be 100% in this spline. We create a smooth spline
+  /// from the current state to the spline state that lasts for `blend_x`.
+  float blend_x;
 
   /// The playback rate of the spline. Scales `delta_time` of the update to
   /// to x-axis of `splines`.
@@ -326,12 +289,6 @@ struct SplinePlaybackN {
   bool repeat;
 };
 
-typedef SplinePlaybackN<1> SplinePlayback1f;
-typedef SplinePlaybackN<2> SplinePlayback2f;
-typedef SplinePlaybackN<3> SplinePlayback3f;
-typedef SplinePlaybackN<4> SplinePlayback4f;
-typedef SplinePlayback1f SplinePlayback;
-
-}  // namespace fpl
+}  // namespace motive
 
 #endif  // MOTIVE_MATH_COMPACT_SPLINE_H_

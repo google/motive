@@ -26,9 +26,9 @@ class MotiveEngine;
 ///
 /// The value can be one-dimensional (e.g. a float), or multi-dimensional
 /// (e.g. a matrix). The dimension is determined by the sub-class:
-/// Motivator1f drives a float, MotivatorMatrix4f drives a 4x4 float matrix.
+/// Motivator1f drives a float, MatrixMotivator4f drives a 4x4 float matrix.
 ///
-/// Although you can instandiate a Motivator, you probably will not, since
+/// Although you can instantiate a Motivator, you probably will not, since
 /// there is no mechanism to read data out of a Motivator. Generally, you
 /// will instantiate a derived class like Motivator1f, which provides
 /// accessor functions.
@@ -140,21 +140,22 @@ class Motivator {
   MotiveIndex index_;
 };
 
-/// @class Motivator1f
-/// @brief Drive a single float value towards a target, or along a spline.
+/// @class MotivatorVectorTemplate
+/// @brief Drive a tuple of floats towards a target, or along a spline.
+///
+/// This template is instantiated below with four variations: 1~4 floats.
 ///
 /// The current and target values and velocities can be specified by SetTarget()
 /// or SetSpline().
 ///
-template <class VectorConverter, int kDimensionsT>
+template <class VectorConverter, MotiveDimension kDimensionsT>
 class MotivatorVectorTemplate : public Motivator {
  public:
-  static const int kDimensions = kDimensionsT;
+  static const MotiveDimension kDimensions = kDimensionsT;
   typedef VectorConverter C;
-  typedef typename fpl::ExternalVectorT<C, kDimensions>::type ExT;
-  typedef typename fpl::InternalVectorT<kDimensions>::type InT;
+  typedef typename motive::ExternalVectorT<C, kDimensions>::type ExT;
+  typedef typename motive::InternalVectorT<kDimensions>::type InT;
   typedef typename MotiveTargetT<kDimensions>::type Target;
-  typedef fpl::SplinePlaybackN<kDimensions> Spline;
   typedef MotiveTargetBuilderTemplate<C, kDimensions> TargetBuilder;
 
   /// Motivator is created in a reset state. When in the reset state,
@@ -198,6 +199,11 @@ class MotivatorVectorTemplate : public Motivator {
   /// if this Motivator is being driven by a spline, returns the derivative
   /// at the current time in the spline curve.
   ExT Velocity() const { return C::To(Processor().VelocityT(index_, InT())); }
+
+  /// Returns the velocity when playback rate is 1. Useful to know the
+  /// direction of a multi-dimensional motivator, even when playback rate
+  /// is 0.
+  ExT Direction() const { return C::To(Processor().DirectionT(index_, InT())); }
 
   /// Returns the value this Motivator is driving towards.
   /// If being driven by a spline, returns the value at the end of the spline.
@@ -245,11 +251,33 @@ class MotivatorVectorTemplate : public Motivator {
   ///          existing current value.
   void SetTarget(const Target& t) { Processor().SetTarget(index_, t); }
 
-  /// Follow the curve specified in `s`. Overrides the existing current value.
-  /// @param s The spline to follow, the time in that spline to initiate
-  ///          playback, and whether to repeat from the beginning after the
-  ///          end of the spline is reached.
-  void SetSpline(const Spline& s) { Processor().SetSpline(index_, s); }
+  /// Follow the curve specified in `spline`. Overrides the existing current
+  /// value.
+  /// @param splines The splines to follow. Array of length Dimensions().
+  /// @param playback The time into the splines to initiate playback,
+  ///                 the blend time to the splines, and whether to repeat
+  ///                 from the beginning after the end of the spline is reached.
+  void SetSpline(const motive::CompactSpline& spline,
+                 const motive::SplinePlayback& playback) {
+    assert(Dimensions() == 1);
+    Processor().SetSpline(index_, spline, playback);
+  }
+
+  /// Follow the curves specified in `splines`. Overrides the existing current
+  /// value.
+  /// @param splines The splines that the curves should follow.
+  ///                Array of length Dimensions().
+  /// @param playback The time into the splines to initiate playback,
+  ///                 the blend time to the splines, and whether to repeat
+  ///                 from the beginning after the end of the spline is reached.
+  void SetSplines(const motive::CompactSpline* splines,
+                  const motive::SplinePlayback& playback) {
+    Processor().SetSplines(index_, splines, playback);
+  }
+
+  void SetSplineTime(MotiveTime time) {
+    Processor().SetSplineTime(index_, time);
+  }
 
   /// Set rate at which we consume the spline set in SetSpline().
   ///     0   ==> paused
@@ -261,15 +289,15 @@ class MotivatorVectorTemplate : public Motivator {
   }
 
  private:
-  MotiveProcessorVector& Processor() {
-    return *static_cast<MotiveProcessorVector*>(processor_);
+  VectorProcessor& Processor() {
+    return *static_cast<VectorProcessor*>(processor_);
   }
-  const MotiveProcessorVector& Processor() const {
-    return *static_cast<const MotiveProcessorVector*>(processor_);
+  const VectorProcessor& Processor() const {
+    return *static_cast<const VectorProcessor*>(processor_);
   }
 };
 
-/// @class MotivatorMatrix4fTemplate
+/// @class MatrixMotivator4fTemplate
 /// @brief Drive a 4x4 float matrix from a series of basic transformations.
 ///
 /// The underlying basic transformations can be animated with
@@ -281,14 +309,15 @@ class MotivatorVectorTemplate : public Motivator {
 /// via the VectorConverter template parameter.
 ///
 template <class VectorConverter>
-class MotivatorMatrix4fTemplate : public Motivator {
+class MatrixMotivator4fTemplate : public Motivator {
   typedef VectorConverter C;
   typedef typename VectorConverter::ExternalMatrix4 Mat4;
   typedef typename VectorConverter::ExternalVector3 Vec3;
+  typedef MotivatorVectorTemplate<C, 1> Mot1f;
 
  public:
-  MotivatorMatrix4fTemplate() {}
-  MotivatorMatrix4fTemplate(const MotivatorInit& init, MotiveEngine* engine)
+  MatrixMotivator4fTemplate() {}
+  MatrixMotivator4fTemplate(const MotivatorInit& init, MotiveEngine* engine)
       : Motivator(init, engine, 1) {}
 
   /// Initialize to the type specified by `init`.
@@ -307,6 +336,14 @@ class MotivatorMatrix4fTemplate : public Motivator {
   Vec3 Position() const {
     return C::To(Processor().Value(index_).TranslationVector3D());
   }
+
+  /// Return the time remaining in the current spline animation.
+  /// Time units are defined by the user.
+  MotiveTime TimeRemaining() const { return Processor().TimeRemaining(index_); }
+
+  /// Query the number of matrix operations. This equals the number of
+  /// operations in the `init` initializer.
+  int NumChildren() const { return Processor().NumChildren(index_); }
 
   /// Return the current value of the `child_index`th basic transform that
   /// drives this matrix.
@@ -328,6 +365,13 @@ class MotivatorMatrix4fTemplate : public Motivator {
   ///                    z gets child_index + 2's value.
   Vec3 ChildValue3f(MotiveChildIndex child_index) const {
     return C::To(Processor().ChildValue3f(index_, child_index));
+  }
+
+  /// Returns the Motivator1f that's driving this child, if it's driven by
+  /// a Motivator1f. Otherwise, returns nullptr.
+  const Mot1f* ChildMotivator1f(MotiveChildIndex child_index) const {
+    return static_cast<const Mot1f*>(
+        Processor().ChildMotivator1f(index_, child_index));
   }
 
   /// Set the target the 'child_index'th basic transform.
@@ -360,26 +404,108 @@ class MotivatorMatrix4fTemplate : public Motivator {
   ///                    `value`.
   ///                    child_index + 1's constant is set to value.y, and
   ///                    child_index + 2's constant is set to value.z.
+  /// @param value The new constant value for this 3-dimensional operation.
   void SetChildValue3f(MotiveChildIndex child_index, const Vec3& value) {
     Processor().SetChildValue3f(index_, child_index, C::From(value));
   }
 
- private:
-  MotiveProcessorMatrix4f& Processor() {
-    return *static_cast<MotiveProcessorMatrix4f*>(processor_);
+  /// Match existing MatrixOps with those in `ops` and smoothly transition
+  /// to the new parameters in `ops`.
+  void BlendToOps(const MatrixOpArray& ops,
+                  const motive::SplinePlayback& playback) {
+    Processor().BlendToOps(index_, ops, playback);
   }
-  const MotiveProcessorMatrix4f& Processor() const {
-    return *static_cast<const MotiveProcessorMatrix4f*>(processor_);
+
+  void SetPlaybackRate(float playback_rate) {
+    Processor().SetPlaybackRate(index_, playback_rate);
+  }
+
+ private:
+  MatrixProcessor4f& Processor() {
+    return *static_cast<MatrixProcessor4f*>(processor_);
+  }
+  const MatrixProcessor4f& Processor() const {
+    return *static_cast<const MatrixProcessor4f*>(processor_);
+  }
+};
+
+class RigMotivator : public Motivator {
+ public:
+  RigMotivator() {}
+  RigMotivator(const MotivatorInit& init, MotiveEngine* engine)
+      : Motivator(init, engine, 1) {}
+
+  /// Initialize to the type specified by `init`. The only type defined
+  /// within Motive for `init` is motive::RigInit, but you can register your
+  /// own RigProcessor classes if you like.
+  void Initialize(const MotivatorInit& init, MotiveEngine* engine) {
+    InitializeWithDimension(init, engine, 1);
+  }
+
+  /// Blend from the current state to the animation specified in `anim`.
+  /// Blend time is specified in `anim` itself.
+  /// If the current state is unspecified because no animation
+  /// has yet been played, snap to `anim`.
+  void BlendToAnim(const RigAnim& anim,
+                   const motive::SplinePlayback& playback) {
+    Processor().BlendToAnim(index_, anim, playback);
+  }
+
+  void SetPlaybackRate(float playback_rate) {
+    Processor().SetPlaybackRate(index_, playback_rate);
+  }
+
+  /// Returns array of matricies: one for each bone position. The matrices are
+  /// all in the space of the root bones. That is, the bone hierarchy has been
+  /// flattened.
+  const mathfu::AffineTransform* GlobalTransforms() const {
+    return Processor().GlobalTransforms(index_);
+  }
+
+  /// Returns the shell aniamtion that defines this rig. It contains all the
+  /// bones and operations-on-those-bones that can be animated.
+  ///
+  /// Distinction,
+  /// Rig: defines the bone heirarchy.
+  /// Defining animation: defines the bone heirarchy + operations on each bone.
+  /// Operations-on-bone: one of MatrixOperationType, for example, a rotation
+  ///     about the x-axis, or a translation along the y-axis. Animations are
+  ///     composed of several such operations on each bone. Not every animation
+  ///     has all the operations, however. The defining animation is the union
+  ///     of all possible operations on each bone.
+  const RigAnim* DefiningAnim() const {
+    return Processor().DefiningAnim(index_);
+  }
+
+  /// Return the time remaining in the current spline animation.
+  /// Time units are defined by the user.
+  MotiveTime TimeRemaining() const { return Processor().TimeRemaining(index_); }
+
+  std::string CsvHeaderForDebugging() const {
+    return Processor().CsvHeaderForDebugging(index_);
+  }
+  std::string CsvValuesForDebugging() const {
+    return Processor().CsvValuesForDebugging(index_);
+  }
+
+ private:
+  RigProcessor& Processor() { return *static_cast<RigProcessor*>(processor_); }
+  const RigProcessor& Processor() const {
+    return *static_cast<const RigProcessor*>(processor_);
   }
 };
 
 // These Motivator types use mathfu in their external API.
-typedef MotivatorVectorTemplate<fpl::PassThroughVectorConverter, 1> Motivator1f;
-typedef MotivatorVectorTemplate<fpl::PassThroughVectorConverter, 2> Motivator2f;
-typedef MotivatorVectorTemplate<fpl::PassThroughVectorConverter, 3> Motivator3f;
-typedef MotivatorVectorTemplate<fpl::PassThroughVectorConverter, 4> Motivator4f;
-typedef MotivatorMatrix4fTemplate<fpl::PassThroughVectorConverter>
-    MotivatorMatrix4f;
+typedef MotivatorVectorTemplate<motive::PassThroughVectorConverter, 1>
+    Motivator1f;
+typedef MotivatorVectorTemplate<motive::PassThroughVectorConverter, 2>
+    Motivator2f;
+typedef MotivatorVectorTemplate<motive::PassThroughVectorConverter, 3>
+    Motivator3f;
+typedef MotivatorVectorTemplate<motive::PassThroughVectorConverter, 4>
+    Motivator4f;
+typedef MatrixMotivator4fTemplate<motive::PassThroughVectorConverter>
+    MatrixMotivator4f;
 
 }  // namespace motive
 

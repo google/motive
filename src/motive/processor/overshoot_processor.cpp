@@ -38,7 +38,7 @@ struct OvershootData {
   OvershootInit init;
 };
 
-class OvershootMotiveProcessor : public MotiveProcessorVector {
+class OvershootMotiveProcessor : public VectorProcessor {
  public:
   virtual ~OvershootMotiveProcessor() {}
 
@@ -68,6 +68,9 @@ class OvershootMotiveProcessor : public MotiveProcessorVector {
   virtual float Value1f(MotiveIndex index) const { return Data(index).value; }
   virtual float Velocity1f(MotiveIndex index) const {
     return Data(index).velocity;
+  }
+  virtual float Direction1f(MotiveIndex index) const {
+    return Data(index).velocity; // No playback rate, so same as velocity.
   }
   virtual float TargetValue1f(MotiveIndex index) const {
     return Data(index).target_value;

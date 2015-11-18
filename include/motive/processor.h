@@ -25,8 +25,10 @@
 
 namespace motive {
 
+class MatrixOpArray;
 class Motivator;
 class MotiveEngine;
+class RigAnim;
 
 /// @class MotiveProcessor
 /// @brief A MotiveProcessor processes *all* instances of one type of Motivator.
@@ -56,7 +58,11 @@ class MotiveEngine;
 class MotiveProcessor {
  public:
   MotiveProcessor()
-      : allocator_callbacks_(this), index_allocator_(allocator_callbacks_) {}
+      : index_allocator_(allocator_callbacks_),
+        benchmark_id_for_advance_frame_(-1),
+        benchmark_id_for_init_(-1) {
+    allocator_callbacks_.set_processor(this);
+  }
   virtual ~MotiveProcessor();
 
   /// Instantiate motivator data inside the MotiveProcessor, and initialize
@@ -75,6 +81,9 @@ class MotiveProcessor {
   ///                  This MotiveProcessor. The MotiveProcessor also keeps
   ///                  a reference to `motivator` in case it shuffles around
   ///                  internal data.
+  /// @param dimensions The number of slots to consume in the MotiveProcessor.
+  ///                   For example, a 3D vector would consume three slots in
+  ///                   a MotiveProcessor of floats.
   void InitializeMotivator(const MotivatorInit& init, MotiveEngine* engine,
                            Motivator* motivator, MotiveDimension dimensions);
 
@@ -149,6 +158,13 @@ class MotiveProcessor {
   /// debugging problems where the internal state is corrupt.
   void VerifyInternalState() const;
 
+  // For internal use. Called by the MotiveEngine to profile each processor.
+  void RegisterBenchmarks();
+  int benchmark_id_for_advance_frame() const {
+    return benchmark_id_for_advance_frame_;
+  }
+  int benchmark_id_for_init() const { return benchmark_id_for_init_; }
+
  protected:
   /// Initialize data at 'index'. The meaning of 'index' is determined by the
   /// MotiveProcessor implementation (most likely it is the index into one or
@@ -184,7 +200,7 @@ class MotiveProcessor {
   void Defragment() { index_allocator_.Defragment(); }
 
  private:
-  typedef fpl::IndexAllocator<MotiveIndex> MotiveIndexAllocator;
+  typedef fplutil::IndexAllocator<MotiveIndex> MotiveIndexAllocator;
   typedef MotiveIndexAllocator::IndexRange IndexRange;
 
   /// Don't notify derived class.
@@ -197,7 +213,8 @@ class MotiveProcessor {
   /// Proxy callbacks from IndexAllocator into MotiveProcessor.
   class AllocatorCallbacks : public MotiveIndexAllocator::CallbackInterface {
    public:
-    AllocatorCallbacks(MotiveProcessor* processor) : processor_(processor) {}
+    AllocatorCallbacks() : processor_(nullptr) {}
+    void set_processor(MotiveProcessor* processor) { processor_ = processor; }
     virtual void SetNumIndices(MotiveIndex num_indices) {
       processor_->SetNumIndicesBase(num_indices);
     }
@@ -230,12 +247,15 @@ class MotiveProcessor {
   /// unused indices with the highest allocated indices. This reduces the total
   /// size of the data arrays.
   MotiveIndexAllocator index_allocator_;
+
+  int benchmark_id_for_advance_frame_;
+  int benchmark_id_for_init_;
 };
 
-/// @class MotiveProcessorVector
+/// @class VectorProcessor
 /// @brief Interface for motivator types that drive a single float value.
 /// That is, for MotiveProcessors that interface with MotivatorVectorT's.
-class MotiveProcessorVector : public MotiveProcessor {
+class VectorProcessor : public MotiveProcessor {
  public:
   virtual MotiveTime TargetTime(MotiveIndex index) const = 0;
   virtual MotiveTime SplineTime(MotiveIndex /*index*/) const { return 0; }
@@ -258,16 +278,17 @@ class MotiveProcessorVector : public MotiveProcessor {
 
   // Drive the Motivator by following splines specified in the playback.
   virtual void SetSpline(MotiveIndex /*index*/,
-                         const fpl::SplinePlayback1f& /*s*/) {}
-  virtual void SetSpline(MotiveIndex index, const fpl::SplinePlayback2f& s) {
-    SetSplinesSeparately(index, s);
+                         const motive::CompactSpline& /*spline*/,
+                         const motive::SplinePlayback& /*playback*/) {}
+  virtual void SetSplines(MotiveIndex index,
+                          const motive::CompactSpline* splines,
+                          const motive::SplinePlayback& playback) {
+    const MotiveDimension dimensions = Dimensions(index);
+    for (MotiveDimension i = 0; i < dimensions; ++i) {
+      SetSpline(index + i, splines[i], playback);
+    }
   }
-  virtual void SetSpline(MotiveIndex index, const fpl::SplinePlayback3f& s) {
-    SetSplinesSeparately(index, s);
-  }
-  virtual void SetSpline(MotiveIndex index, const fpl::SplinePlayback4f& s) {
-    SetSplinesSeparately(index, s);
-  }
+  virtual void SetSplineTime(MotiveIndex /*index*/, MotiveTime /*time*/) {}
   virtual void SetSplinePlaybackRate(MotiveIndex /*index*/,
                                      float /*playback_rate*/) {}
 
@@ -276,15 +297,6 @@ class MotiveProcessorVector : public MotiveProcessor {
   void SetTargetSeparately(MotiveIndex index, const MoTarget& t) {
     for (int i = 0; i < MoTarget::kDimensions; ++i) {
       SetTarget(index + i, t[i]);
-    }
-  }
-
-  template <class Playback>
-  void SetSplinesSeparately(MotiveIndex index, const Playback& s) {
-    for (int i = 0; i < Playback::kDimensions; ++i) {
-      SetSpline(index + i,
-                fpl::SplinePlayback1f(*s.splines[i], s.start_x, s.repeat,
-                                      s.playback_rate));
     }
   }
 
@@ -331,37 +343,36 @@ class MotiveProcessorVector : public MotiveProcessor {
 //                        Value1f(index + 2), Value1f(index + 3));
 //  }
 //
-#define MOTIVE_VECTOR_ACCESSOR_FN(FnName)                                \
- public:                                                                 \
-  float FnName##T(MotiveIndex index, float) const {                      \
-    return FnName##1f(index);                                            \
-  }                                                                      \
-  mathfu::vec2 FnName##T(MotiveIndex index, const mathfu::vec2&) const { \
-    return FnName##2f(index);                                            \
-  }                                                                      \
-  mathfu::vec3 FnName##T(MotiveIndex index, const mathfu::vec3&) const { \
-    return FnName##3f(index);                                            \
-  }                                                                      \
-  mathfu::vec4 FnName##T(MotiveIndex index, const mathfu::vec4&) const { \
-    return FnName##4f(index);                                            \
-  }                                                                      \
-                                                                         \
- protected:                                                              \
-  virtual float FnName##1f(MotiveIndex index) const = 0;                 \
-  virtual mathfu::vec2 FnName##2f(MotiveIndex index) const {             \
-    return mathfu::vec2(FnName##1f(index), FnName##1f(index + 1));       \
-  }                                                                      \
-  virtual mathfu::vec3 FnName##3f(MotiveIndex index) const {             \
-    return mathfu::vec3(FnName##1f(index), FnName##1f(index + 1),        \
-                        FnName##1f(index + 2));                          \
-  }                                                                      \
-  virtual mathfu::vec4 FnName##4f(MotiveIndex index) const {             \
-    return mathfu::vec4(FnName##1f(index), FnName##1f(index + 1),        \
-                        FnName##1f(index + 2), FnName##1f(index + 3));   \
+#define MOTIVE_VECTOR_ACCESSOR_FN(FnName)                                       \
+ public:                                                                        \
+  float FnName##T(MotiveIndex index, float) const { return FnName##1f(index); } \
+  mathfu::vec2 FnName##T(MotiveIndex index, const mathfu::vec2&) const {        \
+    return FnName##2f(index);                                                   \
+  }                                                                             \
+  mathfu::vec3 FnName##T(MotiveIndex index, const mathfu::vec3&) const {        \
+    return FnName##3f(index);                                                   \
+  }                                                                             \
+  mathfu::vec4 FnName##T(MotiveIndex index, const mathfu::vec4&) const {        \
+    return FnName##4f(index);                                                   \
+  }                                                                             \
+                                                                                \
+ protected:                                                                     \
+  virtual float FnName##1f(MotiveIndex index) const = 0;                        \
+  virtual mathfu::vec2 FnName##2f(MotiveIndex index) const {                    \
+    return mathfu::vec2(FnName##1f(index), FnName##1f(index + 1));              \
+  }                                                                             \
+  virtual mathfu::vec3 FnName##3f(MotiveIndex index) const {                    \
+    return mathfu::vec3(FnName##1f(index), FnName##1f(index + 1),               \
+                        FnName##1f(index + 2));                                 \
+  }                                                                             \
+  virtual mathfu::vec4 FnName##4f(MotiveIndex index) const {                    \
+    return mathfu::vec4(FnName##1f(index), FnName##1f(index + 1),               \
+                        FnName##1f(index + 2), FnName##1f(index + 3));          \
   }
 
   MOTIVE_VECTOR_ACCESSOR_FN(Value)
   MOTIVE_VECTOR_ACCESSOR_FN(Velocity)
+  MOTIVE_VECTOR_ACCESSOR_FN(Direction)
   MOTIVE_VECTOR_ACCESSOR_FN(TargetValue)
   MOTIVE_VECTOR_ACCESSOR_FN(TargetVelocity)
   MOTIVE_VECTOR_ACCESSOR_FN(Difference)
@@ -369,13 +380,16 @@ class MotiveProcessorVector : public MotiveProcessor {
 #undef MOTIVE_VECTOR_ACCESSOR_FN
 };
 
-/// @class MotiveProcessorMatrix4f
+/// @class MatrixProcessor4f
 /// @brief Interface for motivator types that drive a 4x4 float matrix.
-/// That is, for MotiveProcessors that interface with MotivatorMatrix4f's.
-class MotiveProcessorMatrix4f : public MotiveProcessor {
+/// That is, for MotiveProcessors that interface with MatrixMotivator4f's.
+class MatrixProcessor4f : public MotiveProcessor {
  public:
   /// Get the current matrix value from the processor.
   virtual const mathfu::mat4& Value(MotiveIndex index) const = 0;
+
+  /// Get the number of matrix operations performed by this motivator.
+  virtual int NumChildren(MotiveIndex index) const = 0;
 
   /// Get current values of the components that create the matrix.
   virtual float ChildValue1f(MotiveIndex index,
@@ -386,6 +400,11 @@ class MotiveProcessorMatrix4f : public MotiveProcessor {
                         ChildValue1f(index, child_index + 1),
                         ChildValue1f(index, child_index + 2));
   }
+
+  /// Get the Motivator1f driving this child, if this child is driven by
+  /// a Motivator1f, or nullptr otherwise.
+  virtual const Motivator* ChildMotivator1f(
+      MotiveIndex index, MotiveChildIndex child_index) const = 0;
 
   /// Set child values. Matrices are composed from child components.
   virtual void SetChildTarget1f(MotiveIndex /*index*/,
@@ -399,6 +418,42 @@ class MotiveProcessorMatrix4f : public MotiveProcessor {
     for (int i = 0; i < 3; ++i) {
       SetChildValue1f(index, child_index + i, value[i]);
     }
+  }
+
+  /// Smoothly transition to the operations specified in `ops`.
+  virtual void BlendToOps(MotiveIndex /*index*/, const MatrixOpArray& /*ops*/,
+                          const motive::SplinePlayback& /*playback*/){}
+
+  /// Instantly change the playback speed of this animation.
+  virtual void SetPlaybackRate(MotiveIndex index, float playback_rate) = 0;
+};
+
+class RigProcessor : public MotiveProcessor {
+ public:
+  /// Returns an array of length `DefiningAnim.NumBones()`.
+  /// The i'th element of the array represents the transform from the root
+  /// bone to the bone-space on the i'th bone.
+  virtual const mathfu::AffineTransform* GlobalTransforms(MotiveIndex index)
+      const = 0;
+
+  /// Return the time remaining in the current matrix animation.
+  virtual MotiveTime TimeRemaining(MotiveIndex index) const = 0;
+
+  /// Return the animation that defines the rig.
+  virtual const RigAnim* DefiningAnim(MotiveIndex index) const = 0;
+
+  /// Smoothly transition to the animation in `anim`.
+  virtual void BlendToAnim(MotiveIndex index, const RigAnim& anim,
+                           const motive::SplinePlayback& playback) = 0;
+
+  /// Instantly change the playback speed of this animation.
+  virtual void SetPlaybackRate(MotiveIndex index, float playback_rate) = 0;
+
+  virtual std::string CsvHeaderForDebugging(MotiveIndex /*index*/) const {
+    return std::string();
+  }
+  virtual std::string CsvValuesForDebugging(MotiveIndex /*index*/) const {
+    return std::string();
   }
 };
 

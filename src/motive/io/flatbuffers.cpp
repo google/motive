@@ -11,21 +11,22 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "matrix_anim_generated.h"
+#include "anim_generated.h"
 #include "motive_generated.h"
-#include "motive/io/flatbuffers.h"
-#include "motive/init.h"
+#include "anim_table_generated.h"
 #include "motive/anim.h"
+#include "motive/init.h"
+#include "motive/io/flatbuffers.h"
 
 namespace motive {
 
 // Verify that MatrixOperationType and MatrixOperationTypeFb are identical
 // enumerations. Since FlatBuffer support is optional, we must duplicate the
 // MatrixOperationType from init.h in matrix_anim.fbx.
-#define MOTIVE_VERIFY_MATRIX_OP_ENUM(name) \
-    static_assert(name == static_cast<MatrixOperationType>( \
-                  MatrixOperationTypeFb_##name), \
-                  "FlatBuffer and init.h enum do not match")
+#define MOTIVE_VERIFY_MATRIX_OP_ENUM(name)                                    \
+  static_assert(                                                              \
+      name == static_cast<MatrixOperationType>(MatrixOperationTypeFb_##name), \
+      "FlatBuffer and init.h enum do not match")
 MOTIVE_VERIFY_MATRIX_OP_ENUM(kInvalidMatrixOperation);
 MOTIVE_VERIFY_MATRIX_OP_ENUM(kRotateAboutX);
 MOTIVE_VERIFY_MATRIX_OP_ENUM(kRotateAboutY);
@@ -40,11 +41,10 @@ MOTIVE_VERIFY_MATRIX_OP_ENUM(kScaleUniformly);
 MOTIVE_VERIFY_MATRIX_OP_ENUM(kNumMatrixOperationTypes);
 #undef MOTIVE_VERIFY_OP_ENUM
 
-
 static void ModularInitFromFlatBuffers(const ModularParameters& params,
                                        ModularInit* init) {
   init->set_modular(params.modular() != 0);
-  init->set_range(fpl::Range(params.min(), params.max()));
+  init->set_range(Range(params.min(), params.max()));
 }
 
 void OvershootInitFromFlatBuffers(const OvershootParameters& params,
@@ -71,8 +71,8 @@ void Settled1fFromFlatBuffers(const Settled1fParameters& params,
 }
 
 void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
-  MatrixInit& init = anim->init();
-  init.Clear(params.ops()->size());
+  MatrixOpArray& ops = anim->ops();
+  ops.Clear(params.ops()->size());
 
   // Count the number of splines.
   int num_splines = 0;
@@ -83,7 +83,7 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
   // Initialize the output structure with the correct number of splines.
   MatrixAnim::Spline* splines = anim->Construct(num_splines);
 
-  // Loop through each op, adding to the MatrixAnim init params.
+  // Loop through each op, adding to the MatrixAnim ops.
   int spline_idx = 0;
   for (auto op = params.ops()->begin(); op != params.ops()->end(); ++op) {
     const MatrixOperationType op_type =
@@ -98,10 +98,10 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
         // Copy the spline data into s.spline.
         // TODO: modify CompactSpline so we can just point at spline data
         //       instead of copying it.
-        const fpl::Range y_range(spline_fb->y_range_start(),
-                                 spline_fb->y_range_end());
+        const Range y_range(spline_fb->y_range_start(),
+                            spline_fb->y_range_end());
         s.spline.Init(y_range, spline_fb->x_granularity(),
-                    spline_fb->nodes()->size());
+                      spline_fb->nodes()->size());
         for (auto n = spline_fb->nodes()->begin();
              n != spline_fb->nodes()->end(); ++n) {
           s.spline.AddNodeVerbatim(n->x(), n->y(), n->angle());
@@ -109,16 +109,17 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
 
         // Hold `init` and `playback` data in structures that won't disappear,
         // since these are referenced by pointer.
-        s.init = SmoothInit(y_range, spline_fb->modular_arithmetic());
-        s.playback = fpl::SplinePlayback(s.spline, 0.0f, true);
-        init.AddOp(op_type, s.init, s.playback);
+        const bool modular = ModularOp(op_type);
+        const Range& op_range = RangeOfOp(op_type, y_range);
+        s.init = SmoothInit(op_range, modular);
+        ops.AddOp(op_type, s.init, s.spline);
         break;
       }
 
       case MatrixOpValueFb_ConstantOpFb: {
         const ConstantOpFb* const_fb =
             reinterpret_cast<const ConstantOpFb*>(op->value());
-        init.AddOp(op_type, const_fb->y_const());
+        ops.AddOp(op_type, const_fb->y_const());
         break;
       }
 
@@ -126,6 +127,32 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
         assert(false);  // Invalid FlatBuffer data.
     }
   }
+}
+
+void RigAnimFromFlatBuffers(const RigAnimFb& params, const char* anim_name,
+                            RigAnim* anim) {
+  const size_t num_bones = params.matrix_anims()->Length();
+  const auto names = params.bone_names();
+  const auto parents = params.bone_parents();
+  const bool record_names = names != nullptr && names->Length() == num_bones;
+  assert(parents != nullptr && parents->Length() == num_bones);
+
+  anim->Init(anim_name, static_cast<motive::BoneIndex>(num_bones),
+             record_names);
+
+  MotiveTime end_time = 0;
+  for (BoneIndex i = 0; i < num_bones; ++i) {
+    const BoneIndex parent = parents->Get(i);
+    const char* name = record_names ? names->Get(i)->c_str() : "";
+    MatrixAnim& m = anim->InitMatrixAnim(i, parent, name);
+    MatrixAnimFromFlatBuffers(*params.matrix_anims()->Get(i), &m);
+    end_time = std::max(end_time, m.ops().EndTime());
+  }
+
+  // Set animation-wide values.
+  anim->set_end_time(params.repeat() ? std::numeric_limits<MotiveTime>::max()
+                                     : end_time);
+  anim->set_repeat(params.repeat() != 0);
 }
 
 }  // namespace motive

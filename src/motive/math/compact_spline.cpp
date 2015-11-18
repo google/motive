@@ -20,7 +20,7 @@
 
 using mathfu::Lerp;
 
-namespace fpl {
+namespace motive {
 
 // A spline is composed of a series of spline nodes (x, y, derivative) that are
 // interpolated to form a smooth curve.
@@ -239,13 +239,20 @@ float CompactSpline::EndDerivative() const {
 }
 
 float CompactSpline::NodeX(const CompactSplineIndex index) const {
+  // Note that, when `index` is before the spline, we return x=0 instead of
+  // x=first node's x. This is because logically the spline always starts at
+  // x=0, so anything before the first node is in an implicit segment from
+  // x=0..first node's x.
   return index == kAfterSplineIndex
              ? EndX()
-             : index == kBeforeSplineIndex ? StartX()
+             : index == kBeforeSplineIndex ? 0.0f
                                            : nodes_[index].X(x_granularity_);
 }
 float CompactSpline::NodeY(const CompactSplineIndex index) const {
-  return nodes_[index].Y(y_range_);
+  return index == kAfterSplineIndex
+             ? EndY()
+             : index == kBeforeSplineIndex ? StartY()
+                                           : nodes_[index].Y(y_range_);
 }
 float CompactSpline::NodeDerivative(const CompactSplineIndex index) const {
   return nodes_[index].Derivative();
@@ -283,10 +290,9 @@ void CompactSpline::BulkYs(const CompactSpline* const splines,
   // Note that we set `repeat` = false, so that we can accurately get the last
   // value in the spline.
   evaluator.SetNumIndices(num_splines);
-  SplinePlayback playback(nullptr, start_x);
+  const SplinePlayback playback(start_x);
   for (int i = 0; i < num_splines; ++i) {
-    playback.splines[0] = &splines[i];
-    evaluator.SetSpline(i, playback);
+    evaluator.SetSpline(i, splines[i], playback);
   }
 
   // Grab y values, then advance spline evaluation by delta_x.
@@ -300,10 +306,10 @@ void CompactSpline::BulkYs(const CompactSpline* const splines,
 
 Range CompactSpline::RangeX(const CompactSplineIndex index) const {
   if (index == kBeforeSplineIndex)
-    // Return StartX() for the start of the range instead of -inf.
-    // Before we get to the range, we want to have relative x-values that are
-    // negative.
-    return Range(StartX(), StartX());
+    // Return 0.0f for the start of the range instead of -inf.
+    // There is an implicit range from the start of the spline (x=0) to the
+    // start of the first segment.
+    return Range(0.0f, StartX());
 
   if (index == kAfterSplineIndex)
     return Range(EndX(), std::numeric_limits<float>::infinity());
@@ -336,6 +342,37 @@ CompactSplineIndex CompactSpline::IndexForX(
   // Search for it, if the initial guess fails.
   const CompactSplineIndex index = BinarySearchIndexForX(compact_x);
   assert(IndexContainsX(compact_x, index));
+  return index;
+}
+
+CompactSplineIndex CompactSpline::IndexForXAllowingRepeat(
+    const float x, const CompactSplineIndex guess_index,
+    const bool repeat, float* final_x) const {
+  // Does not repeat, so return the index as is.
+  const CompactSplineIndex index = IndexForX(x, guess_index);
+  if (!repeat || index != kAfterSplineIndex) {
+    *final_x = x;
+    return index;
+  }
+
+  // Repeats, so wrap `x` back to 0 and find the index again.
+  const float repeat_x = x - EndX();
+  const CompactSplineIndex repeat_index = IndexForX(repeat_x, 0);
+  *final_x = repeat_x;
+  return repeat_index;
+}
+
+CompactSplineIndex CompactSpline::ClampIndex(const CompactSplineIndex index,
+                                             float* x) const {
+  if (index == kBeforeSplineIndex) {
+    *x = StartX();
+    return 0;
+  }
+  if (index == kAfterSplineIndex) {
+    *x = EndX();
+    return NumNodes() - 1;
+  }
+  assert(index < NumNodes());
   return index;
 }
 
@@ -411,4 +448,4 @@ float CompactSpline::RecommendXGranularity(const float max_x) {
   return max_x <= 0.0f ? 1.0f : max_x / CompactSplineNode::MaxX();
 }
 
-}  // namespace fpl
+}  // namespace motive

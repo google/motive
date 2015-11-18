@@ -17,9 +17,9 @@
 
 namespace motive {
 
-void Motivator::InitializeWithDimension(
-    const MotivatorInit& init, MotiveEngine* engine,
-    MotiveDimension dimensions) {
+void Motivator::InitializeWithDimension(const MotivatorInit& init,
+                                        MotiveEngine* engine,
+                                        MotiveDimension dimensions) {
   // Unregister ourselves with our existing MotiveProcessor.
   Invalidate();
 

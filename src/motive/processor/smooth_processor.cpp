@@ -18,9 +18,9 @@
 
 namespace motive {
 
-using fpl::CompactSpline;
-using fpl::BulkSplineEvaluator;
-using fpl::Range;
+using motive::CompactSpline;
+using motive::BulkSplineEvaluator;
+using motive::Range;
 
 // Add some buffer to the y-range to allow for intermediate nodes
 // that go above or below the supplied nodes.
@@ -37,7 +37,7 @@ struct SmoothData {
   CompactSpline* local_spline;
 };
 
-class SmoothMotiveProcessor : public MotiveProcessorVector {
+class SmoothMotiveProcessor : public VectorProcessor {
  public:
   virtual ~SmoothMotiveProcessor() {
     for (auto it = spline_pool_.begin(); it != spline_pool_.end(); ++it) {
@@ -59,6 +59,9 @@ class SmoothMotiveProcessor : public MotiveProcessorVector {
   }
   virtual float Velocity1f(MotiveIndex index) const {
     return interpolator_.Derivative(index);
+  }
+  virtual float Direction1f(MotiveIndex index) const {
+    return interpolator_.DerivativeWithoutPlayback(index);
   }
   virtual float TargetValue1f(MotiveIndex index) const {
     return interpolator_.EndY(index);
@@ -84,7 +87,8 @@ class SmoothMotiveProcessor : public MotiveProcessorVector {
     // current values with the values specified in the first node.
     const MotiveNode1f& node0 = t.Node(0);
     const bool override_current = node0.time == 0;
-    const float start_y = override_current ? node0.value : Value1f(index);
+    const float start_y = override_current ? node0.value
+                                           : interpolator_.NormalizedY(index);
     const float start_derivative =
         override_current ? node0.velocity : Velocity1f(index);
     const int start_node_index = override_current ? 1 : 0;
@@ -98,7 +102,7 @@ class SmoothMotiveProcessor : public MotiveProcessorVector {
     // Initialize the compact spline to hold the sequence of nodes in 't'.
     // Add the first node, which has the start condition.
     const float end_x = static_cast<float>(t.EndTime());
-    const Range y_range = t.ValueRange(start_y).Lengthen(kYRangeBufferPercent);
+    const Range y_range = CalculateYRange(index, t, start_y);
     const float x_granularity = CompactSpline::RecommendXGranularity(end_x);
     d.local_spline->Init(y_range, x_granularity, kMaxNodesInLocalSpline);
     d.local_spline->AddNode(0.0f, start_y, start_derivative);
@@ -109,25 +113,35 @@ class SmoothMotiveProcessor : public MotiveProcessorVector {
     for (int i = start_node_index; i < t.num_nodes(); ++i) {
       const MotiveNode1f& n = t.Node(i);
       const float y = interpolator_.NextY(index, prev_y, n.value, n.direction);
-      d.local_spline->AddNode(static_cast<float>(n.time), y, n.velocity);
+      d.local_spline->AddNode(static_cast<float>(n.time), y, n.velocity,
+                              motive::kAddWithoutModification);
       prev_y = y;
     }
 
     // Point the interpolator at the spline we just created. Always start our
     // spline at time 0.
-    interpolator_.SetSpline(index, fpl::SplinePlayback(*d.local_spline));
+    interpolator_.SetSpline(index, *d.local_spline, motive::SplinePlayback());
   }
 
-  virtual void SetSpline(MotiveIndex index, const fpl::SplinePlayback& s) {
+  virtual void SetSpline(MotiveIndex index, const motive::CompactSpline& spline,
+                         const motive::SplinePlayback& playback) {
     SmoothData& d = Data(index);
 
     // Return the local spline to the spline pool. We use external splines now.
     FreeSpline(d.local_spline);
+    d.local_spline = nullptr;
 
     // Initialize spline to follow way points.
     // Snaps the current value and velocity to the way point's start value
     // and velocity.
-    interpolator_.SetSpline(index, s);
+    interpolator_.SetSpline(index, spline, playback);
+  }
+
+  virtual void SetSplineTime(MotiveIndex index, MotiveTime time) {
+    const MotiveIndex end_index = index + Dimensions(index);
+    for (MotiveIndex i = index; i < end_index; ++i) {
+      interpolator_.SetX(i, static_cast<float>(time));
+    }
   }
 
   virtual void SetSplinePlaybackRate(MotiveIndex index, float playback_rate) {
@@ -146,6 +160,9 @@ class SmoothMotiveProcessor : public MotiveProcessorVector {
   }
 
   virtual void RemoveIndex(MotiveIndex index) {
+    // Clear reference to this spline.
+    interpolator_.ClearSpline(index);
+
     // Return the spline to the pool of splines.
     SmoothData& d = Data(index);
     FreeSpline(d.local_spline);
@@ -187,6 +204,26 @@ class SmoothMotiveProcessor : public MotiveProcessorVector {
     if (spline != nullptr) {
       spline_pool_.push_back(spline);
     }
+  }
+
+  Range CalculateYRange(MotiveIndex index, const MotiveTarget1f& t,
+                        float start_y) const {
+    if (interpolator_.ModularArithmetic(index)) {
+      // For modular splines, we need to expand the spline's y-range to match
+      // the number of nodes in the spline. It's possible for the spline to jump
+      // up the entire range every node, so the range has to be broad enough
+      // to hold it all.
+      //
+      // Note that we only normalize the first value of the spline, and
+      // subsequent values are allowed to curve out of the normalized range.
+      const float num_spline_nodes = static_cast<float>(t.num_nodes());
+      return interpolator_.ModularRange(index).Lengthen(num_spline_nodes);
+    }
+
+    // Calculate the union of the y ranges in the target, then expand it a
+    // little to allow for intermediate nodes that jump slightly beyond the
+    // union's range.
+    return t.ValueRange(start_y).Lengthen(kYRangeBufferPercent);
   }
 
   // Hold index-specific data, for example a pointer to the spline allocated

@@ -1,20 +1,16 @@
-/*
-* Copyright (c) 2015 Google, Inc.
-*
-* This software is provided 'as-is', without any express or implied
-* warranty.  In no event will the authors be held liable for any damages
-* arising from the use of this software.
-* Permission is granted to anyone to use this software for any purpose,
-* including commercial applications, and to alter it and redistribute it
-* freely, subject to the following restrictions:
-* 1. The origin of this software must not be misrepresented; you must not
-* claim that you wrote the original software. If you use this software
-* in a product, an acknowledgment in the product documentation would be
-* appreciated but is not required.
-* 2. Altered source versions must be plainly marked as such, and must not be
-* misrepresented as being the original software.
-* 3. This notice may not be removed or altered from any source distribution.
-*/
+// Copyright 2015 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include <stdio.h>
 #include <vector>
@@ -26,19 +22,20 @@
 #include "motive/init.h"
 #include "motive/util/benchmark.h"
 
-using fpl::CompactSpline;
-using fpl::CubicCurve;
-using fpl::CubicInit;
-using fpl::kPi;
-using fpl::kTwoPi;
-using fpl::QuadraticCurve;
-using fpl::Range;
-using fpl::SplinePlayback;
+using motive::CompactSpline;
+using motive::CubicCurve;
+using motive::CubicInit;
+using motive::kPi;
+using motive::kTwoPi;
+using motive::QuadraticCurve;
+using motive::Range;
+using motive::SplinePlayback;
 using mathfu::vec2;
 using mathfu::vec2i;
 using motive::MotiveEngine;
 using motive::MatrixInit;
-using motive::MotivatorMatrix4f;
+using motive::MatrixOpArray;
+using motive::MatrixMotivator4f;
 using motive::SmoothInit;
 
 static const SmoothInit kRotateInit(Range(-kPi, kPi), true);
@@ -51,25 +48,20 @@ struct SplineNode {
   float derivative;
 };
 
-static const SplineNode kSinWave[] = {
-  { 0.0f,        0.0f,  1.0f },
-  { 0.5f * kPi,  1.0f,  0.0f },
-  { kPi,         0.0f, -1.0f },
-  { 1.5f * kPi, -1.0f,  0.0f },
-  { kTwoPi,      0.0f,  1.0f }
-};
+static const SplineNode kSinWave[] = {{0.0f, 0.0f, 1.0f},
+                                      {0.5f * kPi, 1.0f, 0.0f},
+                                      {kPi, 0.0f, -1.0f},
+                                      {1.5f * kPi, -1.0f, 0.0f},
+                                      {kTwoPi, 0.0f, 1.0f}};
 
-static const SplineNode kStraightLine[] = {
-  { 0.0f,  0.0f,  1.0f },
-  { 1.0f,  1.0f,  1.0f }
-};
+static const SplineNode kStraightLine[] = {{0.0f, 0.0f, 1.0f},
+                                           {1.0f, 1.0f, 1.0f}};
 
 static const float kLinearOrbitPeriod = 2000.0f;
 static const float kOscillatingSlowlyPeriod = 500.0f;
 static const float kOscillatingSlowlyAmplitude = 0.3f;
 static const float kOscillatingQuicklyPeriod = 200.0f;
 static const float kOscillatingQuicklyAmplitude = 0.1f;
-
 
 // Take an array of SplineNodes (x, y, derivative) values and scale them
 // to create a CompactSpline. We use Dual Cubic interpolation to ensure that
@@ -117,28 +109,21 @@ class MotiveBenchmarker {
                  kOscillatingQuicklyPeriod, kOscillatingQuicklyAmplitude,
                  &splines_[kOscillatingQuickly]);
 
-    // Add some information for how to play-back the spline:
-    // the start time (always 0 here), and whether to repeat (always true here).
-    const SplinePlayback linearPlayback(splines_[kLinearOrbit], 0.0f, true);
-    const SplinePlayback oscillatingSlowlyPlayback(
-        splines_[kOscillatingSlowly], 0.0f, true);
-    const SplinePlayback oscillatingQuicklyPlayback(
-        splines_[kOscillatingQuickly], 0.0f, true);
-
     // Create a matrix initializer with a series of basic matrix operations.
     // The final matrix will be created by applying these operations, in turn.
-    matrix_init_.AddOp(motive::kRotateAboutY, kRotateInit, linearPlayback);
-    matrix_init_.AddOp(motive::kTranslateX, kTranslateInit,
-                       oscillatingSlowlyPlayback);
-    matrix_init_.AddOp(motive::kTranslateY, kTranslateInit,
-                       oscillatingQuicklyPlayback);
+    matrix_ops_.AddOp(motive::kRotateAboutY, kRotateInit,
+                      splines_[kLinearOrbit]);
+    matrix_ops_.AddOp(motive::kTranslateX, kTranslateInit,
+                      splines_[kOscillatingSlowly]);
+    matrix_ops_.AddOp(motive::kTranslateY, kTranslateInit,
+                      splines_[kOscillatingQuickly]);
 
     // Initialize the large array of matrix motivators. Note that the
-    // 1-dimensional motivators that drive the matrix motivators are created
+    // one dimensional motivators that drive the matrix motivators are created
     // by the matrix motivators themselves.
     for (size_t i = 0; i < kNumMatrices; ++i) {
-      MotivatorMatrix4f& m = matrices_[i];
-      m.Initialize(matrix_init_, &engine_);
+      MatrixMotivator4f& m = matrices_[i];
+      m.Initialize(MatrixInit(matrix_ops_), &engine_);
     }
   }
 
@@ -151,8 +136,8 @@ class MotiveBenchmarker {
       }
 
       // Output benchmark statistics and empty the stats counter.
-      fpl::OutputBenchmarks();
-      fpl::ClearBenchmarks();
+      motive::OutputBenchmarks();
+      motive::ClearBenchmarks();
     }
   }
 
@@ -174,15 +159,14 @@ class MotiveBenchmarker {
   };
 
   MotiveEngine engine_;
-  MatrixInit matrix_init_;
+  MatrixOpArray matrix_ops_;
   CompactSpline splines_[kNumChildImpellers];
-  MotivatorMatrix4f matrices_[kNumMatrices];
+  MatrixMotivator4f matrices_[kNumMatrices];
 };
 
 int main() {
-  fpl::InitBenchmarks(kNumBenchmarkIds);
+  motive::InitBenchmarks(kNumBenchmarkIds);
   MotiveBenchmarker benchmarker;
   benchmarker.Run();
   return 0;
 }
-

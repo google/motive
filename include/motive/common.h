@@ -43,7 +43,7 @@ static const MotiveIndex kMotiveIndexInvalid = static_cast<MotiveIndex>(-1);
 /// @typedef MotiveDimension
 /// Identify how many slots in the MotiveProcessor a Motivator occupies.
 /// A Motivator3f occupies three slots, for example. Arithmetic is mixed
-/// between MotiveIndex and MotiveDimension in fpl::IndexAllocator, so they
+/// between MotiveIndex and MotiveDimension in fplutil::IndexAllocator, so they
 /// should be the same type.
 typedef MotiveIndex MotiveDimension;
 
@@ -57,6 +57,18 @@ typedef uint32_t MotiveChildIndex;
 /// Time units are defined by the user. We use integer instead of floating
 /// point to avoid a loss of precision as time accumulates.
 typedef int MotiveTime;
+static const MotiveTime kMotiveTimeEndless =
+    std::numeric_limits<MotiveTime>::max();
+
+/// @typedef BoneIndex
+/// Identify bone for skeletal animation. Each non-root bone has a parent
+/// whose BoneIndex is less than its own. Each bone has a transformation matrix.
+/// By traversing up the tree to a root bone, multiplying the transformation
+/// matrices as you go, you can get the global transform for the bone.
+/// We support up to 254 bones.
+typedef uint8_t BoneIndex;
+static const BoneIndex kMaxNumBones = 254;
+static const BoneIndex kInvalidBoneIdx = 255;
 
 /// @class MotivatorInit
 /// Base class for Motivator parameterization. Every motivator type has a
@@ -107,6 +119,12 @@ class MotivatorInit {
 #define MOTIVE_ARRAY_SIZE(a)    \
   ((sizeof(a) / sizeof(*(a))) / \
    static_cast<size_t>(!(sizeof(a) % sizeof(*(a)))))
+
+/// Disallow the copy constructor and operator= functions.
+/// Used in the `private` declarations for a class.
+#define MOTIVE_DISALLOW_COPY_AND_ASSIGN(TypeName) \
+  TypeName(const TypeName&);                      \
+  void operator=(const TypeName&)
 
 }  // namespace motive
 
