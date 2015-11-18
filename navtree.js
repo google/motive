@@ -44,7 +44,8 @@ var NAVTREE =
           [ "All", "functions.html", "functions_dup" ],
           [ "Functions", "functions_func.html", "functions_func" ],
           [ "Variables", "functions_vars.html", null ],
-          [ "Typedefs", "functions_type.html", null ]
+          [ "Typedefs", "functions_type.html", null ],
+          [ "Related Functions", "functions_rela.html", null ]
         ] ]
       ] ],
       [ "File List", null, [

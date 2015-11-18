@@ -13,7 +13,7 @@ var classmotive_1_1_motivator =
     [ "Reset", "classmotive_1_1_motivator.html#a40ff48f8e27e6929f9c4f29aaa7b5383", null ],
     [ "Type", "classmotive_1_1_motivator.html#a2924e7578b30d91e9699268a3891d6e6", null ],
     [ "Valid", "classmotive_1_1_motivator.html#a3bbe7d30be75ca1272da9a1d9c9b0678", null ],
+    [ "MotiveProcessor", "classmotive_1_1_motivator.html#a16be93832d0036c29266b3bb07c82df8", null ],
     [ "index_", "classmotive_1_1_motivator.html#af9b11ce4184546b7cbf00f8ee02c11da", null ],
-    [ "MotiveProcessor", "classmotive_1_1_motivator.html#a1b32e708fd19fc8efd9967b092cc9a8d", null ],
     [ "processor_", "classmotive_1_1_motivator.html#a795b24929c68a08483ab3b15c2693b86", null ]
 ];
