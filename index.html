@@ -220,17 +220,19 @@ $(document).ready(function(){initNavTree('index.html','');});
 
 Overview</h1>
 
-<p>Motive is a cross-platform animation system. It's designed to be,</p>
+<p>Motive is an animation system written in cross-platform C++. It's designed to be,</p>
 
 <ul>
 
 <li><b>performant</b> &ndash; data is stored centrally and processed in bulk so that we can take advantage of <a href="http://en.wikipedia.org/wiki/SIMD">SIMD</a> and multi-threading opportunities.</li>
 
-<li><b>compact</b> &ndash; spline data is preferred over sampled data, so animation data requires less memory.</li>
+<li><b>compact</b> &ndash; spline data is preferred over sampled data, so animations requires less memory.</li>
 
-<li><b>expandable</b> &ndash; new animation algorithms can be registered and executed without touching central code. Motive is distributed as portable C++. It has been tested on <a href="http://www.android.com">Android</a>, <a href="http://windows.microsoft.com/">Windows</a>, <a href="http://www.apple.com/osx/">OS X</a>, and <a href="http://en.m.wikipedia.org/wiki/Linux">Linux</a>.</li>
+<li><b>expandable</b> &ndash; new animation algorithms can be registered and utilized without touching central code. Motive has been tested on <a href="http://www.android.com">Android</a>, <a href="http://windows.microsoft.com/">Windows</a>, <a href="http://www.apple.com/osx/">OS X</a>, and <a href="http://en.m.wikipedia.org/wiki/Linux">Linux</a>, but should be portable to any platform that supports C++.</li>
 
 </ul>
+
+<p>You can see Motive animation in use in the <a href="https://github.com/google/zooshi">Zooshi</a> and <a href="https://github.com/google/pienoon">Pie Noon</a>. sample games.</p>
 
 <h1>Motivation</h1>
 

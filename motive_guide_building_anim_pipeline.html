@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Motive Animation System: Build Targets</title>
+<title>Motive Animation System: Building anim_pipeline</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -85,7 +85,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 </div>
 <script type="text/javascript">
-$(document).ready(function(){initNavTree('motive_guide_build_targets.html','');});
+$(document).ready(function(){initNavTree('motive_guide_building_anim_pipeline.html','');});
 </script>
 <div id="doc-content">
 <!-- window showing the filter options -->
@@ -104,25 +104,36 @@ $(document).ready(function(){initNavTree('motive_guide_build_targets.html','');}
 
 <div class="header">
   <div class="headertitle">
-<div class="title">Build Targets </div>  </div>
+<div class="title">Building anim_pipeline </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="el" href="index.html#motive_overview">Motive</a> compiles to a simple C++ library. It includes <a href="http://www.cmake.org/">CMake</a> and <a href="http://www.android.com">Android</a> build scripts.</p>
-<p>The CMake build script can be used to generate standard makefiles on <a href="http://en.m.wikipedia.org/wiki/Linux">Linux</a> and <a href="http://www.apple.com/osx/">OS X</a>, <a href="http://developer.apple.com/xcode/">Xcode</a> projects on <a href="http://www.apple.com/osx/">OS X</a>, and <a href="http://www.visualstudio.com/">Visual Studio</a> solutions on <a href="http://windows.microsoft.com/">Windows</a>. See,</p>
+<div class="textblock"><p><a class="el" href="motive_guide_anim_pipeline.html">anim_pipeline</a> converts animations made with modeling tools such as <a href="http://www.autodesk.com/products/maya/overview">Maya</a> or <a href="https://www.blender.org/">Blender</a> into Motive's spline format.</p>
+<p><a class="el" href="motive_guide_introduction.html">Motive</a> includes <a class="el" href="motive_guide_anim_pipeline.html#motive_guide_anim_pipeline_prebuilts">prebuilt anim_pipeline binaries</a> for <a href="http://windows.microsoft.com/">Windows</a>, <a href="http://www.apple.com/osx/">OS X</a>, and <a href="http://en.m.wikipedia.org/wiki/Linux">Linux</a>.</p>
+<p>If you'd like to make modifications to <a class="el" href="motive_guide_anim_pipeline.html">anim_pipeline</a> you can also build it from source by following the instructions below.</p>
+<h1>Prerequisites</h1>
+<p>Prior to building, please install the prerequisites below.</p>
 <ul>
-<li><a class="el" href="motive_guide_linux.html">Building for Linux</a></li>
-<li><a class="el" href="motive_guide_osx.html">Building for OS X</a></li>
-<li><a class="el" href="motive_guide_windows.html">Building for Windows</a></li>
+<li>Install the Motive <a class="el" href="motive_guide_windows.html">prerequisites for Windows</a>, <a class="el" href="motive_guide_osx.html">prerequisites for OSX</a>, or <a class="el" href="motive_guide_linux.html">prerequisites for Linux</a>.</li>
+<li>Then install the <a href="http://usa.autodesk.com/adsk/servlet/pc/item?siteID=123112&amp;id=10775847">FBX SDK</a> version 2015.1 or newer, at any location.</li>
+<li>Set the <code>FBX_SDK</code> environment variable to the root directory of the FBX SDK.</li>
 </ul>
-<p>The Android build scripts will compile for Android on Linux, OSX, and Windows. See,</p>
+<h1>Building</h1>
 <ul>
-<li><a class="el" href="motive_guide_android.html">Building for Android</a></li>
+<li>Open a command line window.</li>
+<li>Navigate to the <code>motive/src/anim_pipeline</code> directory.</li>
+<li>Generate <a href="http://www.gnu.org/software/make/">Makefiles</a> from the <a href="http://www.cmake.org/">CMake</a> project.</li>
+<li>Build the binary to the <code>bin</code> directory by:<ul>
+<li>executing <code>make</code>, on Linux (or OS X command line)</li>
+<li>opening the Visual Studio solution and building, on Windows</li>
+<li>opening the Xcode project and building, on OS X</li>
 </ul>
-<p>Or, since <a class="el" href="index.html#motive_overview">Motive</a> is a simple library with simple dependencies, it's easy to add it to your own build by compiling the loose .cpp files.</p>
-<ul>
-<li><a class="el" href="motive_guide_loose_cpps.html">Building from loose cpp files</a></li>
+</li>
 </ul>
-<p><br/>
+<p>For example, on Linux:</p>
+<div class="fragment"><div class="line">cd motive/src/anim_pipeline</div>
+<div class="line">cmake -G<span class="stringliteral">&#39;Unix Makefiles&#39;</span></div>
+<div class="line">make</div>
+</div><!-- fragment --><p><br/>
  </p>
 </div></div><!-- contents -->
 </div><!-- doc-content -->

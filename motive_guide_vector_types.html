@@ -114,9 +114,64 @@ Overview</h1>
 <h1><a class="anchor" id="motive_guide_vector_types_example"></a>
 Example</h1>
 <p>For example, suppose you have these vector types in your code base:</p>
-<div class="fragment"></div><!-- fragment --><p> Then, in your own header file, you can define a conversion class like this:</p>
-<div class="fragment"></div><!-- fragment --><p> And then define a <code>MatrixMotivator</code> that uses your types in its external API:</p>
-<div class="fragment"></div><!-- fragment --> <h1><a class="anchor" id="motive_guide_vector_types_strict_aliasing"></a>
+<div class="fragment"><div class="line"><span class="keyword">struct </span>MyMatrix4 {</div>
+<div class="line">  <span class="keywordtype">float</span> m[4][4];</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">template</span> &lt;<span class="keywordtype">int</span> kDimension&gt;</div>
+<div class="line"><span class="keyword">struct </span>MyVecTemplate {</div>
+<div class="line">  <span class="keywordtype">float</span> v[kDimension];</div>
+<div class="line"></div>
+<div class="line">  <span class="keyword">explicit</span> MyVecTemplate(<span class="keyword">const</span> <span class="keywordtype">float</span>* pointer) {</div>
+<div class="line">    memcpy(v, pointer, <span class="keyword">sizeof</span>(v));</div>
+<div class="line">  }</div>
+<div class="line">};</div>
+<div class="line"></div>
+<div class="line"><span class="keyword">typedef</span> MyVecTemplate&lt;2&gt; MyVec2;</div>
+<div class="line"><span class="keyword">typedef</span> MyVecTemplate&lt;3&gt; MyVec3;</div>
+<div class="line"><span class="keyword">typedef</span> MyVecTemplate&lt;4&gt; MyVec4;</div>
+</div><!-- fragment --><p> Then, in your own header file, you can define a conversion class like this:</p>
+<div class="fragment"><div class="line"><span class="keyword">class </span>MyVectorConverter {</div>
+<div class="line"> <span class="keyword">public</span>:</div>
+<div class="line">  <span class="comment">// MatrixMotivator4fTemplate needs these External.</span></div>
+<div class="line">  <span class="keyword">typedef</span> MyMatrix4 ExternalMatrix4;</div>
+<div class="line">  <span class="keyword">typedef</span> MyVec2 ExternalVector2;</div>
+<div class="line">  <span class="keyword">typedef</span> MyVec3 ExternalVector3;</div>
+<div class="line">  <span class="keyword">typedef</span> MyVec4 ExternalVector4;</div>
+<div class="line"></div>
+<div class="line">  <span class="comment">// Casting from mathfu::mat4 is ok. The alignment restrictions on mathfu::mat4</span></div>
+<div class="line">  <span class="comment">// (16-bytes) are stricter than for MyMatrix4 (4-bytes). Also, strict aliasing</span></div>
+<div class="line">  <span class="comment">// is not a problem here since &#39;m&#39; was written on the other side of a virtual</span></div>
+<div class="line">  <span class="comment">// function call (see &quot;Strict Aliasing&quot; discussion in documentation).</span></div>
+<div class="line">  <span class="keyword">static</span> <span class="keyword">const</span> MyMatrix4&amp; To(<span class="keyword">const</span> mathfu::mat4&amp; m) {</div>
+<div class="line">    <span class="keywordflow">return</span> <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>MyMatrix4&amp;<span class="keyword">&gt;</span>(m);</div>
+<div class="line">  }</div>
+<div class="line"></div>
+<div class="line">  <span class="comment">// This call results in a read of &#39;v&#39; and then a write to the stack of</span></div>
+<div class="line">  <span class="comment">// MyVec3. The optimizer will almost certainly eliminate this extra</span></div>
+<div class="line">  <span class="comment">// read-write, since it does nothing.</span></div>
+<div class="line">  <span class="keyword">static</span> MyVec2 To(<span class="keyword">const</span> mathfu::vec2&amp; v) { <span class="keywordflow">return</span> MyVec2(&amp;v[0]); }</div>
+<div class="line">  <span class="keyword">static</span> MyVec3 To(<span class="keyword">const</span> mathfu::vec3&amp; v) { <span class="keywordflow">return</span> MyVec3(&amp;v[0]); }</div>
+<div class="line">  <span class="keyword">static</span> MyVec4 To(<span class="keyword">const</span> mathfu::vec4&amp; v) { <span class="keywordflow">return</span> MyVec4(&amp;v[0]); }</div>
+<div class="line"></div>
+<div class="line">  <span class="comment">// Here we have to call the constructor for matfu::vec3, because the alignment</span></div>
+<div class="line">  <span class="comment">// restrictions are more strict for mathfu types (16-bytes) than for MyVec3</span></div>
+<div class="line">  <span class="comment">// (4-bytes). The optimizer *may not* be able to eliminate this read-write</span></div>
+<div class="line">  <span class="comment">// since &#39;v&#39; might arrive misaligned. This function may result in overhead,</span></div>
+<div class="line">  <span class="comment">// therefore.</span></div>
+<div class="line">  <span class="keyword">static</span> <span class="keyword">const</span> mathfu::vec2 From(<span class="keyword">const</span> MyVec2&amp; v) {</div>
+<div class="line">    <span class="keywordflow">return</span> mathfu::vec2(&amp;v.v[0]);</div>
+<div class="line">  }</div>
+<div class="line">  <span class="keyword">static</span> <span class="keyword">const</span> mathfu::vec3 From(<span class="keyword">const</span> MyVec3&amp; v) {</div>
+<div class="line">    <span class="keywordflow">return</span> mathfu::vec3(&amp;v.v[0]);</div>
+<div class="line">  }</div>
+<div class="line">  <span class="keyword">static</span> <span class="keyword">const</span> mathfu::vec4 From(<span class="keyword">const</span> MyVec4&amp; v) {</div>
+<div class="line">    <span class="keywordflow">return</span> mathfu::vec4(&amp;v.v[0]);</div>
+<div class="line">  }</div>
+<div class="line">};</div>
+</div><!-- fragment --><p> And then define a <code>MatrixMotivator</code> that uses your types in its external API:</p>
+<div class="fragment"><div class="line"><span class="keyword">typedef</span> MatrixMotivator4fTemplate&lt;MyVectorConverter&gt; MyMatrixMotivator4f;</div>
+</div><!-- fragment --> <h1><a class="anchor" id="motive_guide_vector_types_strict_aliasing"></a>
 Strict Aliasing</h1>
 <p>Strict aliasing is not a worry in this situation.</p>
 <p>Strict aliasing bugs can occur when you cast between types. The C++ compiler is allowed to rearrange pointer operations (reads and writes) of different types. Therefore, writing a value, casting a pointer to the value to a different type, then reading from at pointer can get you into trouble: the read can be put before the write.</p>

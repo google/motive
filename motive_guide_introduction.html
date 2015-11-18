@@ -109,9 +109,13 @@ $(document).ready(function(){initNavTree('motive_guide_introduction.html','');})
 <div class="contents">
 <div class="textblock"><h1><a class="anchor" id="motive_guide_about_motive"></a>
 About Motive</h1>
-<p><a class="el" href="index.html#motive_overview">Motive</a> is an animation system written for speed and low memory usage.</p>
-<p>The current version is feature light. It's suitable for procedural animation of props, cameras, and UI elements. It currently lacks the data pipeline required for full character animation, so it is not suitable for that.</p>
-<p>You can see <a class="el" href="index.html#motive_overview">Motive</a> animation in use in the <a href="https://github.com/google/pienoon">Pie Noon</a> sample game.</p>
+<p><a class="el" href="index.html#motive_overview">Motive</a> is an animation system written in cross-platform C++. It's designed to be,</p>
+<ul>
+<li><b>performant</b> &ndash; data is stored centrally and processed in bulk so that we can take advantage of <a href="http://en.wikipedia.org/wiki/SIMD">SIMD</a> and multi-threading opportunities.</li>
+<li><b>compact</b> &ndash; spline data is preferred over sampled data, so animations requires less memory.</li>
+<li><b>expandable</b> &ndash; new animation algorithms can be registered and utilized without touching central code. Motive has been tested on <a href="http://www.android.com">Android</a>, <a href="http://windows.microsoft.com/">Windows</a>, <a href="http://www.apple.com/osx/">OS X</a>, and <a href="http://en.m.wikipedia.org/wiki/Linux">Linux</a>, but should be portable to any platform that supports C++.</li>
+</ul>
+<p>You can see <a class="el" href="index.html#motive_overview">Motive</a> animation in use in the <a href="https://github.com/google/zooshi">Zooshi</a> and <a href="https://github.com/google/pienoon">Pie Noon</a> sample games.</p>
 <h1><a class="anchor" id="motive_guide_prerequisites"></a>
 Prerequisites</h1>
 <p><a class="el" href="index.html#motive_overview">Motive</a> is written in C++. You should be familiar with C++ coding environments and tools.</p>

@@ -107,7 +107,7 @@ $(document).ready(function(){initNavTree('motive_guide_anim_pipeline.html','');}
 <div class="title">Animation Pipeline </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>Motive comes with an animation pipeline that converts <a href="https://en.wikipedia.org/wiki/Spline_(mathematics)">FBX files</a> to <code>RigAnims</code>. The <code>RigAnims</code> are stored as <a href="http://google.github.io/flatbuffers/">FlatBuffer</a> files with the <code>.fplanim</code> extension. </p>
+<div class="textblock"><p>Motive comes with an animation pipeline that converts <a href="https://en.wikipedia.org/wiki/FBX">FBX files</a> to <code>RigAnims</code>. The <code>RigAnims</code> are stored as <a href="http://google.github.io/flatbuffers/">FlatBuffer</a> files with the <code>.fplanim</code> extension. </p>
 <pre class="fragment">Usage: anim_pipeline [-v|-d|-i] [-o OUTPUT_FILE]
            [-s SCALE_TOLERANCE] [-r ROTATE_TOLERANCE]
            [-t TRANSLATE_TOLERANCE] [-a DERIVATIVE_TOLERANCE]
@@ -148,7 +148,16 @@ Options:
 </pre><h1>Bone Assignment</h1>
 <p>The <code>anim_pipeline</code> traverses the FBX's scene graph in <a href="https://en.wikipedia.org/wiki/Depth-first_search">depth-first order</a>. A node is output if it is the ancestor of a mesh node&ndash;that is, if it has vertex data somewhere under it. Every node that is output is assigned a bone. Each bone is animated with its own <code>MatrixAnim</code>. Together, the series of <code>MatrixAnims</code> creates a <code>RigAnim</code>.</p>
 <p>Each <code>MatrixAnim</code> is composed of the minimum set of matrix operations that will generate the animation. For example, if a node is animated by rotating about its x-axis, then the <code>MatrixAnim</code> will contain a single operation for <code>kRotateAboutX</code>. This creates a much smaller data set than outputting all scale, rotation, and translation values for every bone.</p>
-<p>The bone heirarchy output by <code>anim_pipeline</code> matches the bone hierarchy output by <code>mesh_pipeline</code> with the <code>-h</code> (hierarchy). </p>
+<p>The bone heirarchy output by <code>anim_pipeline</code> matches the bone hierarchy output by <code>anim_pipeline</code> with the <code>-h</code> (hierarchy).</p>
+<h1><a class="anchor" id="motive_guide_anim_pipeline_prebuilts"></a>
+Pre-built Binaries</h1>
+<p>Pre-built binaries for the <code>anim_pipeline</code> are distributed in the <code>bin</code> directory.</p>
+<ul>
+<li>Windows 7: bin/Windows/Release/anim_pipeline.exe</li>
+<li>Mac OS X (10.10.5 Yosemite): bin/Darwin/anim_pipeline</li>
+<li>Linux (Ubuntu 64-bit): bin/Linux/anim_pipeline</li>
+</ul>
+<p>To build the <code>anim_pipeline</code> from source, please see <a class="el" href="motive_guide_building_anim_pipeline.html">building anim_pipeline</a>. </p>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->

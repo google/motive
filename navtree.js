@@ -8,7 +8,8 @@ var NAVTREE =
       [ "Linux", "motive_guide_linux.html", null ],
       [ "OS X", "motive_guide_osx.html", null ],
       [ "Windows", "motive_guide_windows.html", null ],
-      [ "Loose Cpps", "motive_guide_loose_cpps.html", null ]
+      [ "Loose Cpps", "motive_guide_loose_cpps.html", null ],
+      [ "anim_pipeline", "motive_guide_building_anim_pipeline.html", null ]
     ] ],
     [ "Programmer's Guide", "usergroup1.html", [
       [ "Introduction", "motive_guide_introduction.html", [
@@ -26,7 +27,7 @@ var NAVTREE =
       ] ],
       [ "Animation Data", "motive_guide_animation_data.html", null ],
       [ "Animation Containers", "motive_guide_animation_containers.html", null ],
-      [ "Animation Pipeline", "motive_guide_anim_pipeline.html", null ],
+      [ "anim_pipeline", "motive_guide_anim_pipeline.html", null ],
       [ "Vector Types", "motive_guide_vector_types.html", [
         [ "Overview", "motive_guide_vector_types.html#motive_guide_vector_types_overview", null ],
         [ "Example", "motive_guide_vector_types.html#motive_guide_vector_types_example", null ],

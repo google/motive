@@ -108,7 +108,7 @@ $(document).ready(function(){initNavTree('motive_guide_engine.html','');});
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p>The <code>MotiveEngine</code> is the gateway to the <a class="el" href="motive_guide_processors.html">MotiveProcessor</a>s. When a <a class="el" href="motive_guide_motivators.html">Motivator</a> is initialized, you must provide a reference to a <code>MotiveEngine</code>. The <a class="el" href="motive_guide_motivators.html">Motivator</a> queries the <code>MotiveEngine</code> to initialize itself with the appropriate <a class="el" href="motive_guide_processors.html">MotiveProcessor</a>.</p>
-<p>All <a class="el" href="motive_guide_motivators.html">Motivator</a>s under a <code>MotiveEngine</code> are updated at the same time, by calling <code>MotiveEngine::AdvanceFrame()</code>. This eliminates overhead of updating every <a class="el" href="motive_guide_motivators.html">Motivator</a> individually, and indeed, it provides many opportunities for optimizations.</p>
+<p>All <a class="el" href="motive_guide_motivators.html">Motivator</a>s under a <code>MotiveEngine</code> are updated at the same time, by calling <code>MotiveEngine::AdvanceFrame()</code>. This eliminates the overhead of updating every <a class="el" href="motive_guide_motivators.html">Motivator</a> individually, and indeed, it provides many other opportunities for optimizations.</p>
 <p>You can have several <code>MotiveEngines</code> in your program, if you like, but you will have the best performance by sticking to just one, if possible. </p>
 </div></div><!-- contents -->
 </div><!-- doc-content -->

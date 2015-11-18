@@ -10,6 +10,7 @@ var searchData=
   ['bulkys',['BulkYs',['../classmotive_1_1_compact_spline.html#a4464e797275226eafceefd930ddfe129',1,'motive::CompactSpline::BulkYs(const CompactSpline *const splines, const int num_splines, const float start_x, const float delta_x, const size_t num_ys, float *ys)'],['../classmotive_1_1_compact_spline.html#a830ce69c2d979703be803414fed510c9',1,'motive::CompactSpline::BulkYs(const CompactSpline *const splines, const float start_x, const float delta_x, const size_t num_ys, mathfu::VectorPacked&lt; float, kDimensions &gt; *ys)']]],
   ['building_20for_20android',['Building for Android',['../motive_guide_android.html',1,'']]],
   ['build_20targets',['Build Targets',['../motive_guide_build_targets.html',1,'']]],
+  ['building_20anim_5fpipeline',['Building anim_pipeline',['../motive_guide_building_anim_pipeline.html',1,'']]],
   ['building_20for_20linux',['Building for Linux',['../motive_guide_linux.html',1,'']]],
   ['building_20motive_20from_20loose_20cpp_20files',['Building Motive from Loose Cpp Files',['../motive_guide_loose_cpps.html',1,'']]],
   ['building_20for_20os_20x',['Building for OS X',['../motive_guide_osx.html',1,'']]],

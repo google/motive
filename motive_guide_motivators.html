@@ -108,13 +108,109 @@ $(document).ready(function(){initNavTree('motive_guide_motivators.html','');});
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><h1>Overview</h1>
-<p>A <code>Motivator</code> is an animated variable. There are currently two kinds: <code>Motivator1f</code>&ndash;which animates a single <code>float</code>, and <code>MatrixMotivator4f</code>&ndash;which animates a 4x4 matrix of <code>floats</code>.</p>
-<p>One <code>Motivator</code> can drive another. For example, a series of <code>Motivator1fs</code> can drive the rotations, translations, and scales that compose a <code>MatrixMotivator4f</code>.</p>
-<p>Internally, a <code>Motivator</code> is a simple reference into a <code>MotiveProcessor</code>. The <code>MotiveProcessor</code> holds all the data and does all the animating. At any time, the <code>Motivator</code> can be reinitialized to use a different animation algorithm from a different <code>MotiveProcessor</code>. The external API remains the same, no matter what <code>MotiveProcessor</code> is backing a <code>Motivator</code>, although not all <code>MotiveProcessors</code> implement all API features.</p>
+<p>A <code>Motivator</code> is an animated variable. You can use,</p>
+<ul>
+<li><code>Motivator1fs</code> to animate <code>floats</code>,</li>
+<li><code>Motivator2fs</code>, <code>Motivator3fs</code>, and <code>Motivator4fs</code> to animate 2, 3, and 4 dimensional vectors,</li>
+<li><code>MatrixMotivator4fs</code> to animate 4x4 matrices, and</li>
+<li><code>RigMotivators</code> to animate entire skeletons.</li>
+</ul>
 <h1><a class="anchor" id="motive_guide_motivator_example"></a>
-Example Usage</h1>
-<p>The following example illustrates how to animate the face-angle of a character. The comments describe, in brief, what is going on internally.</p>
-<div class="fragment"></div><!-- fragment --><p> This program generates the output below. Notice that the face angle is animated smoothly from 120 degrees to -120 degrees.</p>
+Simple example</h1>
+<p>Suppose you have a duck that follows screen touches. You could use a <code>Motivator2f</code> to represent the duck's position on screen. Whenever a touch occurs, the duck's <code>Motivator2f</code> is updated with a new target position, and the duck smoothly animates to it.</p>
+<p>The code would look something like this:</p>
+<div class="fragment"><div class="line">  <span class="comment">// Initialize the Motivator to use the &quot;smooth&quot; animation algorithm.</span></div>
+<div class="line">  Motivator2f duck_position;</div>
+<div class="line">  duck_position.InitializeWithTarget(SmoothInit(), &amp;motive_engine,</div>
+<div class="line">                                     Tar2f::Current(kDuckStartPosition));</div>
+<div class="line"></div>
+<div class="line">  <span class="comment">// Smoothly transition the duck to wherever a touch occurs.</span></div>
+<div class="line">  <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
+<div class="line">    vec2 touch_position;</div>
+<div class="line">    <span class="keywordflow">if</span> (ScreenTouch(&amp;touch_position)) {</div>
+<div class="line">      <span class="comment">// Set the duck&#39;s target position, velocity, and time.</span></div>
+<div class="line">      duck_position.SetTarget(Tar2f::Target(touch_position, kZeros2f,</div>
+<div class="line">                                            kTimeToTouchPosition));</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// Once per frame, motive_engine.AdvanceFrame() is called to animate *all*</span></div>
+<div class="line">    <span class="comment">// Motivators at once. In this case, we only have one Motivator,</span></div>
+<div class="line">    <span class="comment">// but in many applications there will be thousands.</span></div>
+<div class="line">    motive_engine.AdvanceFrame(kDeltaTime);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// Draw the duck at its current position.</span></div>
+<div class="line">    <span class="comment">// Use the velocity to draw motion lines behind the duck, too.</span></div>
+<div class="line">    DrawDuck(duck_position.Value(), duck_position.Velocity());</div>
+<div class="line">  }</div>
+</div><!-- fragment --><p> Please see <code>src/samples/duck2f/duck2f.cpp</code> for the complete source of this example.</p>
+<h1>Behind-the-scenes example</h1>
+<p>The next example illustrates how to animate the face-angle of a character. The comments describe, in brief, what is going on internally.</p>
+<div class="fragment"><div class="line"></div>
+<div class="line"><span class="preprocessor">#include &quot;motive/engine.h&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;motive/init.h&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;motive/math/angle.h&quot;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;motive/math/curve.h&quot;</span></div>
+<div class="line"></div>
+<div class="line"><span class="keyword">using</span> <a class="code" href="classmotive_1_1_angle.html">motive::Angle</a>;</div>
+<div class="line"><span class="keyword">using</span> <a class="code" href="classmotive_1_1_range_t.html">motive::Range</a>;</div>
+<div class="line"><span class="keyword">using</span> motive::kPi;</div>
+<div class="line"><span class="keyword">using</span> motive::Graph2DPoints;</div>
+<div class="line"><span class="keyword">using</span> mathfu::vec2;</div>
+<div class="line"></div>
+<div class="line"><span class="keywordtype">int</span> main() {</div>
+<div class="line"></div>
+<div class="line">  <span class="comment">// Since we use the ‘smooth’ animation algorithm, we must register it.</span></div>
+<div class="line">  motive::SmoothInit::Register();</div>
+<div class="line"></div>
+<div class="line">  <span class="comment">// The engine is the central place for animation data.</span></div>
+<div class="line">  <a class="code" href="classmotive_1_1_motive_engine.html">motive::MotiveEngine</a> engine;</div>
+<div class="line"></div>
+<div class="line">  <span class="comment">// In this example, we animate a one-dimensional floating point value.</span></div>
+<div class="line">  <a class="code" href="classmotive_1_1_motivator_vector_template.html">motive::Motivator1f</a> facing_angle;</div>
+<div class="line"></div>
+<div class="line">  <span class="comment">// Initialize facing_angle Motivator to animate as a &#39;Smooth&#39; Motivator.</span></div>
+<div class="line">  <span class="comment">// Alternatively, we could initialize as an &#39;Overshoot&#39; Motivator. All</span></div>
+<div class="line">  <span class="comment">// Motivator types have the same interface. Internally, they are animated</span></div>
+<div class="line">  <span class="comment">// with different algorithms, and they will move differently towards their</span></div>
+<div class="line">  <span class="comment">// targets. However, to switch between Motivator types it is a simple matter</span></div>
+<div class="line">  <span class="comment">// of initializing with a different kind of MotiveInit struct.</span></div>
+<div class="line">  <span class="comment">//</span></div>
+<div class="line">  <span class="comment">// Angles wrap around with modular arithmetic. That is, -pi is equivalent to</span></div>
+<div class="line">  <span class="comment">// pi. Valid range for angles is -pi..pi, inclusive of +pi and exclusive of</span></div>
+<div class="line">  <span class="comment">// -pi.</span></div>
+<div class="line">  <span class="keyword">const</span> <a class="code" href="classmotive_1_1_smooth_init.html">motive::SmoothInit</a> init(Range(-kPi, kPi), <span class="keyword">true</span>);</div>
+<div class="line">  facing_angle.<a class="code" href="classmotive_1_1_motivator_vector_template.html#a6861183fed124d9298734e87e03e3035">Initialize</a>(init, &amp;engine);</div>
+<div class="line"></div>
+<div class="line">  <span class="comment">// Set initial state of the Motivator, and the target parameters.</span></div>
+<div class="line">  <span class="comment">// &#39;Smooth&#39; Motivators animate to a target-value in a target-time. Not all</span></div>
+<div class="line">  <span class="comment">// types of Motivators use all target data.</span></div>
+<div class="line">  <span class="keyword">const</span> Angle start = Angle::FromDegrees(120.0f);</div>
+<div class="line">  <span class="keyword">const</span> <span class="keywordtype">float</span> start_angular_velocity = 0.0f;</div>
+<div class="line">  <span class="keyword">const</span> Angle target = Angle::FromDegrees(-120.0f);</div>
+<div class="line">  <span class="keyword">const</span> <span class="keywordtype">float</span> target_angular_velocity = 0.0f;</div>
+<div class="line">  <span class="keyword">const</span> motive::MotiveTime target_time = 100;</div>
+<div class="line">  <span class="keyword">const</span> motive::MotiveTime delta_time = 1;</div>
+<div class="line">  facing_angle.<a class="code" href="classmotive_1_1_motivator_vector_template.html#add6dcde94a257f4dcd20c2b435ad6716">SetTarget</a>(</div>
+<div class="line">      motive::CurrentToTarget1f(start.ToRadians(), start_angular_velocity,</div>
+<div class="line">                                target.ToRadians(), target_angular_velocity,</div>
+<div class="line">                                target_time));</div>
+<div class="line"></div>
+<div class="line">  std::vector&lt;vec2&gt; points(target_time / delta_time + 1);</div>
+<div class="line">  <span class="keywordflow">for</span> (motive::MotiveTime t = 0; t &lt;= target_time; t += delta_time) {</div>
+<div class="line">    <span class="comment">// All Motivators created with &#39;engine&#39; are animated here.</span></div>
+<div class="line">    engine.<a class="code" href="classmotive_1_1_motive_engine.html#a8696d6a9ed3b919d6e4832c9e08958cd">AdvanceFrame</a>(delta_time);</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// The current value of the variable being animated is always available.</span></div>
+<div class="line">    <span class="keyword">const</span> Angle angle_at_t = Angle::FromWithinThreePi(facing_angle.<a class="code" href="classmotive_1_1_motivator_vector_template.html#a0ec42e3ed820a260b60a34c8daaa95a5">Value</a>());</div>
+<div class="line">    points.push_back(</div>
+<div class="line">        vec2(static_cast&lt;float&gt;(t), angle_at_t.ToDegrees()));</div>
+<div class="line">  }</div>
+<div class="line"></div>
+<div class="line">  printf(<span class="stringliteral">&quot;\n%s&quot;</span>, Graph2DPoints(&amp;points[0], points.size()).c_str());</div>
+<div class="line">  <span class="keywordflow">return</span> 0;</div>
+<div class="line">}</div>
+<div class="line"></div>
+</div><!-- fragment --><p> This program generates the output below. Notice that the face angle is animated smoothly from 120 degrees to -120 degrees.</p>
 <p>Notice also that we take the shortest path by passing through 180 degrees, instead of 0. We get this behavior by setting <code>modular_arithmetic</code> to <code>true</code> in <code>SmoothInit</code>. </p>
 <pre class="fragment">y = 178.020294
 |
@@ -149,7 +245,15 @@ Example Usage</h1>
 |                                             *****
 |                                          ***
 y = -179.489014
-</pre><p>If you'd like to experiment with this program, it is compiled for you in <code>src/samples/smooth1f.cpp</code>. </p>
+</pre><p>If you'd like to experiment with this program, it is compiled for you in <code>src/samples/smooth1f/smooth1f.cpp</code>.</p>
+<h1>Motivators driving other Motivators</h1>
+<p>A <code>MatrixMotivator4f</code> is driven by a series of <code>Motivator1fs</code> that represent rotation, translation, and scale operations. These operations are composed to produce the final 4x4 matrix.</p>
+<p>A <code>RigMotivator</code> is driven by an array of <code>MatrixMotivator4fs</code>. Each 4x4 matrix represents the transform of a bone in the skeleton.</p>
+<p>In general, more complicated <code>Motivators</code> are driven by simpler <code>Motivators</code>.</p>
+<h1>Animation algorithms</h1>
+<p>Internally, a <code>Motivator</code> is a handle into a <code>MotiveProcessor</code>. The <code>MotiveProcessor</code> holds all the data and does all the animating. Each <code>MotiveProcessor</code> follows its own animation algorithm. See [Motive Processors] for more details.</p>
+<p>At any time, a <code>Motivator</code> can be reinitialized to use a different animation algorithm from a different <code>MotiveProcessor</code>.</p>
+<p>The external API remains the same, no matter what <code>MotiveProcessor</code> is backing a <code>Motivator</code>. This means you can always call <code>Value()</code> and <code>Velocity()</code> on a <code>Motivator1f</code> that's been initialized. </p>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->

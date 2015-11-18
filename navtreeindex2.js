@@ -59,6 +59,7 @@ var NAVTREEINDEX2 =
 "motive_guide_animation_containers.html":[2,5],
 "motive_guide_animation_data.html":[2,4],
 "motive_guide_build_targets.html":[1,0],
+"motive_guide_building_anim_pipeline.html":[1,6],
 "motive_guide_engine.html":[2,2],
 "motive_guide_introduction.html":[2,0],
 "motive_guide_introduction.html#motive_guide_about_motive":[2,0,0],

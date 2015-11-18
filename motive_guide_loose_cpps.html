@@ -109,14 +109,14 @@ $(document).ready(function(){initNavTree('motive_guide_loose_cpps.html','');});
 <div class="contents">
 <div class="textblock"><p>If you prefer, you can ignore the included build scripts, and manually add <a class="el" href="index.html#motive_overview">Motive</a> to your build system by simply,</p>
 <ul>
-<li>compliling the files under <code>motive/src</code></li>
+<li>compliling the files under <code>motive/src/motive</code></li>
 <li>adding <code>motive/include</code> to your list of include directories</li>
 </ul>
-<p>Note that, when compiling <code>motive/src</code>, you'll also need these include directories: <code>mathfu/include</code>, <code>mathfu/benchmarks</code>, and <code>fplutil/libfplutil/include</code>.</p>
+<p>Note that, when compiling <code>motive/src/motive</code>, you'll also need these include directories: <code>mathfu/include</code>, <code>mathfu/benchmarks</code>, and <code>fplutil/libfplutil/include</code>.</p>
 <p>Note also that compilation of <code>motive/src/io/flatbuffers.cpp</code> is optional (see <a class="el" href="motive_guide_loose_cpps.html#motive_guide_flatbuffers">below</a>).</p>
 <h1><a class="anchor" id="motive_guide_simd"></a>
 Enabling SIMD</h1>
-<p><a class="el" href="index.html#motive_overview">Motive</a> runs best with <code>mathfu</code>'s <a href="http://en.wikipedia.org/wiki/SIMD">SIMD</a> support enabled. Support is enabled by default, but you may have to add a compiler flags to enable <a href="http://en.wikipedia.org/wiki/SIMD">SIMD</a> instructions on your compiler. Please see the <code>enable_simd</code> section of <a href="https://github.com/google/mathfu">MathFu</a>'s <code>CMakeLists.txt</code> file for details.</p>
+<p><a class="el" href="index.html#motive_overview">Motive</a> runs best with <code>mathfu</code>'s <a href="http://en.wikipedia.org/wiki/SIMD">SIMD</a> support enabled. Support is enabled by default, but you may have to add a compiler flag to enable <a href="http://en.wikipedia.org/wiki/SIMD">SIMD</a> instructions on your compiler. Please see the <code>enable_simd</code> section of <a href="https://github.com/google/mathfu">MathFu</a>'s <code>CMakeLists.txt</code> file for details.</p>
 <h1><a class="anchor" id="motive_guide_compile_defines"></a>
 Compile Defines</h1>
 <p>You can add defines to enable the options below. For example, use /D<code>define_name</code> with the Visual Studio (or use <code>Configuration Properties\ C,C++ \ Preprocessor</code>), or -D<code>define_name</code> on g++.</p>
