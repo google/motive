@@ -93,7 +93,7 @@ $(document).ready(function(){initNavTree('motive_guide_introduction.html','');})
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -109,22 +109,22 @@ $(document).ready(function(){initNavTree('motive_guide_introduction.html','');})
 <div class="contents">
 <div class="textblock"><h1><a class="anchor" id="motive_guide_about_motive"></a>
 About Motive</h1>
-<p>Motive is an animation system written for speed and low memory usage.</p>
+<p><a class="el" href="index.html#motive_overview">Motive</a> is an animation system written for speed and low memory usage.</p>
 <p>The current version is feature light. It's suitable for procedural animation of props, cameras, and UI elements. It currently lacks the data pipeline required for full character animation, so it is not suitable for that.</p>
-<p>You can see Motive animation in use in the <a href="https://github.com/google/pienoon">Pie Noon</a> sample game.</p>
+<p>You can see <a class="el" href="index.html#motive_overview">Motive</a> animation in use in the <a href="https://github.com/google/pienoon">Pie Noon</a> sample game.</p>
 <h1><a class="anchor" id="motive_guide_prerequisites"></a>
 Prerequisites</h1>
-<p>Motive is written in C++. You should be familiar with C++ coding environments and tools.</p>
+<p><a class="el" href="index.html#motive_overview">Motive</a> is written in C++. You should be familiar with C++ coding environments and tools.</p>
 <h1><a class="anchor" id="motive_guide_concepts"></a>
 Concepts</h1>
-<p>In Motive, a <a class="el" href="motive_guide_motivators.html">Motivator</a> encapsulates an animating variable. There are currently two kinds of <a class="el" href="motive_guide_motivators.html">Motivator</a>s: One to animate a float, and one to animate a 4x4 <a href="http://en.wikipedia.org/wiki/Matrix_(mathematics)">matrix</a>.</p>
+<p>In <a class="el" href="index.html#motive_overview">Motive</a>, a <a class="el" href="motive_guide_motivators.html">Motivator</a> encapsulates an animating variable. There are currently two kinds of <a class="el" href="motive_guide_motivators.html">Motivator</a>s: One to animate a float, and one to animate a 4x4 <a href="http://en.wikipedia.org/wiki/Matrix_(mathematics)">matrix</a>.</p>
 <p>Each <a class="el" href="motive_guide_motivators.html">Motivator</a> is driven by a <a class="el" href="motive_guide_processors.html">MotiveProcessor</a>. Each MotiveProcessor implements a different algorithm for animating a variable. There are several MotiveProcessors and a Motivator may be switched between them.</p>
 <p>A <a class="el" href="motive_guide_processors.html">MotiveProcessor</a> holds the animation data for <b>all</b> <code>Motivators</code> that it drives. This animation data is updated in bulk during the <a class="el" href="motive_guide_engine.html">MotiveEngine</a> <code>AdvanceFrame()</code> call. The high performance of the Motive System comes from the optimization oportunities provided by this bulk update.</p>
 <p>All <a class="el" href="motive_guide_motivators.html">Motivator</a>s are updated at the same time in one call to <code>MotiveEngine::AdvanceFrame()</code>. You can have multiple <a class="el" href="motive_guide_engine.html">MotiveEngine</a>s, if required, but you will get the best performance if you have just one.</p>
 <h1><a class="anchor" id="motive_guide_optimization"></a>
 Optimization</h1>
-<p>Motive has <a href="http://en.wikipedia.org/wiki/SIMD">SIMD</a> versions of essential functions for <a href="http://www.arm.com/products/processors/technologies/neon.php">NEON</a> processors.</p>
-<p>Motive uses the <a href="https://github.com/google/mathfu">MathFu</a> <a href="http://en.wikipedia.org/wiki/Euclidean_vector">vector</a> math library. For optimial performance, you should use the <a href="http://en.wikipedia.org/wiki/SIMD">SIMD</a> implementation of <a href="https://github.com/google/mathfu">MathFu</a> by specifying <code>MATHFU_COMPILE_WITH_SIMD</code>. </p>
+<p><a class="el" href="index.html#motive_overview">Motive</a> has <a href="http://en.wikipedia.org/wiki/SIMD">SIMD</a> versions of essential functions for <a href="http://www.arm.com/products/processors/technologies/neon.php">NEON</a> processors.</p>
+<p><a class="el" href="index.html#motive_overview">Motive</a> uses the <a href="https://github.com/google/mathfu">MathFu</a> <a href="http://en.wikipedia.org/wiki/Euclidean_vector">vector</a> math library. For optimial performance, you should use the <a href="http://en.wikipedia.org/wiki/SIMD">SIMD</a> implementation of <a href="https://github.com/google/mathfu">MathFu</a> by specifying <code>MATHFU_COMPILE_WITH_SIMD</code>. </p>
 </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->

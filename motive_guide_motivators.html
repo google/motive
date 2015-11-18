@@ -93,7 +93,7 @@ $(document).ready(function(){initNavTree('motive_guide_motivators.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -108,8 +108,8 @@ $(document).ready(function(){initNavTree('motive_guide_motivators.html','');});
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><h1>Overview</h1>
-<p>A <code>Motivator</code> is an animated variable. There are currently two kinds: <code><a class="el" href="class_motivator1f.html" title="Drive a single float value towards a target, or along a spline. ">Motivator1f</a></code>&ndash;which animates a single <code>float</code>, and <code>MotivatorMatrix4f</code>&ndash;which animates a 4x4 matrix of <code>floats</code>.</p>
-<p>One <code>Motivator</code> can drive another. For example, a series of <code>Motivator1fs</code> can drive the rotations, translations, and scales that compose a <code>MotivatorMatrix4f</code>.</p>
+<p>A <code>Motivator</code> is an animated variable. There are currently two kinds: <code>Motivator1f</code>&ndash;which animates a single <code>float</code>, and <code>MatrixMotivator4f</code>&ndash;which animates a 4x4 matrix of <code>floats</code>.</p>
+<p>One <code>Motivator</code> can drive another. For example, a series of <code>Motivator1fs</code> can drive the rotations, translations, and scales that compose a <code>MatrixMotivator4f</code>.</p>
 <p>Internally, a <code>Motivator</code> is a simple reference into a <code>MotiveProcessor</code>. The <code>MotiveProcessor</code> holds all the data and does all the animating. At any time, the <code>Motivator</code> can be reinitialized to use a different animation algorithm from a different <code>MotiveProcessor</code>. The external API remains the same, no matter what <code>MotiveProcessor</code> is backing a <code>Motivator</code>, although not all <code>MotiveProcessors</code> implement all API features.</p>
 <h1><a class="anchor" id="motive_guide_motivator_example"></a>
 Example Usage</h1>

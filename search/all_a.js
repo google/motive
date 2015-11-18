@@ -1,12 +1,18 @@
 var searchData=
 [
-  ['operator_2a',['operator*',['../classfpl_1_1_range_t.html#a842da86571b2ffd6caec7e54063c4cd8',1,'fpl::RangeT']]],
-  ['operator_2a_3d',['operator*=',['../classfpl_1_1_angle.html#af80834e7e75434e7253bd64c307cce38',1,'fpl::Angle']]],
-  ['operator_2b_3d',['operator+=',['../classfpl_1_1_angle.html#abae6829931ffd29e52ccf12cebcae68a',1,'fpl::Angle']]],
-  ['operator_2d',['operator-',['../classfpl_1_1_angle.html#a750e9fd06e60eda9881a8d9da43d889a',1,'fpl::Angle']]],
-  ['operator_2d_3d',['operator-=',['../classfpl_1_1_angle.html#a12b6fc44d57883d63bb555764ed8b81f',1,'fpl::Angle']]],
-  ['operator_2f_3d',['operator/=',['../classfpl_1_1_angle.html#ad7c45bdf056a1e92d5042baf6fef4822',1,'fpl::Angle']]],
-  ['operator_3d',['operator=',['../classmotive_1_1_motivator.html#a34deb14e2560fe19082c498dac6854ce',1,'motive::Motivator']]],
-  ['operator_3d_3d',['operator==',['../classfpl_1_1_quadratic_curve.html#a979e6616c8e76b8d3502d3e41465e828',1,'fpl::QuadraticCurve::operator==()'],['../classfpl_1_1_cubic_curve.html#a9ee354ead2ed16a104e0d548d73a9105',1,'fpl::CubicCurve::operator==()'],['../classfpl_1_1_range_t.html#a4074e43599d136bfecd11a8d03021d0a',1,'fpl::RangeT::operator==()']]],
-  ['overshootinit',['OvershootInit',['../classmotive_1_1_overshoot_init.html',1,'motive']]]
+  ['nexty',['NextY',['../classmotive_1_1_bulk_spline_evaluator.html#a2884cf744124fc35c3dfb164c900374b',1,'motive::BulkSplineEvaluator']]],
+  ['node',['Node',['../classmotive_1_1_motive_target1f.html#ad18523938eed11896ff4ed368601e701',1,'motive::MotiveTarget1f']]],
+  ['nodes',['nodes',['../classmotive_1_1_compact_spline.html#a1831d4065dab359a5e8f77476d36ffe9',1,'motive::CompactSpline']]],
+  ['normalize',['Normalize',['../classmotive_1_1_modular_init.html#af1f210390644301a13b4e121cc86ec94',1,'motive::ModularInit::Normalize()'],['../classmotive_1_1_range_t.html#a02e9e9a7168de1c6221ee28713b27eba',1,'motive::RangeT::Normalize()']]],
+  ['normalizeclosevalue',['NormalizeCloseValue',['../classmotive_1_1_range_t.html#a10b0cff76a3faa187c3c0078d1b934b3',1,'motive::RangeT']]],
+  ['normalizedy',['NormalizedY',['../classmotive_1_1_bulk_spline_evaluator.html#af39b97e12a923fc2dda379414abb5c70',1,'motive::BulkSplineEvaluator']]],
+  ['normalizewildvalue',['NormalizeWildValue',['../classmotive_1_1_modular_init.html#a0690cf92b8851770349e56c3f57d6028',1,'motive::ModularInit::NormalizeWildValue()'],['../classmotive_1_1_range_t.html#ae474477f86d6adbc54da2b2f15054ebe',1,'motive::RangeT::NormalizeWildValue()']]],
+  ['normalizey',['NormalizeY',['../classmotive_1_1_bulk_spline_evaluator.html#a0498774f3b6fdd03ec1affb8e31eed63',1,'motive::BulkSplineEvaluator']]],
+  ['numbones',['NumBones',['../classmotive_1_1_rig_anim.html#a7fa97eb68a27775f4a1afd0b4fa81061',1,'motive::RigAnim']]],
+  ['numchildren',['NumChildren',['../classmotive_1_1_matrix_motivator4f_template.html#afae605425bf2b31b28538d6e05171780',1,'motive::MatrixMotivator4fTemplate::NumChildren()'],['../classmotive_1_1_matrix_processor4f.html#af18ae655596875197205d0f885498e86',1,'motive::MatrixProcessor4f::NumChildren()']]],
+  ['numcoeff',['NumCoeff',['../classmotive_1_1_quadratic_curve.html#ac2539010e7935e5b8a5258339f764610',1,'motive::QuadraticCurve::NumCoeff()'],['../classmotive_1_1_cubic_curve.html#a35a18a78603739052c3894c124457e93',1,'motive::CubicCurve::NumCoeff()']]],
+  ['numcsvheaderlines',['NumCsvHeaderLines',['../classmotive_1_1_rig_anim.html#a55cf7159175aefb411290c13c89eb206',1,'motive::RigAnim']]],
+  ['numnodes',['NumNodes',['../classmotive_1_1_compact_spline.html#a5344b150276fca5a4504b62abdd0efd8',1,'motive::CompactSpline']]],
+  ['numobjects',['NumObjects',['../classmotive_1_1_anim_table.html#a3bd4afaad6bcae3839af44bf31d52593',1,'motive::AnimTable']]],
+  ['numops',['NumOps',['../classmotive_1_1_rig_anim.html#ac3ce8ac7afa9130b065c4598998158e0',1,'motive::RigAnim']]]
 ];

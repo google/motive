@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>Motive Animation System: Motive Version 1.0.0</title>
+<title>Motive Animation System: Motive Version 1.1.0</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -93,7 +93,7 @@ $(document).ready(function(){initNavTree('motive_readme.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -104,13 +104,13 @@ $(document).ready(function(){initNavTree('motive_readme.html','');});
 
 <div class="header">
   <div class="headertitle">
-<div class="title">Motive Version 1.0.0 </div>  </div>
+<div class="title">Motive Version 1.1.0 </div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><h1>Overview</h1>
 <p>Motive is an open-source, cross-platform, memory efficient, and performant animation system.</p>
 <h1>Features</h1>
-<p>The v1.0 release of Motive is feature light. It's focused primarily on procedural animation and simple hand-tunable motion. It is suitable for the animation of props, cameras, GUI elements, and simple rigs.</p>
+<p>The v1.1 release of Motive focusses on speed and scalability. Motive now supports rigged character animation and blending between those animations. Motive maintains its aptitude for procedural animation that was the focus of v1.0.</p>
 <h1>Downloading</h1>
 <p>Motive can be downloaded from <a href="http://github.com/google/motive">GitHub</a> or the <a href="http://github.com/google/motive/releases">releases page</a>.</p>
 <p><b>Important</b>: Motive uses submodules to reference other components it depends upon so download the source using:</p>
@@ -124,10 +124,6 @@ $(document).ready(function(){initNavTree('motive_readme.html','');});
 <p>Motive has optional features that depend upon:</p>
 <ul>
 <li><a href="http://google.github.io/flatbuffers/">FlatBuffers</a> &ndash; allow animation data to be defined in json and then compiled to a small binary format.</li>
-</ul>
-<p>The Motive performance benchmark application also uses:</p>
-<ul>
-<li><a href="https://www.libsdl.org/">SDL</a> &ndash; for crossplatform graphics rendering</li>
 </ul>
 <h1>Notes</h1>
 <p>For applications on Google Play that integrate this tool, usage is tracked. This tracking is done automatically using the embedded version string in <code>kVersion</code>. Aside from consuming a few extra bytes in your application binary, it shouldn't affect your application at all. We use this information to let us know if Motive is useful and if we should continue to invest in it. Since this is open source, you are free to remove the version string, but we would appreciate if you would leave it in. </p>

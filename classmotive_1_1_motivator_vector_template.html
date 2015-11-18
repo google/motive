@@ -107,7 +107,7 @@ $(document).ready(function(){initNavTree('classmotive_1_1_motivator_vector_templ
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -126,6 +126,11 @@ $(document).ready(function(){initNavTree('classmotive_1_1_motivator_vector_templ
 <div class="title">motive::MotivatorVectorTemplate&lt; VectorConverter, kDimensionsT &gt; Class Template Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Drive a tuple of floats towards a target, or along a spline.  
+ <a href="classmotive_1_1_motivator_vector_template.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="motivator_8h_source.html">motivator.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for motive::MotivatorVectorTemplate&lt; VectorConverter, kDimensionsT &gt;:</div>
 <div class="dyncontent">
@@ -135,28 +140,33 @@ Inheritance diagram for motive::MotivatorVectorTemplate&lt; VectorConverter, kDi
 <area href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. " alt="motive::Motivator" shape="rect" coords="0,0,400,24"/>
 </map>
  </div></div>
-<table class="memberdecls">
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><h3>template&lt;class VectorConverter, MotiveDimension kDimensionsT&gt;<br/>
+class motive::MotivatorVectorTemplate&lt; VectorConverter, kDimensionsT &gt;</h3>
+
+<p>Drive a tuple of floats towards a target, or along a spline. </p>
+<p>This template is instantiated below with four variations: 1~4 floats.</p>
+<p>The current and target values and velocities can be specified by <a class="el" href="classmotive_1_1_motivator_vector_template.html#add6dcde94a257f4dcd20c2b435ad6716">SetTarget()</a> or <a class="el" href="classmotive_1_1_motivator_vector_template.html#af4fee887897ecfe3c7cd37dde34af994">SetSpline()</a>. </p>
+</div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:abfa99dabdb22bc11ac088380b35bc9e5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abfa99dabdb22bc11ac088380b35bc9e5"></a>
 typedef VectorConverter&#160;</td><td class="memItemRight" valign="bottom"><b>C</b></td></tr>
 <tr class="separator:abfa99dabdb22bc11ac088380b35bc9e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab49ef71142d573d24484dea9f807f2d6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab49ef71142d573d24484dea9f807f2d6"></a>
-typedef <a class="el" href="structfpl_1_1_external_vector_t.html">fpl::ExternalVectorT</a><br class="typebreak"/>
-&lt; C, kDimensions &gt;::type&#160;</td><td class="memItemRight" valign="bottom"><b>ExT</b></td></tr>
-<tr class="separator:ab49ef71142d573d24484dea9f807f2d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a34da54914fe691b3a8f7cc3d39979409"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a34da54914fe691b3a8f7cc3d39979409"></a>
-typedef <a class="el" href="structfpl_1_1_internal_vector_t.html">fpl::InternalVectorT</a><br class="typebreak"/>
+<tr class="memitem:ab2596a1fc649b943a76f197ef000b0f6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab2596a1fc649b943a76f197ef000b0f6"></a>
+typedef <br class="typebreak"/>
+<a class="el" href="structmotive_1_1_external_vector_t.html">motive::ExternalVectorT</a>&lt; C, <br class="typebreak"/>
+kDimensions &gt;::type&#160;</td><td class="memItemRight" valign="bottom"><b>ExT</b></td></tr>
+<tr class="separator:ab2596a1fc649b943a76f197ef000b0f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af81a90abdef9e2f5edcc849cd8c46811"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af81a90abdef9e2f5edcc849cd8c46811"></a>
+typedef <br class="typebreak"/>
+<a class="el" href="structmotive_1_1_internal_vector_t.html">motive::InternalVectorT</a><br class="typebreak"/>
 &lt; kDimensions &gt;::type&#160;</td><td class="memItemRight" valign="bottom"><b>InT</b></td></tr>
-<tr class="separator:a34da54914fe691b3a8f7cc3d39979409"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:af81a90abdef9e2f5edcc849cd8c46811"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab0b46b686b0cd0430a2e9f9f645b7bae"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab0b46b686b0cd0430a2e9f9f645b7bae"></a>
 typedef <a class="el" href="structmotive_1_1_motive_target_t.html">MotiveTargetT</a><br class="typebreak"/>
 &lt; kDimensions &gt;::type&#160;</td><td class="memItemRight" valign="bottom"><b>Target</b></td></tr>
 <tr class="separator:ab0b46b686b0cd0430a2e9f9f645b7bae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9310cca066c427fa2753e5f1fd35a21a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9310cca066c427fa2753e5f1fd35a21a"></a>
-typedef <a class="el" href="structfpl_1_1_spline_playback_n.html">fpl::SplinePlaybackN</a><br class="typebreak"/>
-&lt; kDimensions &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Spline</b></td></tr>
-<tr class="separator:a9310cca066c427fa2753e5f1fd35a21a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f1a4c6b31d4185842db4044bbffbd82"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9f1a4c6b31d4185842db4044bbffbd82"></a>
 typedef <br class="typebreak"/>
 <a class="el" href="classmotive_1_1_motive_target_builder_template.html">MotiveTargetBuilderTemplate</a>&lt; C, <br class="typebreak"/>
@@ -181,6 +191,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="separator:a0ec42e3ed820a260b60a34c8daaa95a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7ffa416ceb8a9b1ef70f91c6c312a44c"><td class="memItemLeft" align="right" valign="top">ExT&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_vector_template.html#a7ffa416ceb8a9b1ef70f91c6c312a44c">Velocity</a> () const </td></tr>
 <tr class="separator:a7ffa416ceb8a9b1ef70f91c6c312a44c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ded60d21fe2e7746eb2040398cb6110"><td class="memItemLeft" align="right" valign="top">ExT&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_vector_template.html#a7ded60d21fe2e7746eb2040398cb6110">Direction</a> () const </td></tr>
+<tr class="separator:a7ded60d21fe2e7746eb2040398cb6110"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa9f420a664e61a4776647e35a1e8792c"><td class="memItemLeft" align="right" valign="top">ExT&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_vector_template.html#aa9f420a664e61a4776647e35a1e8792c">TargetValue</a> () const </td></tr>
 <tr class="separator:aa9f420a664e61a4776647e35a1e8792c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a50cd8f7c062aa2e4a463093e07419686"><td class="memItemLeft" align="right" valign="top">ExT&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_vector_template.html#a50cd8f7c062aa2e4a463093e07419686">TargetVelocity</a> () const </td></tr>
@@ -193,8 +205,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="separator:a914ea9f6526fa35c7e27a53cfb86067c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:add6dcde94a257f4dcd20c2b435ad6716"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_vector_template.html#add6dcde94a257f4dcd20c2b435ad6716">SetTarget</a> (const Target &amp;t)</td></tr>
 <tr class="separator:add6dcde94a257f4dcd20c2b435ad6716"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a655a80a59b269ffb347a15b1eb5fb4c5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_vector_template.html#a655a80a59b269ffb347a15b1eb5fb4c5">SetSpline</a> (const <a class="el" href="structfpl_1_1_spline_playback_n.html">Spline</a> &amp;s)</td></tr>
-<tr class="separator:a655a80a59b269ffb347a15b1eb5fb4c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af4fee887897ecfe3c7cd37dde34af994"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_vector_template.html#af4fee887897ecfe3c7cd37dde34af994">SetSpline</a> (const <a class="el" href="classmotive_1_1_compact_spline.html">motive::CompactSpline</a> &amp;spline, const <a class="el" href="structmotive_1_1_spline_playback.html">motive::SplinePlayback</a> &amp;playback)</td></tr>
+<tr class="separator:af4fee887897ecfe3c7cd37dde34af994"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85bc54a9e08fd0ea432e45bbaa45143a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_vector_template.html#a85bc54a9e08fd0ea432e45bbaa45143a">SetSplines</a> (const <a class="el" href="classmotive_1_1_compact_spline.html">motive::CompactSpline</a> *splines, const <a class="el" href="structmotive_1_1_spline_playback.html">motive::SplinePlayback</a> &amp;playback)</td></tr>
+<tr class="separator:a85bc54a9e08fd0ea432e45bbaa45143a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afaa5f7138e24b8a0e37d06d6958b174a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afaa5f7138e24b8a0e37d06d6958b174a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetSplineTime</b> (MotiveTime time)</td></tr>
+<tr class="separator:afaa5f7138e24b8a0e37d06d6958b174a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac4ca2dd924b7b9e0bfc709d3b9527985"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_vector_template.html#ac4ca2dd924b7b9e0bfc709d3b9527985">SetSplinePlaybackRate</a> (float playback_rate)</td></tr>
 <tr class="separator:ac4ca2dd924b7b9e0bfc709d3b9527985"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classmotive_1_1_motivator"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classmotive_1_1_motivator')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classmotive_1_1_motivator.html">motive::Motivator</a></td></tr>
@@ -217,9 +234,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
-<tr class="memitem:a7c83ad02551e77d375aaecce85fb554b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7c83ad02551e77d375aaecce85fb554b"></a>
-static const int&#160;</td><td class="memItemRight" valign="bottom"><b>kDimensions</b> = kDimensionsT</td></tr>
-<tr class="separator:a7c83ad02551e77d375aaecce85fb554b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28acdd7751e3141aa0d4b5aa966680fe"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a28acdd7751e3141aa0d4b5aa966680fe"></a>
+static const MotiveDimension&#160;</td><td class="memItemRight" valign="bottom"><b>kDimensions</b> = kDimensionsT</td></tr>
+<tr class="separator:a28acdd7751e3141aa0d4b5aa966680fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
@@ -252,7 +269,7 @@ const <a class="el" href="classmotive_1_1_motive_processor.html">MotiveProcessor
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VectorConverter , int kDimensionsT&gt; </div>
+template&lt;class VectorConverter , MotiveDimension kDimensionsT&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -278,7 +295,7 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VectorConverter , int kDimensionsT&gt; </div>
+template&lt;class VectorConverter , MotiveDimension kDimensionsT&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -315,7 +332,7 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VectorConverter , int kDimensionsT&gt; </div>
+template&lt;class VectorConverter , MotiveDimension kDimensionsT&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -359,7 +376,7 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VectorConverter , int kDimensionsT&gt; </div>
+template&lt;class VectorConverter , MotiveDimension kDimensionsT&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -381,11 +398,37 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a7ded60d21fe2e7746eb2040398cb6110"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorConverter , MotiveDimension kDimensionsT&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">ExT <a class="el" href="classmotive_1_1_motivator_vector_template.html">motive::MotivatorVectorTemplate</a>&lt; VectorConverter, kDimensionsT &gt;::Direction </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the velocity when playback rate is 1. Useful to know the direction of a multi-dimensional motivator, even when playback rate is 0. </p>
+
+</div>
+</div>
 <a class="anchor" id="ab28c63d6cdc6c78a8ff6bd2bf235f29a"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VectorConverter , int kDimensionsT&gt; </div>
+template&lt;class VectorConverter , MotiveDimension kDimensionsT&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -424,11 +467,11 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a655a80a59b269ffb347a15b1eb5fb4c5"></a>
+<a class="anchor" id="af4fee887897ecfe3c7cd37dde34af994"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VectorConverter , int kDimensionsT&gt; </div>
+template&lt;class VectorConverter , MotiveDimension kDimensionsT&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -436,9 +479,19 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
         <tr>
           <td class="memname">void <a class="el" href="classmotive_1_1_motivator_vector_template.html">motive::MotivatorVectorTemplate</a>&lt; VectorConverter, kDimensionsT &gt;::SetSpline </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="structfpl_1_1_spline_playback_n.html">Spline</a> &amp;&#160;</td>
-          <td class="paramname"><em>s</em></td><td>)</td>
+          <td class="paramtype">const <a class="el" href="classmotive_1_1_compact_spline.html">motive::CompactSpline</a> &amp;&#160;</td>
+          <td class="paramname"><em>spline</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">const <a class="el" href="structmotive_1_1_spline_playback.html">motive::SplinePlayback</a> &amp;&#160;</td>
+          <td class="paramname"><em>playback</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -447,10 +500,11 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Follow the curve specified in <code>s</code>. Overrides the existing current value. </p>
+<p>Follow the curve specified in <code>spline</code>. Overrides the existing current value. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">s</td><td>The spline to follow, the time in that spline to initiate playback, and whether to repeat from the beginning after the end of the spline is reached. </td></tr>
+    <tr><td class="paramname">splines</td><td>The splines to follow. Array of length <a class="el" href="classmotive_1_1_motivator.html#a3deff2046c318a5a2aeccaf9a892692d">Dimensions()</a>. </td></tr>
+    <tr><td class="paramname">playback</td><td>The time into the splines to initiate playback, the blend time to the splines, and whether to repeat from the beginning after the end of the spline is reached. </td></tr>
   </table>
   </dd>
 </dl>
@@ -461,7 +515,7 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VectorConverter , int kDimensionsT&gt; </div>
+template&lt;class VectorConverter , MotiveDimension kDimensionsT&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -480,7 +534,51 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Set rate at which we consume the spline set in <a class="el" href="classmotive_1_1_motivator_vector_template.html#a655a80a59b269ffb347a15b1eb5fb4c5">SetSpline()</a>. 0 ==&gt; paused 0.5 ==&gt; half speed (slow motion) 1 ==&gt; authored speed 2 ==&gt; double speed (fast forward) </p>
+<p>Set rate at which we consume the spline set in <a class="el" href="classmotive_1_1_motivator_vector_template.html#af4fee887897ecfe3c7cd37dde34af994">SetSpline()</a>. 0 ==&gt; paused 0.5 ==&gt; half speed (slow motion) 1 ==&gt; authored speed 2 ==&gt; double speed (fast forward) </p>
+
+</div>
+</div>
+<a class="anchor" id="a85bc54a9e08fd0ea432e45bbaa45143a"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorConverter , MotiveDimension kDimensionsT&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classmotive_1_1_motivator_vector_template.html">motive::MotivatorVectorTemplate</a>&lt; VectorConverter, kDimensionsT &gt;::SetSplines </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classmotive_1_1_compact_spline.html">motive::CompactSpline</a> *&#160;</td>
+          <td class="paramname"><em>splines</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structmotive_1_1_spline_playback.html">motive::SplinePlayback</a> &amp;&#160;</td>
+          <td class="paramname"><em>playback</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Follow the curves specified in <code>splines</code>. Overrides the existing current value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">splines</td><td>The splines that the curves should follow. Array of length <a class="el" href="classmotive_1_1_motivator.html#a3deff2046c318a5a2aeccaf9a892692d">Dimensions()</a>. </td></tr>
+    <tr><td class="paramname">playback</td><td>The time into the splines to initiate playback, the blend time to the splines, and whether to repeat from the beginning after the end of the spline is reached. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -488,7 +586,7 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VectorConverter , int kDimensionsT&gt; </div>
+template&lt;class VectorConverter , MotiveDimension kDimensionsT&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -521,7 +619,7 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VectorConverter , int kDimensionsT&gt; </div>
+template&lt;class VectorConverter , MotiveDimension kDimensionsT&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -539,7 +637,7 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Returns the current time (i.e. the x-value) in the current spline. If <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> is not being driven by a spline, returns 0. Whenever <a class="el" href="classmotive_1_1_motivator_vector_template.html#a655a80a59b269ffb347a15b1eb5fb4c5">SetSpline()</a> is called, this value will be reset to the start_time specified in SplinePlayback. Every time <a class="el" href="classmotive_1_1_motive_engine.html#a8696d6a9ed3b919d6e4832c9e08958cd">MotiveEngine::AdvanceFrame()</a> is called, it will increment by <code>delta_time</code> * <code>playback_rate</code>. If the SplinePlayback has repeat=true, then <a class="el" href="classmotive_1_1_motivator_vector_template.html#a914ea9f6526fa35c7e27a53cfb86067c">SplineTime()</a> will periodically loop back to time 0. </p>
+<p>Returns the current time (i.e. the x-value) in the current spline. If <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> is not being driven by a spline, returns 0. Whenever <a class="el" href="classmotive_1_1_motivator_vector_template.html#af4fee887897ecfe3c7cd37dde34af994">SetSpline()</a> is called, this value will be reset to the start_time specified in <a class="el" href="structmotive_1_1_spline_playback.html" title="Parameters to specify how a spline should be traversed. ">SplinePlayback</a>. Every time <a class="el" href="classmotive_1_1_motive_engine.html#a8696d6a9ed3b919d6e4832c9e08958cd">MotiveEngine::AdvanceFrame()</a> is called, it will increment by <code>delta_time</code> * <code>playback_rate</code>. If the <a class="el" href="structmotive_1_1_spline_playback.html" title="Parameters to specify how a spline should be traversed. ">SplinePlayback</a> has repeat=true, then <a class="el" href="classmotive_1_1_motivator_vector_template.html#a914ea9f6526fa35c7e27a53cfb86067c">SplineTime()</a> will periodically loop back to time 0. </p>
 
 </div>
 </div>
@@ -547,7 +645,7 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VectorConverter , int kDimensionsT&gt; </div>
+template&lt;class VectorConverter , MotiveDimension kDimensionsT&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -573,7 +671,7 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VectorConverter , int kDimensionsT&gt; </div>
+template&lt;class VectorConverter , MotiveDimension kDimensionsT&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -599,7 +697,7 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VectorConverter , int kDimensionsT&gt; </div>
+template&lt;class VectorConverter , MotiveDimension kDimensionsT&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -625,7 +723,7 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VectorConverter , int kDimensionsT&gt; </div>
+template&lt;class VectorConverter , MotiveDimension kDimensionsT&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -651,7 +749,7 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class VectorConverter , int kDimensionsT&gt; </div>
+template&lt;class VectorConverter , MotiveDimension kDimensionsT&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">

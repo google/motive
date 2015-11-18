@@ -92,6 +92,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions.html"><span>All</span></a></li>
       <li class="current"><a href="functions_func.html"><span>Functions</span></a></li>
       <li><a href="functions_vars.html"><span>Variables</span></a></li>
+      <li><a href="functions_type.html"><span>Typedefs</span></a></li>
     </ul>
   </div>
   <div id="navrow4" class="tabs3">
@@ -102,12 +103,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li><a href="functions_func_d.html#index_d"><span>d</span></a></li>
       <li><a href="functions_func_e.html#index_e"><span>e</span></a></li>
       <li><a href="functions_func_f.html#index_f"><span>f</span></a></li>
+      <li><a href="functions_func_g.html#index_g"><span>g</span></a></li>
       <li><a href="functions_func_i.html#index_i"><span>i</span></a></li>
       <li><a href="functions_func_l.html#index_l"><span>l</span></a></li>
       <li><a href="functions_func_m.html#index_m"><span>m</span></a></li>
       <li class="current"><a href="functions_func_n.html#index_n"><span>n</span></a></li>
       <li><a href="functions_func_o.html#index_o"><span>o</span></a></li>
       <li><a href="functions_func_p.html#index_p"><span>p</span></a></li>
+      <li><a href="functions_func_q.html#index_q"><span>q</span></a></li>
       <li><a href="functions_func_r.html#index_r"><span>r</span></a></li>
       <li><a href="functions_func_s.html#index_s"><span>s</span></a></li>
       <li><a href="functions_func_t.html#index_t"><span>t</span></a></li>
@@ -139,7 +142,7 @@ $(document).ready(function(){initNavTree('functions_func_n.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -153,31 +156,53 @@ $(document).ready(function(){initNavTree('functions_func_n.html','');});
 
 <h3><a class="anchor" id="index_n"></a>- n -</h3><ul>
 <li>NextY()
-: <a class="el" href="classfpl_1_1_bulk_spline_evaluator.html#a381ace4e154797093c9b22d8376e2cc3">fpl::BulkSplineEvaluator</a>
+: <a class="el" href="classmotive_1_1_bulk_spline_evaluator.html#a2884cf744124fc35c3dfb164c900374b">motive::BulkSplineEvaluator</a>
 </li>
 <li>Node()
 : <a class="el" href="classmotive_1_1_motive_target1f.html#ad18523938eed11896ff4ed368601e701">motive::MotiveTarget1f</a>
 </li>
 <li>nodes()
-: <a class="el" href="classfpl_1_1_compact_spline.html#a08248af1541b61b918c9f9284ab60632">fpl::CompactSpline</a>
+: <a class="el" href="classmotive_1_1_compact_spline.html#a1831d4065dab359a5e8f77476d36ffe9">motive::CompactSpline</a>
 </li>
 <li>Normalize()
-: <a class="el" href="classfpl_1_1_range_t.html#aa070d4d86edf9bdcf6caf80b5b2c7061">fpl::RangeT&lt; T &gt;</a>
-, <a class="el" href="classmotive_1_1_modular_init.html#af1f210390644301a13b4e121cc86ec94">motive::ModularInit</a>
+: <a class="el" href="classmotive_1_1_modular_init.html#af1f210390644301a13b4e121cc86ec94">motive::ModularInit</a>
+, <a class="el" href="classmotive_1_1_range_t.html#a02e9e9a7168de1c6221ee28713b27eba">motive::RangeT&lt; T &gt;</a>
+</li>
+<li>NormalizeCloseValue()
+: <a class="el" href="classmotive_1_1_range_t.html#a10b0cff76a3faa187c3c0078d1b934b3">motive::RangeT&lt; T &gt;</a>
+</li>
+<li>NormalizedY()
+: <a class="el" href="classmotive_1_1_bulk_spline_evaluator.html#af39b97e12a923fc2dda379414abb5c70">motive::BulkSplineEvaluator</a>
 </li>
 <li>NormalizeWildValue()
-: <a class="el" href="classfpl_1_1_range_t.html#a9f32a6399a268159367e09c7f4a0c6f9">fpl::RangeT&lt; T &gt;</a>
-, <a class="el" href="classmotive_1_1_modular_init.html#a0690cf92b8851770349e56c3f57d6028">motive::ModularInit</a>
+: <a class="el" href="classmotive_1_1_modular_init.html#a0690cf92b8851770349e56c3f57d6028">motive::ModularInit</a>
+, <a class="el" href="classmotive_1_1_range_t.html#ae474477f86d6adbc54da2b2f15054ebe">motive::RangeT&lt; T &gt;</a>
 </li>
 <li>NormalizeY()
-: <a class="el" href="classfpl_1_1_bulk_spline_evaluator.html#a1dfc5a0545b5dad408a20bf515541c14">fpl::BulkSplineEvaluator</a>
+: <a class="el" href="classmotive_1_1_bulk_spline_evaluator.html#a0498774f3b6fdd03ec1affb8e31eed63">motive::BulkSplineEvaluator</a>
+</li>
+<li>NumBones()
+: <a class="el" href="classmotive_1_1_rig_anim.html#a7fa97eb68a27775f4a1afd0b4fa81061">motive::RigAnim</a>
+</li>
+<li>NumChildren()
+: <a class="el" href="classmotive_1_1_matrix_motivator4f_template.html#afae605425bf2b31b28538d6e05171780">motive::MatrixMotivator4fTemplate&lt; VectorConverter &gt;</a>
+, <a class="el" href="classmotive_1_1_matrix_processor4f.html#af18ae655596875197205d0f885498e86">motive::MatrixProcessor4f</a>
 </li>
 <li>NumCoeff()
-: <a class="el" href="classfpl_1_1_cubic_curve.html#a5ef44941428a2a0f79a28c8f24ec5cc9">fpl::CubicCurve</a>
-, <a class="el" href="classfpl_1_1_quadratic_curve.html#a7603be49c1bb6915a181d6b98295b515">fpl::QuadraticCurve</a>
+: <a class="el" href="classmotive_1_1_cubic_curve.html#a35a18a78603739052c3894c124457e93">motive::CubicCurve</a>
+, <a class="el" href="classmotive_1_1_quadratic_curve.html#ac2539010e7935e5b8a5258339f764610">motive::QuadraticCurve</a>
+</li>
+<li>NumCsvHeaderLines()
+: <a class="el" href="classmotive_1_1_rig_anim.html#a55cf7159175aefb411290c13c89eb206">motive::RigAnim</a>
 </li>
 <li>NumNodes()
-: <a class="el" href="classfpl_1_1_compact_spline.html#ab09b019aacb74fb576f5fd2c4e7e9b4d">fpl::CompactSpline</a>
+: <a class="el" href="classmotive_1_1_compact_spline.html#a5344b150276fca5a4504b62abdd0efd8">motive::CompactSpline</a>
+</li>
+<li>NumObjects()
+: <a class="el" href="classmotive_1_1_anim_table.html#a3bd4afaad6bcae3839af44bf31d52593">motive::AnimTable</a>
+</li>
+<li>NumOps()
+: <a class="el" href="classmotive_1_1_rig_anim.html#ac3ce8ac7afa9130b065c4598998158e0">motive::RigAnim</a>
 </li>
 </ul>
 </div><!-- contents -->

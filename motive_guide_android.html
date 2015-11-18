@@ -93,7 +93,7 @@ $(document).ready(function(){initNavTree('motive_guide_android.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -121,14 +121,17 @@ Prerequisites</h1>
  <a href="http://developer.android.com/sdk/index.html">Android Studio</a> is the easiest way to install and configure the latest <a href="http://developer.android.com/sdk/index.html">Android SDK</a>. Or you can install the <a href="http://developer.android.com/sdk/installing/index.html?pkg=tools">stand-alone SDK tools</a>.</li>
 <li>Install the <a href="http://developer.android.com/tools/sdk/ndk/index.html">Android NDK</a>, required to develop Android native (C/C++) applications.<br/>
 <ul>
-<li>Download and unpack the latest version of the <a href="http://developer.android.com/tools/sdk/ndk/index.html">Android NDK</a> to a directory on your machine.</li>
+<li>Download and unpack the latest version of the <a href="http://developer.android.com/tools/sdk/ndk/index.html">Android NDK</a> to a directory on your machine.<ul>
+<li>Tested with <code>android-ndk-r10e</code>.</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>Add the <a href="http://developer.android.com/sdk/index.html">Android SDK</a>'s <code>sdk/tools</code> directory and the <a href="http://developer.android.com/tools/sdk/ndk/index.html">Android NDK</a> directory to the <a href="http://en.wikipedia.org/wiki/PATH_(variable)">PATH variable</a>.<ul>
 <li><b>Windows</b>: Start -&gt; Control Panel -&gt; System and Security -&gt; System -&gt; Advanced system settings -&gt; Environment Variables, then select PATH and press <code>Edit</code>. Add paths similar to the following, adjusted for your install locations: <code>c:\Users\me\AppData\Local\Android\sdk\tools;c:\Users\me\android-ndk</code></li>
 <li><b>Linux</b>: if the <a href="http://developer.android.com/sdk/index.html">Android SDK</a> is installed in <code>/home/androiddev/adt</code> and the <a href="http://developer.android.com/tools/sdk/ndk/index.html">Android NDK</a> is installed in <code>/home/androiddev/ndk</code> the following line should be added to <code>~/.bashrc</code>.<br/>
  <code>export PATH="$PATH:/home/androiddev/adt/sdk/tools:/home/androiddev/ndk"</code></li>
-<li><b>OS X</b>: if the <a href="http://developer.android.com/sdk/index.html">Android SDK</a> is installed in <code>~/Library/Android/</code> and the <a href="http://developer.android.com/tools/sdk/ndk/index.html">Android NDK</a> is installed in <code>~/bin/android_ndk-r10d</code> the following line should be added to <code>~/.bash_profile</code>.<br/>
+<li><b>OS X</b>: if the <a href="http://developer.android.com/sdk/index.html">Android SDK</a> is installed in <code>~/Library/Android/</code> and the <a href="http://developer.android.com/tools/sdk/ndk/index.html">Android NDK</a> is installed in <code>~/bin/android_ndk-r10e</code> the following line should be added to <code>~/.bash_profile</code>.<br/>
  <code>export PATH=$PATH:~/bin/android_ndk-r10d:~/Library/Android/sdk/tools</code></li>
 </ul>
 </li>

@@ -104,7 +104,7 @@ $(document).ready(function(){initNavTree('anim_8h_source.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -135,52 +135,163 @@ $(document).ready(function(){initNavTree('anim_8h_source.html','');});
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#ifndef MOTIVE_ANIM_H</span></div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define MOTIVE_ANIM_H</span></div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &quot;motive/init.h&quot;</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &quot;motive/math/compact_spline.h&quot;</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="keyword">namespace </span>motive {</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment">/// @class MatrixAnim</span></div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment">/// @brief Animation for a MatrixMotivator.</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno"><a class="line" href="classmotive_1_1_matrix_anim.html">   25</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classmotive_1_1_matrix_anim.html">MatrixAnim</a> {</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00027"></a><span class="lineno"><a class="line" href="structmotive_1_1_matrix_anim_1_1_spline.html">   27</a></span>&#160;  <span class="keyword">struct </span><a class="code" href="structmotive_1_1_matrix_anim_1_1_spline.html">Spline</a> {</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <a class="code" href="classfpl_1_1_compact_spline.html">fpl::CompactSpline</a> spline;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <a class="code" href="classmotive_1_1_smooth_init.html">SmoothInit</a> init;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <a class="code" href="structfpl_1_1_spline_playback_n.html">fpl::SplinePlayback</a> playback;</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &lt;vector&gt;</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="preprocessor">#include &quot;motive/init.h&quot;</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="preprocessor">#include &quot;motive/math/compact_spline.h&quot;</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">namespace </span>motive {</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment">/// @class MatrixAnim</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">/// @brief Animation for a MatrixMotivator. Drives a single bone&#39;s transform.</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno"><a class="line" href="classmotive_1_1_matrix_anim.html">   26</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classmotive_1_1_matrix_anim.html">MatrixAnim</a> {</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160; <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00028"></a><span class="lineno"><a class="line" href="structmotive_1_1_matrix_anim_1_1_spline.html">   28</a></span>&#160;  <span class="keyword">struct </span><a class="code" href="structmotive_1_1_matrix_anim_1_1_spline.html">Spline</a> {</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <a class="code" href="classmotive_1_1_compact_spline.html">motive::CompactSpline</a> spline;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <a class="code" href="classmotive_1_1_smooth_init.html">SmoothInit</a> init;</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;  };</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  <span class="comment">// For construction. Allocate storage for spline data.</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;  <a class="code" href="structmotive_1_1_matrix_anim_1_1_spline.html">Spline</a>* Construct(<span class="keywordtype">int</span> num_splines) {</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    splines_.resize(num_splines);</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="keywordflow">return</span> &amp;splines_[0];</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;  }</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;  <span class="comment">// Non-const version is for construction.</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;  <a class="code" href="classmotive_1_1_matrix_init.html">MatrixInit</a>&amp; init() { <span class="keywordflow">return</span> init_; }</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;  <span class="comment">// Const version is to initialize a MatrixMotivator.</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;  <span class="keyword">const</span> MatrixInit&amp; init()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> init_; }</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; <span class="keyword">private</span>:<span class="comment"></span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">  /// Initialization structure for a MatrixMotivator.</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">  /// When initialized with this struct, the MatrixMotivator will play back</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment">  /// the animation described in this class.</span></div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment"></span>  MatrixInit init_;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment">  /// Hold spline animation data that is referenced by `init_`.</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment"></span>  std::vector&lt;Spline&gt; splines_;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;};</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;  <span class="keyword">explicit</span> <a class="code" href="classmotive_1_1_matrix_anim.html">MatrixAnim</a>(<span class="keywordtype">int</span> expected_num_ops = 0) : ops_(expected_num_ops) {}</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">  /// For construction. Allocates storage for spline data, and returns it.</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment">  /// @param num_splines Total number of splines in the animation. Not all ops</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment">  ///                    use a spline (some are const ops).</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno"><a class="line" href="classmotive_1_1_matrix_anim.html#afa6785992047a35d322f75e45aac907e">   38</a></span>&#160;<span class="comment"></span>  <a class="code" href="structmotive_1_1_matrix_anim_1_1_spline.html">Spline</a>* <a class="code" href="classmotive_1_1_matrix_anim.html#afa6785992047a35d322f75e45aac907e">Construct</a>(<span class="keywordtype">int</span> num_splines) {</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keywordflow">if</span> (num_splines == 0) <span class="keywordflow">return</span> <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="comment">// Note: It&#39;s important that the `splines_` array is not moved, since</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="comment">//       `ops_` points into it.</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="comment">// TODO: Revisit this layout to eliminate the internal pointers, making it</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="comment">//       more robust.</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    splines_.resize(num_splines);</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <span class="keywordflow">return</span> &amp;splines_[0];</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;  }</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;<span class="comment">  /// Return the op array. Non-const version is for construction.</span></div>
+<div class="line"><a name="l00050"></a><span class="lineno"><a class="line" href="classmotive_1_1_matrix_anim.html#a58c0a85f3677a39b27e3c65765f567b9">   50</a></span>&#160;<span class="comment"></span>  <a class="code" href="classmotive_1_1_matrix_op_array.html">MatrixOpArray</a>&amp; <a class="code" href="classmotive_1_1_matrix_anim.html#a58c0a85f3677a39b27e3c65765f567b9">ops</a>() { <span class="keywordflow">return</span> ops_; }</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment">  /// Return the op array. Const version is to initialize a MatrixMotivator.</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno"><a class="line" href="classmotive_1_1_matrix_anim.html#af898aef2e7649f9ff2e819b3de3c57dd">   53</a></span>&#160;<span class="comment"></span>  <span class="keyword">const</span> <a class="code" href="classmotive_1_1_matrix_op_array.html">MatrixOpArray</a>&amp; <a class="code" href="classmotive_1_1_matrix_anim.html#af898aef2e7649f9ff2e819b3de3c57dd">ops</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> ops_; }</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;}  <span class="comment">// namespace motive</span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="preprocessor">#endif  // MOTIVE_ANIM_H</span></div>
-<div class="ttc" id="classmotive_1_1_matrix_anim_html"><div class="ttname"><a href="classmotive_1_1_matrix_anim.html">motive::MatrixAnim</a></div><div class="ttdoc">Animation for a MatrixMotivator. </div><div class="ttdef"><b>Definition:</b> anim.h:25</div></div>
-<div class="ttc" id="classfpl_1_1_compact_spline_html"><div class="ttname"><a href="classfpl_1_1_compact_spline.html">fpl::CompactSpline</a></div><div class="ttdoc">Represent a smooth curve in a small amount of memory. </div><div class="ttdef"><b>Definition:</b> compact_spline.h:74</div></div>
-<div class="ttc" id="structmotive_1_1_matrix_anim_1_1_spline_html"><div class="ttname"><a href="structmotive_1_1_matrix_anim_1_1_spline.html">motive::MatrixAnim::Spline</a></div><div class="ttdef"><b>Definition:</b> anim.h:27</div></div>
-<div class="ttc" id="classmotive_1_1_matrix_init_html"><div class="ttname"><a href="classmotive_1_1_matrix_init.html">motive::MatrixInit</a></div><div class="ttdoc">Initialize a MotivatorMatrix4f to generate its matrix from a series of operations. </div><div class="ttdef"><b>Definition:</b> init.h:275</div></div>
-<div class="ttc" id="classmotive_1_1_smooth_init_html"><div class="ttname"><a href="classmotive_1_1_smooth_init.html">motive::SmoothInit</a></div><div class="ttdoc">Initialize a Motivator1f to follow a spline. </div><div class="ttdef"><b>Definition:</b> init.h:200</div></div>
-<div class="ttc" id="structfpl_1_1_spline_playback_n_html"><div class="ttname"><a href="structfpl_1_1_spline_playback_n.html">fpl::SplinePlaybackN</a></div><div class="ttdoc">Parameters to specify how a spline should be traversed. </div><div class="ttdef"><b>Definition:</b> compact_spline.h:247</div></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; <span class="keyword">private</span>:<span class="comment"></span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">  /// Initialization structure for a MatrixMotivator.</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment">  /// When initialized with this struct, the MatrixMotivator will play back</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">  /// the animation described in this class.</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment"></span>  <a class="code" href="classmotive_1_1_matrix_op_array.html">MatrixOpArray</a> ops_;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">  /// Hold spline animation data that is referenced by `init_`.</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment"></span>  std::vector&lt;Spline&gt; splines_;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;};</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="comment">/// @class RigAnim</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="comment">/// @brief Animation for a RigMotivator. Drives a fully rigged model.</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno"><a class="line" href="classmotive_1_1_rig_anim.html">   67</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classmotive_1_1_rig_anim.html">RigAnim</a> {</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;  <a class="code" href="classmotive_1_1_rig_anim.html">RigAnim</a>() : end_time_(0), repeat_(<span class="keyword">false</span>) {}</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="comment">  /// Initialize the basic data. After calling this function, `InitMatrixAnim()`</span></div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment">  /// should be called once for every bone in the animation.</span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_rig_anim.html#a73e4d3343ced5096b683565b9db5aa2c">Init</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code" href="classmotive_1_1_rig_anim.html#a4f833cb8b735a4e9438e02837f10bfbf">anim_name</a>, BoneIndex num_bones, <span class="keywordtype">bool</span> record_names);</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="comment">  /// For construction. Return the `idx`th bone&#39;s animation for initialization.</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="comment">  /// @param idx The bone whose animation you want to initialize.</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment">  /// @param parent If no parent exists, pass in kInvalidBoneIdx.</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment">  /// @param bone_name For debugging. Recorded if `record_names` was true in</span></div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment">  ///                  `Init()`.</span></div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment"></span>  <a class="code" href="classmotive_1_1_matrix_anim.html">MatrixAnim</a>&amp; <a class="code" href="classmotive_1_1_rig_anim.html#a2cf84a414461061b2176e91a7ca1db07">InitMatrixAnim</a>(BoneIndex idx, BoneIndex parent,</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;                             <span class="keyword">const</span> <span class="keywordtype">char</span>* bone_name);</div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="comment">  /// Return the animation of the `idx`th bone. Each bone animates a matrix.</span></div>
+<div class="line"><a name="l00084"></a><span class="lineno"><a class="line" href="classmotive_1_1_rig_anim.html#a8e4932002d42c15c400989b8202de067">   84</a></span>&#160;<span class="comment"></span>  <span class="keyword">const</span> <a class="code" href="classmotive_1_1_matrix_anim.html">MatrixAnim</a>&amp; <a class="code" href="classmotive_1_1_rig_anim.html#a8e4932002d42c15c400989b8202de067">Anim</a>(BoneIndex idx)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    assert(idx &lt; anims_.size());</div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;    <span class="keywordflow">return</span> anims_[idx];</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;  }</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="comment">  /// Number of bones. Bones are arranged in an hierarchy. Each bone animates</span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="comment">  /// a matrix. The matrix describes the transform of the bone from its parent.</span></div>
+<div class="line"><a name="l00091"></a><span class="lineno"><a class="line" href="classmotive_1_1_rig_anim.html#a7fa97eb68a27775f4a1afd0b4fa81061">   91</a></span>&#160;<span class="comment"></span>  BoneIndex <a class="code" href="classmotive_1_1_rig_anim.html#a7fa97eb68a27775f4a1afd0b4fa81061">NumBones</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span>BoneIndex<span class="keyword">&gt;</span>(anims_.size()); }</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="comment">  /// For debugging. If `record_names` was specified in `Init()`, the names of</span></div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="comment">  /// the bones are stored. Very useful when an animation is applied to a mesh</span></div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="comment">  /// that doesn&#39;t match: with the bone names you can determine whether the</span></div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="comment">  /// mesh or the animation is out of date.</span></div>
+<div class="line"><a name="l00097"></a><span class="lineno"><a class="line" href="classmotive_1_1_rig_anim.html#af441c17dc6b82b59b302616eb71a5794">   97</a></span>&#160;<span class="comment"></span>  <span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code" href="classmotive_1_1_rig_anim.html#af441c17dc6b82b59b302616eb71a5794">BoneName</a>(BoneIndex idx)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordflow">return</span> idx &lt; bone_names_.size() ? bone_names_[idx].c_str() : <span class="stringliteral">&quot;unknown&quot;</span>;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  }</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="comment">  /// Total number of matrix operations across all MatrixAnims in this RigAnim.</span></div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="comment"></span>  <span class="keywordtype">int</span> <a class="code" href="classmotive_1_1_rig_anim.html#ac3ce8ac7afa9130b065c4598998158e0">NumOps</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="comment">  /// For debugging. The number of lines in the header. You call them separately</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="comment">  /// in case you want to prefix or append extra columns.</span></div>
+<div class="line"><a name="l00106"></a><span class="lineno"><a class="line" href="classmotive_1_1_rig_anim.html#a55cf7159175aefb411290c13c89eb206">  106</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">int</span> <a class="code" href="classmotive_1_1_rig_anim.html#a55cf7159175aefb411290c13c89eb206">NumCsvHeaderLines</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> 2; }</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="comment">  /// Output a line of comma-separated-values that has header information for</span></div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="comment">  /// the CSV data output by RigMotivator::CsvValues().</span></div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="comment"></span>  std::string <a class="code" href="classmotive_1_1_rig_anim.html#a26bfd5517aa1fe424d32d8f91ca40bc9">CsvHeaderForDebugging</a>(<span class="keywordtype">int</span> line) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;<span class="comment">  /// Amount of time required by this animation. Time units are set by the</span></div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="comment">  /// caller. If animation repeats, returns infinity.</span></div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;<span class="comment">  /// TODO: Add function to return non-repeated end time, even when repeatable.</span></div>
+<div class="line"><a name="l00115"></a><span class="lineno"><a class="line" href="classmotive_1_1_rig_anim.html#a20490b086d1c84c2a3f989e2b950cee9">  115</a></span>&#160;<span class="comment"></span>  MotiveTime <a class="code" href="classmotive_1_1_rig_anim.html#a20490b086d1c84c2a3f989e2b950cee9">end_time</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> end_time_; }</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="comment">  /// For construction. The end time should be set to the maximal end time of</span></div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;<span class="comment">  /// all the `anims_`.</span></div>
+<div class="line"><a name="l00119"></a><span class="lineno"><a class="line" href="classmotive_1_1_rig_anim.html#a437202b1f31209d651192e1f6300e707">  119</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_rig_anim.html#a437202b1f31209d651192e1f6300e707">set_end_time</a>(MotiveTime t) { end_time_ = t; }</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;<span class="comment">  /// Returns an array of length NumBones() representing the bone heirarchy.</span></div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;<span class="comment">  /// `bone_parents()[i]` is the bone index of the ith bone&#39;s parent.</span></div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;<span class="comment">  /// `bone_parents()[i]` &lt; `bone_parents()[j]` for all i &lt; j.</span></div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="comment">  /// For bones at the root (i.e. no parent) value is kInvalidBoneIdx.</span></div>
+<div class="line"><a name="l00125"></a><span class="lineno"><a class="line" href="classmotive_1_1_rig_anim.html#a5447bd9edd69160241546875f31e5164">  125</a></span>&#160;<span class="comment"></span>  <span class="keyword">const</span> BoneIndex* <a class="code" href="classmotive_1_1_rig_anim.html#a5447bd9edd69160241546875f31e5164">bone_parents</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> &amp;bone_parents_[0]; }</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="comment">  /// Animation is repeatable. That is, when the end of the animation is</span></div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="comment">  /// reached, it can be started at the beginning again without glitching.</span></div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="comment">  /// Generally, an animation is repeatable if it&#39;s curves have the same values</span></div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="comment">  /// and derivatives at the start and end.</span></div>
+<div class="line"><a name="l00131"></a><span class="lineno"><a class="line" href="classmotive_1_1_rig_anim.html#a8b9477e5fbb480ae82667314c399007c">  131</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classmotive_1_1_rig_anim.html#a8b9477e5fbb480ae82667314c399007c">repeat</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> repeat_; }</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;<span class="comment">  /// Set the repeat flag.</span></div>
+<div class="line"><a name="l00134"></a><span class="lineno"><a class="line" href="classmotive_1_1_rig_anim.html#a5376a80a92c911df51c135afe0cfd1a8">  134</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classmotive_1_1_rig_anim.html#a5376a80a92c911df51c135afe0cfd1a8">set_repeat</a>(<span class="keywordtype">bool</span> <a class="code" href="classmotive_1_1_rig_anim.html#a8b9477e5fbb480ae82667314c399007c">repeat</a>) { <span class="keywordflow">return</span> repeat_ = <a class="code" href="classmotive_1_1_rig_anim.html#a8b9477e5fbb480ae82667314c399007c">repeat</a>; }</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;<span class="comment">  /// For debugging. The name of the animation currently being played.</span></div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;<span class="comment">  /// Only valid if `record_names` is true in `Init()`.</span></div>
+<div class="line"><a name="l00138"></a><span class="lineno"><a class="line" href="classmotive_1_1_rig_anim.html#a4f833cb8b735a4e9438e02837f10bfbf">  138</a></span>&#160;<span class="comment"></span>  <span class="keyword">const</span> std::string&amp; <a class="code" href="classmotive_1_1_rig_anim.html#a4f833cb8b735a4e9438e02837f10bfbf">anim_name</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> anim_name_; }</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160; <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;  std::vector&lt;MatrixAnim&gt; anims_;</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;  std::vector&lt;BoneIndex&gt; bone_parents_;</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;  std::vector&lt;std::string&gt; bone_names_;</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;  MotiveTime end_time_;</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;  <span class="keywordtype">bool</span> repeat_;</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;  std::string anim_name_;</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;};</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;}  <span class="comment">// namespace motive</span></div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;<span class="preprocessor">#endif  // MOTIVE_ANIM_H</span></div>
+<div class="ttc" id="classmotive_1_1_rig_anim_html_a5447bd9edd69160241546875f31e5164"><div class="ttname"><a href="classmotive_1_1_rig_anim.html#a5447bd9edd69160241546875f31e5164">motive::RigAnim::bone_parents</a></div><div class="ttdeci">const BoneIndex * bone_parents() const </div><div class="ttdef"><b>Definition:</b> anim.h:125</div></div>
+<div class="ttc" id="classmotive_1_1_rig_anim_html_a8e4932002d42c15c400989b8202de067"><div class="ttname"><a href="classmotive_1_1_rig_anim.html#a8e4932002d42c15c400989b8202de067">motive::RigAnim::Anim</a></div><div class="ttdeci">const MatrixAnim &amp; Anim(BoneIndex idx) const </div><div class="ttdoc">Return the animation of the idxth bone. Each bone animates a matrix. </div><div class="ttdef"><b>Definition:</b> anim.h:84</div></div>
+<div class="ttc" id="classmotive_1_1_matrix_anim_html"><div class="ttname"><a href="classmotive_1_1_matrix_anim.html">motive::MatrixAnim</a></div><div class="ttdoc">Animation for a MatrixMotivator. Drives a single bone&#39;s transform. </div><div class="ttdef"><b>Definition:</b> anim.h:26</div></div>
+<div class="ttc" id="classmotive_1_1_rig_anim_html"><div class="ttname"><a href="classmotive_1_1_rig_anim.html">motive::RigAnim</a></div><div class="ttdoc">Animation for a RigMotivator. Drives a fully rigged model. </div><div class="ttdef"><b>Definition:</b> anim.h:67</div></div>
+<div class="ttc" id="classmotive_1_1_rig_anim_html_a437202b1f31209d651192e1f6300e707"><div class="ttname"><a href="classmotive_1_1_rig_anim.html#a437202b1f31209d651192e1f6300e707">motive::RigAnim::set_end_time</a></div><div class="ttdeci">void set_end_time(MotiveTime t)</div><div class="ttdef"><b>Definition:</b> anim.h:119</div></div>
+<div class="ttc" id="classmotive_1_1_rig_anim_html_af441c17dc6b82b59b302616eb71a5794"><div class="ttname"><a href="classmotive_1_1_rig_anim.html#af441c17dc6b82b59b302616eb71a5794">motive::RigAnim::BoneName</a></div><div class="ttdeci">const char * BoneName(BoneIndex idx) const </div><div class="ttdef"><b>Definition:</b> anim.h:97</div></div>
+<div class="ttc" id="classmotive_1_1_rig_anim_html_a4f833cb8b735a4e9438e02837f10bfbf"><div class="ttname"><a href="classmotive_1_1_rig_anim.html#a4f833cb8b735a4e9438e02837f10bfbf">motive::RigAnim::anim_name</a></div><div class="ttdeci">const std::string &amp; anim_name() const </div><div class="ttdef"><b>Definition:</b> anim.h:138</div></div>
+<div class="ttc" id="classmotive_1_1_rig_anim_html_a5376a80a92c911df51c135afe0cfd1a8"><div class="ttname"><a href="classmotive_1_1_rig_anim.html#a5376a80a92c911df51c135afe0cfd1a8">motive::RigAnim::set_repeat</a></div><div class="ttdeci">bool set_repeat(bool repeat)</div><div class="ttdoc">Set the repeat flag. </div><div class="ttdef"><b>Definition:</b> anim.h:134</div></div>
+<div class="ttc" id="classmotive_1_1_rig_anim_html_a8b9477e5fbb480ae82667314c399007c"><div class="ttname"><a href="classmotive_1_1_rig_anim.html#a8b9477e5fbb480ae82667314c399007c">motive::RigAnim::repeat</a></div><div class="ttdeci">bool repeat() const </div><div class="ttdef"><b>Definition:</b> anim.h:131</div></div>
+<div class="ttc" id="classmotive_1_1_matrix_anim_html_af898aef2e7649f9ff2e819b3de3c57dd"><div class="ttname"><a href="classmotive_1_1_matrix_anim.html#af898aef2e7649f9ff2e819b3de3c57dd">motive::MatrixAnim::ops</a></div><div class="ttdeci">const MatrixOpArray &amp; ops() const </div><div class="ttdoc">Return the op array. Const version is to initialize a MatrixMotivator. </div><div class="ttdef"><b>Definition:</b> anim.h:53</div></div>
+<div class="ttc" id="structmotive_1_1_matrix_anim_1_1_spline_html"><div class="ttname"><a href="structmotive_1_1_matrix_anim_1_1_spline.html">motive::MatrixAnim::Spline</a></div><div class="ttdef"><b>Definition:</b> anim.h:28</div></div>
+<div class="ttc" id="classmotive_1_1_rig_anim_html_a73e4d3343ced5096b683565b9db5aa2c"><div class="ttname"><a href="classmotive_1_1_rig_anim.html#a73e4d3343ced5096b683565b9db5aa2c">motive::RigAnim::Init</a></div><div class="ttdeci">void Init(const char *anim_name, BoneIndex num_bones, bool record_names)</div></div>
+<div class="ttc" id="classmotive_1_1_rig_anim_html_a26bfd5517aa1fe424d32d8f91ca40bc9"><div class="ttname"><a href="classmotive_1_1_rig_anim.html#a26bfd5517aa1fe424d32d8f91ca40bc9">motive::RigAnim::CsvHeaderForDebugging</a></div><div class="ttdeci">std::string CsvHeaderForDebugging(int line) const </div></div>
+<div class="ttc" id="classmotive_1_1_rig_anim_html_a2cf84a414461061b2176e91a7ca1db07"><div class="ttname"><a href="classmotive_1_1_rig_anim.html#a2cf84a414461061b2176e91a7ca1db07">motive::RigAnim::InitMatrixAnim</a></div><div class="ttdeci">MatrixAnim &amp; InitMatrixAnim(BoneIndex idx, BoneIndex parent, const char *bone_name)</div></div>
+<div class="ttc" id="classmotive_1_1_rig_anim_html_ac3ce8ac7afa9130b065c4598998158e0"><div class="ttname"><a href="classmotive_1_1_rig_anim.html#ac3ce8ac7afa9130b065c4598998158e0">motive::RigAnim::NumOps</a></div><div class="ttdeci">int NumOps() const </div><div class="ttdoc">Total number of matrix operations across all MatrixAnims in this RigAnim. </div></div>
+<div class="ttc" id="classmotive_1_1_rig_anim_html_a20490b086d1c84c2a3f989e2b950cee9"><div class="ttname"><a href="classmotive_1_1_rig_anim.html#a20490b086d1c84c2a3f989e2b950cee9">motive::RigAnim::end_time</a></div><div class="ttdeci">MotiveTime end_time() const </div><div class="ttdef"><b>Definition:</b> anim.h:115</div></div>
+<div class="ttc" id="classmotive_1_1_rig_anim_html_a7fa97eb68a27775f4a1afd0b4fa81061"><div class="ttname"><a href="classmotive_1_1_rig_anim.html#a7fa97eb68a27775f4a1afd0b4fa81061">motive::RigAnim::NumBones</a></div><div class="ttdeci">BoneIndex NumBones() const </div><div class="ttdef"><b>Definition:</b> anim.h:91</div></div>
+<div class="ttc" id="classmotive_1_1_smooth_init_html"><div class="ttname"><a href="classmotive_1_1_smooth_init.html">motive::SmoothInit</a></div><div class="ttdoc">Initialize a Motivator1f to follow a spline. </div><div class="ttdef"><b>Definition:</b> init.h:229</div></div>
+<div class="ttc" id="classmotive_1_1_rig_anim_html_a55cf7159175aefb411290c13c89eb206"><div class="ttname"><a href="classmotive_1_1_rig_anim.html#a55cf7159175aefb411290c13c89eb206">motive::RigAnim::NumCsvHeaderLines</a></div><div class="ttdeci">int NumCsvHeaderLines() const </div><div class="ttdef"><b>Definition:</b> anim.h:106</div></div>
+<div class="ttc" id="classmotive_1_1_compact_spline_html"><div class="ttname"><a href="classmotive_1_1_compact_spline.html">motive::CompactSpline</a></div><div class="ttdoc">Represent a smooth curve in a small amount of memory. </div><div class="ttdef"><b>Definition:</b> compact_spline.h:74</div></div>
+<div class="ttc" id="classmotive_1_1_matrix_anim_html_a58c0a85f3677a39b27e3c65765f567b9"><div class="ttname"><a href="classmotive_1_1_matrix_anim.html#a58c0a85f3677a39b27e3c65765f567b9">motive::MatrixAnim::ops</a></div><div class="ttdeci">MatrixOpArray &amp; ops()</div><div class="ttdoc">Return the op array. Non-const version is for construction. </div><div class="ttdef"><b>Definition:</b> anim.h:50</div></div>
+<div class="ttc" id="classmotive_1_1_matrix_op_array_html"><div class="ttname"><a href="classmotive_1_1_matrix_op_array.html">motive::MatrixOpArray</a></div><div class="ttdef"><b>Definition:</b> init.h:304</div></div>
+<div class="ttc" id="classmotive_1_1_matrix_anim_html_afa6785992047a35d322f75e45aac907e"><div class="ttname"><a href="classmotive_1_1_matrix_anim.html#afa6785992047a35d322f75e45aac907e">motive::MatrixAnim::Construct</a></div><div class="ttdeci">Spline * Construct(int num_splines)</div><div class="ttdef"><b>Definition:</b> anim.h:38</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->

@@ -107,7 +107,7 @@ $(document).ready(function(){initNavTree('classmotive_1_1_motive_target_builder_
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -139,15 +139,17 @@ class motive::MotiveTargetBuilderTemplate&lt; VectorConverter, kDimensionsT &gt;
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:ad1b5ab40e4647ba261c29459f879edaf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad1b5ab40e4647ba261c29459f879edaf"></a>
-typedef <a class="el" href="structfpl_1_1_external_vector_t.html">fpl::ExternalVectorT</a><br class="typebreak"/>
+<tr class="memitem:a3316e174664d68f9546490637d4c2565"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3316e174664d68f9546490637d4c2565"></a>
+typedef <br class="typebreak"/>
+<a class="el" href="structmotive_1_1_external_vector_t.html">motive::ExternalVectorT</a><br class="typebreak"/>
 &lt; VectorConverter, <br class="typebreak"/>
 kDimensionsT &gt;::type&#160;</td><td class="memItemRight" valign="bottom"><b>ExT</b></td></tr>
-<tr class="separator:ad1b5ab40e4647ba261c29459f879edaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2088c40c16b7a8820b4471d5c099b228"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2088c40c16b7a8820b4471d5c099b228"></a>
-typedef <a class="el" href="structfpl_1_1_internal_vector_t.html">fpl::InternalVectorT</a><br class="typebreak"/>
+<tr class="separator:a3316e174664d68f9546490637d4c2565"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b236c8fc030e2106b7be117b9e32c66"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3b236c8fc030e2106b7be117b9e32c66"></a>
+typedef <br class="typebreak"/>
+<a class="el" href="structmotive_1_1_internal_vector_t.html">motive::InternalVectorT</a><br class="typebreak"/>
 &lt; kDimensionsT &gt;::type&#160;</td><td class="memItemRight" valign="bottom"><b>InT</b></td></tr>
-<tr class="separator:a2088c40c16b7a8820b4471d5c099b228"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a3b236c8fc030e2106b7be117b9e32c66"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeffd79c70f78480bead32cb0a7575194"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aeffd79c70f78480bead32cb0a7575194"></a>
 typedef <a class="el" href="structmotive_1_1_motive_target_t.html">MotiveTargetT</a><br class="typebreak"/>
 &lt; kDimensionsT &gt;::type&#160;</td><td class="memItemRight" valign="bottom"><b>MotiveTarget</b></td></tr>
@@ -160,12 +162,12 @@ typedef const ExT &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>Ex
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a3fae83ec7c6690a5da65cec860644ac1"><td class="memItemLeft" align="right" valign="top">static MotiveTarget&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_target_builder_template.html#a3fae83ec7c6690a5da65cec860644ac1">Current</a> (ExIn current_value, ExIn current_velocity=ExT(0.0f))</td></tr>
 <tr class="separator:a3fae83ec7c6690a5da65cec860644ac1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeaab5983b46e09ccee419d3922504d5e"><td class="memItemLeft" align="right" valign="top">static MotiveTarget&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_target_builder_template.html#aeaab5983b46e09ccee419d3922504d5e">Target</a> (ExIn target_value, ExIn target_velocity, MotiveTime target_time, fpl::ModularDirection direction=fpl::kDirectionClosest)</td></tr>
-<tr class="separator:aeaab5983b46e09ccee419d3922504d5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b0adf20348269110c242ad60d3dc3ba"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2b0adf20348269110c242ad60d3dc3ba"></a>
-static MotiveTarget&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_target_builder_template.html#a2b0adf20348269110c242ad60d3dc3ba">CurrentToTarget</a> (ExIn current_value, ExIn current_velocity, ExIn target_value, ExIn target_velocity, MotiveTime target_time, fpl::ModularDirection direction=fpl::kDirectionClosest)</td></tr>
-<tr class="memdesc:a2b0adf20348269110c242ad60d3dc3ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set both the current and target values for an <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a>. <br/></td></tr>
-<tr class="separator:a2b0adf20348269110c242ad60d3dc3ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33627fc5566210036dd340d2fd7cfddc"><td class="memItemLeft" align="right" valign="top">static MotiveTarget&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_target_builder_template.html#a33627fc5566210036dd340d2fd7cfddc">Target</a> (ExIn target_value, ExIn target_velocity, MotiveTime target_time, motive::ModularDirection direction=motive::kDirectionClosest)</td></tr>
+<tr class="separator:a33627fc5566210036dd340d2fd7cfddc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8180991b73c6da386072d67cf126a06f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8180991b73c6da386072d67cf126a06f"></a>
+static MotiveTarget&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_target_builder_template.html#a8180991b73c6da386072d67cf126a06f">CurrentToTarget</a> (ExIn current_value, ExIn current_velocity, ExIn target_value, ExIn target_velocity, MotiveTime target_time, motive::ModularDirection direction=motive::kDirectionClosest)</td></tr>
+<tr class="memdesc:a8180991b73c6da386072d67cf126a06f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set both the current and target values for an <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a>. <br/></td></tr>
+<tr class="separator:a8180991b73c6da386072d67cf126a06f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a94735c40bcb071f8d4e9d746bfa01fa0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a94735c40bcb071f8d4e9d746bfa01fa0"></a>
 static MotiveTarget&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_target_builder_template.html#a94735c40bcb071f8d4e9d746bfa01fa0">CurrentToTargetConstVelocity</a> (ExIn current_value, ExIn target_value, MotiveTime target_time)</td></tr>
 <tr class="memdesc:a94735c40bcb071f8d4e9d746bfa01fa0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move from the current value to the target value at a constant speed. <br/></td></tr>
@@ -215,7 +217,7 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="aeaab5983b46e09ccee419d3922504d5e"></a>
+<a class="anchor" id="a33627fc5566210036dd340d2fd7cfddc"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -245,8 +247,8 @@ template&lt;class VectorConverter , int kDimensionsT&gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">fpl::ModularDirection&#160;</td>
-          <td class="paramname"><em>direction</em> = <code>fpl::kDirectionClosest</code>&#160;</td>
+          <td class="paramtype">motive::ModularDirection&#160;</td>
+          <td class="paramname"><em>direction</em> = <code>motive::kDirectionClosest</code>&#160;</td>
         </tr>
         <tr>
           <td></td>

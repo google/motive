@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['angle',['Angle',['../classfpl_1_1_angle.html',1,'fpl']]]
+  ['angle',['Angle',['../classmotive_1_1_angle.html',1,'motive']]],
+  ['animtable',['AnimTable',['../classmotive_1_1_anim_table.html',1,'motive']]]
 ];

@@ -107,7 +107,7 @@ $(document).ready(function(){initNavTree('classmotive_1_1_matrix_anim.html','');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -126,12 +126,12 @@ $(document).ready(function(){initNavTree('classmotive_1_1_matrix_anim.html','');
 </div><!--header-->
 <div class="contents">
 
-<p>Animation for a MatrixMotivator.  
+<p>Animation for a MatrixMotivator. Drives a single bone's transform.  
  <a href="classmotive_1_1_matrix_anim.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="anim_8h_source.html">anim.h</a>&gt;</code></p>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Animation for a MatrixMotivator. </p>
+<div class="textblock"><p>Animation for a MatrixMotivator. Drives a single bone's transform. </p>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -140,16 +140,52 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:afa6785992047a35d322f75e45aac907e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afa6785992047a35d322f75e45aac907e"></a>
-<a class="el" href="structmotive_1_1_matrix_anim_1_1_spline.html">Spline</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Construct</b> (int num_splines)</td></tr>
+<tr class="memitem:aebf3d3b9c777294744c176b60ae4fc0f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aebf3d3b9c777294744c176b60ae4fc0f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>MatrixAnim</b> (int expected_num_ops=0)</td></tr>
+<tr class="separator:aebf3d3b9c777294744c176b60ae4fc0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa6785992047a35d322f75e45aac907e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structmotive_1_1_matrix_anim_1_1_spline.html">Spline</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_anim.html#afa6785992047a35d322f75e45aac907e">Construct</a> (int num_splines)</td></tr>
 <tr class="separator:afa6785992047a35d322f75e45aac907e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae23382dcc1f673c891a0610736571786"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae23382dcc1f673c891a0610736571786"></a>
-<a class="el" href="classmotive_1_1_matrix_init.html">MatrixInit</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>init</b> ()</td></tr>
-<tr class="separator:ae23382dcc1f673c891a0610736571786"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd78c82a2209596dd14ed36aefecfcb3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afd78c82a2209596dd14ed36aefecfcb3"></a>
-const <a class="el" href="classmotive_1_1_matrix_init.html">MatrixInit</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>init</b> () const </td></tr>
-<tr class="separator:afd78c82a2209596dd14ed36aefecfcb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a58c0a85f3677a39b27e3c65765f567b9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a58c0a85f3677a39b27e3c65765f567b9"></a>
+<a class="el" href="classmotive_1_1_matrix_op_array.html">MatrixOpArray</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_anim.html#a58c0a85f3677a39b27e3c65765f567b9">ops</a> ()</td></tr>
+<tr class="memdesc:a58c0a85f3677a39b27e3c65765f567b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the op array. Non-const version is for construction. <br/></td></tr>
+<tr class="separator:a58c0a85f3677a39b27e3c65765f567b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af898aef2e7649f9ff2e819b3de3c57dd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af898aef2e7649f9ff2e819b3de3c57dd"></a>
+const <a class="el" href="classmotive_1_1_matrix_op_array.html">MatrixOpArray</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_anim.html#af898aef2e7649f9ff2e819b3de3c57dd">ops</a> () const </td></tr>
+<tr class="memdesc:af898aef2e7649f9ff2e819b3de3c57dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the op array. Const version is to initialize a MatrixMotivator. <br/></td></tr>
+<tr class="separator:af898aef2e7649f9ff2e819b3de3c57dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="afa6785992047a35d322f75e45aac907e"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structmotive_1_1_matrix_anim_1_1_spline.html">Spline</a>* motive::MatrixAnim::Construct </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num_splines</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>For construction. Allocates storage for spline data, and returns it. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">num_splines</td><td>Total number of splines in the animation. Not all ops use a spline (some are const ops). </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li><a class="el" href="anim_8h_source.html">anim.h</a></li>
 </ul>

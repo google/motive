@@ -2,6 +2,7 @@ var files =
 [
     [ "angle.h", "angle_8h_source.html", null ],
     [ "anim.h", "anim_8h_source.html", null ],
+    [ "anim_table.h", "anim__table_8h_source.html", null ],
     [ "benchmark.h", "benchmark_8h_source.html", null ],
     [ "bulk_spline_evaluator.h", "bulk__spline__evaluator_8h_source.html", null ],
     [ "common.h", "common_8h_source.html", null ],

@@ -1,6 +1,7 @@
 var NAVTREE =
 [
   [ "Motive Animation System", "index.html", [
+    [ "Overview", "index.html#motive_overview", null ],
     [ "Building", "usergroup0.html", [
       [ "Targets", "motive_guide_build_targets.html", null ],
       [ "Android", "motive_guide_android.html", null ],
@@ -23,6 +24,9 @@ var NAVTREE =
       [ "Processors", "motive_guide_processors.html", [
         [ "Example", "motive_guide_processors.html#motive_guide_processor_example", null ]
       ] ],
+      [ "Animation Data", "motive_guide_animation_data.html", null ],
+      [ "Animation Containers", "motive_guide_animation_containers.html", null ],
+      [ "Animation Pipeline", "motive_guide_anim_pipeline.html", null ],
       [ "Vector Types", "motive_guide_vector_types.html", [
         [ "Overview", "motive_guide_vector_types.html#motive_guide_vector_types_overview", null ],
         [ "Example", "motive_guide_vector_types.html#motive_guide_vector_types_example", null ],
@@ -38,7 +42,8 @@ var NAVTREE =
         [ "Class Members", "functions.html", [
           [ "All", "functions.html", "functions_dup" ],
           [ "Functions", "functions_func.html", "functions_func" ],
-          [ "Variables", "functions_vars.html", null ]
+          [ "Variables", "functions_vars.html", null ],
+          [ "Typedefs", "functions_type.html", null ]
         ] ]
       ] ],
       [ "File List", null, [
@@ -53,8 +58,8 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 ".html",
-"classmotive_1_1_motivator.html#a544f84511d8e0760e8734d9cd1d154e1",
-"structfpl_1_1_external_vector_t_3_01_vector_converter_00_014_01_4.html#ab8b04ec7b390a50f2dbc591d03194b7b"
+"classmotive_1_1_motivator_vector_template.html#add6dcde94a257f4dcd20c2b435ad6716",
+"functions_b.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

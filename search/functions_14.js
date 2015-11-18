@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['_7emotivator',['~Motivator',['../classmotive_1_1_motivator.html#a02db655d215a5bdc04cbadfcbf428556',1,'motive::Motivator']]]
+  ['x',['X',['../classmotive_1_1_bulk_spline_evaluator.html#a42e2b685d00a606945581237cc2168dd',1,'motive::BulkSplineEvaluator']]]
 ];

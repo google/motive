@@ -1,10 +1,13 @@
 var searchData=
 [
-  ['passthroughvectorconverter',['PassThroughVectorConverter',['../classfpl_1_1_pass_through_vector_converter.html',1,'fpl']]],
-  ['percent',['Percent',['../classfpl_1_1_range_t.html#ab72282135ce2c5357d91c0e7fceb05db',1,'fpl::RangeT']]],
-  ['percentclamped',['PercentClamped',['../classfpl_1_1_range_t.html#a26db0a24db36cdf83fa7c5e93ea12b81',1,'fpl::RangeT']]],
-  ['playback_5frate',['playback_rate',['../structfpl_1_1_spline_playback_n.html#aa9a381c61a68a3b8bce5cefa55113fc7',1,'fpl::SplinePlaybackN']]],
-  ['position',['Position',['../classmotive_1_1_motivator_matrix4f_template.html#a7dd5bab7f1aab17c3a777bb821d40afb',1,'motive::MotivatorMatrix4fTemplate']]],
-  ['priority',['Priority',['../classmotive_1_1_motive_processor.html#a358fddcc69dbd98a7d8f10e3a0784370',1,'motive::MotiveProcessor']]],
-  ['processor_5f',['processor_',['../classmotive_1_1_motivator.html#a795b24929c68a08483ab3b15c2693b86',1,'motive::Motivator']]]
+  ['operator_2a',['operator*',['../classmotive_1_1_range_t.html#ad140843bc2218bd701ce12034b024240',1,'motive::RangeT']]],
+  ['operator_2a_3d',['operator*=',['../classmotive_1_1_angle.html#a65ffad8b03736d56e53050d1fdc7f758',1,'motive::Angle']]],
+  ['operator_2b_3d',['operator+=',['../classmotive_1_1_angle.html#a130c7ba122730ba9454ffab48b0db6a4',1,'motive::Angle']]],
+  ['operator_2d',['operator-',['../classmotive_1_1_angle.html#a85032f12e00bdf858fba846a85a88adc',1,'motive::Angle']]],
+  ['operator_2d_3d',['operator-=',['../classmotive_1_1_angle.html#a29eec99f0d9904d1aaec46260b64aee9',1,'motive::Angle']]],
+  ['operator_2f_3d',['operator/=',['../classmotive_1_1_angle.html#a1b6c1e7f14ee3df21d7f60fc6e4643ed',1,'motive::Angle']]],
+  ['operator_3d',['operator=',['../classmotive_1_1_motivator.html#a34deb14e2560fe19082c498dac6854ce',1,'motive::Motivator']]],
+  ['operator_3d_3d',['operator==',['../classmotive_1_1_quadratic_curve.html#a147acc615f9c3a77dd64cf7520102692',1,'motive::QuadraticCurve::operator==()'],['../classmotive_1_1_cubic_curve.html#ab6a927aaba45a878ff32d7dec96a4799',1,'motive::CubicCurve::operator==()'],['../classmotive_1_1_range_t.html#aa0ca768fbeaf9bd36c5a7e287bbfdf35',1,'motive::RangeT::operator==()']]],
+  ['ops',['ops',['../classmotive_1_1_matrix_anim.html#a58c0a85f3677a39b27e3c65765f567b9',1,'motive::MatrixAnim::ops()'],['../classmotive_1_1_matrix_anim.html#af898aef2e7649f9ff2e819b3de3c57dd',1,'motive::MatrixAnim::ops() const ']]],
+  ['overshootinit',['OvershootInit',['../classmotive_1_1_overshoot_init.html',1,'motive']]]
 ];

@@ -107,7 +107,7 @@ $(document).ready(function(){initNavTree('classmotive_1_1_motive_processor.html'
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -137,8 +137,9 @@ Inheritance diagram for motive::MotiveProcessor:</div>
  <div class="center">
   <img src="classmotive_1_1_motive_processor.png" usemap="#motive::MotiveProcessor_map" alt=""/>
   <map id="motive::MotiveProcessor_map" name="motive::MotiveProcessor_map">
-<area href="classmotive_1_1_motive_processor_matrix4f.html" title="Interface for motivator types that drive a 4x4 float matrix. That is, for MotiveProcessors that inter..." alt="motive::MotiveProcessorMatrix4f" shape="rect" coords="0,56,196,80"/>
-<area href="classmotive_1_1_motive_processor_vector.html" title="Interface for motivator types that drive a single float value. That is, for MotiveProcessors that int..." alt="motive::MotiveProcessorVector" shape="rect" coords="206,56,402,80"/>
+<area href="classmotive_1_1_matrix_processor4f.html" title="Interface for motivator types that drive a 4x4 float matrix. That is, for MotiveProcessors that inter..." alt="motive::MatrixProcessor4f" shape="rect" coords="0,56,158,80"/>
+<area href="classmotive_1_1_rig_processor.html" alt="motive::RigProcessor" shape="rect" coords="168,56,326,80"/>
+<area href="classmotive_1_1_vector_processor.html" title="Interface for motivator types that drive a single float value. That is, for MotiveProcessors that int..." alt="motive::VectorProcessor" shape="rect" coords="336,56,494,80"/>
 </map>
  </div></div>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -175,6 +176,15 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:ae094019d539a02fe2790331d00041dc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac0ba78dcde1444a1c5b4640156c1380f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#ac0ba78dcde1444a1c5b4640156c1380f">VerifyInternalState</a> () const </td></tr>
 <tr class="separator:ac0ba78dcde1444a1c5b4640156c1380f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11dec9dedcfdb8170cb4e8ba21392a1a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a11dec9dedcfdb8170cb4e8ba21392a1a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>RegisterBenchmarks</b> ()</td></tr>
+<tr class="separator:a11dec9dedcfdb8170cb4e8ba21392a1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa67f4b339f995f95755309094bebafa2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa67f4b339f995f95755309094bebafa2"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>benchmark_id_for_advance_frame</b> () const </td></tr>
+<tr class="separator:aa67f4b339f995f95755309094bebafa2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a376c0cf16f225a60490f28cef972ec36"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a376c0cf16f225a60490f28cef972ec36"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>benchmark_id_for_init</b> () const </td></tr>
+<tr class="separator:a376c0cf16f225a60490f28cef972ec36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
@@ -354,6 +364,7 @@ Protected Member Functions</h2></td></tr>
     <tr><td class="paramname">init</td><td>The initialization parameters for the <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a>. Each <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a> has its own derivation of <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a>, and InitializeMotivator will only ever be called with that derivation. </td></tr>
     <tr><td class="paramname">engine</td><td>The owner of all the MotiveProcessors. An engine holds at most one of any type of <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>. The engine can be used to create child Motivators that drive <code>motivator</code>. </td></tr>
     <tr><td class="paramname">motivator</td><td>The <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> that is initialized to reference into This <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>. The <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a> also keeps a reference to <code>motivator</code> in case it shuffles around internal data. </td></tr>
+    <tr><td class="paramname">dimensions</td><td>The number of slots to consume in the <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>. For example, a 3D vector would consume three slots in a <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a> of floats. </td></tr>
   </table>
   </dd>
 </dl>

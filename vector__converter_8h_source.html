@@ -104,7 +104,7 @@ $(document).ready(function(){initNavTree('vector__converter_8h_source.html','');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -137,14 +137,14 @@ $(document).ready(function(){initNavTree('vector__converter_8h_source.html','');
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor"></span></div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="preprocessor">#include &quot;mathfu/glsl_mappings.h&quot;</span></div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keyword">namespace </span>fpl {</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="keyword">namespace </span>motive {</div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment"></span></div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment">/// @class PassThroughVectorConverter</span></div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment">/// @brief No-op conversion from mathfu types to mathfu types.</span></div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment">/// External types are also mathfu in this converter. Create your own converter</span></div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">/// if you&#39;d like to use your own vector types in your Motivators&#39;</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment">/// external API.</span></div>
-<div class="line"><a name="l00027"></a><span class="lineno"><a class="line" href="classfpl_1_1_pass_through_vector_converter.html">   27</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classfpl_1_1_pass_through_vector_converter.html">PassThroughVectorConverter</a> {</div>
+<div class="line"><a name="l00027"></a><span class="lineno"><a class="line" href="classmotive_1_1_pass_through_vector_converter.html">   27</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classmotive_1_1_pass_through_vector_converter.html">PassThroughVectorConverter</a> {</div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; <span class="keyword">public</span>:</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;  <span class="keyword">typedef</span> mathfu::vec2 ExternalVector2;</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;  <span class="keyword">typedef</span> mathfu::vec3 ExternalVector3;</div>
@@ -166,55 +166,55 @@ $(document).ready(function(){initNavTree('vector__converter_8h_source.html','');
 <div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">// Map a dimension onto the external vector type.</span></div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">// External types are specified by the VectorConverter, which is customizable.</span></div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class</span> VectorConverter, <span class="keywordtype">int</span>&gt;</div>
-<div class="line"><a name="l00049"></a><span class="lineno"><a class="line" href="structfpl_1_1_external_vector_t.html">   49</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfpl_1_1_external_vector_t.html">ExternalVectorT</a> {</div>
+<div class="line"><a name="l00049"></a><span class="lineno"><a class="line" href="structmotive_1_1_external_vector_t.html">   49</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structmotive_1_1_external_vector_t.html">ExternalVectorT</a> {</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  <span class="keyword">typedef</span> <span class="keywordtype">void</span> type;</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;};</div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class</span> VectorConverter&gt;</div>
-<div class="line"><a name="l00053"></a><span class="lineno"><a class="line" href="structfpl_1_1_external_vector_t_3_01_vector_converter_00_011_01_4.html">   53</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfpl_1_1_external_vector_t.html">ExternalVectorT</a>&lt;VectorConverter, 1&gt; {</div>
+<div class="line"><a name="l00053"></a><span class="lineno"><a class="line" href="structmotive_1_1_external_vector_t_3_01_vector_converter_00_011_01_4.html">   53</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structmotive_1_1_external_vector_t.html">ExternalVectorT</a>&lt;VectorConverter, 1&gt; {</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;  <span class="keyword">typedef</span> <span class="keywordtype">float</span> type;</div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;};</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class</span> VectorConverter&gt;</div>
-<div class="line"><a name="l00057"></a><span class="lineno"><a class="line" href="structfpl_1_1_external_vector_t_3_01_vector_converter_00_012_01_4.html">   57</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfpl_1_1_external_vector_t.html">ExternalVectorT</a>&lt;VectorConverter, 2&gt; {</div>
+<div class="line"><a name="l00057"></a><span class="lineno"><a class="line" href="structmotive_1_1_external_vector_t_3_01_vector_converter_00_012_01_4.html">   57</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structmotive_1_1_external_vector_t.html">ExternalVectorT</a>&lt;VectorConverter, 2&gt; {</div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="keyword">typedef</span> <span class="keyword">typename</span> VectorConverter::ExternalVector2 type;</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;};</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class</span> VectorConverter&gt;</div>
-<div class="line"><a name="l00061"></a><span class="lineno"><a class="line" href="structfpl_1_1_external_vector_t_3_01_vector_converter_00_013_01_4.html">   61</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfpl_1_1_external_vector_t.html">ExternalVectorT</a>&lt;VectorConverter, 3&gt; {</div>
+<div class="line"><a name="l00061"></a><span class="lineno"><a class="line" href="structmotive_1_1_external_vector_t_3_01_vector_converter_00_013_01_4.html">   61</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structmotive_1_1_external_vector_t.html">ExternalVectorT</a>&lt;VectorConverter, 3&gt; {</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;  <span class="keyword">typedef</span> <span class="keyword">typename</span> VectorConverter::ExternalVector3 type;</div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;};</div>
 <div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class</span> VectorConverter&gt;</div>
-<div class="line"><a name="l00065"></a><span class="lineno"><a class="line" href="structfpl_1_1_external_vector_t_3_01_vector_converter_00_014_01_4.html">   65</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfpl_1_1_external_vector_t.html">ExternalVectorT</a>&lt;VectorConverter, 4&gt; {</div>
+<div class="line"><a name="l00065"></a><span class="lineno"><a class="line" href="structmotive_1_1_external_vector_t_3_01_vector_converter_00_014_01_4.html">   65</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structmotive_1_1_external_vector_t.html">ExternalVectorT</a>&lt;VectorConverter, 4&gt; {</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;  <span class="keyword">typedef</span> <span class="keyword">typename</span> VectorConverter::ExternalVector4 type;</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;};</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">// Map a dimension onto the internal vector type.</span></div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment">// Internal types are from mathfu.</span></div>
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="keyword">template</span> &lt;<span class="keywordtype">int</span>&gt;</div>
-<div class="line"><a name="l00072"></a><span class="lineno"><a class="line" href="structfpl_1_1_internal_vector_t.html">   72</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfpl_1_1_internal_vector_t.html">InternalVectorT</a> {</div>
+<div class="line"><a name="l00072"></a><span class="lineno"><a class="line" href="structmotive_1_1_internal_vector_t.html">   72</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structmotive_1_1_internal_vector_t.html">InternalVectorT</a> {</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;  <span class="keyword">typedef</span> <span class="keywordtype">void</span> type;</div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;};</div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="keyword">template</span> &lt;&gt;</div>
-<div class="line"><a name="l00076"></a><span class="lineno"><a class="line" href="structfpl_1_1_internal_vector_t_3_011_01_4.html">   76</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfpl_1_1_internal_vector_t.html">InternalVectorT</a>&lt;1&gt; {</div>
+<div class="line"><a name="l00076"></a><span class="lineno"><a class="line" href="structmotive_1_1_internal_vector_t_3_011_01_4.html">   76</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structmotive_1_1_internal_vector_t.html">InternalVectorT</a>&lt;1&gt; {</div>
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;  <span class="keyword">typedef</span> <span class="keywordtype">float</span> type;</div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;};</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="keyword">template</span> &lt;&gt;</div>
-<div class="line"><a name="l00080"></a><span class="lineno"><a class="line" href="structfpl_1_1_internal_vector_t_3_012_01_4.html">   80</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfpl_1_1_internal_vector_t.html">InternalVectorT</a>&lt;2&gt; {</div>
+<div class="line"><a name="l00080"></a><span class="lineno"><a class="line" href="structmotive_1_1_internal_vector_t_3_012_01_4.html">   80</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structmotive_1_1_internal_vector_t.html">InternalVectorT</a>&lt;2&gt; {</div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  <span class="keyword">typedef</span> mathfu::vec2 type;</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;};</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="keyword">template</span> &lt;&gt;</div>
-<div class="line"><a name="l00084"></a><span class="lineno"><a class="line" href="structfpl_1_1_internal_vector_t_3_013_01_4.html">   84</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfpl_1_1_internal_vector_t.html">InternalVectorT</a>&lt;3&gt; {</div>
+<div class="line"><a name="l00084"></a><span class="lineno"><a class="line" href="structmotive_1_1_internal_vector_t_3_013_01_4.html">   84</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structmotive_1_1_internal_vector_t.html">InternalVectorT</a>&lt;3&gt; {</div>
 <div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  <span class="keyword">typedef</span> mathfu::vec3 type;</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;};</div>
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="keyword">template</span> &lt;&gt;</div>
-<div class="line"><a name="l00088"></a><span class="lineno"><a class="line" href="structfpl_1_1_internal_vector_t_3_014_01_4.html">   88</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structfpl_1_1_internal_vector_t.html">InternalVectorT</a>&lt;4&gt; {</div>
+<div class="line"><a name="l00088"></a><span class="lineno"><a class="line" href="structmotive_1_1_internal_vector_t_3_014_01_4.html">   88</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structmotive_1_1_internal_vector_t.html">InternalVectorT</a>&lt;4&gt; {</div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;  <span class="keyword">typedef</span> mathfu::vec4 type;</div>
 <div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;};</div>
 <div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;}  <span class="comment">// namespace fpl</span></div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;}  <span class="comment">// namespace motive</span></div>
 <div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;</div>
 <div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="preprocessor">#endif  // MOTIVE_MATH_VECTOR_CONVERTER_H</span></div>
-<div class="ttc" id="structfpl_1_1_internal_vector_t_html"><div class="ttname"><a href="structfpl_1_1_internal_vector_t.html">fpl::InternalVectorT</a></div><div class="ttdef"><b>Definition:</b> vector_converter.h:72</div></div>
-<div class="ttc" id="classfpl_1_1_pass_through_vector_converter_html"><div class="ttname"><a href="classfpl_1_1_pass_through_vector_converter.html">fpl::PassThroughVectorConverter</a></div><div class="ttdoc">No-op conversion from mathfu types to mathfu types. External types are also mathfu in this converter...</div><div class="ttdef"><b>Definition:</b> vector_converter.h:27</div></div>
-<div class="ttc" id="structfpl_1_1_external_vector_t_html"><div class="ttname"><a href="structfpl_1_1_external_vector_t.html">fpl::ExternalVectorT</a></div><div class="ttdef"><b>Definition:</b> vector_converter.h:49</div></div>
+<div class="ttc" id="structmotive_1_1_internal_vector_t_html"><div class="ttname"><a href="structmotive_1_1_internal_vector_t.html">motive::InternalVectorT</a></div><div class="ttdef"><b>Definition:</b> vector_converter.h:72</div></div>
+<div class="ttc" id="classmotive_1_1_pass_through_vector_converter_html"><div class="ttname"><a href="classmotive_1_1_pass_through_vector_converter.html">motive::PassThroughVectorConverter</a></div><div class="ttdoc">No-op conversion from mathfu types to mathfu types. External types are also mathfu in this converter...</div><div class="ttdef"><b>Definition:</b> vector_converter.h:27</div></div>
+<div class="ttc" id="structmotive_1_1_external_vector_t_html"><div class="ttname"><a href="structmotive_1_1_external_vector_t.html">motive::ExternalVectorT</a></div><div class="ttdef"><b>Definition:</b> vector_converter.h:49</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->

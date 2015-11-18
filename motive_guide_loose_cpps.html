@@ -93,7 +93,7 @@ $(document).ready(function(){initNavTree('motive_guide_loose_cpps.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -107,7 +107,7 @@ $(document).ready(function(){initNavTree('motive_guide_loose_cpps.html','');});
 <div class="title">Building Motive from Loose Cpp Files </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>If you prefer, you can ignore the included build scripts, and manually add Motive to your build system by simply,</p>
+<div class="textblock"><p>If you prefer, you can ignore the included build scripts, and manually add <a class="el" href="index.html#motive_overview">Motive</a> to your build system by simply,</p>
 <ul>
 <li>compliling the files under <code>motive/src</code></li>
 <li>adding <code>motive/include</code> to your list of include directories</li>
@@ -116,7 +116,7 @@ $(document).ready(function(){initNavTree('motive_guide_loose_cpps.html','');});
 <p>Note also that compilation of <code>motive/src/io/flatbuffers.cpp</code> is optional (see <a class="el" href="motive_guide_loose_cpps.html#motive_guide_flatbuffers">below</a>).</p>
 <h1><a class="anchor" id="motive_guide_simd"></a>
 Enabling SIMD</h1>
-<p>Motive runs best with <code>mathfu</code>'s <a href="http://en.wikipedia.org/wiki/SIMD">SIMD</a> support enabled. Support is enabled by default, but you may have to add a compiler flags to enable <a href="http://en.wikipedia.org/wiki/SIMD">SIMD</a> instructions on your compiler. Please see the <code>enable_simd</code> section of <a href="https://github.com/google/mathfu">MathFu</a>'s <code>CMakeLists.txt</code> file for details.</p>
+<p><a class="el" href="index.html#motive_overview">Motive</a> runs best with <code>mathfu</code>'s <a href="http://en.wikipedia.org/wiki/SIMD">SIMD</a> support enabled. Support is enabled by default, but you may have to add a compiler flags to enable <a href="http://en.wikipedia.org/wiki/SIMD">SIMD</a> instructions on your compiler. Please see the <code>enable_simd</code> section of <a href="https://github.com/google/mathfu">MathFu</a>'s <code>CMakeLists.txt</code> file for details.</p>
 <h1><a class="anchor" id="motive_guide_compile_defines"></a>
 Compile Defines</h1>
 <p>You can add defines to enable the options below. For example, use /D<code>define_name</code> with the Visual Studio (or use <code>Configuration Properties\ C,C++ \ Preprocessor</code>), or -D<code>define_name</code> on g++.</p>
@@ -128,10 +128,10 @@ Compile Defines</h1>
 </ul>
 <h1><a class="anchor" id="motive_guide_flatbuffers"></a>
 Building Motive's FlatBuffer Support from Loose Cpps</h1>
-<p>You can optionally use <a href="https://github.com/google/flatbuffers">FlatBuffers</a> to quickly load your Motive data in binary format, and to easily edit your data in text format (<a href="http://json.org">json</a>).</p>
-<p>Motive's FlatBuffer support is accessed with <code>motive/include/io/flatbuffers.h</code>. To add support for this header, you'll need to compile <code>motive/src/io/flatbuffers.cpp</code>.</p>
+<p>You can optionally use <a href="https://github.com/google/flatbuffers">FlatBuffers</a> to quickly load your <a class="el" href="index.html#motive_overview">Motive</a> data in binary format, and to easily edit your data in text format (<a href="http://json.org">json</a>).</p>
+<p><a class="el" href="index.html#motive_overview">Motive</a>'s FlatBuffer support is accessed with <code>motive/include/io/flatbuffers.h</code>. To add support for this header, you'll need to compile <code>motive/src/io/flatbuffers.cpp</code>.</p>
 <p>Before you compile <code>motive/src/io/flatbuffers.cpp</code>, you need to call the FlatBuffer compiler <code>flatc</code> to generate a header file for motive's FlatBuffer schemas.</p>
-<div class="fragment"><div class="line">flatc --gen-includes -o generated_includes -c motive/schemas/motive.fbs</div>
+<div class="fragment"><div class="line">flatc -o generated_includes -c motive/schemas/motive.fbs</div>
 </div><!-- fragment --><p>This will create <code>generated_includes/motive_generated.h</code>. You should add <code>generated_includes</code> to your include path when compiling <code>motive/src/io/flatbuffers.cpp</code>.</p>
 <p>The <code>flatc</code> compiler can be downloaded from the latest <a href="https://github.com/google/flatbuffers/releases">FlatBuffer release</a>, or you can build it yourself (see <a href="https://google.github.io/flatbuffers/md__building.html">FlatBuffers build instructions</a>).</p>
 <p><br/>

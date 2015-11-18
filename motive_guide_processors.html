@@ -93,7 +93,7 @@ $(document).ready(function(){initNavTree('motive_guide_processors.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -109,8 +109,8 @@ $(document).ready(function(){initNavTree('motive_guide_processors.html','');});
 <div class="contents">
 <div class="textblock"><h1>Creating Your Own Animation Algorithms</h1>
 <p>An animation algorithm is a formula that describes the motion of a variable. Each animation algorithm is processed by a <code>MotiveProcessor</code>.</p>
-<p>A <code>MotiveProcessor</code> holds the data for <em>every</em> <code>Motivator</code> that uses its algorithm. Once per frame, <code>MotiveProcessor::AdvanceFrame</code> is called and <em>all</em> <code>Motivator</code>s are updated, in bulk. This bulk storage and processing allows us to optimize with SIMD and multiple threads, which is important for scalability.</p>
-<p>You can add your own custom animation algorithms by deriving classes from one of the <code>MotiveProcessor</code> subclasses. To create a class that animates a one-dimensional variable, derive from <code>MotiveProcessor1f</code>. For a 4x4 matrix variable, derive from <code>MotiveProcessorMatrix4f</code>.</p>
+<p>A <code>MotiveProcessor</code> holds the data for <em>every</em> <code>Motivator</code> that uses its algorithm. Once per frame, <code>MotiveProcessor::AdvanceFrame</code> is called and <em>all</em> <code>Motivators</code> are updated, in bulk. This bulk storage and processing allows us to optimize with SIMD and multiple threads, which is important for scalability.</p>
+<p>You can add your own custom animation algorithms by deriving classes from one of the <code>MotiveProcessor</code> subclasses. To create a class that animates a one-dimensional variable, derive from <code>MotiveProcessor1f</code>. For a 4x4 matrix variable, derive from <code>MatrixProcessor4f</code>.</p>
 <h1><a class="anchor" id="motive_guide_processor_example"></a>
 Example</h1>
 <p>Each <code>MotiveProcessor</code> subclass has its own interface that must be instantiated by your derivation. Additionally, there are macros MOTIVE_INTERFACE() and MOTIVE_INSTANCE() that you must add to your code.</p>

@@ -92,6 +92,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li class="current"><a href="functions.html"><span>All</span></a></li>
       <li><a href="functions_func.html"><span>Functions</span></a></li>
       <li><a href="functions_vars.html"><span>Variables</span></a></li>
+      <li><a href="functions_type.html"><span>Typedefs</span></a></li>
     </ul>
   </div>
   <div id="navrow4" class="tabs3">
@@ -102,12 +103,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
       <li class="current"><a href="functions_d.html#index_d"><span>d</span></a></li>
       <li><a href="functions_e.html#index_e"><span>e</span></a></li>
       <li><a href="functions_f.html#index_f"><span>f</span></a></li>
+      <li><a href="functions_g.html#index_g"><span>g</span></a></li>
       <li><a href="functions_i.html#index_i"><span>i</span></a></li>
       <li><a href="functions_l.html#index_l"><span>l</span></a></li>
       <li><a href="functions_m.html#index_m"><span>m</span></a></li>
       <li><a href="functions_n.html#index_n"><span>n</span></a></li>
       <li><a href="functions_o.html#index_o"><span>o</span></a></li>
       <li><a href="functions_p.html#index_p"><span>p</span></a></li>
+      <li><a href="functions_q.html#index_q"><span>q</span></a></li>
       <li><a href="functions_r.html#index_r"><span>r</span></a></li>
       <li><a href="functions_s.html#index_s"><span>s</span></a></li>
       <li><a href="functions_t.html#index_t"><span>t</span></a></li>
@@ -139,7 +142,7 @@ $(document).ready(function(){initNavTree('functions_d.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -152,13 +155,21 @@ $(document).ready(function(){initNavTree('functions_d.html','');});
 <div class="textblock">Here is a list of all documented class members with links to the class documentation for each member:</div>
 
 <h3><a class="anchor" id="index_d"></a>- d -</h3><ul>
+<li>DefiningAnim()
+: <a class="el" href="classmotive_1_1_anim_table.html#a305a314e38340dd463aa279e4a054835">motive::AnimTable</a>
+, <a class="el" href="classmotive_1_1_rig_motivator.html#ad77b032bcf70f8029bd16bce76d2a835">motive::RigMotivator</a>
+, <a class="el" href="classmotive_1_1_rig_processor.html#aa6d38ab390154a3021b33b3b18c887ec">motive::RigProcessor</a>
+</li>
 <li>Defragment()
 : <a class="el" href="classmotive_1_1_motive_processor.html#a4b9c5ed2a91be1f64bc2a34d2c32fb27">motive::MotiveProcessor</a>
 </li>
 <li>Derivative()
-: <a class="el" href="classfpl_1_1_bulk_spline_evaluator.html#a40328cb9d62d8bbb1bbc63b7771c7a47">fpl::BulkSplineEvaluator</a>
-, <a class="el" href="classfpl_1_1_cubic_curve.html#a990e42503a121862d925c2b767b1d026">fpl::CubicCurve</a>
-, <a class="el" href="classfpl_1_1_quadratic_curve.html#afa1f26eb123ad398fd12a27c8e89309d">fpl::QuadraticCurve</a>
+: <a class="el" href="classmotive_1_1_bulk_spline_evaluator.html#afce9b7c3e92506300783c309440c6460">motive::BulkSplineEvaluator</a>
+, <a class="el" href="classmotive_1_1_cubic_curve.html#a7428743f68fb85ee0da250ac0f4b4938">motive::CubicCurve</a>
+, <a class="el" href="classmotive_1_1_quadratic_curve.html#a5340bc1a827d84f5d5116881f5ae760f">motive::QuadraticCurve</a>
+</li>
+<li>DerivativeWithoutPlayback()
+: <a class="el" href="classmotive_1_1_bulk_spline_evaluator.html#abc21ffc48181a007c6e1ffc061899328">motive::BulkSplineEvaluator</a>
 </li>
 <li>Difference()
 : <a class="el" href="classmotive_1_1_motivator_vector_template.html#ae2545e9e68f328eb3f0106c7953ea8fd">motive::MotivatorVectorTemplate&lt; VectorConverter, kDimensionsT &gt;</a>
@@ -167,14 +178,17 @@ $(document).ready(function(){initNavTree('functions_d.html','');});
 : <a class="el" href="classmotive_1_1_motivator.html#a3deff2046c318a5a2aeccaf9a892692d">motive::Motivator</a>
 , <a class="el" href="classmotive_1_1_motive_processor.html#ae094019d539a02fe2790331d00041dc6">motive::MotiveProcessor</a>
 </li>
+<li>Direction()
+: <a class="el" href="classmotive_1_1_motivator_vector_template.html#a7ded60d21fe2e7746eb2040398cb6110">motive::MotivatorVectorTemplate&lt; VectorConverter, kDimensionsT &gt;</a>
+</li>
 <li>direction
-: <a class="el" href="structmotive_1_1_motive_node1f.html#a831373eeed3fde8ed80a4fb0253ca78a">motive::MotiveNode1f</a>
+: <a class="el" href="structmotive_1_1_motive_node1f.html#a9a03178a62fdf523ba36959e85542db6">motive::MotiveNode1f</a>
 </li>
 <li>Discriminant()
-: <a class="el" href="classfpl_1_1_quadratic_curve.html#a3175e00058750f769f491117e99cb73d">fpl::QuadraticCurve</a>
+: <a class="el" href="classmotive_1_1_quadratic_curve.html#aa3f0c831b06d590ae7062cb52ffba57e">motive::QuadraticCurve</a>
 </li>
 <li>DistanceFrom()
-: <a class="el" href="classfpl_1_1_range_t.html#a5b74519b2921ab408c7c02564e2a6433">fpl::RangeT&lt; T &gt;</a>
+: <a class="el" href="classmotive_1_1_range_t.html#a19147d320516298553c578b9c8c4d2e8">motive::RangeT&lt; T &gt;</a>
 </li>
 </ul>
 </div><!-- contents -->

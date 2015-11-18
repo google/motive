@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['compactspline',['CompactSpline',['../classfpl_1_1_compact_spline.html',1,'fpl']]],
-  ['cubiccurve',['CubicCurve',['../classfpl_1_1_cubic_curve.html',1,'fpl']]],
-  ['cubicinit',['CubicInit',['../structfpl_1_1_cubic_init.html',1,'fpl']]]
+  ['compactspline',['CompactSpline',['../classmotive_1_1_compact_spline.html',1,'motive']]],
+  ['cubiccurve',['CubicCurve',['../classmotive_1_1_cubic_curve.html',1,'motive']]],
+  ['cubicinit',['CubicInit',['../structmotive_1_1_cubic_init.html',1,'motive']]]
 ];
