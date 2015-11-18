@@ -7,28 +7,23 @@ bin/*_test
 bin/*_sample
 *.bin
 *.a
-benchmarker/apks/
-benchmarker/bin/
-benchmarker/build.xml
-benchmarker/libs/
-benchmarker/local.properties
-benchmarker/obj/
-benchmarker/proguard-project.txt
-benchmarker/project.properties
-src/benchmarker/*.xcodeproj
-src/tests/googletest
 
 # CMake files
 CMakeCache.txt
 CMakeFiles/
 CMakeScripts/
 cmake_install.cmake
-tests/Debug/
-tests/Release/
-tests/audio_engine_test.dir/
 
 # Gnumake
 Makefile
+
+# Android files
+src/*/apks/
+src/*/*/bin/
+src/*/*/build.xml
+src/*/*/local.properties
+src/*/*/proguard-project.txt
+src/*/*/project.properties
 
 # Visual Studio files
 *.opensdf
@@ -47,6 +42,7 @@ pingme.txt
 # XCode files
 motive.xcodeproj/
 tests/googletest/
+src/*/*.xcodeproj
 
 # qt creator
 *.cbp
@@ -56,4 +52,5 @@ tags
 docs/html/
 docs/linklint_results/
 gen/
+
 

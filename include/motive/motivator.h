@@ -119,7 +119,7 @@ class Motivator {
 
   /// The MotiveProcessor uses the functions below. It does not modify data
   /// directly.
-  friend MotiveProcessor;
+  friend class MotiveProcessor;
 
   /// These should only be called by MotiveProcessor!
   void Init(MotiveProcessor* processor, MotiveIndex index) {
