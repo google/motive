@@ -10,6 +10,3 @@
 [submodule "dependencies/mathfu"]
 	path = dependencies/mathfu
 	url = http://github.com/google/mathfu.git
-[submodule "dependencies/vectorial"]
-	path = dependencies/vectorial
-	url = http://github.com/google/mathfu.git
