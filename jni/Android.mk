@@ -12,13 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-LOCAL_PATH := $(realpath $(call my-dir))
+LOCAL_PATH := $(call my-dir)
 
 MOTIVE_RELATIVE_DIR := ..
 MOTIVE_DIR := $(LOCAL_PATH)/$(MOTIVE_RELATIVE_DIR)
 
 include $(MOTIVE_DIR)/jni/android_config.mk
 include $(DEPENDENCIES_FLATBUFFERS_DIR)/android/jni/include.mk
+
+# realpath-portable From flatbuffers/android/jni/include.mk
+LOCAL_PATH := $(call realpath-portable,$(LOCAL_PATH))
+MOTIVE_DIR := $(call realpath-portable,$(MOTIVE_DIR))
 
 MOTIVE_STATIC_LIBRARIES := libmathfu cpufeatures
 
