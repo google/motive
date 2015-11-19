@@ -125,7 +125,7 @@ Simple example</h1>
 <div class="line">                                     Tar2f::Current(kDuckStartPosition));</div>
 <div class="line"></div>
 <div class="line">  <span class="comment">// Smoothly transition the duck to wherever a touch occurs.</span></div>
-<div class="line">  <span class="keywordflow">while</span> (<span class="keyword">true</span>) {</div>
+<div class="line">  <span class="keywordflow">while</span> (FollowDuck()) {</div>
 <div class="line">    vec2 touch_position;</div>
 <div class="line">    <span class="keywordflow">if</span> (ScreenTouch(&amp;touch_position)) {</div>
 <div class="line">      <span class="comment">// Set the duck&#39;s target position, velocity, and time.</span></div>
