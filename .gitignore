@@ -3,6 +3,7 @@ libs/
 obj/
 bin/flatc
 bin/flathash
+bin/benchmarker
 bin/*_test
 bin/*_sample
 *.bin
@@ -24,6 +25,11 @@ src/*/*/build.xml
 src/*/*/local.properties
 src/*/*/proguard-project.txt
 src/*/*/project.properties
+src/*/bin/
+src/*/build.xml
+src/*/local.properties
+src/*/proguard-project.txt
+src/*/project.properties
 
 # Visual Studio files
 *.opensdf

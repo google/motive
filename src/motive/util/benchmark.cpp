@@ -18,6 +18,7 @@
 #include <limits>
 #include <math.h>
 #include <sstream>
+#include <stdint.h>
 #include <vector>
 #include "motive/util/benchmark.h"
 #include "benchmark_common.h" // From mathfu
@@ -91,7 +92,7 @@ BenchmarkTime SampleAnalyzer<T>::StandardDeviation(BenchmarkTime average) const 
   const BenchmarkTime count = samples_.size();
   const BenchmarkTime deviation_squared = (deviation_sum + count / 2) / count;
   const double deviation = sqrt(static_cast<double>(deviation_squared));
-  const double deviation_rounded = round(deviation);
+  const double deviation_rounded = floor(deviation + 0.5);
   return static_cast<BenchmarkTime>(deviation_rounded);
 }
 
@@ -121,7 +122,7 @@ void SampleAnalyzer<T>::Histogram(BenchmarkTime min, BenchmarkTime max,
   const BenchmarkTime num_buckets = buckets.size();
   const BenchmarkTime width = max - min;
   if (width == 0) {
-    buckets[0] = samples_.size();
+    buckets[0] = static_cast<BucketType>(samples_.size());
     return;
   }
 
@@ -131,7 +132,7 @@ void SampleAnalyzer<T>::Histogram(BenchmarkTime min, BenchmarkTime max,
     const BenchmarkTime t = *it;
     const BenchmarkTime bucket = (num_buckets - 1) * (t - min) / (max - min);
     assert(bucket < num_buckets);
-    buckets[bucket]++;
+    buckets[static_cast<size_t>(bucket)]++;
   }
 }
 

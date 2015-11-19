@@ -15,13 +15,29 @@
 # 3. This notice may not be removed or altered from any source distribution.
 cmake_minimum_required(VERSION 2.8.12)
 
-# This is the directory into which the executables are built.
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../bin")
-set(COMMON_LIBS "motive;${CMAKE_THREAD_LIBS_INIT}")
+project(benchmarker)
 
+# This is the motive directory, which is a parent of the current directory.
+get_filename_component(motive_dir "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
+
+# This is the directory into which the executables are built.
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${motive_dir}/bin)
+
+set(COMMON_LIBS "motive;${CMAKE_THREAD_LIBS_INIT}")
 set(tmp_dir ${CMAKE_BINARY_DIR}/obj)
-get_filename_component(fpl_root "${CMAKE_SOURCE_DIR}/../../.." ABSOLUTE)
-set(dependencies_motive_dir "${fpl_root}/motive"
+
+# If the dependencies directory exists, assume this is the root directory for
+# all libraries required by this project.
+get_filename_component(fpl_root "${motive_dir}/.." ABSOLUTE)
+if(NOT DEFINED dependencies_root)
+  set(dependencies_root "${motive_dir}/dependencies"
+      CACHE PATH "Directory holding the dependencies, when pulled from github.")
+  if(EXISTS "${dependencies_root}")
+    set(fpl_root "${dependencies_root}")
+  endif()
+endif()
+
+set(dependencies_motive_dir "${motive_dir}"
     CACHE PATH "Directory containing the motive animation library.")
 set(dependencies_mathfu_dir "${fpl_root}/mathfu"
     CACHE PATH "Directory containing the MathFu library.")
@@ -51,6 +67,7 @@ endif()
 set(C_FLAGS_WARNINGS "")
 if(MSVC)
   set(C_FLAGS_WARNINGS "/W4 /WX")
+  add_definitions(-DNOMINMAX)
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR
        CMAKE_COMPILER_IS_CLANGXX)
   add_definitions(-g)
