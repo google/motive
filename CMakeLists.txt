@@ -160,6 +160,7 @@ endif()
 set(C_FLAGS_WARNINGS "")
 if(MSVC)
   set(C_FLAGS_WARNINGS "/W4 /WX /wd4065 /wd4355")
+  add_definitions(-DNOMINMAX)
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR
        CMAKE_COMPILER_IS_CLANGXX)
   add_definitions(-g)

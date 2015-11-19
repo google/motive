@@ -15,6 +15,8 @@
 # 3. This notice may not be removed or altered from any source distribution.
 cmake_minimum_required(VERSION 2.8.12)
 
+project(benchmarker)
+
 # This is the motive directory, which is a parent of the current directory.
 get_filename_component(motive_dir "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
 
@@ -28,7 +30,8 @@ set(tmp_dir ${CMAKE_BINARY_DIR}/obj)
 # all libraries required by this project.
 get_filename_component(fpl_root "${motive_dir}/.." ABSOLUTE)
 if(NOT DEFINED dependencies_root)
-  set(dependencies_root "${motive_dir}/dependencies")
+  set(dependencies_root "${motive_dir}/dependencies"
+      CACHE PATH "Directory holding the dependencies, when pulled from github.")
   if(EXISTS "${dependencies_root}")
     set(fpl_root "${dependencies_root}")
   endif()
@@ -64,6 +67,7 @@ endif()
 set(C_FLAGS_WARNINGS "")
 if(MSVC)
   set(C_FLAGS_WARNINGS "/W4 /WX")
+  add_definitions(-DNOMINMAX)
 elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR
        CMAKE_COMPILER_IS_CLANGXX)
   add_definitions(-g)
