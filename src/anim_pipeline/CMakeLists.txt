@@ -99,7 +99,7 @@ set(mathfu_build_tests OFF CACHE BOOL "")
 add_subdirectory(${dependencies_mathfu_dir} ${tmp_dir}/mathfu)
 
 # We use file_util.h from fplutil.
-set(fplutil_build_tests OFF)
+set(fplutil_build_tests OFF CACHE BOOL "")
 add_subdirectory("${dependencies_fplutil_dir}/libfplutil" ${tmp_dir}/fplutil)
 
 # Setup include directories.
