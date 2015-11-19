@@ -43,6 +43,9 @@ static bool ScreenTouch(vec2* touch_position) {
 }
 
 // Placeholder implementation. This code is not included in the sample code.
+static bool FollowDuck() { return true; }
+
+// Placeholder implementation. This code is not included in the sample code.
 static void DrawDuck(const vec2& /*position*/, const vec2& /*velocity*/) {}
 
 int main() {
@@ -64,7 +67,7 @@ int main() {
                                      Tar2f::Current(kDuckStartPosition));
 
   // Smoothly transition the duck to wherever a touch occurs.
-  while (true) {
+  while (FollowDuck()) {
     vec2 touch_position;
     if (ScreenTouch(&touch_position)) {
       // Set the duck's target position, velocity, and time.

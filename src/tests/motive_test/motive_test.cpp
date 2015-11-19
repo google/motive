@@ -710,7 +710,8 @@ void SplineTime(MotiveTests& t) {
   // Create a motivator that plays `spline` from kStartTime, and repeats
   // at the start when it reaches the end.
   MotivatorT angle(t.smooth_angle_init(), &t.engine());
-  angle.SetSplines(splines, SplinePlayback(kStartTime, true));
+  angle.SetSplines(splines,
+                   SplinePlayback(static_cast<float>(kStartTime), true));
 
   // When we start, the spline time should be the same as the start time.
   EXPECT_EQ(angle.SplineTime(), kStartTime);
@@ -740,7 +741,7 @@ void SetSplineTime(MotiveTests& t) {
 
   // Create a motivator that plays `spline` from kStartTime.
   MotivatorT angle(t.smooth_angle_init(), &t.engine());
-  angle.SetSplines(splines, SplinePlayback(kStartTime));
+  angle.SetSplines(splines, SplinePlayback(static_cast<float>(kStartTime)));
 
   // Set to time 0.
   const float start_value = splines[0].StartY();
