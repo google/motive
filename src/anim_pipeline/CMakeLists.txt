@@ -28,7 +28,8 @@ set(tmp_dir ${CMAKE_BINARY_DIR}/obj)
 # all libraries required by this project.
 get_filename_component(fpl_root "${motive_dir}/.." ABSOLUTE)
 if(NOT DEFINED dependencies_root)
-  set(dependencies_root "${motive_dir}/dependencies")
+  set(dependencies_root "${motive_dir}/dependencies" CACHE PATH
+      "Directory holding the dependencies pulled from github.")
   if(EXISTS "${dependencies_root}")
     set(fpl_root "${dependencies_root}")
   endif()
