@@ -257,9 +257,9 @@ TEST_F(SplineTests, Overshoot) {
     const Range x_range(-kXGranularityScale,
                         init.width_x * (1.0f + kXGranularityScale));
     const Range y_range = CubicInitYRange(init, 0.001f);
-    for (size_t i = 0; i < d.points.size(); ++i) {
-      EXPECT_TRUE(x_range.Contains(d.points[i].x()));
-      EXPECT_TRUE(y_range.Contains(d.points[i].y()));
+    for (size_t j = 0; j < d.points.size(); ++j) {
+      EXPECT_TRUE(x_range.Contains(d.points[j].x()));
+      EXPECT_TRUE(y_range.Contains(d.points[j].y()));
     }
   }
 }
@@ -278,14 +278,14 @@ TEST_F(SplineTests, MirrorY) {
 
     EXPECT_EQ(d.points.size(), mirrored_d.points.size());
     const int num_points = static_cast<int>(d.points.size());
-    for (int i = 0; i < num_points; ++i) {
-      EXPECT_EQ(d.points[i].x(), mirrored_d.points[i].x());
-      EXPECT_NEAR(d.points[i].y(), -mirrored_d.points[i].y(), y_precision);
-      EXPECT_NEAR(d.derivatives[i].first, -mirrored_d.derivatives[i].first,
+    for (int j = 0; j < num_points; ++j) {
+      EXPECT_EQ(d.points[j].x(), mirrored_d.points[j].x());
+      EXPECT_NEAR(d.points[j].y(), -mirrored_d.points[j].y(), y_precision);
+      EXPECT_NEAR(d.derivatives[j].first, -mirrored_d.derivatives[j].first,
                   kDerivativePrecision);
-      EXPECT_NEAR(d.derivatives[i].second, -mirrored_d.derivatives[i].second,
+      EXPECT_NEAR(d.derivatives[j].second, -mirrored_d.derivatives[j].second,
                   kSecondDerivativePrecision);
-      EXPECT_NEAR(d.derivatives[i].third, -mirrored_d.derivatives[i].third,
+      EXPECT_NEAR(d.derivatives[j].third, -mirrored_d.derivatives[j].third,
                   kThirdDerivativePrecision);
     }
   }
@@ -307,15 +307,15 @@ TEST_F(SplineTests, ScaleX) {
 
     EXPECT_EQ(d.points.size(), scaled_d.points.size());
     const int num_points = static_cast<int>(d.points.size());
-    for (int i = 0; i < num_points; ++i) {
-      EXPECT_NEAR(d.points[i].x(), scaled_d.points[i].x() / kScale,
+    for (int j = 0; j < num_points; ++j) {
+      EXPECT_NEAR(d.points[j].x(), scaled_d.points[j].x() / kScale,
                   x_precision);
-      EXPECT_NEAR(d.points[i].y(), scaled_d.points[i].y(), y_precision);
-      EXPECT_NEAR(d.derivatives[i].first, scaled_d.derivatives[i].first *
+      EXPECT_NEAR(d.points[j].y(), scaled_d.points[j].y(), y_precision);
+      EXPECT_NEAR(d.derivatives[j].first, scaled_d.derivatives[j].first *
                   kScale, kDerivativePrecision);
-      EXPECT_NEAR(d.derivatives[i].second, scaled_d.derivatives[i].second *
+      EXPECT_NEAR(d.derivatives[j].second, scaled_d.derivatives[j].second *
                   kScale * kScale, kSecondDerivativePrecision);
-      EXPECT_NEAR(d.derivatives[i].third, scaled_d.derivatives[i].third *
+      EXPECT_NEAR(d.derivatives[j].third, scaled_d.derivatives[j].third *
                   kScale * kScale * kScale, kThirdDerivativePrecision);
     }
   }
