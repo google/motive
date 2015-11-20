@@ -93,8 +93,8 @@ static void CreateDefiningAnim(const RigAnim** anims, size_t num_anims,
       for (size_t i = 0; i < num_anims; ++i) {
         if (j >= anims[i]->NumBones()) continue;
 
-        const MatrixOpArray::OpVector& ops = anims[i]->Anim(j).ops().ops();
-        const MatrixOperationInit* op_init = FindOpInit(ops, op);
+        const MatrixOpArray::OpVector& opv = anims[i]->Anim(j).ops().ops();
+        const MatrixOperationInit* op_init = FindOpInit(opv, op);
         if (op_init == nullptr) continue;
 
         if (op_init->init == nullptr) {
