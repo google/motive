@@ -158,7 +158,7 @@ class MotiveTests : public ::testing::Test {
                      float start_velocity, float target_value,
                      MotivatorT* motivator) {
     typedef typename MotivatorT::TargetBuilder Tar;
-    typedef typename MotivatorT::ExT Vec;
+    typedef typename MotivatorT::Vec Vec;
     motivator->InitializeWithTarget(
         init, &engine_,
         Tar::CurrentToTarget(Vec(start_value), Vec(start_velocity),
@@ -253,7 +253,7 @@ class MotiveTests : public ::testing::Test {
 // Ensure we wrap around from pi to -pi.
 template <class MotivatorT>
 void ModularMovement(MotiveTests& t) {
-  typedef typename MotivatorT::ExT Vec;
+  typedef typename MotivatorT::Vec Vec;
   const OvershootInit& overshoot = t.overshoot_angle_init();
   MotivatorT motivator;
   t.InitMotivator(overshoot, kPi, 0.001f, -kPi + 1.0f, &motivator);
@@ -303,7 +303,7 @@ TEST_ALL_VECTOR_MOTIVATORS_F(SettlesOnMax)
 // do not wrap around.
 template <class MotivatorT>
 void StaysWithinBound(MotiveTests& t) {
-  typedef typename MotivatorT::ExT Vec;
+  typedef typename MotivatorT::Vec Vec;
   MotivatorT motivator;
   t.InitOvershootMotivator(&motivator);
   t.engine().AdvanceFrame(1);
@@ -357,7 +357,7 @@ void CopyConstructor(MotiveTests& t) {
   MotivatorT orig_motivator;
   t.InitOvershootMotivator(&orig_motivator);
   EXPECT_TRUE(orig_motivator.Valid());
-  const typename MotivatorT::ExT value = orig_motivator.Value();
+  const typename MotivatorT::Vec value = orig_motivator.Value();
 
   MotivatorT new_motivator(orig_motivator);
   EXPECT_FALSE(orig_motivator.Valid());
@@ -397,7 +397,7 @@ void AssignmentOperatorValidToInvalid(MotiveTests& t) {
   MotivatorT orig_motivator;
   t.InitOvershootMotivator(&orig_motivator);
   EXPECT_TRUE(orig_motivator.Valid());
-  const typename MotivatorT::ExT value = orig_motivator.Value();
+  const typename MotivatorT::Vec value = orig_motivator.Value();
 
   MotivatorT new_motivator;
   new_motivator = orig_motivator;
@@ -427,18 +427,18 @@ TEST_ALL_VECTOR_MOTIVATORS_F(AssignmentOperatorInvalidToValid)
 template <class MotivatorT>
 void AssignmentOperatorValidToValid(MotiveTests& t) {
   typedef typename MotivatorT::TargetBuilder Tar;
-  typedef typename MotivatorT::ExT Vec;
+  typedef typename MotivatorT::Vec Vec;
 
   MotivatorT orig_motivator;
   t.InitOvershootMotivator(&orig_motivator);
   EXPECT_TRUE(orig_motivator.Valid());
-  const typename MotivatorT::ExT orig_value = orig_motivator.Value();
+  const typename MotivatorT::Vec orig_value = orig_motivator.Value();
 
   MotivatorT new_motivator;
   new_motivator.InitializeWithTarget(t.overshoot_angle_init(), &t.engine(),
                                      Tar::Current(Vec(orig_value + 1)));
   EXPECT_TRUE(new_motivator.Valid());
-  const typename MotivatorT::ExT new_value = new_motivator.Value();
+  const typename MotivatorT::Vec new_value = new_motivator.Value();
 
   // Give orig and new different values.
   EXPECT_FALSE(VectorEqual(new_value, orig_value));
@@ -481,7 +481,7 @@ TEST_ALL_VECTOR_MOTIVATORS_F(VectorResize)
 template <class MotivatorT>
 void SmoothModular(MotiveTests& t) {
   typedef typename MotivatorT::TargetBuilder Tar;
-  typedef typename MotivatorT::ExT Vec;
+  typedef typename MotivatorT::Vec Vec;
 
   static const float kMargin = 0.1f;
   static const MotiveTime kTime = 10;
@@ -732,7 +732,7 @@ TEST_ALL_VECTOR_MOTIVATORS_F(SplineTime)
 // Test the MotivatorVector::SetSplineTime() function.
 template <class MotivatorT>
 void SetSplineTime(MotiveTests& t) {
-  typedef typename MotivatorT::ExT Vec;
+  typedef typename MotivatorT::Vec Vec;
   static const MotiveTime kStartTime = 250;
   static const MotiveTime kDeltaTime = 500;
 

@@ -252,11 +252,57 @@ class MotiveProcessor {
   int benchmark_id_for_init_;
 };
 
-/// @class VectorProcessor
+/// @class MotiveProcessorNf
 /// @brief Interface for motivator types that drive a single float value.
-/// That is, for MotiveProcessors that interface with MotivatorVectorT's.
-class VectorProcessor : public MotiveProcessor {
+///
+/// That is, for MotiveProcessors that interface with MotivatorNf or
+/// MotivatorXf.
+class MotiveProcessorNf : public MotiveProcessor {
  public:
+  // Convenience functions for getting a single value. Prefer calling the
+  // bulk values, especially when inside a loop. They avoid the virtual
+  // function call overhead, and offer more opportunities for optimizations.
+  float Value(MotiveIndex index) const { return Values(index)[0]; }
+  float Velocity(MotiveIndex index) const {
+    float v;
+    Velocities(index, 1, &v);
+    return v;
+  }
+  float Direction(MotiveIndex index) const {
+    float v;
+    Directions(index, 1, &v);
+    return v;
+  }
+  float TargetValue(MotiveIndex index) const {
+    float v;
+    TargetValues(index, 1, &v);
+    return v;
+  }
+  float TargetVelocity(MotiveIndex index) const {
+    float v;
+    TargetVelocities(index, 1, &v);
+    return v;
+  }
+  float Difference(MotiveIndex index) const {
+    float v;
+    Differences(index, 1, &v);
+    return v;
+  }
+
+  virtual const float* Values(MotiveIndex index) const = 0;
+  virtual void Velocities(MotiveIndex index, MotiveIndex count,
+                          float* out) const = 0;
+  virtual void Directions(MotiveIndex index, MotiveIndex count,
+                          float* out) const {
+    Velocities(index, count, out);
+  }
+  virtual void TargetValues(MotiveIndex index, MotiveIndex count,
+                            float* out) const = 0;
+  virtual void TargetVelocities(MotiveIndex index, MotiveIndex count,
+                                float* out) const = 0;
+  virtual void Differences(MotiveIndex index, MotiveIndex count,
+                           float* out) const = 0;
+
   virtual MotiveTime TargetTime(MotiveIndex index) const = 0;
   virtual MotiveTime SplineTime(MotiveIndex /*index*/) const { return 0; }
 
@@ -265,119 +311,19 @@ class VectorProcessor : public MotiveProcessor {
   // towards a target.
   //
   // Set the current and future values that we want the Motivator to achieve.
-  virtual void SetTarget(MotiveIndex /*index*/, const MotiveTarget1f& /*t*/) {}
-  virtual void SetTarget(MotiveIndex index, const MotiveTarget2f& t) {
-    SetTargetSeparately(index, t);
-  }
-  virtual void SetTarget(MotiveIndex index, const MotiveTarget3f& t) {
-    SetTargetSeparately(index, t);
-  }
-  virtual void SetTarget(MotiveIndex index, const MotiveTarget4f& t) {
-    SetTargetSeparately(index, t);
-  }
+  virtual void SetTargets(MotiveIndex index, MotiveIndex count,
+                          const MotiveTarget1f* ts) = 0;
 
   // Drive the Motivator by following splines specified in the playback.
-  virtual void SetSpline(MotiveIndex /*index*/,
-                         const motive::CompactSpline& /*spline*/,
-                         const motive::SplinePlayback& /*playback*/) {}
-  virtual void SetSplines(MotiveIndex index,
-                          const motive::CompactSpline* splines,
-                          const motive::SplinePlayback& playback) {
-    const MotiveDimension dimensions = Dimensions(index);
-    for (MotiveDimension i = 0; i < dimensions; ++i) {
-      SetSpline(index + i, splines[i], playback);
-    }
-  }
-  virtual void SetSplineTime(MotiveIndex /*index*/, MotiveTime /*time*/) {}
+  virtual void SetSplines(MotiveIndex /*index*/, MotiveIndex /*count*/,
+                          const motive::CompactSpline* /*splines*/,
+                          const motive::SplinePlayback& /*playback*/) {}
+
+  virtual void SetSplineTime(MotiveIndex /*index*/, MotiveIndex /*count*/,
+                             MotiveTime /*time*/) {}
   virtual void SetSplinePlaybackRate(MotiveIndex /*index*/,
+                                     MotiveIndex /*count*/,
                                      float /*playback_rate*/) {}
-
- protected:
-  template <class MoTarget>
-  void SetTargetSeparately(MotiveIndex index, const MoTarget& t) {
-    for (int i = 0; i < MoTarget::kDimensions; ++i) {
-      SetTarget(index + i, t[i]);
-    }
-  }
-
-// Generate a set of functions like the ones below.
-//
-// The `ValueT()` functions are syntactic hacks, required because C++ does
-// not allow overloading by return type. These functions are inline,
-// they are called with temporary objects (see MotivatorVectorT),
-// and their constructors are empty, so there is no overhead for this hack.
-//
-// The `Value1f()` function must be implemented by the derived processor.
-// This function returns the value of a single dimension.
-//
-// The `Value2f()` and greater functions are implemented, by default, here,
-// by calling `Value1f()` multiple times. However, as an optimization, the
-// derived processor can override these default versions to return the
-// vector type directly. Fewer virtual function calls can mean big
-// speadups on some systems.
-//
-// public:
-//  float ValueT(MotiveIndex index, float) const {
-//    return Value1f(index);
-//  }
-//  mathfu::vec2 ValueT(MotiveIndex index, mathfu::vec2&) const {
-//    return Value2f(index);
-//  }
-//  mathfu::vec3 ValueT(MotiveIndex index, mathfu::vec3&) const {
-//    return Value3f(index);
-//  }
-//  mathfu::vec4 ValueT(MotiveIndex index, mathfu::vec4&) const {
-//    return Value4f(index);
-//  }
-// protected:
-//  virtual float Value1f(MotiveIndex index) const = 0;
-//  virtual mathfu::vec2 Value2f(MotiveIndex index) const {
-//    return mathfu::vec2(Value1f(index), Value1f(index + 1));
-//  }
-//  virtual mathfu::vec3 Value3f(MotiveIndex index) const {
-//    return mathfu::vec3(Value1f(index), Value1f(index + 1),
-//                        Value1f(index + 2));
-//  }
-//  virtual mathfu::vec4 Value4f(MotiveIndex index) const {
-//    return mathfu::vec4(Value1f(index), Value1f(index + 1),
-//                        Value1f(index + 2), Value1f(index + 3));
-//  }
-//
-#define MOTIVE_VECTOR_ACCESSOR_FN(FnName)                                       \
- public:                                                                        \
-  float FnName##T(MotiveIndex index, float) const { return FnName##1f(index); } \
-  mathfu::vec2 FnName##T(MotiveIndex index, const mathfu::vec2&) const {        \
-    return FnName##2f(index);                                                   \
-  }                                                                             \
-  mathfu::vec3 FnName##T(MotiveIndex index, const mathfu::vec3&) const {        \
-    return FnName##3f(index);                                                   \
-  }                                                                             \
-  mathfu::vec4 FnName##T(MotiveIndex index, const mathfu::vec4&) const {        \
-    return FnName##4f(index);                                                   \
-  }                                                                             \
-                                                                                \
- protected:                                                                     \
-  virtual float FnName##1f(MotiveIndex index) const = 0;                        \
-  virtual mathfu::vec2 FnName##2f(MotiveIndex index) const {                    \
-    return mathfu::vec2(FnName##1f(index), FnName##1f(index + 1));              \
-  }                                                                             \
-  virtual mathfu::vec3 FnName##3f(MotiveIndex index) const {                    \
-    return mathfu::vec3(FnName##1f(index), FnName##1f(index + 1),               \
-                        FnName##1f(index + 2));                                 \
-  }                                                                             \
-  virtual mathfu::vec4 FnName##4f(MotiveIndex index) const {                    \
-    return mathfu::vec4(FnName##1f(index), FnName##1f(index + 1),               \
-                        FnName##1f(index + 2), FnName##1f(index + 3));          \
-  }
-
-  MOTIVE_VECTOR_ACCESSOR_FN(Value)
-  MOTIVE_VECTOR_ACCESSOR_FN(Velocity)
-  MOTIVE_VECTOR_ACCESSOR_FN(Direction)
-  MOTIVE_VECTOR_ACCESSOR_FN(TargetValue)
-  MOTIVE_VECTOR_ACCESSOR_FN(TargetVelocity)
-  MOTIVE_VECTOR_ACCESSOR_FN(Difference)
-
-#undef MOTIVE_VECTOR_ACCESSOR_FN
 };
 
 /// @class MatrixProcessor4f
@@ -392,14 +338,8 @@ class MatrixProcessor4f : public MotiveProcessor {
   virtual int NumChildren(MotiveIndex index) const = 0;
 
   /// Get current values of the components that create the matrix.
-  virtual float ChildValue1f(MotiveIndex index,
-                             MotiveChildIndex child_index) const = 0;
-  virtual mathfu::vec3 ChildValue3f(MotiveIndex index,
-                                    MotiveChildIndex child_index) const {
-    return mathfu::vec3(ChildValue1f(index, child_index),
-                        ChildValue1f(index, child_index + 1),
-                        ChildValue1f(index, child_index + 2));
-  }
+  virtual void ChildValues(MotiveIndex index, MotiveChildIndex child_index,
+                           MotiveChildIndex count, float* values) const = 0;
 
   /// Get the Motivator1f driving this child, if this child is driven by
   /// a Motivator1f, or nullptr otherwise.
@@ -410,15 +350,8 @@ class MatrixProcessor4f : public MotiveProcessor {
   virtual void SetChildTarget1f(MotiveIndex /*index*/,
                                 MotiveChildIndex /*child_index*/,
                                 const MotiveTarget1f& /*t*/) {}
-  virtual void SetChildValue1f(MotiveIndex /*index*/,
-                               MotiveChildIndex /*child_index*/,
-                               float /*value*/) {}
-  virtual void SetChildValue3f(MotiveIndex index, MotiveChildIndex child_index,
-                               const mathfu::vec3& value) {
-    for (int i = 0; i < 3; ++i) {
-      SetChildValue1f(index, child_index + i, value[i]);
-    }
-  }
+  virtual void SetChildValues(MotiveIndex index, MotiveChildIndex child_index,
+                              MotiveChildIndex count, const float* values) = 0;
 
   /// Smoothly transition to the operations specified in `ops`.
   virtual void BlendToOps(MotiveIndex /*index*/, const MatrixOpArray& /*ops*/,

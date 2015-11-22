@@ -47,41 +47,29 @@ typedef MyVecTemplate<4> MyVec4;
 //! [Own Vector Converter]
 class MyVectorConverter {
  public:
-  // MatrixMotivator4fTemplate needs these External.
-  typedef MyMatrix4 ExternalMatrix4;
-  typedef MyVec2 ExternalVector2;
-  typedef MyVec3 ExternalVector3;
-  typedef MyVec4 ExternalVector4;
+  // Define our vector types in the public section.
+  typedef MyVec2 Vector2;
+  typedef MyVec3 Vector3;
+  typedef MyVec4 Vector4;
+  typedef MyMatrix4 Matrix4;
 
-  // Casting from mathfu::mat4 is ok. The alignment restrictions on mathfu::mat4
-  // (16-bytes) are stricter than for MyMatrix4 (4-bytes). Also, strict aliasing
-  // is not a problem here since 'm' was written on the other side of a virtual
-  // function call (see "Strict Aliasing" discussion in documentation).
-  static const MyMatrix4& To(const mathfu::mat4& m) {
-    return reinterpret_cast<const MyMatrix4&>(m);
-  }
+  // Convert the data types to pointers. Note that we currently assume that
+  // external matrices are in column-major format, the same as mathfu's.
+  // A future change will store the matrices as row-major AffineTransforms
+  // instead of 4x4 matrices.
+  static float* ToPtr(float& f) { return &f; }
+  static float* ToPtr(Vector2& v) { return &v.v[0]; }
+  static float* ToPtr(Vector3& v) { return &v.v[0]; }
+  static float* ToPtr(Vector4& v) { return &v.v[0]; }
+  static float* ToPtr(Matrix4& m) { return &m.m[0][0]; }
 
-  // This call results in a read of 'v' and then a write to the stack of
-  // MyVec3. The optimizer will almost certainly eliminate this extra
+  // This call results in a read of 'f' and then a write to the stack of
+  // the return value. The optimizer will almost certainly eliminate this extra
   // read-write, since it does nothing.
-  static MyVec2 To(const mathfu::vec2& v) { return MyVec2(&v[0]); }
-  static MyVec3 To(const mathfu::vec3& v) { return MyVec3(&v[0]); }
-  static MyVec4 To(const mathfu::vec4& v) { return MyVec4(&v[0]); }
-
-  // Here we have to call the constructor for matfu::vec3, because the alignment
-  // restrictions are more strict for mathfu types (16-bytes) than for MyVec3
-  // (4-bytes). The optimizer *may not* be able to eliminate this read-write
-  // since 'v' might arrive misaligned. This function may result in overhead,
-  // therefore.
-  static const mathfu::vec2 From(const MyVec2& v) {
-    return mathfu::vec2(&v.v[0]);
-  }
-  static const mathfu::vec3 From(const MyVec3& v) {
-    return mathfu::vec3(&v.v[0]);
-  }
-  static const mathfu::vec4 From(const MyVec4& v) {
-    return mathfu::vec4(&v.v[0]);
-  }
+  static float FromPtr(const float* f, float) { return *f; }
+  static Vector2 FromPtr(const float* f, Vector2) { return Vector2(f); }
+  static Vector3 FromPtr(const float* f, Vector3) { return Vector3(f); }
+  static Vector4 FromPtr(const float* f, Vector4) { return Vector4(f); }
 };
 //! [Own Vector Converter]
 

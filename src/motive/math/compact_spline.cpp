@@ -299,7 +299,7 @@ void CompactSpline::BulkYs(const CompactSpline* const splines,
   // Repeat num_ys times.
   const float* end_y = &ys[num_splines * num_ys];
   for (float* y = ys; y < end_y; y += num_splines) {
-    evaluator.Ys(0, num_splines, y);
+    memcpy(y, evaluator.Ys(0), num_splines * sizeof(y[0]));
     evaluator.AdvanceFrame(delta_x);
   }
 }

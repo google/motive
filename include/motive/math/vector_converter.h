@@ -19,74 +19,58 @@
 
 namespace motive {
 
-/// @class PassThroughVectorConverter
-/// @brief No-op conversion from mathfu types to mathfu types.
-/// External types are also mathfu in this converter. Create your own converter
-/// if you'd like to use your own vector types in your Motivators'
-/// external API.
-class PassThroughVectorConverter {
+/// @class MathFuVectorConverter
+/// @brief Convert mathfu types to float pointers.
+///
+/// Create your own converter if you'd like to use your own vector types in
+/// your Motivators' external API.
+class MathFuVectorConverter {
  public:
-  typedef mathfu::vec2 ExternalVector2;
-  typedef mathfu::vec3 ExternalVector3;
-  typedef mathfu::vec4 ExternalVector4;
-  typedef mathfu::mat4 ExternalMatrix4;
+  typedef mathfu::vec2 Vector2;
+  typedef mathfu::vec3 Vector3;
+  typedef mathfu::vec4 Vector4;
+  typedef mathfu::mat4 Matrix4;
 
-  static ExternalVector2 To(const mathfu::vec2& v) { return v; }
-  static ExternalVector3 To(const mathfu::vec3& v) { return v; }
-  static ExternalVector4 To(const mathfu::vec4& v) { return v; }
-  static const ExternalMatrix4& To(const mathfu::mat4& m) { return m; }
-  static float To(const float v) { return v; }
+  static float* ToPtr(float& f) { return &f; }
+  static float* ToPtr(Vector2& v) { return &v[0]; }
+  static float* ToPtr(Vector3& v) { return &v[0]; }
+  static float* ToPtr(Vector4& v) { return &v[0]; }
+  static float* ToPtr(Matrix4& m) { return &m(0); }
 
-  static const mathfu::vec2& From(const ExternalVector2& v) { return v; }
-  static const mathfu::vec3& From(const ExternalVector3& v) { return v; }
-  static const mathfu::vec4& From(const ExternalVector4& v) { return v; }
-  static float From(const float v) { return v; }
+  static const float* ToPtr(const float& f) { return &f; }
+  static const float* ToPtr(const Vector2& v) { return &v[0]; }
+  static const float* ToPtr(const Vector3& v) { return &v[0]; }
+  static const float* ToPtr(const Vector4& v) { return &v[0]; }
+  static const float* ToPtr(const Matrix4& m) { return &m(0); }
+
+  static float FromPtr(const float* f, float) { return *f; }
+  static Vector2 FromPtr(const float* f, Vector2) { return Vector2(f); }
+  static Vector3 FromPtr(const float* f, Vector3) { return Vector3(f); }
+  static Vector4 FromPtr(const float* f, Vector4) { return Vector4(f); }
+  static Matrix4 FromPtr(const float* f, Matrix4) { return Matrix4(f); }
 };
 
 // Map a dimension onto the external vector type.
 // External types are specified by the VectorConverter, which is customizable.
 template <class VectorConverter, int>
-struct ExternalVectorT {
+struct VectorT {
   typedef void type;
 };
 template <class VectorConverter>
-struct ExternalVectorT<VectorConverter, 1> {
+struct VectorT<VectorConverter, 1> {
   typedef float type;
 };
 template <class VectorConverter>
-struct ExternalVectorT<VectorConverter, 2> {
-  typedef typename VectorConverter::ExternalVector2 type;
+struct VectorT<VectorConverter, 2> {
+  typedef typename VectorConverter::Vector2 type;
 };
 template <class VectorConverter>
-struct ExternalVectorT<VectorConverter, 3> {
-  typedef typename VectorConverter::ExternalVector3 type;
+struct VectorT<VectorConverter, 3> {
+  typedef typename VectorConverter::Vector3 type;
 };
 template <class VectorConverter>
-struct ExternalVectorT<VectorConverter, 4> {
-  typedef typename VectorConverter::ExternalVector4 type;
-};
-
-// Map a dimension onto the internal vector type.
-// Internal types are from mathfu.
-template <int>
-struct InternalVectorT {
-  typedef void type;
-};
-template <>
-struct InternalVectorT<1> {
-  typedef float type;
-};
-template <>
-struct InternalVectorT<2> {
-  typedef mathfu::vec2 type;
-};
-template <>
-struct InternalVectorT<3> {
-  typedef mathfu::vec3 type;
-};
-template <>
-struct InternalVectorT<4> {
-  typedef mathfu::vec4 type;
+struct VectorT<VectorConverter, 4> {
+  typedef typename VectorConverter::Vector4 type;
 };
 
 }  // namespace motive

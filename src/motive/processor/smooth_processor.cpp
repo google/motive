@@ -37,7 +37,7 @@ struct SmoothData {
   CompactSpline* local_spline;
 };
 
-class SmoothMotiveProcessor : public VectorProcessor {
+class SmoothMotiveProcessor : public MotiveProcessorNf {
  public:
   virtual ~SmoothMotiveProcessor() {
     for (auto it = spline_pool_.begin(); it != spline_pool_.end(); ++it) {
@@ -54,23 +54,28 @@ class SmoothMotiveProcessor : public VectorProcessor {
   virtual int Priority() const { return 0; }
 
   // Accessors to allow the user to get and set simluation values.
-  virtual float Value1f(MotiveIndex index) const {
-    return interpolator_.Y(index);
+  virtual const float* Values(MotiveIndex index) const {
+    return interpolator_.Ys(index);
   }
-  virtual float Velocity1f(MotiveIndex index) const {
-    return interpolator_.Derivative(index);
+  virtual void Velocities(MotiveIndex index, MotiveIndex count,
+                          float* out) const {
+    return interpolator_.Derivatives(index, count, out);
   }
-  virtual float Direction1f(MotiveIndex index) const {
-    return interpolator_.DerivativeWithoutPlayback(index);
+  virtual void Directions(MotiveIndex index, MotiveIndex count,
+                          float* out) const {
+    return interpolator_.DerivativesWithoutPlayback(index, count, out);
   }
-  virtual float TargetValue1f(MotiveIndex index) const {
-    return interpolator_.EndY(index);
+  virtual void TargetValues(MotiveIndex index, MotiveIndex count,
+                            float* out) const {
+    return interpolator_.EndYs(index, count, out);
   }
-  virtual float TargetVelocity1f(MotiveIndex index) const {
-    return interpolator_.EndDerivative(index);
+  virtual void TargetVelocities(MotiveIndex index, MotiveIndex count,
+                                float* out) const {
+    return interpolator_.EndDerivatives(index, count, out);
   }
-  virtual float Difference1f(MotiveIndex index) const {
-    return interpolator_.YDifferenceToEnd(index);
+  virtual void Differences(MotiveIndex index, MotiveIndex count,
+                           float* out) const {
+    return interpolator_.YDifferencesToEnd(index, count, out);
   }
   virtual MotiveTime TargetTime(MotiveIndex index) const {
     return static_cast<MotiveTime>(interpolator_.EndX(index) -
@@ -80,7 +85,42 @@ class SmoothMotiveProcessor : public VectorProcessor {
     return static_cast<MotiveTime>(interpolator_.X(index));
   }
 
-  virtual void SetTarget(MotiveIndex index, const MotiveTarget1f& t) {
+  virtual void SetTargets(MotiveIndex index, MotiveIndex count,
+                          const MotiveTarget1f* ts) {
+    for (MotiveDimension i = 0; i < count; ++i) {
+      SetTarget(index + i, ts[i]);
+    }
+  }
+
+  virtual void SetSplines(MotiveIndex index, MotiveIndex count,
+                          const motive::CompactSpline* splines,
+                          const motive::SplinePlayback& playback) {
+    for (MotiveDimension i = 0; i < count; ++i) {
+      SetSpline(index + i, splines[i], playback);
+    }
+  }
+
+  // TODO: Push this loop into BulkSplineInterpolator.
+  virtual void SetSplineTime(MotiveIndex index, MotiveIndex count,
+                             MotiveTime time) {
+    const MotiveIndex end_index = index + count;
+    for (MotiveIndex i = index; i < end_index; ++i) {
+      interpolator_.SetX(i, static_cast<float>(time));
+    }
+  }
+
+  // TODO: Push this loop into BulkSplineInterpolator.
+  virtual void SetSplinePlaybackRate(MotiveIndex index, MotiveIndex count,
+                                     float playback_rate) {
+    const MotiveIndex end_index = index + count;
+    for (MotiveIndex i = index; i < end_index; ++i) {
+      interpolator_.SetPlaybackRate(i, playback_rate);
+    }
+  }
+
+ protected:
+  // TODO: Change to CreateSplineToTarget()
+  void SetTarget(MotiveIndex index, const MotiveTarget1f& t) {
     SmoothData& d = Data(index);
 
     // If the first node specifies time=0, that means we want to override the
@@ -90,7 +130,7 @@ class SmoothMotiveProcessor : public VectorProcessor {
     const float start_y = override_current ? node0.value
                                            : interpolator_.NormalizedY(index);
     const float start_derivative =
-        override_current ? node0.velocity : Velocity1f(index);
+        override_current ? node0.velocity : Velocity(index);
     const int start_node_index = override_current ? 1 : 0;
 
     // Ensure we have a local spline available, allocated from our pool of
@@ -123,8 +163,9 @@ class SmoothMotiveProcessor : public VectorProcessor {
     interpolator_.SetSpline(index, *d.local_spline, motive::SplinePlayback());
   }
 
-  virtual void SetSpline(MotiveIndex index, const motive::CompactSpline& spline,
-                         const motive::SplinePlayback& playback) {
+  // TODO: Push loop into BulkSplineInterpolator.
+  void SetSpline(MotiveIndex index, const motive::CompactSpline& spline,
+                 const motive::SplinePlayback& playback) {
     SmoothData& d = Data(index);
 
     // Return the local spline to the spline pool. We use external splines now.
@@ -137,21 +178,6 @@ class SmoothMotiveProcessor : public VectorProcessor {
     interpolator_.SetSpline(index, spline, playback);
   }
 
-  virtual void SetSplineTime(MotiveIndex index, MotiveTime time) {
-    const MotiveIndex end_index = index + Dimensions(index);
-    for (MotiveIndex i = index; i < end_index; ++i) {
-      interpolator_.SetX(i, static_cast<float>(time));
-    }
-  }
-
-  virtual void SetSplinePlaybackRate(MotiveIndex index, float playback_rate) {
-    const MotiveIndex end_index = index + Dimensions(index);
-    for (MotiveIndex i = index; i < end_index; ++i) {
-      interpolator_.SetPlaybackRate(i, playback_rate);
-    }
-  }
-
- protected:
   virtual void InitializeIndex(const MotivatorInit& init, MotiveIndex index,
                                MotiveEngine* engine) {
     (void)engine;
