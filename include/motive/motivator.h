@@ -48,11 +48,18 @@ class Motivator {
  public:
   Motivator() : processor_(nullptr), index_(kMotiveIndexInvalid) {}
 
-  /// Allow Motivators to be copied.
-  /// Transfer ownership of motivator to new motivator. Old motivator is reset
-  /// and must be initialized again before being read.
-  /// We want to allow copies primarily so that we can have vectors of
+  /// Transfer ownership of `original` motivator to `this` motivator.
+  /// `original` motivator is reset and must be initialized again before being
+  /// read. We want to allow moves primarily so that we can have vectors of
   /// Motivators.
+  ///
+  /// Note: This should be a move constructor instead of a copy constructor.
+  ///       However, VS2010~2012 requires move constructors to exist in any
+  ///       class that has a move constructed member. That would be a burden
+  ///       for users of Motivator, so we chose to be practical here instead of
+  ///       pedantically correct. We use the copy constructor and copy operator
+  ///       to do move behavior.
+  ///       See http://en.cppreference.com/w/cpp/language/move_operator
   Motivator(const Motivator& original) {
     if (original.Valid()) {
       original.processor_->TransferMotivator(original.index_, this);
@@ -62,7 +69,7 @@ class Motivator {
     }
   }
 
-  /// Allow Motivators to be copied. `original` is reset.
+  /// Allow Motivators to be moved. `original` is reset.
   /// See the copy constructor for details.
   Motivator& operator=(const Motivator& original) {
     Invalidate();
