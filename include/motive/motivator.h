@@ -85,9 +85,16 @@ class Motivator {
 
   /// Return true if this Motivator is currently being driven by a
   /// MotiveProcessor. That is, if it has been successfully initialized.
-  /// Also check for a consistent internal state.
   bool Valid() const {
-    return processor_ != nullptr && processor_->ValidMotivator(index_, this);
+    return processor_ != nullptr;
+  }
+
+  /// Check consistency of internal state. Useful for debugging.
+  /// If this function ever returns false, there has been some sort of memory
+  /// corruption or similar bug.
+  bool Sane() const {
+    return (processor_ == nullptr && index_ == kMotiveIndexInvalid) ||
+           (processor_ != nullptr && processor_->ValidMotivator(index_, this));
   }
 
   /// Return the type of Motivator we've been initilized to.
