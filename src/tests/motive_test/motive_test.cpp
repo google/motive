@@ -339,6 +339,7 @@ void Defragment(MotiveTests& t) {
 
       // All the motivators should be valid and have the same values.
       EXPECT_TRUE(motivators[i].Valid());
+      EXPECT_TRUE(motivators[i].Sane());
       EXPECT_TRUE(
           VectorEqual(motivators[i].Value(), motivators[compare].Value()));
       EXPECT_TRUE(VectorEqual(motivators[i].Velocity(),
@@ -382,7 +383,7 @@ void AssignmentOperatorInvalidToInvalid(MotiveTests& /*t*/) {
   MotivatorT orig_motivator;
   MotivatorT new_motivator;
   EXPECT_FALSE(orig_motivator.Valid());
-  EXPECT_FALSE(orig_motivator.Valid());
+  EXPECT_FALSE(new_motivator.Valid());
 
   new_motivator = orig_motivator;
   EXPECT_FALSE(orig_motivator.Valid());
