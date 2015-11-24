@@ -501,6 +501,9 @@ class RigMotivator : public Motivator {
   std::string CsvValuesForDebugging() const {
     return Processor().CsvValuesForDebugging(index_);
   }
+  std::string LocalTransformsForDebugging(BoneIndex bone) const {
+    return Processor().LocalTransformsForDebugging(index_, bone);
+  }
 
  private:
   RigProcessor& Processor() { return *static_cast<RigProcessor*>(processor_); }
