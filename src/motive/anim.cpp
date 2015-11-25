@@ -56,11 +56,13 @@ std::string RigAnim::CsvHeaderForDebugging(int line) const {
 
   // Output the bone names, and gaps for where that bone's ops will go.
   for (BoneIndex i = 0; i < NumBones(); ++i) {
+    const MatrixOpArray::OpVector& ops = anims_[i].ops().ops();
+    if (ops.size() == 0) continue;
+
     if (line == 0) {
       oss << BoneName(i);
     }
 
-    const MatrixOpArray::OpVector& ops = anims_[i].ops().ops();
     for (size_t j = 0; j < ops.size(); ++j) {
       if (line == 0) {
         oss << ',';
