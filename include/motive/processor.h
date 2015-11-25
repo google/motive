@@ -455,6 +455,10 @@ class RigProcessor : public MotiveProcessor {
   virtual std::string CsvValuesForDebugging(MotiveIndex /*index*/) const {
     return std::string();
   }
+  virtual std::string LocalTransformsForDebugging(MotiveIndex /*index*/,
+                                                  BoneIndex /*bone*/) const {
+    return std::string();
+  }
 };
 
 /// Static functions in MotiveProcessor-derived classes.

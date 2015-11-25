@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <sstream>
+#include <iomanip>
 
 #include "mathfu/constants.h"
 #include "motive/anim.h"
@@ -158,6 +159,54 @@ class RigData {
     return oss.str();
   }
 
+  std::string LocalTransformsForDebugging(BoneIndex bone,
+                                          MotiveTime time) const {
+    const BoneIndex* bone_parents = defining_anim_->bone_parents();
+
+    // Output four lines: one per row of matrix.
+    std::ostringstream oss;
+    oss.precision(2);
+    oss << std::fixed << std::right;
+
+    // Output header
+    const MotiveTime time_until_end = end_time_ - time;
+    const MotiveTime time_since_start = current_anim_->end_time()
+                                      - time_until_end;
+    oss << current_anim_->anim_name() << " at time " << time_since_start
+        << " (" << (time_since_start * 24.0f / 1000.0f) << " @24fps)"
+        << std::endl;
+    for (BoneIndex idx = bone; idx != kInvalidBoneIdx; idx = bone_parents[idx]) {
+      // Output the bone's name.
+      const char* bone_name = defining_anim_->BoneName(idx);
+      oss << bone_name << std::endl;
+
+      // Output the bone's matrix.
+      const mat4& m = motivators_[idx].Value();
+      for (int row = 0; row < 3; ++row) {
+        oss << "  (" << std::setw(7) << m(row, 0)
+                     << std::setw(7) << m(row, 1)
+                     << std::setw(7) << m(row, 2)
+                     << std::setw(7) << m(row, 3) << ')' << std::endl;
+      }
+
+      // Output the operations on this bone.
+      const MatrixOpArray::OpVector& ops = current_anim_->Anim(idx).ops().ops();
+      oss << "  ";
+      for (size_t i = 0; i < ops.size(); ++i) {
+        const float multiplier = RotateOp(ops[i].type) ? 180.0f / kPi : 1.0f;
+        const float value = multiplier * motivators_[idx].ChildValue1f(i);
+        oss << MatrixOpName(ops[i].type) << "=" << value;
+        if (i < ops.size() - 1) {
+          oss << ", ";
+        } else {
+          oss << std::endl;
+        }
+      }
+      oss << std::endl;
+    }
+    return oss.str();
+  }
+
  private:
   /// Traverse hierarchy, converting local transforms from `motivators_` into
   /// global transforms. The `parents` are layed out such that the parent
@@ -248,6 +297,11 @@ class MotiveRigProcessor : public RigProcessor {
 
   virtual std::string CsvValuesForDebugging(MotiveIndex index) const {
     return Data(index).CsvValuesForDebugging(time_);
+  }
+
+  virtual std::string LocalTransformsForDebugging(MotiveIndex index,
+                                                  BoneIndex bone) const {
+    return Data(index).LocalTransformsForDebugging(bone, time_);
   }
 
  protected:
