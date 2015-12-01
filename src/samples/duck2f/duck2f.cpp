@@ -43,7 +43,10 @@ static bool ScreenTouch(vec2* touch_position) {
 }
 
 // Placeholder implementation. This code is not included in the sample code.
-static bool FollowDuck() { return true; }
+static bool FollowDuck() {
+  static int iterations = 0;
+  return iterations++ < 100;
+}
 
 // Placeholder implementation. This code is not included in the sample code.
 static void DrawDuck(const vec2& /*position*/, const vec2& /*velocity*/) {}

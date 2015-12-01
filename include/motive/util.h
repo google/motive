@@ -41,12 +41,12 @@ struct Settled1f {
   /// Return true if `motivator` is "at the target" and "stopped".
   template <class Motivator>
   bool Settled(const Motivator& motivator) const {
-    const typename Motivator::InT diff =
-        Motivator::C::From(motivator.Difference());
-    const typename Motivator::InT vel =
-        Motivator::C::From(motivator.Velocity());
+    float differences[Motivator::kDimensions];
+    float velocities[Motivator::kDimensions];
+    motivator.Differences(differences);
+    motivator.Velocities(velocities);
     for (int i = 0; i < Motivator::kDimensions; ++i) {
-      if (!Settled(diff[i], vel[i])) return false;
+      if (!Settled(differences[i], velocities[i])) return false;
     }
     return true;
   }

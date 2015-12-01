@@ -921,6 +921,15 @@ class FbxAnimParser {
     GatherFlatAnimRecursive(scene_->GetRootNode(), -1, out);
   }
 
+  // For debugging. Very useful to output the local transform matrices (and
+  // component values) at a given time of the animation. We can compare these
+  // to the runtime values, if something doesn't match up.
+  void LogAnimStateAtTime(int time_in_ms) const {
+    FbxTime time;
+    time.SetMilliSeconds(time_in_ms);
+    LogAnimStateAtTimeRecursive(scene_->GetRootNode(), time);
+  }
+
  private:
   MOTIVE_DISALLOW_COPY_AND_ASSIGN(FbxAnimParser);
 
@@ -928,6 +937,61 @@ class FbxAnimParser {
     FbxPropertyT<FbxDouble3>* property;
     motive::MatrixOperationType x_op;
   };
+
+  void LogIfNotEqual(const FbxVector4& v, const FbxVector4& compare,
+                     const char* name) const {
+    if (v == compare) return;
+    log_.Log(kLogInfo, "%s: (%6.2f %6.2f %6.2f %6.2f)\n", name, v[0], v[1],
+             v[2], v[3]);
+  }
+
+  // For each mesh in the tree of nodes under `node`, add a surface to `out`.
+  void LogAnimStateAtTimeRecursive(FbxNode* node, const FbxTime& time) const {
+    // We're only interested in mesh nodes. If a node and all nodes under it
+    // have no meshes, we early out.
+    if (node == nullptr || !NodeHasMesh(node)) return;
+    log_.Log(kLogInfo, "Node: %s\n", node->GetName());
+
+    // Log local transform. It's an affine transform so is 4x3.
+    const FbxAMatrix& local = node->EvaluateLocalTransform(time);
+    for (int i = 0; i < 3; ++i) {
+      const FbxVector4 r = local.GetColumn(i);
+      log_.Log(kLogInfo, "  (%6.2f %6.2f %6.2f %6.2f)\n", r[0], r[1], r[2],
+               r[3]);
+    }
+
+    // Log the components of the local transform, but only if they don't
+    // match their default values.
+    const FbxVector4 zero(0.0, 0.0, 0.0, 0.0);
+    const FbxVector4 one(1.0, 1.0, 1.0, 1.0);
+    LogIfNotEqual(node->EvaluateLocalTranslation(time), zero, "translate");
+    LogIfNotEqual(node->GetRotationOffset(FbxNode::eSourcePivot), zero,
+                  "rotation_offset");
+    LogIfNotEqual(node->GetRotationPivot(FbxNode::eSourcePivot), zero,
+                  "rotation_pivot");
+    LogIfNotEqual(node->GetPreRotation(FbxNode::eSourcePivot), zero,
+                  "pre_rotation");
+    LogIfNotEqual(node->EvaluateLocalRotation(time), zero, "rotate");
+    LogIfNotEqual(node->GetPostRotation(FbxNode::eSourcePivot), zero,
+                  "post_rotation");
+    LogIfNotEqual(node->GetScalingOffset(FbxNode::eSourcePivot), zero,
+                  "scaling_offset");
+    LogIfNotEqual(node->GetScalingPivot(FbxNode::eSourcePivot), zero,
+                  "scaling_pivot");
+    LogIfNotEqual(node->EvaluateLocalScaling(time), one, "scaling");
+    LogIfNotEqual(node->GetGeometricTranslation(FbxNode::eSourcePivot), zero,
+                  "geometric_translation");
+    LogIfNotEqual(node->GetGeometricRotation(FbxNode::eSourcePivot), zero,
+                  "geometric_rotation");
+    LogIfNotEqual(node->GetGeometricScaling(FbxNode::eSourcePivot), one,
+                  "geometric_scaling");
+    log_.Log(kLogInfo, "\n");
+
+    // Recursively traverse each node in the scene
+    for (int i = 0; i < node->GetChildCount(); i++) {
+      LogAnimStateAtTimeRecursive(node->GetChild(i), time);
+    }
+  }
 
   static FlatTime FbxToFlatTime(const FbxTime& t) {
     const FbxLongLong milliseconds = t.GetMilliSeconds();
@@ -1207,13 +1271,15 @@ struct AnimPipelineArgs {
       : fbx_file(""),
         output_file(""),
         log_level(kLogWarning),
-        repeat_preference(kRepeatIfRepeatable) {}
+        repeat_preference(kRepeatIfRepeatable),
+        debug_time(-1) {}
 
   string fbx_file;        /// FBX input file to convert.
   string output_file;     /// File to write .fplanim to.
   LogLevel log_level;     /// Amount of logging to dump during conversion.
   Tolerances tolerances;  /// Amount output curves can deviate from input.
   RepeatPreference repeat_preference;  /// Loop back to start when reaches end.
+  int debug_time;  /// If >0 output animation state at this time.
 };
 
 static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
@@ -1256,37 +1322,57 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
       }
 
     } else if (arg == "-s" || arg == "--scale") {
-      args->tolerances.scale = static_cast<float>(atof(arg.c_str()));
-      if (args->tolerances.scale <= 0.0f) {
-        log.Log(kLogError, "scale_tolerance must be > 0.");
+      if (i + 1 < argc - 1) {
+        args->tolerances.scale = static_cast<float>(atof(argv[i + 1]));
+        if (args->tolerances.scale <= 0.0f) {
+          log.Log(kLogError, "scale_tolerance must be > 0.");
+          valid_args = false;
+        }
+        i++;
+      } else {
         valid_args = false;
       }
 
     } else if (arg == "-r" || arg == "--rotate") {
-      const float degrees = static_cast<float>(atof(arg.c_str()));
-      if (degrees <= 0.0f || degrees > 180.0f) {
-        log.Log(kLogError, "rotate_tolerance must be >0 and <=180.");
-        valid_args = false;
+      if (i + 1 < argc - 1) {
+        const float degrees = static_cast<float>(atof(argv[i + 1]));
+        if (degrees <= 0.0f || degrees > 180.0f) {
+          log.Log(kLogError, "rotate_tolerance must be >0 and <=180.");
+          valid_args = false;
+        } else {
+          args->tolerances.rotate =
+              motive::Angle::FromDegrees(degrees).ToRadians();
+          i++;
+        }
       } else {
-        args->tolerances.rotate =
-            motive::Angle::FromDegrees(degrees).ToRadians();
+        valid_args = false;
       }
 
     } else if (arg == "-t" || arg == "--translate") {
-      args->tolerances.translate = static_cast<float>(atof(arg.c_str()));
-      if (args->tolerances.translate <= 0.0f) {
-        log.Log(kLogError, "translate_tolerance must be > 0.");
+      if (i + 1 < argc - 1) {
+        args->tolerances.translate = static_cast<float>(atof(argv[i + 1]));
+        if (args->tolerances.translate <= 0.0f) {
+          log.Log(kLogError, "translate_tolerance must be > 0.");
+          valid_args = false;
+        }
+        i++;
+      } else {
         valid_args = false;
       }
 
     } else if (arg == "-a" || arg == "--angle") {
-      const float degrees = static_cast<float>(atof(arg.c_str()));
-      if (degrees <= 0.0f || degrees > 90.0f) {
-        log.Log(kLogError, "derivative_tolerance must be >0 and <=90.");
-        valid_args = false;
+      if (i + 1 < argc - 1) {
+        const float degrees = static_cast<float>(atof(argv[i + 1]));
+        if (degrees <= 0.0f || degrees > 90.0f) {
+          log.Log(kLogError, "derivative_tolerance must be >0 and <=90.");
+          valid_args = false;
+        } else {
+          args->tolerances.derivative_angle =
+              motive::Angle::FromDegrees(degrees).ToRadians();
+        }
+        i++;
       } else {
-        args->tolerances.derivative_angle =
-            motive::Angle::FromDegrees(degrees).ToRadians();
+        valid_args = false;
       }
 
     } else if (arg == "--repeat" || arg == "--norepeat") {
@@ -1299,6 +1385,19 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         valid_args = false;
       } else {
         args->repeat_preference = repeat_preference;
+      }
+
+    } else if (arg == "--debug_time") {
+      if (i + 1 < argc - 1) {
+        args->debug_time = atoi(argv[i + 1]);
+        args->log_level = kLogInfo;
+        if (args->debug_time < 0) {
+          log.Log(kLogError, "debug time must be >0.");
+          valid_args = false;
+        }
+        i++;
+      } else {
+        valid_args = false;
       }
 
     } else {
@@ -1314,7 +1413,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         "Usage: anim_pipeline [-v|-d|-i] [-o OUTPUT_FILE]\n"
         "           [-s SCALE_TOLERANCE] [-r ROTATE_TOLERANCE]\n"
         "           [-t TRANSLATE_TOLERANCE] [-a DERIVATIVE_TOLERANCE]\n"
-        "           [--repeat|--norepeat] FBX_FILE\n"
+        "           [--repeat|--norepeat] [--debug_time TIME] FBX_FILE\n"
         "\n"
         "Pipeline to convert FBX animations into FlatBuffer animations.\n"
         "Outputs a .motiveanim file with the same base name as FBX_FILE.\n\n"
@@ -1346,7 +1445,11 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         "                        over and over. If neither option is\n"
         "                        specified, the animation is marked as\n"
         "                        repeating when it starts and ends\n"
-        "                        with the same pose and derivatives.\n");
+        "                        with the same pose and derivatives.\n"
+        "  --debug_time TIME     output the local transforms for each bone in\n"
+        "                        the animation at TIME, in ms, and then exit.\n"
+        "                        Useful for debugging situations where the\n"
+        "                        runtime doesn't match source data.\n");
   }
 
   return valid_args;
@@ -1368,6 +1471,12 @@ int main(int argc, char** argv) {
   motive::FbxAnimParser pipe(log);
   const bool load_status = pipe.Load(args.fbx_file.c_str());
   if (!load_status) return 1;
+
+  // Output debug information for the specific time of the animation.
+  if (args.debug_time >= 0) {
+    pipe.LogAnimStateAtTime(args.debug_time);
+    return 0;
+  }
 
   // Gather data into a format conducive to our FlatBuffer format.
   motive::FlatAnim anim(args.tolerances, log);

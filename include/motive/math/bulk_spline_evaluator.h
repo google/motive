@@ -108,16 +108,26 @@ class BulkSplineEvaluator {
     return NormalizeY(index, ys_[index]);
   }
 
-  /// Return the current y value for spline indices
-  /// `index` ~ `index + count - 1`.
-  void Ys(const Index index, const Index count, float* ys) const {
-    assert(Valid(index) && Valid(index + count - 1));
-    memcpy(ys, &ys_[index], sizeof(ys[0]) * count);
-  }
+  /// Return the current y value for splines, from index onward.
+  /// Since this is the most commonly called function, we keep it fast by
+  /// returning a pointer to the pre-calculated array. Note that we don't
+  /// recalculate the derivatives, etc., so that is why the interface is
+  /// different.
+  const float* Ys(const Index index) const { return &ys_[index]; }
 
   /// Return the current slope for the spline at `index`.
   float Derivative(const Index index) const {
     return PlaybackRate(index) * Cubic(index).Derivative(cubic_xs_[index]);
+  }
+
+  /// Return the slopes for the `count` splines starting at `index`.
+  /// `out` is an array of length `count`.
+  /// TODO OPT: Write assembly versions of this function.
+  void Derivatives(const Index index, Index count, float* out) const {
+    assert(Valid(index) && Valid(index + count - 1));
+    for (Index i = 0; i < count; ++i) {
+      out[i] = Derivative(index + i);
+    }
   }
 
   /// Return the current slope for the spline at `index`. Ignore the playback
@@ -125,6 +135,18 @@ class BulkSplineEvaluator {
   /// still want to get information about the underlying spline.
   float DerivativeWithoutPlayback(const Index index) const {
     return Cubic(index).Derivative(cubic_xs_[index]);
+  }
+
+  /// Return the slopes for the `count` splines starting at `index`, ignoring
+  /// the playback rate.
+  /// `out` is an array of length `count`.
+  /// TODO OPT: Write assembly versions of this function.
+  void DerivativesWithoutPlayback(const Index index, Index count,
+                                  float* out) const {
+    assert(Valid(index) && Valid(index + count - 1));
+    for (Index i = 0; i < count; ++i) {
+      out[i] = DerivativeWithoutPlayback(index + i);
+    }
   }
 
   /// Return the current playback rate of the spline at `index`.
@@ -152,9 +174,25 @@ class BulkSplineEvaluator {
   /// Return y-value at the end of the spline.
   float EndY(const Index index) const { return sources_[index].spline->EndY(); }
 
+  /// TODO OPT: Write assembly versions of this function.
+  void EndYs(const Index index, const Index count, float* out) const {
+    assert(Valid(index) && Valid(index + count - 1));
+    for (Index i = 0; i < count; ++i) {
+      out[i] = EndY(index + i);
+    }
+  }
+
   /// Return slope at the end of the spline.
   float EndDerivative(const Index index) const {
     return PlaybackRate(index) * sources_[index].spline->EndDerivative();
+  }
+
+  /// TODO OPT: Write assembly versions of this function.
+  void EndDerivatives(const Index index, const Index count, float* out) const {
+    assert(Valid(index) && Valid(index + count - 1));
+    for (Index i = 0; i < count; ++i) {
+      out[i] = EndDerivative(index + i);
+    }
   }
 
   /// Return slope at the end of the spline, at `index`. Ignore the playback
@@ -169,6 +207,15 @@ class BulkSplineEvaluator {
   /// (directly and wrapping around), and return the length of the shorter path.
   float YDifferenceToEnd(const Index index) const {
     return NormalizeY(index, EndY(index) - Y(index));
+  }
+
+  /// TODO OPT: Write assembly versions of this function.
+  void YDifferencesToEnd(const Index index, const Index count,
+                         float* out) const {
+    assert(Valid(index) && Valid(index + count - 1));
+    for (Index i = 0; i < count; ++i) {
+      out[i] = YDifferenceToEnd(index + i);
+    }
   }
 
   /// Apply modular arithmetic to ensure that `y` is within the valid y_range.

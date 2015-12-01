@@ -456,9 +456,12 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
     return Data(index).num_ops();
   }
 
-  virtual float ChildValue1f(MotiveIndex index,
-                             MotiveChildIndex child_index) const {
-    return Data(index).Op(child_index).Value();
+  virtual void ChildValues(MotiveIndex index, MotiveChildIndex child_index,
+                           MotiveChildIndex count, float* values) const {
+    const MatrixData& d = Data(index);
+    for (MotiveChildIndex i = 0; i < count; ++i) {
+      values[i] = d.Op(child_index + i).Value();
+    }
   }
 
   virtual const Motivator1f* ChildMotivator1f(
@@ -472,9 +475,12 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
     // TODO: Update end time.
   }
 
-  virtual void SetChildValue1f(MotiveIndex index, MotiveChildIndex child_index,
-                               float value) {
-    Data(index).Op(child_index).SetValue1f(value);
+  virtual void SetChildValues(MotiveIndex index, MotiveChildIndex child_index,
+                              MotiveChildIndex count, const float* values) {
+    MatrixData& d = Data(index);
+    for (MotiveChildIndex i = 0; i < count; ++i) {
+      d.Op(child_index + i).SetValue1f(values[i]);
+    }
   }
 
   virtual void BlendToOps(MotiveIndex index, const MatrixOpArray& ops,
