@@ -24,8 +24,8 @@ class OvershootInit;
 struct OvershootParameters;
 class RigAnim;
 struct RigAnimFb;
-class SmoothInit;
-struct SmoothParameters;
+class SplineInit;
+struct SplineParameters;
 struct Settled1f;
 struct Settled1fParameters;
 
@@ -33,9 +33,9 @@ struct Settled1fParameters;
 void OvershootInitFromFlatBuffers(const OvershootParameters& params,
                                   OvershootInit* init);
 
-/// Convert from FlatBuffer params to Motive init, for Smooth.
-void SmoothInitFromFlatBuffers(const SmoothParameters& params,
-                               SmoothInit* init);
+/// Convert from FlatBuffer params to Motive init, for Spline.
+void SplineInitFromFlatBuffers(const SplineParameters& params,
+                               SplineInit* init);
 
 /// Convert from FlatBuffer params to Motive Settled1f.
 void Settled1fFromFlatBuffers(const Settled1fParameters& params,

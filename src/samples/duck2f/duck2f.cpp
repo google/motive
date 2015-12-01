@@ -27,7 +27,7 @@ using motive::Motivator2f;
 using motive::MotiveEngine;
 using motive::MotiveTime;
 using motive::Range;
-using motive::SmoothInit;
+using motive::SplineInit;
 using motive::Tar2f;
 
 
@@ -55,18 +55,18 @@ int main() {
   std::vector<vec2> points;
   points.reserve(100);
 
-  // Since we will be using the ‘smooth’ animation algorithm, we must register
+  // Since we will be using the ‘Spline’ animation algorithm, we must register
   // it with the engine.
-  SmoothInit::Register();
+  SplineInit::Register();
 
   // The engine is the central place where animation data is stored and
   // processed.
   MotiveEngine motive_engine;
 
   //! [Duck Example]
-  // Initialize the Motivator to use the "smooth" animation algorithm.
+  // Initialize the Motivator to use the `Spline` animation algorithm.
   Motivator2f duck_position;
-  duck_position.InitializeWithTarget(SmoothInit(), &motive_engine,
+  duck_position.InitializeWithTarget(SplineInit(), &motive_engine,
                                      Tar2f::Current(kDuckStartPosition));
 
   // Smoothly transition the duck to wherever a touch occurs.

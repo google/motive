@@ -81,14 +81,14 @@ typedef MatrixMotivator4fTemplate<MyVectorConverter> MyMatrixMotivator4f;
 int main() {
   // Since we will be using the ‘smooth’ animation algorithm, we must register it
   // with the engine.
-  motive::SmoothInit::Register();
+  motive::SplineInit::Register();
   motive::MatrixInit::Register();
 
   // The engine is the central place where animation data is stored and processed.
   motive::MotiveEngine engine;
 
-  const motive::SmoothInit angle_init(Range(-kPi, kPi), true);
-  const motive::SmoothInit position_init(Range(-10.0f, 10.0f), false);
+  const motive::SplineInit angle_init(Range(-kPi, kPi), true);
+  const motive::SplineInit position_init(Range(-10.0f, 10.0f), false);
   const motive::MotiveTime target_time = 1000;
   const motive::MotiveTarget1f angle_target =
       motive::CurrentToTarget1f(0, 0, kPi, 0, target_time);

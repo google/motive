@@ -27,8 +27,8 @@ using mathfu::vec2;
 
 int main() {
 
-  // Since we use the ‘smooth’ animation algorithm, we must register it.
-  motive::SmoothInit::Register();
+  // Since we use the ‘spline’ animation algorithm, we must register it.
+  motive::SplineInit::Register();
 
   // The engine is the central place for animation data.
   motive::MotiveEngine engine;
@@ -36,7 +36,7 @@ int main() {
   // In this example, we animate a one-dimensional floating point value.
   motive::Motivator1f facing_angle;
 
-  // Initialize facing_angle Motivator to animate as a 'Smooth' Motivator.
+  // Initialize facing_angle Motivator to animate as a 'Spline' Motivator.
   // Alternatively, we could initialize as an 'Overshoot' Motivator. All
   // Motivator types have the same interface. Internally, they are animated
   // with different algorithms, and they will move differently towards their
@@ -46,11 +46,11 @@ int main() {
   // Angles wrap around with modular arithmetic. That is, -pi is equivalent to
   // pi. Valid range for angles is -pi..pi, inclusive of +pi and exclusive of
   // -pi.
-  const motive::SmoothInit init(Range(-kPi, kPi), true);
+  const motive::SplineInit init(Range(-kPi, kPi), true);
   facing_angle.Initialize(init, &engine);
 
   // Set initial state of the Motivator, and the target parameters.
-  // 'Smooth' Motivators animate to a target-value in a target-time. Not all
+  // 'Spline' Motivators animate to a target-value in a target-time. Not all
   // types of Motivators use all target data.
   const Angle start = Angle::FromDegrees(120.0f);
   const float start_angular_velocity = 0.0f;

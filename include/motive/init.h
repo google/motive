@@ -180,17 +180,17 @@ class OvershootInit : public MotivatorInit {
   MotiveTime max_delta_time_;
 };
 
-/// @class SmoothInit
+/// @class SplineInit
 /// @brief Initialize a MotivatorNf to follow a spline.
 ///
 /// Call MotivatorNf::SetSplines() to follow predefined splines,
 /// or call MotivatorNf::SetTargets() to dynamically generate a spline that
 /// travels through several key points.
-class SmoothInit : public MotivatorInit {
+class SplineInit : public MotivatorInit {
  public:
   MOTIVE_INTERFACE();
 
-  SmoothInit() : MotivatorInit(kType), range_(Range::Full()), modular_(false) {}
+  SplineInit() : MotivatorInit(kType), range_(Range::Full()), modular_(false) {}
 
   /// The derived type must call this constructor with it's MotivatorType
   /// identifier.
@@ -201,7 +201,7 @@ class SmoothInit : public MotivatorInit {
   /// @param modular Option to use modular arithmetic when initializing
   ///                splines. If true, the initial spline value is always
   ///                within `range`.
-  SmoothInit(const Range& range, bool modular)
+  SplineInit(const Range& range, bool modular)
       : MotivatorInit(kType), range_(range), modular_(modular) {}
 
   const Range& range() const { return range_; }
@@ -317,7 +317,7 @@ class MatrixOpArray {
 
   /// Operation is driven by a one dimensional motivator. For example, you can
   /// control the face angle of a standing object with 'type' = kRotateAboutY
-  /// and 'init' a curve specified by SmoothInit.
+  /// and 'init' a curve specified by SplineInit.
   void AddOp(MatrixOperationType type, const MotivatorInit& init) {
     ops_.push_back(MatrixOperationInit(type, init));
   }

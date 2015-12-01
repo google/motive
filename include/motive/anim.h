@@ -27,7 +27,7 @@ class MatrixAnim {
  public:
   struct Spline {
     motive::CompactSpline spline;
-    SmoothInit init;
+    SplineInit init;
   };
 
   explicit MatrixAnim(int expected_num_ops = 0) : ops_(expected_num_ops) {}

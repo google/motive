@@ -54,8 +54,8 @@ void OvershootInitFromFlatBuffers(const OvershootParameters& params,
   init->set_max_delta_time(params.max_delta_time());
 }
 
-void SmoothInitFromFlatBuffers(const SmoothParameters& params,
-                               SmoothInit* init) {
+void SplineInitFromFlatBuffers(const SplineParameters& params,
+                               SplineInit* init) {
   init->set_modular(params.base()->modular() != 0);
   init->set_range(Range(params.base()->min(), params.base()->max()));
 }
@@ -107,7 +107,7 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
         // since these are referenced by pointer.
         const bool modular = ModularOp(op_type);
         const Range& op_range = RangeOfOp(op_type, y_range);
-        s.init = SmoothInit(op_range, modular);
+        s.init = SplineInit(op_range, modular);
         ops.AddOp(op_type, s.init, s.spline);
         break;
       }

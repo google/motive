@@ -100,9 +100,9 @@ static void CreateDefiningAnim(const RigAnim** anims, size_t num_anims,
         if (op_init->init == nullptr) {
           ranges[k] = ranges[k].Include(op_init->initial_value);
         } else {
-          const SmoothInit* smooth_init =
-              static_cast<const SmoothInit*>(op_init->init);
-          ranges[k] = Range::Union(ranges[k], smooth_init->range());
+          const SplineInit* spline_init =
+              static_cast<const SplineInit*>(op_init->init);
+          ranges[k] = Range::Union(ranges[k], spline_init->range());
         }
       }
     }
@@ -131,7 +131,7 @@ static void CreateDefiningAnim(const RigAnim** anims, size_t num_anims,
         // translate operations.
         const bool modular = ModularOp(op);
         const Range& op_range = RangeOfOp(op, ranges[k]);
-        splines[num_ops_inited].init = SmoothInit(op_range, modular);
+        splines[num_ops_inited].init = SplineInit(op_range, modular);
         ops.AddOp(op, splines[num_ops_inited].init);
         num_ops_inited++;
       }

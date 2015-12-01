@@ -30,16 +30,16 @@ static const float kYRangeBufferPercent = 1.2f;
 // behaved, so reserve 3 nodes in the spline.
 static const int kMaxNodesInLocalSpline = 2 * MotiveTarget1f::kMaxNodes + 1;
 
-struct SmoothData {
-  SmoothData() : local_spline(nullptr) {}
+struct SplineData {
+  SplineData() : local_spline(nullptr) {}
 
   // If we own the spline, recycle it in the spline pool.
   CompactSpline* local_spline;
 };
 
-class SmoothMotiveProcessor : public MotiveProcessorNf {
+class SplineMotiveProcessor : public MotiveProcessorNf {
  public:
-  virtual ~SmoothMotiveProcessor() {
+  virtual ~SplineMotiveProcessor() {
     for (auto it = spline_pool_.begin(); it != spline_pool_.end(); ++it) {
       delete *(it);
     }
@@ -50,7 +50,7 @@ class SmoothMotiveProcessor : public MotiveProcessorNf {
     interpolator_.AdvanceFrame(static_cast<float>(delta_time));
   }
 
-  virtual MotivatorType Type() const { return SmoothInit::kType; }
+  virtual MotivatorType Type() const { return SplineInit::kType; }
   virtual int Priority() const { return 0; }
 
   // Accessors to allow the user to get and set simluation values.
@@ -121,7 +121,7 @@ class SmoothMotiveProcessor : public MotiveProcessorNf {
  protected:
   // TODO: Change to CreateSplineToTarget()
   void SetTarget(MotiveIndex index, const MotiveTarget1f& t) {
-    SmoothData& d = Data(index);
+    SplineData& d = Data(index);
 
     // If the first node specifies time=0, that means we want to override the
     // current values with the values specified in the first node.
@@ -166,7 +166,7 @@ class SmoothMotiveProcessor : public MotiveProcessorNf {
   // TODO: Push loop into BulkSplineInterpolator.
   void SetSpline(MotiveIndex index, const motive::CompactSpline& spline,
                  const motive::SplinePlayback& playback) {
-    SmoothData& d = Data(index);
+    SplineData& d = Data(index);
 
     // Return the local spline to the spline pool. We use external splines now.
     FreeSpline(d.local_spline);
@@ -181,8 +181,8 @@ class SmoothMotiveProcessor : public MotiveProcessorNf {
   virtual void InitializeIndex(const MotivatorInit& init, MotiveIndex index,
                                MotiveEngine* engine) {
     (void)engine;
-    auto smooth = static_cast<const SmoothInit&>(init);
-    interpolator_.SetYRange(index, smooth.range(), smooth.modular());
+    auto spline_init = static_cast<const SplineInit&>(init);
+    interpolator_.SetYRange(index, spline_init.range(), spline_init.modular());
   }
 
   virtual void RemoveIndex(MotiveIndex index) {
@@ -190,7 +190,7 @@ class SmoothMotiveProcessor : public MotiveProcessorNf {
     interpolator_.ClearSpline(index);
 
     // Return the spline to the pool of splines.
-    SmoothData& d = Data(index);
+    SplineData& d = Data(index);
     FreeSpline(d.local_spline);
     d.local_spline = nullptr;
   }
@@ -205,12 +205,12 @@ class SmoothMotiveProcessor : public MotiveProcessorNf {
     interpolator_.SetNumIndices(num_indices);
   }
 
-  const SmoothData& Data(MotiveIndex index) const {
+  const SplineData& Data(MotiveIndex index) const {
     assert(ValidIndex(index));
     return data_[index];
   }
 
-  SmoothData& Data(MotiveIndex index) {
+  SplineData& Data(MotiveIndex index) {
     assert(ValidIndex(index));
     return data_[index];
   }
@@ -254,7 +254,7 @@ class SmoothMotiveProcessor : public MotiveProcessorNf {
 
   // Hold index-specific data, for example a pointer to the spline allocated
   // from 'spline_pool_'.
-  std::vector<SmoothData> data_;
+  std::vector<SplineData> data_;
 
   // Holds unused splines. When we need another local spline (because we're
   // supplied with target values but not the actual curve to get there),
@@ -266,6 +266,6 @@ class SmoothMotiveProcessor : public MotiveProcessorNf {
   BulkSplineEvaluator interpolator_;
 };
 
-MOTIVE_INSTANCE(SmoothInit, SmoothMotiveProcessor);
+MOTIVE_INSTANCE(SplineInit, SplineMotiveProcessor);
 
 }  // namespace motive

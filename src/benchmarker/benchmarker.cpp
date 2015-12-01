@@ -36,10 +36,10 @@ using motive::MotiveEngine;
 using motive::MatrixInit;
 using motive::MatrixOpArray;
 using motive::MatrixMotivator4f;
-using motive::SmoothInit;
+using motive::SplineInit;
 
-static const SmoothInit kRotateInit(Range(-kPi, kPi), true);
-static const SmoothInit kTranslateInit(Range(-1.0f, 1.0f), true);
+static const SplineInit kRotateInit(Range(-kPi, kPi), true);
+static const SplineInit kTranslateInit(Range(-1.0f, 1.0f), true);
 static const int kNumBenchmarkIds = 10;
 
 struct SplineNode {
@@ -95,7 +95,7 @@ class MotiveBenchmarker {
  public:
   MotiveBenchmarker() {
     MatrixInit::Register();
-    SmoothInit::Register();
+    SplineInit::Register();
 
     // Create compact splines by modifying some basic functions (straight
     // line and sign wave). The straight line, in this case, represents an

@@ -135,7 +135,7 @@ set(motive_SRCS
     src/motive/processor/matrix_processor.cpp
     src/motive/processor/overshoot_processor.cpp
     src/motive/processor/rig_processor.cpp
-    src/motive/processor/smooth_processor.cpp
+    src/motive/processor/spline_processor.cpp
     src/motive/util/benchmark.cpp
     src/motive/util/optimizations.cpp
     src/motive/version.cpp)
