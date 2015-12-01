@@ -167,9 +167,10 @@ class MotiveTests : public ::testing::Test {
 
   template <class MotivatorT>
   void InitOvershootMotivator(MotivatorT* motivator) {
-    InitMotivator(overshoot_percent_init_, overshoot_percent_init_.Max(),
+    InitMotivator(overshoot_percent_init_,
+                  overshoot_percent_init_.range().end(),
                   overshoot_percent_init_.max_velocity(),
-                  overshoot_percent_init_.Max(), motivator);
+                  overshoot_percent_init_.range().end(), motivator);
   }
 
   template <class MotivatorT>
@@ -311,7 +312,8 @@ void StaysWithinBound(MotiveTests& t) {
   // Even though we're at the bound and trying to travel beyond the bound,
   // the simulation should clamp our position to the bound.
   EXPECT_TRUE(
-      VectorEqual(motivator.Value(), Vec(t.overshoot_percent_init().Max())));
+      VectorEqual(motivator.Value(),
+                  Vec(t.overshoot_percent_init().range().end())));
 }
 TEST_ALL_VECTOR_MOTIVATORS_F(StaysWithinBound)
 

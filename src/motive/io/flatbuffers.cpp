@@ -41,15 +41,10 @@ MOTIVE_VERIFY_MATRIX_OP_ENUM(kScaleUniformly);
 MOTIVE_VERIFY_MATRIX_OP_ENUM(kNumMatrixOperationTypes);
 #undef MOTIVE_VERIFY_OP_ENUM
 
-static void ModularInitFromFlatBuffers(const ModularParameters& params,
-                                       ModularInit* init) {
-  init->set_modular(params.modular() != 0);
-  init->set_range(Range(params.min(), params.max()));
-}
-
 void OvershootInitFromFlatBuffers(const OvershootParameters& params,
                                   OvershootInit* init) {
-  ModularInitFromFlatBuffers(*params.base(), init);
+  init->set_modular(params.base()->modular() != 0);
+  init->set_range(Range(params.base()->min(), params.base()->max()));
   init->set_max_velocity(params.max_velocity());
   init->set_max_delta(params.max_delta());
   Settled1fFromFlatBuffers(*params.at_target(), &init->at_target());
@@ -61,7 +56,8 @@ void OvershootInitFromFlatBuffers(const OvershootParameters& params,
 
 void SmoothInitFromFlatBuffers(const SmoothParameters& params,
                                SmoothInit* init) {
-  ModularInitFromFlatBuffers(*params.base(), init);
+  init->set_modular(params.base()->modular() != 0);
+  init->set_range(Range(params.base()->min(), params.base()->max()));
 }
 
 void Settled1fFromFlatBuffers(const Settled1fParameters& params,
