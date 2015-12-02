@@ -24,9 +24,6 @@ using mathfu::Lerp;
 
 namespace motive {
 
-static const uint32_t kMask32True = 0xFFFFFFFF;
-static const uint32_t kMask32False = 0x00000000;
-
 // These functions are implemented in assembly language.
 extern "C" void UpdateCubicXsAndGetMask_Neon(const float& delta_x,
                                              const float* x_ends, int num_xs,
@@ -60,11 +57,9 @@ void BulkSplineEvaluator::MoveIndex(const Index old_index,
   ys_[new_index] = ys_[old_index];
 }
 
-void BulkSplineEvaluator::SetYRange(const Index index, const Range& valid_y,
-                                    const bool modular_arithmetic) {
+void BulkSplineEvaluator::SetYRange(const Index index, const Range& modular_range) {
   YRange& r = y_ranges_[index];
-  r.valid_y = valid_y;
-  r.modular_arithmetic = modular_arithmetic ? kMask32True : kMask32False;
+  r.modular_range = modular_range;
 }
 
 CubicInit BulkSplineEvaluator::CalculateBlendInit(
@@ -100,14 +95,13 @@ CubicInit BulkSplineEvaluator::CalculateBlendInit(
 
   // Account for modular arithmentic. Always start in the normalized range.
   const YRange& r = y_ranges_[index];
-  if (r.modular_arithmetic != 0) {
+  if (r.modular_range.Valid() != 0) {
     // We take the shortest modular path to the new curve.
     // So if we're blending from angle 170 to angle -170 (=+190),
     // we will blend from 170-->190 instead of 170-->-170.
-    const Range& valid_y = r.valid_y;
-    start_y = valid_y.NormalizeCloseValue(start_y);
-    const float end_y_normalized = valid_y.NormalizeCloseValue(end_y);
-    const float diff_y = valid_y.Normalize(end_y_normalized - start_y);
+    start_y = r.modular_range.NormalizeCloseValue(start_y);
+    const float end_y_normalized = r.modular_range.NormalizeCloseValue(end_y);
+    const float diff_y = r.modular_range.Normalize(end_y_normalized - start_y);
     end_y = start_y + diff_y;
   }
 

@@ -19,11 +19,12 @@
 #include "motive/math/angle.h"
 #include "motive/math/curve.h"
 
-using motive::Angle;
-using motive::Range;
-using motive::kPi;
-using motive::Graph2DPoints;
 using mathfu::vec2;
+using motive::Angle;
+using motive::Graph2DPoints;
+using motive::kAngleRange;
+using motive::kPi;
+using motive::Range;
 
 int main() {
 
@@ -46,7 +47,7 @@ int main() {
   // Angles wrap around with modular arithmetic. That is, -pi is equivalent to
   // pi. Valid range for angles is -pi..pi, inclusive of +pi and exclusive of
   // -pi.
-  const motive::SplineInit init(Range(-kPi, kPi), true);
+  const motive::SplineInit init(kAngleRange);
   facing_angle.Initialize(init, &engine);
 
   // Set initial state of the Motivator, and the target parameters.

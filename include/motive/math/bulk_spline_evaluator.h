@@ -57,11 +57,13 @@ class BulkSplineEvaluator {
   /// keep your indices contiguous.
   void MoveIndex(const Index old_index, const Index new_index);
 
-  /// Initialize `index` to clamp or wrap-around the `valid_y` range.
-  /// If `modular_arithmetic` is true, values wrap-around when they exceed
-  /// the bounds of `valid_y`. If it is false, values are clamped to `valid_y`.
-  void SetYRange(const Index index, const Range& valid_y,
-                 const bool modular_arithmetic);
+  /// Initialize `index` to normalize into the `modular_range` range, whenever
+  /// the spline segment is initialized. While travelling along a segment,
+  /// note that the value may exit the `modular_range` range. For example, you
+  /// can ensure an angle stays near the [-pi, pi) range by passing that range
+  /// as the `modular_range` for this `index`.
+  /// If !modular_range.Valid(), then modular arithmetic is not used.
+  void SetYRange(const Index index, const Range& modular_range);
 
   /// Initialize `index` to process `s.spline` starting from `s.start_x`.
   /// The Y() and Derivative() values are immediately available.
@@ -221,7 +223,7 @@ class BulkSplineEvaluator {
   /// Apply modular arithmetic to ensure that `y` is within the valid y_range.
   float NormalizeY(const Index index, const float y) const {
     const YRange& r = y_ranges_[index];
-    return r.modular_arithmetic ? r.valid_y.NormalizeCloseValue(y) : y;
+    return r.modular_range.Valid() ? r.modular_range.NormalizeCloseValue(y) : y;
   }
 
   /// Helper function to calculate the next y-value in a series of y-values
@@ -231,10 +233,10 @@ class BulkSplineEvaluator {
   float NextY(const Index index, const float current_y, const float target_y,
               const ModularDirection direction) const {
     const YRange& r = y_ranges_[index];
-    if (!r.modular_arithmetic) return target_y;
+    if (!r.modular_range.Valid()) return target_y;
 
     /// Calculate the difference from the current-y value for `direction`.
-    const float diff = r.valid_y.ModDiff(current_y, target_y, direction);
+    const float diff = r.modular_range.ModDiff(current_y, target_y, direction);
     return current_y + diff;
   }
 
@@ -242,14 +244,14 @@ class BulkSplineEvaluator {
   /// used for types such as angles, which are equivalent modulo 2pi
   /// (e.g. -pi and +pi represent the same angle).
   bool ModularArithmetic(const Index index) const {
-    return y_ranges_[index].modular_arithmetic != 0;
+    return y_ranges_[index].modular_range.Valid() != 0;
   }
 
   /// The modular range for values that use ModularArithmetic(). Note that Y()
   /// can be outside of this range. However, we always normalize to this range
   /// before blending to a new spline.
   const Range& ModularRange(const Index index) const {
-    return y_ranges_[index].valid_y;
+    return y_ranges_[index].modular_range;
   }
 
  private:
@@ -297,18 +299,11 @@ class BulkSplineEvaluator {
   };
 
   struct YRange {
-    YRange() : valid_y(Range::Full()), modular_arithmetic(0) {}
-
-    /// Hold the min and max extents of the modular range.
-    /// Modular ranges are used for things like angles, which wrap around from
-    /// -pi to +pi.
-    Range valid_y; // TODO: change name to modular_range.
-
-    /// True if y values wrap around when they exit the valid_y range.
-    /// False if y values clamp to the edges of the valid_y range.
-    /// Use a mask for `modular_arithmetic` so that it can be used in `select`
-    /// instructions, in SIMD code.
-    uint32_t modular_arithmetic;
+    /// If using modular arithmetic, hold the min and max extents of the
+    /// modular range. Modular ranges are used for things like angles,
+    /// which wrap around from -pi to +pi.
+    /// By default, invalid. If invalid, do not use modular arithmetic.
+    Range modular_range;
   };
 
   // Data is organized in struct-of-arrays format to match the algorithm`s

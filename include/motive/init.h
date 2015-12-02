@@ -57,19 +57,14 @@ inline bool ScaleOp(MatrixOperationType op) {
 /// operation that does nothing to the transformation. Any operation that
 /// constantly returns the default value can be removed.
 inline float OperationDefaultValue(MatrixOperationType op) {
-  return RotateOp(op) || TranslateOp(op) ? 0.0f : 1.0f;
+  return ScaleOp(op) ? 1.0f : 0.0f;
 }
-
-/// Returns true if this operation uses modular arithmetic.
-/// Rotations are equivalence every 2pi, so they are modular.
-inline bool ModularOp(MatrixOperationType op) { return RotateOp(op); }
 
 /// Returns the range of the matrix operation's spline. Most ranges are just
 /// the extents of the splines, but rotations we want to normalize within
 /// +-pi before blending to another curve.
-inline Range RangeOfOp(MatrixOperationType op,
-                                const Range& extents) {
-  return ModularOp(op) ? kAngleRange : extents;
+inline Range RangeOfOp(MatrixOperationType op) {
+  return RotateOp(op) ? kAngleRange : kInvalidRange;
 }
 
 /// Return a string with the operation name. Used for debugging.
@@ -190,36 +185,28 @@ class SplineInit : public MotivatorInit {
  public:
   MOTIVE_INTERFACE();
 
-  SplineInit() : MotivatorInit(kType), range_(Range::Full()), modular_(false) {}
+  SplineInit() : MotivatorInit(kType) {}
 
-  /// The derived type must call this constructor with it's MotivatorType
-  /// identifier.
-  /// @param range The valid range of a normalized value. Ignored when modular
-  ///              is false. Note: it's possible for MotivatorNf::Value() to
-  ///              return a value outside of this range, though all splines
-  ///              start inside the valid range.
-  /// @param modular Option to use modular arithmetic when initializing
-  ///                splines. If true, the initial spline value is always
-  ///                within `range`.
-  SplineInit(const Range& range, bool modular)
-      : MotivatorInit(kType), range_(range), modular_(modular) {}
+  /// @param range If using modular arithmetic, the normalized range.
+  ///              If not using modular arithmetic, pass in an invalid range
+  ///              such as Range().
+  explicit SplineInit(const Range& range) : MotivatorInit(kType), range_(range) {}
 
   const Range& range() const { return range_; }
   void set_range(const Range& r) { range_ = r; }
 
-  bool modular() const { return modular_; }
-  void set_modular(bool modular) { modular_ = modular; }
-
  private:
-  /// Minimum and maximum values for Motivator::Value().
-  /// Clamp (if modular_ is false) or wrap-around (if modular_ is true) when
-  /// we reach these boundaries.
+  /// If using modular arithmetic, the normalized range.
+  /// For example, for angles, the normalized range can be (pi, +pi].
+  /// Whenever a new spline segment is started, the internal logic resets
+  /// the value to the normalized range. Note, however, that it is possible
+  /// for the value to escape the normalized range. That is,
+  /// MotivatorNf::Value() may be outside of `range_`, though it will always
+  /// be close enough to normalize efficiently with
+  /// Range::NormalizeCloseValue().
+  ///
+  /// If not using modular arithmetic, set to an invalid range and ignored.
   Range range_;
-
-  /// A modular value wraps around from min to max. For example, an angle
-  /// is modular, where -pi is equivalent to +pi. Setting this to true ensures
-  /// that arithmetic wraps around instead of clamping to min/max.
-  bool modular_;
 };
 
 /// @class MatrixOperationInit

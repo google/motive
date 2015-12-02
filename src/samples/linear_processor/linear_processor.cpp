@@ -43,7 +43,6 @@ class LinearInit : public MotivatorInit {
 
   // This motivator type is rather boring. It has no configuration parameters
   // at all. We could add some extra parameters here, though, if we like.
-  LinearInit() : MotivatorInit(kType) {}
 };
 //! [Own Processor LinearInit]
 

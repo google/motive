@@ -182,7 +182,7 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
                                MotiveEngine* engine) {
     (void)engine;
     auto spline_init = static_cast<const SplineInit&>(init);
-    interpolator_.SetYRange(index, spline_init.range(), spline_init.modular());
+    interpolator_.SetYRange(index, spline_init.range());
   }
 
   virtual void RemoveIndex(MotiveIndex index) {

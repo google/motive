@@ -56,8 +56,9 @@ void OvershootInitFromFlatBuffers(const OvershootParameters& params,
 
 void SplineInitFromFlatBuffers(const SplineParameters& params,
                                SplineInit* init) {
-  init->set_modular(params.base()->modular() != 0);
-  init->set_range(Range(params.base()->min(), params.base()->max()));
+  init->set_range(
+      params.base()->modular() != 0 ?
+      Range(params.base()->min(), params.base()->max()) : Range());
 }
 
 void Settled1fFromFlatBuffers(const Settled1fParameters& params,
@@ -105,9 +106,8 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
 
         // Hold `init` and `playback` data in structures that won't disappear,
         // since these are referenced by pointer.
-        const bool modular = ModularOp(op_type);
-        const Range& op_range = RangeOfOp(op_type, y_range);
-        s.init = SplineInit(op_range, modular);
+        const Range& op_range = RangeOfOp(op_type);
+        s.init = SplineInit(op_range);
         ops.AddOp(op_type, s.init, s.spline);
         break;
       }
