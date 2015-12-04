@@ -66,30 +66,30 @@ class OvershootMotiveProcessor : public MotiveProcessorNf {
     return &values_[index];
   }
 
-  virtual void Velocities(MotiveIndex index, MotiveIndex count,
+  virtual void Velocities(MotiveIndex index, MotiveDimension dimensions,
                           float* out) const {
-    for (MotiveDimension i = 0; i < count; ++i) {
+    for (MotiveDimension i = 0; i < dimensions; ++i) {
       out[i] = Data(index + i).velocity;
     }
   }
 
-  virtual void TargetValues(MotiveIndex index, MotiveIndex count,
+  virtual void TargetValues(MotiveIndex index, MotiveDimension dimensions,
                             float* out) const {
-    for (MotiveDimension i = 0; i < count; ++i) {
+    for (MotiveDimension i = 0; i < dimensions; ++i) {
       out[i] = Data(index + i).target_value;
     }
   }
 
-  virtual void TargetVelocities(MotiveIndex /*index*/, MotiveIndex count,
+  virtual void TargetVelocities(MotiveIndex /*index*/, MotiveDimension dimensions,
                                 float* out) const {
-    for (MotiveDimension i = 0; i < count; ++i) {
+    for (MotiveDimension i = 0; i < dimensions; ++i) {
       out[i] = 0.0f;
     }
   }
 
-  virtual void Differences(MotiveIndex index, MotiveIndex count,
+  virtual void Differences(MotiveIndex index, MotiveDimension dimensions,
                            float* out) const {
-    for (MotiveDimension i = 0; i < count; ++i) {
+    for (MotiveDimension i = 0; i < dimensions; ++i) {
       const OvershootData& d = Data(index + i);
       out[i] = Normalize(d, d.target_value - values_[i]);
     }
@@ -101,24 +101,23 @@ class OvershootMotiveProcessor : public MotiveProcessorNf {
     return -1;
   }
 
-  virtual void SetTargets(MotiveIndex index, MotiveIndex count,
+  virtual void SetTargets(MotiveIndex index, MotiveDimension dimensions,
                           const MotiveTarget1f* ts) {
-    for (int i = 0; i < count; ++i) {
-      OvershootData& d = Data(index + i);
-      const MotiveTarget1f& t = ts[i];
-
+    const MotiveTarget1f* t = ts;
+    for (MotiveIndex i = index; i < index + dimensions; ++i, ++t) {
+      OvershootData& d = Data(i);
       // A 'time' of 0 means that we're setting the current values.
-      const MotiveNode1f& current = t.Node(0);
+      const MotiveNode1f& current = t->Node(0);
       if (current.time == 0) {
-        values_[index + i] = current.value;
+        values_[i] = current.value;
         d.velocity = current.velocity;
       }
 
       // A 'time' > 0 means that we're setting the target values.
       // We can also use the second node to set target values, if it exists.
       const MotiveNode1f* target =
-          current.time == 0 ? (t.num_nodes() > 1 ? &t.Node(1) : nullptr)
-                            : &t.Node(0);
+          current.time == 0 ? (t->num_nodes() > 1 ? &t->Node(1) : nullptr)
+                            : &t->Node(0);
       if (target != nullptr) {
         d.target_value = target->value;
       }
@@ -126,21 +125,27 @@ class OvershootMotiveProcessor : public MotiveProcessorNf {
   }
 
  protected:
-  virtual void InitializeIndex(const MotivatorInit& init, MotiveIndex index,
-                               MotiveEngine* engine) {
-    (void)engine;
-    Data(index).Initialize(static_cast<const OvershootInit&>(init));
-    values_[index] = 0.0f;
+  virtual void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
+                                 MotiveDimension dimensions,
+                                 MotiveEngine* /*engine*/) {
+    for (MotiveIndex i = index; i < index + dimensions; ++i) {
+      Data(i).Initialize(static_cast<const OvershootInit&>(init));
+      values_[i] = 0.0f;
+    }
   }
 
-  virtual void RemoveIndex(MotiveIndex index) {
-    Data(index).Initialize(OvershootInit());
-    values_[index] = 0.0f;
+  virtual void RemoveIndices(MotiveIndex index, MotiveDimension dimensions) {
+    InitializeIndices(OvershootInit(), index, dimensions, nullptr);
   }
 
-  virtual void MoveIndex(MotiveIndex old_index, MotiveIndex new_index) {
-    data_[new_index] = data_[old_index];
-    values_[new_index] = values_[old_index];
+  virtual void MoveIndices(MotiveIndex old_index, MotiveIndex new_index,
+                           MotiveDimension dimensions) {
+    MotiveIndex old_i = old_index;
+    MotiveIndex new_i = new_index;
+    for (MotiveDimension i = 0; i < dimensions; ++i, ++new_i, ++old_i) {
+      data_[new_i] = data_[old_i];
+      values_[new_i] = values_[old_i];
+    }
   }
 
   virtual void SetNumIndices(MotiveIndex num_indices) {

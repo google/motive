@@ -289,11 +289,9 @@ void CompactSpline::BulkYs(const CompactSpline* const splines,
   // Initialize the evaluator with the splines.
   // Note that we set `repeat` = false, so that we can accurately get the last
   // value in the spline.
-  evaluator.SetNumIndices(num_splines);
   const SplinePlayback playback(start_x);
-  for (int i = 0; i < num_splines; ++i) {
-    evaluator.SetSpline(i, splines[i], playback);
-  }
+  evaluator.SetNumIndices(num_splines);
+  evaluator.SetSplines(0, num_splines, splines, playback);
 
   // Grab y values, then advance spline evaluation by delta_x.
   // Repeat num_ys times.

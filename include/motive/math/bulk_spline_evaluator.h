@@ -47,7 +47,7 @@ class BulkSplineEvaluator {
   ///   - splines are allocated or removed at the highest indices
   void SetNumIndices(const Index num_indices);
 
-  /// Move the data at `old_index` into `new_index`.
+  /// Move the data at `old_index` into `new_index`. Move `count` indices total.
   ///
   /// Unused indices are still processed every frame. You can fill these index
   /// holes with MoveIndex(), to move items from the last index into the hole.
@@ -55,7 +55,8 @@ class BulkSplineEvaluator {
   /// SetNumIndices() to stop processing these highest indices. Note that this
   /// is exactly what fplutil::IndexAllocator does. You should use that class to
   /// keep your indices contiguous.
-  void MoveIndex(const Index old_index, const Index new_index);
+  void MoveIndices(const Index old_index, const Index new_index,
+                   const Index count);
 
   /// Initialize `index` to normalize into the `modular_range` range, whenever
   /// the spline segment is initialized. While travelling along a segment,
@@ -63,20 +64,21 @@ class BulkSplineEvaluator {
   /// can ensure an angle stays near the [-pi, pi) range by passing that range
   /// as the `modular_range` for this `index`.
   /// If !modular_range.Valid(), then modular arithmetic is not used.
-  void SetYRange(const Index index, const Range& modular_range);
+  void SetYRanges(const Index index, const Index count,
+                  const Range& modular_range);
 
   /// Initialize `index` to process `s.spline` starting from `s.start_x`.
   /// The Y() and Derivative() values are immediately available.
-  void SetSpline(const Index index, const CompactSpline& spline,
-                 const SplinePlayback& playback);
+  void SetSplines(const Index index, const Index count,
+                  const CompactSpline* splines, const SplinePlayback& playback);
 
-  /// Mark spline as invalid.
-  void ClearSpline(const Index index) { sources_[index].spline = nullptr; }
+  /// Mark spline range as invalid.
+  void ClearSplines(const Index index, const Index count);
 
   /// Reposition the spline at `index` evaluate from `x`.
   /// Same as calling SetSpline() with the same spline and
   /// `playback.start_x = x`.
-  void SetX(const Index index, const float x);
+  void SetXs(const Index index, const Index count, const float x);
 
   /// Set conversion rate from AdvanceFrame's delta_x to the speed at which
   /// we traverse the spline.
@@ -84,9 +86,8 @@ class BulkSplineEvaluator {
   ///     0.5 ==> half speed (slow motion)
   ///     1   ==> authored speed
   ///     2   ==> double speed (fast forward)
-  void SetPlaybackRate(const Index index, float playback_rate) {
-    playback_rates_[index] = playback_rate;
-  }
+  void SetPlaybackRates(const Index index, const Index count,
+                        float playback_rate);
 
   /// Increment x and update the Y() and Derivative() values for all indices.
   /// Process all indices in bulk to efficiently traverse memory and allow SIMD
@@ -125,7 +126,7 @@ class BulkSplineEvaluator {
   /// Return the slopes for the `count` splines starting at `index`.
   /// `out` is an array of length `count`.
   /// TODO OPT: Write assembly versions of this function.
-  void Derivatives(const Index index, Index count, float* out) const {
+  void Derivatives(const Index index, const Index count, float* out) const {
     assert(Valid(index) && Valid(index + count - 1));
     for (Index i = 0; i < count; ++i) {
       out[i] = Derivative(index + i);

@@ -95,8 +95,8 @@ class MotiveProcessor {
   /// @param index Reference into the MotiveProcessor's internal arrays.
   void RemoveMotivator(MotiveIndex index);
 
-  /// Transfer ownership of the motivator at 'index' to 'new_motivator'.
-  /// Resets the Motivator that currently owns 'index' and initializes
+  /// Transfer ownership of the motivator at `index` to 'new_motivator'.
+  /// Resets the Motivator that currently owns `index` and initializes
   /// 'new_motivator'.
   ///
   /// This function should only be called by Motivator's copy operations.
@@ -106,12 +106,12 @@ class MotiveProcessor {
   ///                      `index`.
   void TransferMotivator(MotiveIndex index, Motivator* new_motivator);
 
-  /// Returns true if 'index' is currently driving a motivator. Does not do
+  /// Returns true if `index` is currently driving a motivator. Does not do
   /// any validity checking, however, like ValidMotivatorIndex() does.
   /// @param index Reference into the MotiveProcessor's internal arrays.
   bool IsMotivatorIndex(MotiveIndex index) const;
 
-  /// Returns true if 'index' is currently in a block of indices driven by
+  /// Returns true if `index` is currently in a block of indices driven by
   /// a motivator.
   /// @param index Reference into the MotiveProcessor's internal arrays.
   bool ValidIndex(MotiveIndex index) const;
@@ -166,25 +166,30 @@ class MotiveProcessor {
   int benchmark_id_for_init() const { return benchmark_id_for_init_; }
 
  protected:
-  /// Initialize data at 'index'. The meaning of 'index' is determined by the
-  /// MotiveProcessor implementation (most likely it is the index into one or
-  /// more data_ arrays though).
-  /// MotiveProcessor tries to keep the 'index' as low as possible, by
+  /// Initialize data at [index, index + dimensions).
+  /// The meaning of `index` is determined by the MotiveProcessor
+  /// implementation (most likely it is the index into one or more data_ arrays
+  /// though). MotiveProcessor tries to keep the `index` as low as possible, by
   /// recycling ones that have been freed, and by providing a Defragment()
   /// function to move later indices to indices that have been freed.
-  virtual void InitializeIndex(const MotivatorInit& init, MotiveIndex index,
-                               MotiveEngine* engine) = 0;
+  virtual void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
+                                 MotiveDimension dimensions,
+                                 MotiveEngine* engine) = 0;
 
-  /// Reset data at 'index'. See comment above InitializeIndex for meaning of
-  /// 'index'. If your MotiveProcessor stores data in a plain array, you
-  /// probably have nothing to do. But if you use dynamic memory per index,
+  /// Reset data at [index, index + dimensions).
+  /// See comment above InitializeIndex for meaning of `index`.
+  /// If your MotiveProcessor stores data in a plain array, you probably have
+  /// nothing to do. But if you use dynamic memory per index,
   /// (which you really shouldn't - too slow!), you should deallocate it here.
   /// For debugging, it might be nice to invalidate the data.
-  virtual void RemoveIndex(MotiveIndex index) = 0;
+  virtual void RemoveIndices(MotiveIndex index, MotiveDimension dimensions) = 0;
 
-  /// Move the data at 'old_index' into 'new_index'. Used by Defragment().
-  /// Note that 'new_index' is guaranteed to be inactive.
-  virtual void MoveIndex(MotiveIndex old_index, MotiveIndex new_index) = 0;
+  /// Move the data chunk of length `dimensions` from `old_index` into
+  /// `new_index`. Used by Defragment().
+  /// Note that the index range starting at `new_index` is guaranteed to be
+  /// inactive.
+  virtual void MoveIndices(MotiveIndex old_index, MotiveIndex new_index,
+                           MotiveDimension dimensions) = 0;
 
   /// Increase or decrease the total number of indices.
   /// If decreased, existing indices >= num_indices should be uninitialized.
@@ -193,10 +198,9 @@ class MotiveProcessor {
   virtual void SetNumIndices(MotiveIndex num_indices) = 0;
 
   /// When an index is moved, the Motivator that references that index is
-  /// updated.
-  /// Can be called at the discretion of your MotiveProcessor, but normally
-  /// called
-  /// at the beginning of your MotiveProcessor::AdvanceFrame.
+  /// updated. Can be called at the discretion of your MotiveProcessor,
+  /// but normally called at the beginning of your
+  /// MotiveProcessor::AdvanceFrame.
   void Defragment() { index_allocator_.Defragment(); }
 
  private:
@@ -290,17 +294,17 @@ class MotiveProcessorNf : public MotiveProcessor {
   }
 
   virtual const float* Values(MotiveIndex index) const = 0;
-  virtual void Velocities(MotiveIndex index, MotiveIndex count,
+  virtual void Velocities(MotiveIndex index, MotiveDimension dimensions,
                           float* out) const = 0;
-  virtual void Directions(MotiveIndex index, MotiveIndex count,
+  virtual void Directions(MotiveIndex index, MotiveDimension dimensions,
                           float* out) const {
-    Velocities(index, count, out);
+    Velocities(index, dimensions, out);
   }
-  virtual void TargetValues(MotiveIndex index, MotiveIndex count,
+  virtual void TargetValues(MotiveIndex index, MotiveDimension dimensions,
                             float* out) const = 0;
-  virtual void TargetVelocities(MotiveIndex index, MotiveIndex count,
+  virtual void TargetVelocities(MotiveIndex index, MotiveDimension dimensions,
                                 float* out) const = 0;
-  virtual void Differences(MotiveIndex index, MotiveIndex count,
+  virtual void Differences(MotiveIndex index, MotiveDimension dimensions,
                            float* out) const = 0;
 
   virtual MotiveTime TargetTime(MotiveIndex index) const = 0;
@@ -311,7 +315,7 @@ class MotiveProcessorNf : public MotiveProcessor {
   // towards a target.
   //
   // Set the current and future values that we want the Motivator to achieve.
-  virtual void SetTargets(MotiveIndex index, MotiveIndex count,
+  virtual void SetTargets(MotiveIndex index, MotiveDimension dimensions,
                           const MotiveTarget1f* ts) = 0;
 
   // Drive the Motivator by following splines specified in the playback.
