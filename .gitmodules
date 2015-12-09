@@ -10,3 +10,6 @@
 [submodule "dependencies/vectorial"]
 	path = dependencies/vectorial
 	url = http://github.com/scoopr/vectorial
+[submodule "dependencies/flatbuffers"]
+	path = dependencies/flatbuffers
+	url = http://github.com/google/flatbuffers.git
