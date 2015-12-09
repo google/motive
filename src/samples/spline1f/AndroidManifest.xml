@@ -14,19 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.google.motive.smooth1f"
+          package="com.google.motive.spline1f"
           android:versionCode="1"
           android:versionName="1.0">
 
     <uses-sdk android:minSdkVersion="9"/>
 
-    <application android:label="motive_smooth1f"
+    <application android:label="motive_spline1f"
                  android:hasCode="false"
                  android:debuggable="true">
         <activity android:name="android.app.NativeActivity"
-                  android:label="motive_smooth1f">
+                  android:label="motive_spline1f">
             <meta-data android:name="android.app.lib_name"
-                       android:value="motive_smooth1f" />
+                       android:value="motive_spline1f" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

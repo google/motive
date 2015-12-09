@@ -14,6 +14,6 @@
 
 LOCAL_PATH:=$(call my-dir)/..
 PROJECT_ROOT:=$(LOCAL_PATH)/../../..
-MOTIVE_APP_NAME=smooth1f
+MOTIVE_APP_NAME=spline1f
 
 include $(PROJECT_ROOT)/src/android_common.mk
