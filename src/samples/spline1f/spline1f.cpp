@@ -26,9 +26,8 @@ using motive::Graph2DPoints;
 using mathfu::vec2;
 
 int main() {
-
-  // Since we use the ‘smooth’ animation algorithm, we must register it.
-  motive::SmoothInit::Register();
+  // Since we use the ‘spline’ animation algorithm, we must register it.
+  motive::SplineInit::Register();
 
   // The engine is the central place for animation data.
   motive::MotiveEngine engine;
@@ -36,7 +35,7 @@ int main() {
   // In this example, we animate a one-dimensional floating point value.
   motive::Motivator1f facing_angle;
 
-  // Initialize facing_angle Motivator to animate as a 'Smooth' Motivator.
+  // Initialize facing_angle Motivator to animate as a 'Spline' Motivator.
   // Alternatively, we could initialize as an 'Overshoot' Motivator. All
   // Motivator types have the same interface. Internally, they are animated
   // with different algorithms, and they will move differently towards their
@@ -46,11 +45,11 @@ int main() {
   // Angles wrap around with modular arithmetic. That is, -pi is equivalent to
   // pi. Valid range for angles is -pi..pi, inclusive of +pi and exclusive of
   // -pi.
-  const motive::SmoothInit init(Range(-kPi, kPi), true);
+  const motive::SplineInit init(Range(-kPi, kPi), true);
   facing_angle.Initialize(init, &engine);
 
   // Set initial state of the Motivator, and the target parameters.
-  // 'Smooth' Motivators animate to a target-value in a target-time. Not all
+  // 'Spline' Motivators animate to a target-value in a target-time. Not all
   // types of Motivators use all target data.
   const Angle start = Angle::FromDegrees(120.0f);
   const float start_angular_velocity = 0.0f;
@@ -58,10 +57,9 @@ int main() {
   const float target_angular_velocity = 0.0f;
   const motive::MotiveTime target_time = 100;
   const motive::MotiveTime delta_time = 1;
-  facing_angle.SetTarget(
-      motive::CurrentToTarget1f(start.ToRadians(), start_angular_velocity,
-                                target.ToRadians(), target_angular_velocity,
-                                target_time));
+  facing_angle.SetTarget(motive::CurrentToTarget1f(
+      start.ToRadians(), start_angular_velocity, target.ToRadians(),
+      target_angular_velocity, target_time));
 
   std::vector<vec2> points(target_time / delta_time + 1);
   for (motive::MotiveTime t = 0; t <= target_time; t += delta_time) {
@@ -70,11 +68,11 @@ int main() {
 
     // The current value of the variable being animated is always available.
     const Angle angle_at_t = Angle::FromWithinThreePi(facing_angle.Value());
-    points.push_back(
-        vec2(static_cast<float>(t), angle_at_t.ToDegrees()));
+    points.push_back(vec2(static_cast<float>(t), angle_at_t.ToDegrees()));
   }
 
-  printf("\n%s", Graph2DPoints(&points[0], points.size()).c_str());
+  printf("\n%s",
+         Graph2DPoints(&points[0], static_cast<int>(points.size())).c_str());
   return 0;
 }
 

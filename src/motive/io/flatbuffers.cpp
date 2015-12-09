@@ -41,15 +41,10 @@ MOTIVE_VERIFY_MATRIX_OP_ENUM(kScaleUniformly);
 MOTIVE_VERIFY_MATRIX_OP_ENUM(kNumMatrixOperationTypes);
 #undef MOTIVE_VERIFY_OP_ENUM
 
-static void ModularInitFromFlatBuffers(const ModularParameters& params,
-                                       ModularInit* init) {
-  init->set_modular(params.modular() != 0);
-  init->set_range(Range(params.min(), params.max()));
-}
-
 void OvershootInitFromFlatBuffers(const OvershootParameters& params,
                                   OvershootInit* init) {
-  ModularInitFromFlatBuffers(*params.base(), init);
+  init->set_modular(params.base()->modular() != 0);
+  init->set_range(Range(params.base()->min(), params.base()->max()));
   init->set_max_velocity(params.max_velocity());
   init->set_max_delta(params.max_delta());
   Settled1fFromFlatBuffers(*params.at_target(), &init->at_target());
@@ -59,9 +54,10 @@ void OvershootInitFromFlatBuffers(const OvershootParameters& params,
   init->set_max_delta_time(params.max_delta_time());
 }
 
-void SmoothInitFromFlatBuffers(const SmoothParameters& params,
-                               SmoothInit* init) {
-  ModularInitFromFlatBuffers(*params.base(), init);
+void SplineInitFromFlatBuffers(const SplineParameters& params,
+                               SplineInit* init) {
+  init->set_modular(params.base()->modular() != 0);
+  init->set_range(Range(params.base()->min(), params.base()->max()));
 }
 
 void Settled1fFromFlatBuffers(const Settled1fParameters& params,
@@ -111,7 +107,7 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
         // since these are referenced by pointer.
         const bool modular = ModularOp(op_type);
         const Range& op_range = RangeOfOp(op_type, y_range);
-        s.init = SmoothInit(op_range, modular);
+        s.init = SplineInit(op_range, modular);
         ops.AddOp(op_type, s.init, s.spline);
         break;
       }

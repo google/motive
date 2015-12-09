@@ -28,5 +28,5 @@ endfunction()
 
 sample_executable(linear_processor)
 sample_executable(own_vector_types)
-sample_executable(smooth1f)
+sample_executable(spline1f)
 sample_executable(duck2f)

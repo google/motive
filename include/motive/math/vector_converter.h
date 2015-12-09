@@ -44,10 +44,10 @@ class MathFuVectorConverter {
   static const float* ToPtr(const Matrix4& m) { return &m(0); }
 
   static float FromPtr(const float* f, float) { return *f; }
-  static Vector2 FromPtr(const float* f, Vector2) { return Vector2(f); }
-  static Vector3 FromPtr(const float* f, Vector3) { return Vector3(f); }
-  static Vector4 FromPtr(const float* f, Vector4) { return Vector4(f); }
-  static Matrix4 FromPtr(const float* f, Matrix4) { return Matrix4(f); }
+  static Vector2 FromPtr(const float* f, const Vector2&) { return Vector2(f); }
+  static Vector3 FromPtr(const float* f, const Vector3&) { return Vector3(f); }
+  static Vector4 FromPtr(const float* f, const Vector4&) { return Vector4(f); }
+  static Matrix4 FromPtr(const float* f, const Matrix4&) { return Matrix4(f); }
 };
 
 // Map a dimension onto the external vector type.

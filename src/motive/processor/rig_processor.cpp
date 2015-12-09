@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <sstream>
 #include <iomanip>
+#include <sstream>
 
 #include "mathfu/constants.h"
 #include "motive/anim.h"
@@ -107,9 +107,7 @@ class RigData {
 
   const AffineTransform* GlobalTransforms() const { return global_transforms_; }
 
-  BoneIndex NumBones() const {
-    return defining_anim_->NumBones();
-  }
+  BoneIndex NumBones() const { return defining_anim_->NumBones(); }
 
   MotiveTime end_time() const { return end_time_; }
 
@@ -170,12 +168,12 @@ class RigData {
 
     // Output header
     const MotiveTime time_until_end = end_time_ - time;
-    const MotiveTime time_since_start = current_anim_->end_time()
-                                      - time_until_end;
-    oss << current_anim_->anim_name() << " at time " << time_since_start
-        << " (" << (time_since_start * 24.0f / 1000.0f) << " @24fps)"
-        << std::endl;
-    for (BoneIndex idx = bone; idx != kInvalidBoneIdx; idx = bone_parents[idx]) {
+    const MotiveTime time_since_start =
+        current_anim_->end_time() - time_until_end;
+    oss << current_anim_->anim_name() << " at time " << time_since_start << " ("
+        << (time_since_start * 24.0f / 1000.0f) << " @24fps)" << std::endl;
+    for (BoneIndex idx = bone; idx != kInvalidBoneIdx;
+         idx = bone_parents[idx]) {
       // Output the bone's name.
       const char* bone_name = defining_anim_->BoneName(idx);
       oss << bone_name << std::endl;
@@ -183,10 +181,9 @@ class RigData {
       // Output the bone's matrix.
       const mat4& m = motivators_[idx].Value();
       for (int row = 0; row < 3; ++row) {
-        oss << "  (" << std::setw(7) << m(row, 0)
-                     << std::setw(7) << m(row, 1)
-                     << std::setw(7) << m(row, 2)
-                     << std::setw(7) << m(row, 3) << ')' << std::endl;
+        oss << "  (" << std::setw(7) << m(row, 0) << std::setw(7) << m(row, 1)
+            << std::setw(7) << m(row, 2) << std::setw(7) << m(row, 3) << ')'
+            << std::endl;
       }
 
       // Output the operations on this bone.
@@ -194,7 +191,9 @@ class RigData {
       oss << "  ";
       for (size_t i = 0; i < ops.size(); ++i) {
         const float multiplier = RotateOp(ops[i].type) ? 180.0f / kPi : 1.0f;
-        const float value = multiplier * motivators_[idx].ChildValue1f(i);
+        const float value =
+            multiplier *
+            motivators_[idx].ChildValue1f(static_cast<MotiveChildIndex>(i));
         oss << MatrixOpName(ops[i].type) << "=" << value;
         if (i < ops.size() - 1) {
           oss << ", ";

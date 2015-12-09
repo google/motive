@@ -28,7 +28,6 @@ using motive::MotiveNode1f;
 using motive::Motivator1f;
 using mathfu::vec2;
 
-
 //! [Own Processor LinearInit]
 // The init structure is the only code that should be exposed externally.
 // When you call Motivator::Initialize() with initialization parameters of
@@ -46,7 +45,6 @@ class LinearInit : public MotivatorInit {
   LinearInit() : MotivatorInit(kType) {}
 };
 //! [Own Processor LinearInit]
-
 
 //! [Own Processor LinearMotiveProcessor]
 class LinearMotiveProcessor : public MotiveProcessorNf {
@@ -214,9 +212,7 @@ class LinearMotiveProcessor : public MotiveProcessorNf {
 MOTIVE_INSTANCE(LinearInit, LinearMotiveProcessor);
 //! [Own Processor LinearMotiveProcessor]
 
-
 int main() {
-
   //! [Own Processor Register]
   LinearInit::Register();
   //! [Own Processor Register]
@@ -240,7 +236,9 @@ int main() {
     points.push_back(vec2(static_cast<float>(t), linear_motivator.Value()));
     engine.AdvanceFrame(1);
   }
-  printf("\n%s", motive::Graph2DPoints(&points[0], points.size()).c_str());
+  printf("\n%s",
+         motive::Graph2DPoints(&points[0], static_cast<int>(points.size()))
+             .c_str());
   //! [Own Processor Advance Simulation]
 
   return 0;

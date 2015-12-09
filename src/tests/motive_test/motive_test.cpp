@@ -42,7 +42,7 @@ using motive::MotiveTarget2f;
 using motive::MotiveTarget3f;
 using motive::MotiveTarget4f;
 using motive::OvershootInit;
-using motive::SmoothInit;
+using motive::SplineInit;
 using motive::MatrixInit;
 using motive::MatrixOperationInit;
 using motive::Settled1f;
@@ -144,8 +144,8 @@ class MotiveTests : public ::testing::Test {
   const OvershootInit& overshoot_percent_init() const {
     return overshoot_percent_init_;
   }
-  const SmoothInit& smooth_angle_init() const { return smooth_angle_init_; }
-  const SmoothInit& smooth_scalar_init() const { return smooth_scalar_init_; }
+  const SplineInit& spline_angle_init() const { return spline_angle_init_; }
+  const SplineInit& smooth_scalar_init() const { return spline_scalar_init; }
   const CompactSpline& simple_spline() const { return simple_spline_; }
   const CompactSpline* simple_splines(MotiveDimension dimension) const {
     assert(static_cast<size_t>(dimension) <=
@@ -167,9 +167,10 @@ class MotiveTests : public ::testing::Test {
 
   template <class MotivatorT>
   void InitOvershootMotivator(MotivatorT* motivator) {
-    InitMotivator(overshoot_percent_init_, overshoot_percent_init_.Max(),
+    InitMotivator(overshoot_percent_init_,
+                  overshoot_percent_init_.range().end(),
                   overshoot_percent_init_.max_velocity(),
-                  overshoot_percent_init_.Max(), motivator);
+                  overshoot_percent_init_.range().end(), motivator);
   }
 
   template <class MotivatorT>
@@ -194,7 +195,7 @@ class MotiveTests : public ::testing::Test {
   virtual void SetUp() {
     const Range angle_range(-3.14159265359f, 3.14159265359f);
     motive::OvershootInit::Register();
-    motive::SmoothInit::Register();
+    motive::SplineInit::Register();
     motive::MatrixInit::Register();
 
     // Create an OvershootInit with reasonable values.
@@ -220,11 +221,11 @@ class MotiveTests : public ::testing::Test {
     overshoot_percent_init_.set_wrong_direction_multiplier(4.0f);
     overshoot_percent_init_.set_max_delta_time(10);
 
-    smooth_angle_init_.set_modular(true);
-    smooth_angle_init_.set_range(angle_range);
+    spline_angle_init_.set_modular(true);
+    spline_angle_init_.set_range(angle_range);
 
-    smooth_scalar_init_.set_modular(false);
-    smooth_scalar_init_.set_range(Range(-100.0f, 100.0f));
+    spline_scalar_init.set_modular(false);
+    spline_scalar_init.set_range(Range(-100.0f, 100.0f));
 
     // Create a simple spline from time 0~kEndTime. The y-values don't really
     // matter.
@@ -244,8 +245,8 @@ class MotiveTests : public ::testing::Test {
   MotiveEngine engine_;
   OvershootInit overshoot_angle_init_;
   OvershootInit overshoot_percent_init_;
-  SmoothInit smooth_angle_init_;
-  SmoothInit smooth_scalar_init_;
+  SplineInit spline_angle_init_;
+  SplineInit spline_scalar_init;
   CompactSpline simple_spline_;
   CompactSpline simple_splines_[4];
 };
@@ -311,7 +312,8 @@ void StaysWithinBound(MotiveTests& t) {
   // Even though we're at the bound and trying to travel beyond the bound,
   // the simulation should clamp our position to the bound.
   EXPECT_TRUE(
-      VectorEqual(motivator.Value(), Vec(t.overshoot_percent_init().Max())));
+      VectorEqual(motivator.Value(),
+                  Vec(t.overshoot_percent_init().range().end())));
 }
 TEST_ALL_VECTOR_MOTIVATORS_F(StaysWithinBound)
 
@@ -479,7 +481,7 @@ void VectorResize(MotiveTests& t) {
 TEST_ALL_VECTOR_MOTIVATORS_F(VectorResize)
 
 template <class MotivatorT>
-void SmoothModular(MotiveTests& t) {
+void SplineModular(MotiveTests& t) {
   typedef typename MotivatorT::TargetBuilder Tar;
   typedef typename MotivatorT::Vec Vec;
 
@@ -487,7 +489,7 @@ void SmoothModular(MotiveTests& t) {
   static const MotiveTime kTime = 10;
   static const float kStart = kPi - kMargin;
   static const float kEnd = -kPi + kMargin;
-  MotivatorT angle(t.smooth_angle_init(), &t.engine(),
+  MotivatorT angle(t.spline_angle_init(), &t.engine(),
                    Tar::CurrentToTarget(Vec(kStart), Vec(0.0f), Vec(kEnd),
                                         Vec(0.0f), kTime));
 
@@ -506,7 +508,7 @@ void SmoothModular(MotiveTests& t) {
   const Vec normalized = VectorNormalize(angle.Value());
   EXPECT_TRUE(VectorNear(normalized, Vec(kEnd), Vec(kAngleEpsilon)));
 }
-TEST_ALL_VECTOR_MOTIVATORS_F(SmoothModular)
+TEST_ALL_VECTOR_MOTIVATORS_F(SplineModular)
 
 // Print matrices with columns vertically.
 static void PrintMatrix(const char* name, const mat4& m) {
@@ -585,7 +587,7 @@ static void TestMatrixMotivator(const MatrixInit& matrix_init,
 // Test the matrix operation kTranslateX.
 TEST_F(MotiveTests, MatrixTranslateX) {
   MatrixOpArray ops(1);
-  ops.AddOp(motive::kTranslateX, smooth_scalar_init_, 2.0f);
+  ops.AddOp(motive::kTranslateX, spline_scalar_init, 2.0f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
@@ -599,37 +601,37 @@ TEST_F(MotiveTests, MatrixTranslateXConstValue) {
 // Test the matrix operation kRotateAboutX.
 TEST_F(MotiveTests, MatrixRotateAboutX) {
   MatrixOpArray ops(1);
-  ops.AddOp(motive::kRotateAboutX, smooth_angle_init_, kHalfPi);
+  ops.AddOp(motive::kRotateAboutX, spline_angle_init_, kHalfPi);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the matrix operation kRotateAboutY.
 TEST_F(MotiveTests, MatrixRotateAboutY) {
   MatrixOpArray ops(1);
-  ops.AddOp(motive::kRotateAboutY, smooth_angle_init_, kHalfPi / 3.0f);
+  ops.AddOp(motive::kRotateAboutY, spline_angle_init_, kHalfPi / 3.0f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the matrix operation kRotateAboutZ.
 TEST_F(MotiveTests, MatrixRotateAboutZ) {
   MatrixOpArray ops(1);
-  ops.AddOp(motive::kRotateAboutZ, smooth_angle_init_, -kHalfPi / 1.2f);
+  ops.AddOp(motive::kRotateAboutZ, spline_angle_init_, -kHalfPi / 1.2f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the matrix operation kScaleX.
 TEST_F(MotiveTests, MatrixScaleX) {
   MatrixOpArray ops(1);
-  ops.AddOp(motive::kScaleX, smooth_scalar_init_, -3.0f);
+  ops.AddOp(motive::kScaleX, spline_scalar_init, -3.0f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the series of matrix operations for translating XYZ.
 TEST_F(MotiveTests, MatrixTranslateXYZ) {
   MatrixOpArray ops(3);
-  ops.AddOp(motive::kTranslateX, smooth_scalar_init_, 2.0f);
-  ops.AddOp(motive::kTranslateY, smooth_scalar_init_, -3.0f);
-  ops.AddOp(motive::kTranslateZ, smooth_scalar_init_, 0.5f);
+  ops.AddOp(motive::kTranslateX, spline_scalar_init, 2.0f);
+  ops.AddOp(motive::kTranslateY, spline_scalar_init, -3.0f);
+  ops.AddOp(motive::kTranslateZ, spline_scalar_init, 0.5f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
@@ -637,61 +639,61 @@ TEST_F(MotiveTests, MatrixTranslateXYZ) {
 // in turn.
 TEST_F(MotiveTests, MatrixRotateAboutXYZ) {
   MatrixOpArray ops(3);
-  ops.AddOp(motive::kRotateAboutX, smooth_angle_init_, -kHalfPi / 2.0f);
-  ops.AddOp(motive::kRotateAboutY, smooth_angle_init_, kHalfPi / 3.0f);
-  ops.AddOp(motive::kRotateAboutZ, smooth_angle_init_, kHalfPi / 5.0f);
+  ops.AddOp(motive::kRotateAboutX, spline_angle_init_, -kHalfPi / 2.0f);
+  ops.AddOp(motive::kRotateAboutY, spline_angle_init_, kHalfPi / 3.0f);
+  ops.AddOp(motive::kRotateAboutZ, spline_angle_init_, kHalfPi / 5.0f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the series of matrix operations for scaling XYZ non-uniformly.
 TEST_F(MotiveTests, MatrixScaleXYZ) {
   MatrixOpArray ops(3);
-  ops.AddOp(motive::kScaleX, smooth_scalar_init_, -3.0f);
-  ops.AddOp(motive::kScaleY, smooth_scalar_init_, 2.2f);
-  ops.AddOp(motive::kScaleZ, smooth_scalar_init_, 1.01f);
+  ops.AddOp(motive::kScaleX, spline_scalar_init, -3.0f);
+  ops.AddOp(motive::kScaleY, spline_scalar_init, 2.2f);
+  ops.AddOp(motive::kScaleZ, spline_scalar_init, 1.01f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the matrix operation kScaleUniformly.
 TEST_F(MotiveTests, MatrixScaleUniformly) {
   MatrixOpArray ops(1);
-  ops.AddOp(motive::kScaleUniformly, smooth_scalar_init_, 10.1f);
+  ops.AddOp(motive::kScaleUniformly, spline_scalar_init, 10.1f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the series of matrix operations for translating and rotating.
 TEST_F(MotiveTests, MatrixTranslateRotateTranslateBack) {
   MatrixOpArray ops(3);
-  ops.AddOp(motive::kTranslateY, smooth_scalar_init_, 1.0f);
-  ops.AddOp(motive::kRotateAboutX, smooth_angle_init_, kHalfPi);
-  ops.AddOp(motive::kTranslateY, smooth_scalar_init_, -1.0f);
+  ops.AddOp(motive::kTranslateY, spline_scalar_init, 1.0f);
+  ops.AddOp(motive::kRotateAboutX, spline_angle_init_, kHalfPi);
+  ops.AddOp(motive::kTranslateY, spline_scalar_init, -1.0f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the series of matrix operations for translating, rotating, and scaling.
 TEST_F(MotiveTests, MatrixTranslateRotateScale) {
   MatrixOpArray ops(3);
-  ops.AddOp(motive::kTranslateY, smooth_scalar_init_, 1.0f);
-  ops.AddOp(motive::kRotateAboutX, smooth_angle_init_, kHalfPi);
-  ops.AddOp(motive::kScaleZ, smooth_scalar_init_, -1.4f);
+  ops.AddOp(motive::kTranslateY, spline_scalar_init, 1.0f);
+  ops.AddOp(motive::kRotateAboutX, spline_angle_init_, kHalfPi);
+  ops.AddOp(motive::kScaleZ, spline_scalar_init, -1.4f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test a complex the series of matrix operations.
 TEST_F(MotiveTests, MatrixTranslateRotateScaleGoneWild) {
   MatrixOpArray ops(16);
-  ops.AddOp(motive::kTranslateY, smooth_scalar_init_, 1.0f);
-  ops.AddOp(motive::kTranslateX, smooth_scalar_init_, -1.6f);
-  ops.AddOp(motive::kRotateAboutX, smooth_angle_init_, kHalfPi * 0.1f);
-  ops.AddOp(motive::kRotateAboutY, smooth_angle_init_, kHalfPi * 0.33f);
-  ops.AddOp(motive::kScaleZ, smooth_scalar_init_, -1.4f);
-  ops.AddOp(motive::kRotateAboutY, smooth_angle_init_, -kHalfPi * 0.33f);
-  ops.AddOp(motive::kTranslateX, smooth_scalar_init_, -1.2f);
-  ops.AddOp(motive::kTranslateY, smooth_scalar_init_, -1.5f);
-  ops.AddOp(motive::kTranslateZ, smooth_scalar_init_, -2.2f);
-  ops.AddOp(motive::kRotateAboutZ, smooth_angle_init_, -kHalfPi * 0.5f);
-  ops.AddOp(motive::kScaleX, smooth_scalar_init_, 2.0f);
-  ops.AddOp(motive::kScaleY, smooth_scalar_init_, 4.1f);
+  ops.AddOp(motive::kTranslateY, spline_scalar_init, 1.0f);
+  ops.AddOp(motive::kTranslateX, spline_scalar_init, -1.6f);
+  ops.AddOp(motive::kRotateAboutX, spline_angle_init_, kHalfPi * 0.1f);
+  ops.AddOp(motive::kRotateAboutY, spline_angle_init_, kHalfPi * 0.33f);
+  ops.AddOp(motive::kScaleZ, spline_scalar_init, -1.4f);
+  ops.AddOp(motive::kRotateAboutY, spline_angle_init_, -kHalfPi * 0.33f);
+  ops.AddOp(motive::kTranslateX, spline_scalar_init, -1.2f);
+  ops.AddOp(motive::kTranslateY, spline_scalar_init, -1.5f);
+  ops.AddOp(motive::kTranslateZ, spline_scalar_init, -2.2f);
+  ops.AddOp(motive::kRotateAboutZ, spline_angle_init_, -kHalfPi * 0.5f);
+  ops.AddOp(motive::kScaleX, spline_scalar_init, 2.0f);
+  ops.AddOp(motive::kScaleY, spline_scalar_init, 4.1f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
@@ -710,7 +712,7 @@ void SplineTime(MotiveTests& t) {
 
   // Create a motivator that plays `spline` from kStartTime, and repeats
   // at the start when it reaches the end.
-  MotivatorT angle(t.smooth_angle_init(), &t.engine());
+  MotivatorT angle(t.spline_angle_init(), &t.engine());
   angle.SetSplines(splines,
                    SplinePlayback(static_cast<float>(kStartTime), true));
 
@@ -741,7 +743,7 @@ void SetSplineTime(MotiveTests& t) {
   const MotiveTime end_time = static_cast<MotiveTime>(splines[0].EndX());
 
   // Create a motivator that plays `spline` from kStartTime.
-  MotivatorT angle(t.smooth_angle_init(), &t.engine());
+  MotivatorT angle(t.spline_angle_init(), &t.engine());
   angle.SetSplines(splines, SplinePlayback(static_cast<float>(kStartTime)));
 
   // Set to time 0.
@@ -786,7 +788,7 @@ void PlaybackRate(MotiveTests& t) {
 
   // Create a motivator that plays `spline` from kStartTime, and repeats
   // at the start when it reaches the end.
-  MotivatorT angle(t.smooth_angle_init(), &t.engine());
+  MotivatorT angle(t.spline_angle_init(), &t.engine());
 
   for (size_t i = 0; i < MOTIVE_ARRAY_SIZE(kPlaybackRates); ++i) {
     const float playback_rate = kPlaybackRates[i];

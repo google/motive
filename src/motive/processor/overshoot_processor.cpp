@@ -91,7 +91,7 @@ class OvershootMotiveProcessor : public MotiveProcessorNf {
                            float* out) const {
     for (MotiveDimension i = 0; i < count; ++i) {
       const OvershootData& d = Data(index + i);
-      out[i] = d.init.Normalize(d.target_value - values_[i]);
+      out[i] = Normalize(d, d.target_value - values_[i]);
     }
   }
 
@@ -166,7 +166,7 @@ class OvershootMotiveProcessor : public MotiveProcessorNf {
     // for longer time than we move away from the target, or equivalently,
     // aggressively initiating our movement towards the target, which feels
     // good.
-    const float diff = d.init.Normalize(d.target_value - current_value);
+    const float diff = Normalize(d, d.target_value - current_value);
     const bool wrong_direction = d.velocity * diff < 0.0f;
     const float wrong_direction_multiplier =
         wrong_direction ? d.init.wrong_direction_multiplier() : 1.0f;
@@ -190,9 +190,13 @@ class OvershootMotiveProcessor : public MotiveProcessorNf {
     if (d.velocity == 0.0f) return d.target_value;
 
     const float delta = d.init.ClampDelta(delta_time * d.velocity);
-    const float value_unclamped = d.init.Normalize(current_value + delta);
-    const float value = d.init.ClampValue(value_unclamped);
+    const float value_unclamped = Normalize(d, current_value + delta);
+    const float value = d.init.range().Clamp(value_unclamped);
     return value;
+  }
+
+  float Normalize(const OvershootData& d, float diff) const {
+    return d.init.modular() ? d.init.range().Normalize(diff) : diff;
   }
 
   std::vector<OvershootData> data_;

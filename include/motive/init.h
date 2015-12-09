@@ -75,74 +75,20 @@ inline Range RangeOfOp(MatrixOperationType op,
 /// Return a string with the operation name. Used for debugging.
 const char* MatrixOpName(const MatrixOperationType op);
 
-/// @class ModularInit
-/// Base-class for OvershootInit and SmoothInit. Holds parameters related
-/// to modular arithmetic in a Motivator.
-class ModularInit : public MotivatorInit {
- public:
-  explicit ModularInit(MotivatorType type)
-      : MotivatorInit(type), range_(Range::Full()), modular_(false) {}
-
-  /// The derived type must call this constructor with it's MotivatorType
-  /// identifier.
-  /// @param type The kType parameter of the derived init class.
-  /// @param range The range we should clamp Motivator::Value() to. If you
-  ///              don't want to clamp, then leave as Range::Full().
-  /// @param modular Option to use modular arithmetic for Motivator::Value().
-  ///                If true, all values are wrapped around to stay within
-  ///                `range`.
-  ModularInit(MotivatorType type, const Range& range, bool modular)
-      : MotivatorInit(type), range_(range), modular_(modular) {}
-
-  /// Ensure position `x` is within the valid constraint range.
-  /// `x` must be within range_.Length() of range_. This is a reasonable
-  /// restriction in most cases (such as after an arithmetic operation).
-  /// For cases where `x` may be wildly outside the range, use
-  /// NormalizeWildValue() instead.
-  /// @param x The value to be modded to within `range_`
-  float Normalize(float x) const { return modular_ ? range_.Normalize(x) : x; }
-
-  /// Normalize `x` value well outside the range. Significantly slower than
-  /// the simple Normalize().
-  /// @param x The value to be modded to within `range_`
-  float NormalizeWildValue(float x) const {
-    return modular_ ? range_.NormalizeWildValue(x) : x;
-  }
-
-  /// Ensure the motivator value is within the specified range.
-  /// @param x The value to clamped to `range_`
-  float ClampValue(float x) const { return range_.Clamp(x); }
-
-  /// Return minimum value of the range.
-  float Min() const { return range_.start(); }
-
-  /// Return maximum value of the range.
-  float Max() const { return range_.end(); }
-
-  const Range& range() const { return range_; }
-  void set_range(const Range& r) { range_ = r; }
-
-  bool modular() const { return modular_; }
-  void set_modular(bool modular) { modular_ = modular; }
-
- private:
-  /// Minimum and maximum values for Motivator::Value().
-  /// Clamp (if modular_ is false) or wrap-around (if modular_ is true) when
-  /// we reach these boundaries.
-  Range range_;
-
-  /// A modular value wraps around from min to max. For example, an angle
-  /// is modular, where -pi is equivalent to +pi. Setting this to true ensures
-  /// that arithmetic wraps around instead of clamping to min/max.
-  bool modular_;
-};
-
-class OvershootInit : public ModularInit {
+/// @class OvershootInit
+/// @brief Initialize a MotivatorNf move towards a target using spring physics.
+///
+/// Call MotivatorNf::SetTargets() to set the target that we swing towards.
+/// The name comes from the movement overshooting the target then coming
+/// back, the way a dampened oscillator overshoots its resting point.
+class OvershootInit : public MotivatorInit {
  public:
   MOTIVE_INTERFACE();
 
   OvershootInit()
-      : ModularInit(kType),
+      : MotivatorInit(kType),
+        range_(Range::Full()),
+        modular_(false),
         max_velocity_(0.0f),
         accel_per_difference_(0.0f),
         wrong_direction_multiplier_(0.0f),
@@ -167,6 +113,10 @@ class OvershootInit : public ModularInit {
     return at_target_.Settled(dist, velocity);
   }
 
+  const Range& range() const { return range_; }
+  void set_range(const Range& r) { range_ = r; }
+  bool modular() const { return modular_; }
+  void set_modular(bool modular) { modular_ = modular; }
   float max_velocity() const { return max_velocity_; }
   float max_delta() const { return max_delta_; }
   const Settled1f& at_target() const { return at_target_; }
@@ -191,6 +141,16 @@ class OvershootInit : public ModularInit {
   }
 
  private:
+  /// Minimum and maximum values for Motivator::Value().
+  /// Clamp (if modular_ is false) or wrap-around (if modular_ is true) when
+  /// we reach these boundaries.
+  Range range_;
+
+  /// A modular value wraps around from min to max. For example, an angle
+  /// is modular, where -pi is equivalent to +pi. Setting this to true ensures
+  /// that arithmetic wraps around instead of clamping to min/max.
+  bool modular_;
+
   /// Maximum speed at which the value can change. That is, maximum value for
   /// the Motivator::Velocity(). In units/tick.
   /// For example, if the value is an angle, then this is the max angular
@@ -220,19 +180,46 @@ class OvershootInit : public ModularInit {
   MotiveTime max_delta_time_;
 };
 
-/// @class SmoothInit
-/// @brief Initialize a Motivator1f to follow a spline.
+/// @class SplineInit
+/// @brief Initialize a MotivatorNf to follow a spline.
 ///
-/// Call Motivator1f::SetSpline() to follow a predefined spline,
-/// or call Motivator1f::SetTarget() to dynamically generate a spline that
+/// Call MotivatorNf::SetSplines() to follow predefined splines,
+/// or call MotivatorNf::SetTargets() to dynamically generate a spline that
 /// travels through several key points.
-class SmoothInit : public ModularInit {
+class SplineInit : public MotivatorInit {
  public:
   MOTIVE_INTERFACE();
 
-  SmoothInit() : ModularInit(kType) {}
-  SmoothInit(const Range& range, bool modular)
-      : ModularInit(kType, range, modular) {}
+  SplineInit() : MotivatorInit(kType), range_(Range::Full()), modular_(false) {}
+
+  /// The derived type must call this constructor with it's MotivatorType
+  /// identifier.
+  /// @param range The valid range of a normalized value. Ignored when modular
+  ///              is false. Note: it's possible for MotivatorNf::Value() to
+  ///              return a value outside of this range, though all splines
+  ///              start inside the valid range.
+  /// @param modular Option to use modular arithmetic when initializing
+  ///                splines. If true, the initial spline value is always
+  ///                within `range`.
+  SplineInit(const Range& range, bool modular)
+      : MotivatorInit(kType), range_(range), modular_(modular) {}
+
+  const Range& range() const { return range_; }
+  void set_range(const Range& r) { range_ = r; }
+
+  bool modular() const { return modular_; }
+  void set_modular(bool modular) { modular_ = modular; }
+
+ private:
+  /// Minimum and maximum values for Motivator::Value().
+  /// Clamp (if modular_ is false) or wrap-around (if modular_ is true) when
+  /// we reach these boundaries.
+  Range range_;
+
+  /// A modular value wraps around from min to max. For example, an angle
+  /// is modular, where -pi is equivalent to +pi. Setting this to true ensures
+  /// that arithmetic wraps around instead of clamping to min/max.
+  bool modular_;
 };
 
 /// @class MatrixOperationInit
@@ -330,7 +317,7 @@ class MatrixOpArray {
 
   /// Operation is driven by a one dimensional motivator. For example, you can
   /// control the face angle of a standing object with 'type' = kRotateAboutY
-  /// and 'init' a curve specified by SmoothInit.
+  /// and 'init' a curve specified by SplineInit.
   void AddOp(MatrixOperationType type, const MotivatorInit& init) {
     ops_.push_back(MatrixOperationInit(type, init));
   }

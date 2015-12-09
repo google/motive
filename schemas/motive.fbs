@@ -81,7 +81,7 @@ table OvershootParameters {
   max_delta_time:short = 32767;
 }
 
-table SmoothParameters {
+table SplineParameters {
   // Common properties for everything based on InitWithVelocity.
   base:ModularParameters;
 }
