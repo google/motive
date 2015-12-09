@@ -13,9 +13,9 @@
 // limitations under the License.
 
 #include "gtest/gtest.h"
-#include "motive/math/bulk_spline_evaluator.h"
 #include "motive/common.h"
 #include "motive/math/angle.h"
+#include "motive/math/bulk_spline_evaluator.h"
 #include "motive/math/compact_spline.h"
 
 using motive::QuadraticCurve;
@@ -79,21 +79,19 @@ static const int kNumSimpleSplines =
     static_cast<int>(MOTIVE_ARRAY_SIZE(kSimpleSplines));
 
 static const CubicInit CubicInitMirrorY(const CubicInit& init) {
-  return CubicInit(-init.start_y, -init.start_derivative,
-                   -init.end_y, -init.end_derivative, init.width_x);
+  return CubicInit(-init.start_y, -init.start_derivative, -init.end_y,
+                   -init.end_derivative, init.width_x);
 }
 
 static const CubicInit CubicInitScaleX(const CubicInit& init, float scale) {
-  return CubicInit(init.start_y, init.start_derivative / scale,
-                   init.end_y, init.end_derivative / scale,
-                   init.width_x * scale);
+  return CubicInit(init.start_y, init.start_derivative / scale, init.end_y,
+                   init.end_derivative / scale, init.width_x * scale);
 }
 
 static Range CubicInitYRange(const CubicInit& init, float buffer_percent) {
-  return motive::CreateValidRange(init.start_y,
-                               init.end_y).Lengthen(buffer_percent);
+  return motive::CreateValidRange(init.start_y, init.end_y)
+      .Lengthen(buffer_percent);
 }
-
 
 static void InitializeSpline(const CubicInit& init, CompactSpline* spline) {
   const Range y_range = CubicInitYRange(init, 0.1f);
@@ -104,8 +102,8 @@ static void InitializeSpline(const CubicInit& init, CompactSpline* spline) {
 
 static void ExecuteInterpolator(BulkSplineEvaluator& interpolator,
                                 int num_points, GraphData* d) {
-  const float y_precision = interpolator.SourceSpline(0)->RangeY().Length() *
-                            kFixedPointEpsilon;
+  const float y_precision =
+      interpolator.SourceSpline(0)->RangeY().Length() * kFixedPointEpsilon;
 
   const Range range_x = interpolator.SourceSpline(0)->RangeX();
   const float delta_x = range_x.Length() / (num_points - 1);
@@ -119,9 +117,9 @@ static void ExecuteInterpolator(BulkSplineEvaluator& interpolator,
                 kDerivativePrecision);
 
     const vec2 point(interpolator.X(0), interpolator.Y(0));
-    const GraphDerivatives derivatives(
-        interpolator.Derivative(0), c.SecondDerivative(x),
-        c.ThirdDerivative(x));
+    const GraphDerivatives derivatives(interpolator.Derivative(0),
+                                       c.SecondDerivative(x),
+                                       c.ThirdDerivative(x));
     d->points.push_back(point);
     d->derivatives.push_back(derivatives);
 
@@ -133,19 +131,21 @@ static void PrintGraphDataAsCsv(const GraphData& d) {
   (void)d;
 #if PRINT_SPLINES_AS_CSV
   for (size_t i = 0; i < d.points.size(); ++i) {
-    printf("%f, %f, %f, %f, %f\n",
-           d.points[i].x(), d.points[i].y(), d.derivatives[i].first,
-           d.derivatives[i].second, d.derivatives[i].third);
+    printf("%f, %f, %f, %f, %f\n", d.points[i].x(), d.points[i].y(),
+           d.derivatives[i].first, d.derivatives[i].second,
+           d.derivatives[i].third);
   }
-#endif // PRINT_SPLINES_AS_CSV
+#endif  // PRINT_SPLINES_AS_CSV
 }
 
 static void PrintSplineAsAsciiGraph(const GraphData& d) {
   (void)d;
 #if PRINT_SPLINES_AS_ASCII_GRAPHS
   printf("\n%s\n\n",
-         motive::Graph2DPoints(&d.points[0], d.points.size(), kGraphSize).c_str());
-#endif // PRINT_SPLINES_AS_ASCII_GRAPHS
+         motive::Graph2DPoints(&d.points[0], static_cast<int>(d.points.size()),
+                               kGraphSize)
+             .c_str());
+#endif  // PRINT_SPLINES_AS_ASCII_GRAPHS
 }
 
 static void GatherGraphData(const CubicInit& init, GraphData* d,
@@ -167,7 +167,7 @@ static void GatherGraphData(const CubicInit& init, GraphData* d,
 }
 
 class SplineTests : public ::testing::Test {
-protected:
+ protected:
   virtual void SetUp() {
     short_spline_.Init(Range(0.0f, 1.0f), 0.01f, 4);
     short_spline_.AddNode(0.0f, 0.1f, 0.0f, motive::kAddWithoutModification);
@@ -269,8 +269,8 @@ TEST_F(SplineTests, MirrorY) {
   for (int i = 0; i < kNumSimpleSplines; ++i) {
     const CubicInit& init = kSimpleSplines[i];
     const CubicInit mirrored_init = CubicInitMirrorY(init);
-    const float y_precision = fabs(init.start_y - init.end_y) *
-                              kFixedPointEpsilon;
+    const float y_precision =
+        fabs(init.start_y - init.end_y) * kFixedPointEpsilon;
 
     GraphData d, mirrored_d;
     GatherGraphData(init, &d);
@@ -298,8 +298,8 @@ TEST_F(SplineTests, ScaleX) {
     const CubicInit& init = kSimpleSplines[i];
     const CubicInit scaled_init = CubicInitScaleX(init, kScale);
     const float x_precision = init.width_x * kFixedPointEpsilon;
-    const float y_precision = fabs(init.start_y - init.end_y) *
-                              kFixedPointEpsilon;
+    const float y_precision =
+        fabs(init.start_y - init.end_y) * kFixedPointEpsilon;
 
     GraphData d, scaled_d;
     GatherGraphData(init, &d);
@@ -311,12 +311,14 @@ TEST_F(SplineTests, ScaleX) {
       EXPECT_NEAR(d.points[j].x(), scaled_d.points[j].x() / kScale,
                   x_precision);
       EXPECT_NEAR(d.points[j].y(), scaled_d.points[j].y(), y_precision);
-      EXPECT_NEAR(d.derivatives[j].first, scaled_d.derivatives[j].first *
-                  kScale, kDerivativePrecision);
-      EXPECT_NEAR(d.derivatives[j].second, scaled_d.derivatives[j].second *
-                  kScale * kScale, kSecondDerivativePrecision);
-      EXPECT_NEAR(d.derivatives[j].third, scaled_d.derivatives[j].third *
-                  kScale * kScale * kScale, kThirdDerivativePrecision);
+      EXPECT_NEAR(d.derivatives[j].first,
+                  scaled_d.derivatives[j].first * kScale, kDerivativePrecision);
+      EXPECT_NEAR(d.derivatives[j].second,
+                  scaled_d.derivatives[j].second * kScale * kScale,
+                  kSecondDerivativePrecision);
+      EXPECT_NEAR(d.derivatives[j].third,
+                  scaled_d.derivatives[j].third * kScale * kScale * kScale,
+                  kThirdDerivativePrecision);
     }
   }
 }
@@ -394,8 +396,7 @@ TEST_F(SplineTests, BulkYsVec3) {
   }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
-

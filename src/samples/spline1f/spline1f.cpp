@@ -26,7 +26,6 @@ using motive::Graph2DPoints;
 using mathfu::vec2;
 
 int main() {
-
   // Since we use the ‘spline’ animation algorithm, we must register it.
   motive::SplineInit::Register();
 
@@ -58,10 +57,9 @@ int main() {
   const float target_angular_velocity = 0.0f;
   const motive::MotiveTime target_time = 100;
   const motive::MotiveTime delta_time = 1;
-  facing_angle.SetTarget(
-      motive::CurrentToTarget1f(start.ToRadians(), start_angular_velocity,
-                                target.ToRadians(), target_angular_velocity,
-                                target_time));
+  facing_angle.SetTarget(motive::CurrentToTarget1f(
+      start.ToRadians(), start_angular_velocity, target.ToRadians(),
+      target_angular_velocity, target_time));
 
   std::vector<vec2> points(target_time / delta_time + 1);
   for (motive::MotiveTime t = 0; t <= target_time; t += delta_time) {
@@ -70,11 +68,11 @@ int main() {
 
     // The current value of the variable being animated is always available.
     const Angle angle_at_t = Angle::FromWithinThreePi(facing_angle.Value());
-    points.push_back(
-        vec2(static_cast<float>(t), angle_at_t.ToDegrees()));
+    points.push_back(vec2(static_cast<float>(t), angle_at_t.ToDegrees()));
   }
 
-  printf("\n%s", Graph2DPoints(&points[0], points.size()).c_str());
+  printf("\n%s",
+         Graph2DPoints(&points[0], static_cast<int>(points.size())).c_str());
   return 0;
 }
 
