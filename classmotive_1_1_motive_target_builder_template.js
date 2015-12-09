@@ -1,12 +1,11 @@
 var classmotive_1_1_motive_target_builder_template =
 [
-    [ "ExIn", "classmotive_1_1_motive_target_builder_template.html#abfd9fcc29a8e95eb59dd980c9ec6626e", null ],
-    [ "ExT", "classmotive_1_1_motive_target_builder_template.html#a3316e174664d68f9546490637d4c2565", null ],
-    [ "InT", "classmotive_1_1_motive_target_builder_template.html#a3b236c8fc030e2106b7be117b9e32c66", null ],
-    [ "MotiveTarget", "classmotive_1_1_motive_target_builder_template.html#aeffd79c70f78480bead32cb0a7575194", null ],
-    [ "Current", "classmotive_1_1_motive_target_builder_template.html#a3fae83ec7c6690a5da65cec860644ac1", null ],
-    [ "CurrentToTarget", "classmotive_1_1_motive_target_builder_template.html#a8180991b73c6da386072d67cf126a06f", null ],
-    [ "CurrentToTargetConstVelocity", "classmotive_1_1_motive_target_builder_template.html#a94735c40bcb071f8d4e9d746bfa01fa0", null ],
-    [ "Target", "classmotive_1_1_motive_target_builder_template.html#a33627fc5566210036dd340d2fd7cfddc", null ],
+    [ "MotiveTarget", "classmotive_1_1_motive_target_builder_template.html#abab07ec8bec9f9022cdb8084e62ae1b0", null ],
+    [ "Vec", "classmotive_1_1_motive_target_builder_template.html#ae0ec5b437c0fcffbebfe32b895d572be", null ],
+    [ "VecIn", "classmotive_1_1_motive_target_builder_template.html#abe7a4be93fada292d1b82a34761f5dff", null ],
+    [ "Current", "classmotive_1_1_motive_target_builder_template.html#aa701b3b8f2d52a3c9f9413654add371f", null ],
+    [ "CurrentToTarget", "classmotive_1_1_motive_target_builder_template.html#a33384358657a0c44ec1a049ecfd79ef1", null ],
+    [ "CurrentToTargetConstVelocity", "classmotive_1_1_motive_target_builder_template.html#a215fa48e0a848bffd1915efc1440a0a0", null ],
+    [ "Target", "classmotive_1_1_motive_target_builder_template.html#a8315ee0847d49ad058838dd5c31cf989", null ],
     [ "kDimensions", "classmotive_1_1_motive_target_builder_template.html#a28c13de46e9859a216ca42bbd9362795", null ]
 ];

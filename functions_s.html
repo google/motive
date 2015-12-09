@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -160,6 +239,9 @@ $(document).ready(function(){initNavTree('functions_s.html','');});
 <div class="textblock">Here is a list of all documented class members with links to the class documentation for each member:</div>
 
 <h3><a class="anchor" id="index_s"></a>- s -</h3><ul>
+<li>Sane()
+: <a class="el" href="classmotive_1_1_motivator.html#adbeff29ebc3b21b280c159b6ab6e3cc8">motive::Motivator</a>
+</li>
 <li>SecondDerivative()
 : <a class="el" href="classmotive_1_1_cubic_curve.html#a91705641882d08ae2abfbc81fb340522">motive::CubicCurve</a>
 , <a class="el" href="classmotive_1_1_quadratic_curve.html#a9290c3e51e06c1573d91312b722143bf">motive::QuadraticCurve</a>
@@ -194,16 +276,19 @@ $(document).ready(function(){initNavTree('functions_s.html','');});
 </li>
 <li>SetSpline()
 : <a class="el" href="classmotive_1_1_bulk_spline_evaluator.html#ab8e4b10c76a52cc49ae2d05f0b88ce60">motive::BulkSplineEvaluator</a>
-, <a class="el" href="classmotive_1_1_motivator_vector_template.html#af4fee887897ecfe3c7cd37dde34af994">motive::MotivatorVectorTemplate&lt; VectorConverter, kDimensionsT &gt;</a>
+, <a class="el" href="classmotive_1_1_motivator_nf.html#abf496458a4ace39e7c6ca63a3da590bd">motive::MotivatorNf</a>
 </li>
 <li>SetSplinePlaybackRate()
-: <a class="el" href="classmotive_1_1_motivator_vector_template.html#ac4ca2dd924b7b9e0bfc709d3b9527985">motive::MotivatorVectorTemplate&lt; VectorConverter, kDimensionsT &gt;</a>
+: <a class="el" href="classmotive_1_1_motivator_nf.html#aa7e9cab9cb20b23c647e71cb28b9c5e6">motive::MotivatorNf</a>
 </li>
 <li>SetSplines()
-: <a class="el" href="classmotive_1_1_motivator_vector_template.html#a85bc54a9e08fd0ea432e45bbaa45143a">motive::MotivatorVectorTemplate&lt; VectorConverter, kDimensionsT &gt;</a>
+: <a class="el" href="classmotive_1_1_motivator_nf.html#adfb8a3b0e1024b7c170dafde376b0507">motive::MotivatorNf</a>
+</li>
+<li>SetSplineTime()
+: <a class="el" href="classmotive_1_1_motivator_nf.html#a61f786877a9cdffdbcfa0f9b3d302340">motive::MotivatorNf</a>
 </li>
 <li>SetTarget()
-: <a class="el" href="classmotive_1_1_motivator_vector_template.html#add6dcde94a257f4dcd20c2b435ad6716">motive::MotivatorVectorTemplate&lt; VectorConverter, kDimensionsT &gt;</a>
+: <a class="el" href="classmotive_1_1_motivator_xf_template.html#ae6bb7144af03456876b8f3525b898555">motive::MotivatorXfTemplate&lt; VectorConverter, kDimensionsParam &gt;</a>
 </li>
 <li>Settled()
 : <a class="el" href="structmotive_1_1_settled1f.html#a27f91fd3018d8135d43feb7e17254a09">motive::Settled1f</a>
@@ -223,11 +308,14 @@ $(document).ready(function(){initNavTree('functions_s.html','');});
 <li>SourceSpline()
 : <a class="el" href="classmotive_1_1_bulk_spline_evaluator.html#a32bad4ac66c562e312bca599a967f3ea">motive::BulkSplineEvaluator</a>
 </li>
+<li>SplineInit()
+: <a class="el" href="classmotive_1_1_spline_init.html#aab535957755e04336806010a2822b68c">motive::SplineInit</a>
+</li>
 <li>SplinePlayback()
 : <a class="el" href="structmotive_1_1_spline_playback.html#ac4e2a4cdfe07f5f9be9460dc343eb6f2">motive::SplinePlayback</a>
 </li>
 <li>SplineTime()
-: <a class="el" href="classmotive_1_1_motivator_vector_template.html#a914ea9f6526fa35c7e27a53cfb86067c">motive::MotivatorVectorTemplate&lt; VectorConverter, kDimensionsT &gt;</a>
+: <a class="el" href="classmotive_1_1_motivator_nf.html#a50fd99084606a21fecb39c612a7410bc">motive::MotivatorNf</a>
 </li>
 <li>start()
 : <a class="el" href="classmotive_1_1_range_t.html#a6bea0f2a960a439b576c8c5811d98b57">motive::RangeT&lt; T &gt;</a>

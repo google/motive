@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -133,23 +212,21 @@ $(document).ready(function(){initNavTree('classmotive_1_1_matrix_processor4f.htm
   <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>benchmark_id_for_init</b>() const  (defined in <a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a>)</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
   <tr><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html#af941a45eb02d4a1d92cedd80e2236fd4">BlendToOps</a>(MotiveIndex, const MatrixOpArray &amp;, const motive::SplinePlayback &amp;)</td><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html#a447c535c50415cd53f5db2b78c781900">ChildMotivator1f</a>(MotiveIndex index, MotiveChildIndex child_index) const =0</td><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html#a0be58394b89ac46d60f8fe5900285bc5">ChildValue1f</a>(MotiveIndex index, MotiveChildIndex child_index) const =0</td><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>ChildValue3f</b>(MotiveIndex index, MotiveChildIndex child_index) const  (defined in <a class="el" href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a>)</td><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#a4b9c5ed2a91be1f64bc2a34d2c32fb27">Defragment</a>()</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">protected</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#ae094019d539a02fe2790331d00041dc6">Dimensions</a>(MotiveIndex index) const </td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#adbde16c8e034a1d9dcd11ff0b58b12d2">InitializeIndex</a>(const MotivatorInit &amp;init, MotiveIndex index, MotiveEngine *engine)=0</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"><span class="mlabel">protected</span><span class="mlabel">pure virtual</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#adcf9210a521a6892eea08f5d38f07e64">InitializeMotivator</a>(const MotivatorInit &amp;init, MotiveEngine *engine, Motivator *motivator, MotiveDimension dimensions)</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#a4e2e72b84ae836012ee914db015e7a5b">IsMotivatorIndex</a>(MotiveIndex index) const </td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>MotiveProcessor</b>() (defined in <a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a>)</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#afa4fedcd476ee5eeb4555df714b91fc4">MoveIndex</a>(MotiveIndex old_index, MotiveIndex new_index)=0</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"><span class="mlabel">protected</span><span class="mlabel">pure virtual</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html#af18ae655596875197205d0f885498e86">NumChildren</a>(MotiveIndex index) const =0</td><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#a358fddcc69dbd98a7d8f10e3a0784370">Priority</a>() const =0</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>RegisterBenchmarks</b>() (defined in <a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a>)</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#aefa1edd3411d921b3fcc28c675aa62dd">RemoveIndex</a>(MotiveIndex index)=0</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"><span class="mlabel">protected</span><span class="mlabel">pure virtual</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#a45b83466165a7046fd558e1c1a8dbc2e">RemoveMotivator</a>(MotiveIndex index)</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"></td></tr>
-  <tr><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html#aee6a8bfa64e6630a5857e0d29f4ea85b">SetChildTarget1f</a>(MotiveIndex, MotiveChildIndex, const MotiveTarget1f &amp;)</td><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0" class="even"><td class="entry"><b>SetChildValue1f</b>(MotiveIndex, MotiveChildIndex, float) (defined in <a class="el" href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a>)</td><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
-  <tr bgcolor="#f0f0f0"><td class="entry"><b>SetChildValue3f</b>(MotiveIndex index, MotiveChildIndex child_index, const mathfu::vec3 &amp;value) (defined in <a class="el" href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a>)</td><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html#ab0e7de5066885be213e4fe9adcc0e6cb">ChildValues</a>(MotiveIndex index, MotiveChildIndex child_index, MotiveChildIndex count, float *values) const =0</td><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#a4b9c5ed2a91be1f64bc2a34d2c32fb27">Defragment</a>()</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">protected</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#ae094019d539a02fe2790331d00041dc6">Dimensions</a>(MotiveIndex index) const </td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#adbde16c8e034a1d9dcd11ff0b58b12d2">InitializeIndex</a>(const MotivatorInit &amp;init, MotiveIndex index, MotiveEngine *engine)=0</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"><span class="mlabel">protected</span><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#adcf9210a521a6892eea08f5d38f07e64">InitializeMotivator</a>(const MotivatorInit &amp;init, MotiveEngine *engine, Motivator *motivator, MotiveDimension dimensions)</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#a4e2e72b84ae836012ee914db015e7a5b">IsMotivatorIndex</a>(MotiveIndex index) const </td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>MotiveProcessor</b>() (defined in <a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a>)</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#afa4fedcd476ee5eeb4555df714b91fc4">MoveIndex</a>(MotiveIndex old_index, MotiveIndex new_index)=0</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"><span class="mlabel">protected</span><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html#af18ae655596875197205d0f885498e86">NumChildren</a>(MotiveIndex index) const =0</td><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#a358fddcc69dbd98a7d8f10e3a0784370">Priority</a>() const =0</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>RegisterBenchmarks</b>() (defined in <a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a>)</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#aefa1edd3411d921b3fcc28c675aa62dd">RemoveIndex</a>(MotiveIndex index)=0</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"><span class="mlabel">protected</span><span class="mlabel">pure virtual</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#a45b83466165a7046fd558e1c1a8dbc2e">RemoveMotivator</a>(MotiveIndex index)</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html#aee6a8bfa64e6630a5857e0d29f4ea85b">SetChildTarget1f</a>(MotiveIndex, MotiveChildIndex, const MotiveTarget1f &amp;)</td><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">virtual</span></td></tr>
+  <tr bgcolor="#f0f0f0"><td class="entry"><b>SetChildValues</b>(MotiveIndex index, MotiveChildIndex child_index, MotiveChildIndex count, const float *values)=0 (defined in <a class="el" href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a>)</td><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#aa281c90c6ccdfb28cbfd54aa69044706">SetNumIndices</a>(MotiveIndex num_indices)=0</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"><span class="mlabel">protected</span><span class="mlabel">pure virtual</span></td></tr>
   <tr><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html#a4c1a8e83e9712f62dd5949f8b59c8135">SetPlaybackRate</a>(MotiveIndex index, float playback_rate)=0</td><td class="entry"><a class="el" href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a></td><td class="entry"><span class="mlabel">pure virtual</span></td></tr>
   <tr class="even"><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html#a1ebc43fb42afb52077299e83697a2de7">TransferMotivator</a>(MotiveIndex index, Motivator *new_motivator)</td><td class="entry"><a class="el" href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></td><td class="entry"></td></tr>

@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -155,25 +234,19 @@ virtual const mathfu::mat4 &amp;&#160;</td><td class="memItemRight" valign="bott
 virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_processor4f.html#af18ae655596875197205d0f885498e86">NumChildren</a> (MotiveIndex index) const =0</td></tr>
 <tr class="memdesc:af18ae655596875197205d0f885498e86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the number of matrix operations performed by this motivator. <br/></td></tr>
 <tr class="separator:af18ae655596875197205d0f885498e86"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0be58394b89ac46d60f8fe5900285bc5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a0be58394b89ac46d60f8fe5900285bc5"></a>
-virtual float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_processor4f.html#a0be58394b89ac46d60f8fe5900285bc5">ChildValue1f</a> (MotiveIndex index, MotiveChildIndex child_index) const =0</td></tr>
-<tr class="memdesc:a0be58394b89ac46d60f8fe5900285bc5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get current values of the components that create the matrix. <br/></td></tr>
-<tr class="separator:a0be58394b89ac46d60f8fe5900285bc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a59d305900db8bff274f6226bb5502ba2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a59d305900db8bff274f6226bb5502ba2"></a>
-virtual mathfu::vec3&#160;</td><td class="memItemRight" valign="bottom"><b>ChildValue3f</b> (MotiveIndex index, MotiveChildIndex child_index) const </td></tr>
-<tr class="separator:a59d305900db8bff274f6226bb5502ba2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0e7de5066885be213e4fe9adcc0e6cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab0e7de5066885be213e4fe9adcc0e6cb"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_processor4f.html#ab0e7de5066885be213e4fe9adcc0e6cb">ChildValues</a> (MotiveIndex index, MotiveChildIndex child_index, MotiveChildIndex count, float *values) const =0</td></tr>
+<tr class="memdesc:ab0e7de5066885be213e4fe9adcc0e6cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get current values of the components that create the matrix. <br/></td></tr>
+<tr class="separator:ab0e7de5066885be213e4fe9adcc0e6cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a447c535c50415cd53f5db2b78c781900"><td class="memItemLeft" align="right" valign="top">virtual const <a class="el" href="classmotive_1_1_motivator.html">Motivator</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_processor4f.html#a447c535c50415cd53f5db2b78c781900">ChildMotivator1f</a> (MotiveIndex index, MotiveChildIndex child_index) const =0</td></tr>
 <tr class="separator:a447c535c50415cd53f5db2b78c781900"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aee6a8bfa64e6630a5857e0d29f4ea85b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aee6a8bfa64e6630a5857e0d29f4ea85b"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_processor4f.html#aee6a8bfa64e6630a5857e0d29f4ea85b">SetChildTarget1f</a> (MotiveIndex, MotiveChildIndex, const <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> &amp;)</td></tr>
 <tr class="memdesc:aee6a8bfa64e6630a5857e0d29f4ea85b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set child values. Matrices are composed from child components. <br/></td></tr>
 <tr class="separator:aee6a8bfa64e6630a5857e0d29f4ea85b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9b4be8909b58243f37d5f6f5a75eefac"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9b4be8909b58243f37d5f6f5a75eefac"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>SetChildValue1f</b> (MotiveIndex, MotiveChildIndex, float)</td></tr>
-<tr class="separator:a9b4be8909b58243f37d5f6f5a75eefac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a57c9adf0318163e2a1613d0e2cc9e10e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a57c9adf0318163e2a1613d0e2cc9e10e"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>SetChildValue3f</b> (MotiveIndex index, MotiveChildIndex child_index, const mathfu::vec3 &amp;value)</td></tr>
-<tr class="separator:a57c9adf0318163e2a1613d0e2cc9e10e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ec3501b34d791a5b50368025cd88916"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5ec3501b34d791a5b50368025cd88916"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>SetChildValues</b> (MotiveIndex index, MotiveChildIndex child_index, MotiveChildIndex count, const float *values)=0</td></tr>
+<tr class="separator:a5ec3501b34d791a5b50368025cd88916"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af941a45eb02d4a1d92cedd80e2236fd4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af941a45eb02d4a1d92cedd80e2236fd4"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_matrix_processor4f.html#af941a45eb02d4a1d92cedd80e2236fd4">BlendToOps</a> (MotiveIndex, const <a class="el" href="classmotive_1_1_matrix_op_array.html">MatrixOpArray</a> &amp;, const <a class="el" href="structmotive_1_1_spline_playback.html">motive::SplinePlayback</a> &amp;)</td></tr>
 <tr class="memdesc:af941a45eb02d4a1d92cedd80e2236fd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Smoothly transition to the operations specified in <code>ops</code>. <br/></td></tr>

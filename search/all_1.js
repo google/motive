@@ -2,8 +2,8 @@ var searchData=
 [
   ['benchmark',['Benchmark',['../classmotive_1_1_benchmark.html',1,'motive']]],
   ['blend_5fx',['blend_x',['../structmotive_1_1_spline_playback.html#a5c0ae832db36eb57b1aa2af9454d7911',1,'motive::SplinePlayback']]],
-  ['blendtoanim',['BlendToAnim',['../classmotive_1_1_rig_motivator.html#abbab911579d28cb3455ea14ef7269bd2',1,'motive::RigMotivator::BlendToAnim()'],['../classmotive_1_1_rig_processor.html#ab842d414a49a2a282e3c151b26889666',1,'motive::RigProcessor::BlendToAnim()']]],
-  ['blendtoops',['BlendToOps',['../classmotive_1_1_matrix_motivator4f_template.html#a04a3616931dca3eedaf25110d37dc57d',1,'motive::MatrixMotivator4fTemplate::BlendToOps()'],['../classmotive_1_1_matrix_processor4f.html#af941a45eb02d4a1d92cedd80e2236fd4',1,'motive::MatrixProcessor4f::BlendToOps()']]],
+  ['blendtoanim',['BlendToAnim',['../classmotive_1_1_rig_motivator.html#a75a5a8bfc9aa0a4c1e80d0f5549c8de4',1,'motive::RigMotivator::BlendToAnim()'],['../classmotive_1_1_rig_processor.html#ab842d414a49a2a282e3c151b26889666',1,'motive::RigProcessor::BlendToAnim()']]],
+  ['blendtoops',['BlendToOps',['../classmotive_1_1_matrix_motivator4f_template.html#a61a2f4b67ae23ed73045275d28c48cb6',1,'motive::MatrixMotivator4fTemplate::BlendToOps()'],['../classmotive_1_1_matrix_processor4f.html#af941a45eb02d4a1d92cedd80e2236fd4',1,'motive::MatrixProcessor4f::BlendToOps()']]],
   ['bone_5fparents',['bone_parents',['../classmotive_1_1_rig_anim.html#a5447bd9edd69160241546875f31e5164',1,'motive::RigAnim']]],
   ['bonename',['BoneName',['../classmotive_1_1_rig_anim.html#af441c17dc6b82b59b302616eb71a5794',1,'motive::RigAnim']]],
   ['bulksplineevaluator',['BulkSplineEvaluator',['../classmotive_1_1_bulk_spline_evaluator.html',1,'motive']]],

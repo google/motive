@@ -6,11 +6,15 @@ var classmotive_1_1_bulk_spline_evaluator =
     [ "Cubic", "classmotive_1_1_bulk_spline_evaluator.html#a79139853d600ae1b986d1b315ce4f6c0", null ],
     [ "CubicX", "classmotive_1_1_bulk_spline_evaluator.html#a0698c15f13d3b977ecdd950ed6ffcc81", null ],
     [ "Derivative", "classmotive_1_1_bulk_spline_evaluator.html#afce9b7c3e92506300783c309440c6460", null ],
+    [ "Derivatives", "classmotive_1_1_bulk_spline_evaluator.html#a9344762036fc73f3132f893c7b57d893", null ],
+    [ "DerivativesWithoutPlayback", "classmotive_1_1_bulk_spline_evaluator.html#a14e2b2cea01357802346c34b2bd4a40c", null ],
     [ "DerivativeWithoutPlayback", "classmotive_1_1_bulk_spline_evaluator.html#abc21ffc48181a007c6e1ffc061899328", null ],
     [ "EndDerivative", "classmotive_1_1_bulk_spline_evaluator.html#a0176f013fc634bfb453dcaffd5b1ad2a", null ],
+    [ "EndDerivatives", "classmotive_1_1_bulk_spline_evaluator.html#a292d61a2773cfdb916ffa4bea3de69e7", null ],
     [ "EndDerivativeWithoutPlayback", "classmotive_1_1_bulk_spline_evaluator.html#a24b9d0b870034fcf01332dac2eb16f66", null ],
     [ "EndX", "classmotive_1_1_bulk_spline_evaluator.html#a0e391ed8d4b29081cecb383693690143", null ],
     [ "EndY", "classmotive_1_1_bulk_spline_evaluator.html#a93890cee0fe29d3d63a465a4dc54bf4b", null ],
+    [ "EndYs", "classmotive_1_1_bulk_spline_evaluator.html#aaddf14f05ce1228f7ebe7ce83343da96", null ],
     [ "ModularArithmetic", "classmotive_1_1_bulk_spline_evaluator.html#a976774e5a0dba609e3a9413245d33bf3", null ],
     [ "ModularRange", "classmotive_1_1_bulk_spline_evaluator.html#a884a9cb09ae17b190377e6c24e1a1bd2", null ],
     [ "MoveIndex", "classmotive_1_1_bulk_spline_evaluator.html#a83d5b8d4af66a887f2818f0ec40271af", null ],
@@ -27,6 +31,7 @@ var classmotive_1_1_bulk_spline_evaluator =
     [ "Valid", "classmotive_1_1_bulk_spline_evaluator.html#a9dcab901031da5ce48aa2ba792673a97", null ],
     [ "X", "classmotive_1_1_bulk_spline_evaluator.html#a42e2b685d00a606945581237cc2168dd", null ],
     [ "Y", "classmotive_1_1_bulk_spline_evaluator.html#a5b2a41342f8f1951f6617031b180d210", null ],
+    [ "YDifferencesToEnd", "classmotive_1_1_bulk_spline_evaluator.html#ab7dd61a3185ddc62cc03d27b30e600d8", null ],
     [ "YDifferenceToEnd", "classmotive_1_1_bulk_spline_evaluator.html#ae92cad1b95e8d2a28c0e4227e5eb2630", null ],
-    [ "Ys", "classmotive_1_1_bulk_spline_evaluator.html#a6057fff7890999117037e9a9ca2c62f4", null ]
+    [ "Ys", "classmotive_1_1_bulk_spline_evaluator.html#ac2edeb5b19c66b0e16963acc1347fd50", null ]
 ];

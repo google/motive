@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -143,33 +222,30 @@ class motive::MotiveTargetBuilderTemplate&lt; VectorConverter, 1 &gt;</h3>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a7dc3815a8f6fd4f5646565e3555cef41"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7dc3815a8f6fd4f5646565e3555cef41"></a>
-typedef float&#160;</td><td class="memItemRight" valign="bottom"><b>ExT</b></td></tr>
-<tr class="separator:a7dc3815a8f6fd4f5646565e3555cef41"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a593da876c721d211da73424fba4b96fc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a593da876c721d211da73424fba4b96fc"></a>
-typedef float&#160;</td><td class="memItemRight" valign="bottom"><b>InT</b></td></tr>
-<tr class="separator:a593da876c721d211da73424fba4b96fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a933b00f74fdff4d386490e8ae2d9501c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a933b00f74fdff4d386490e8ae2d9501c"></a>
+typedef float&#160;</td><td class="memItemRight" valign="bottom"><b>Vec</b></td></tr>
+<tr class="separator:a933b00f74fdff4d386490e8ae2d9501c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2238c478de147136533bb5f56256e29d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2238c478de147136533bb5f56256e29d"></a>
 typedef <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a>&#160;</td><td class="memItemRight" valign="bottom"><b>MotiveTarget</b></td></tr>
 <tr class="separator:a2238c478de147136533bb5f56256e29d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b2c240d9e61153074af547f187ff1aa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2b2c240d9e61153074af547f187ff1aa"></a>
-typedef float&#160;</td><td class="memItemRight" valign="bottom"><b>ExIn</b></td></tr>
-<tr class="separator:a2b2c240d9e61153074af547f187ff1aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5553013ec44c9f89c3d8f5b191679da5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5553013ec44c9f89c3d8f5b191679da5"></a>
+typedef float&#160;</td><td class="memItemRight" valign="bottom"><b>VecIn</b></td></tr>
+<tr class="separator:a5553013ec44c9f89c3d8f5b191679da5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a048ae906e3555bebc3d2410a40a5a46a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a048ae906e3555bebc3d2410a40a5a46a"></a>
-static <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Current</b> (ExIn current_value, ExIn current_velocity=ExT(0.0f))</td></tr>
-<tr class="separator:a048ae906e3555bebc3d2410a40a5a46a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adeb7331844dd10ebe43ed8b1fc572165"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="adeb7331844dd10ebe43ed8b1fc572165"></a>
-static <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Target</b> (ExIn target_value, ExIn target_velocity, MotiveTime target_time, motive::ModularDirection direction=motive::kDirectionClosest)</td></tr>
-<tr class="separator:adeb7331844dd10ebe43ed8b1fc572165"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae87bb3b06ba2c4c02c0b7bfa46e4aa47"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae87bb3b06ba2c4c02c0b7bfa46e4aa47"></a>
-static <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget</a>&#160;</td><td class="memItemRight" valign="bottom"><b>CurrentToTarget</b> (ExIn current_value, ExIn current_velocity, ExIn target_value, ExIn target_velocity, MotiveTime target_time, motive::ModularDirection direction=motive::kDirectionClosest)</td></tr>
-<tr class="separator:ae87bb3b06ba2c4c02c0b7bfa46e4aa47"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad560de70f6957e033fc97fe62e40dabc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad560de70f6957e033fc97fe62e40dabc"></a>
-static <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget</a>&#160;</td><td class="memItemRight" valign="bottom"><b>CurrentToTargetConstVelocity</b> (ExIn current_value, ExIn target_value, MotiveTime target_time)</td></tr>
-<tr class="separator:ad560de70f6957e033fc97fe62e40dabc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a931f846e3e228f09565c197bbd3e2024"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a931f846e3e228f09565c197bbd3e2024"></a>
+static <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Current</b> (VecIn current_value, VecIn current_velocity=Vec(0.0f))</td></tr>
+<tr class="separator:a931f846e3e228f09565c197bbd3e2024"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28ffffde0894508dd6ce423fbf53045c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a28ffffde0894508dd6ce423fbf53045c"></a>
+static <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget</a>&#160;</td><td class="memItemRight" valign="bottom"><b>Target</b> (VecIn target_value, VecIn target_velocity, MotiveTime target_time, motive::ModularDirection direction=motive::kDirectionClosest)</td></tr>
+<tr class="separator:a28ffffde0894508dd6ce423fbf53045c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a170e3a515ca8fdf21d7c848095a20942"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a170e3a515ca8fdf21d7c848095a20942"></a>
+static <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget</a>&#160;</td><td class="memItemRight" valign="bottom"><b>CurrentToTarget</b> (VecIn current_value, VecIn current_velocity, VecIn target_value, VecIn target_velocity, MotiveTime target_time, motive::ModularDirection direction=motive::kDirectionClosest)</td></tr>
+<tr class="separator:a170e3a515ca8fdf21d7c848095a20942"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d302d629237634cc5d6b3012cbd4090"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1d302d629237634cc5d6b3012cbd4090"></a>
+static <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget</a>&#160;</td><td class="memItemRight" valign="bottom"><b>CurrentToTargetConstVelocity</b> (VecIn current_value, VecIn target_value, MotiveTime target_time)</td></tr>
+<tr class="separator:a1d302d629237634cc5d6b3012cbd4090"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>

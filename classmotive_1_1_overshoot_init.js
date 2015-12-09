@@ -10,12 +10,16 @@ var classmotive_1_1_overshoot_init =
     [ "max_delta", "classmotive_1_1_overshoot_init.html#ad2e0f6f30164dba38040366752a5cef6", null ],
     [ "max_delta_time", "classmotive_1_1_overshoot_init.html#a75ed7778b5d31b57b62bb43c120bb865", null ],
     [ "max_velocity", "classmotive_1_1_overshoot_init.html#a27f7e5536167e4bdd384476b7aed299d", null ],
+    [ "modular", "classmotive_1_1_overshoot_init.html#a5039245e6d84d5cb612e609689f4e44f", null ],
     [ "MOTIVE_INTERFACE", "classmotive_1_1_overshoot_init.html#a9e5293edfa248c9451dbaf3e8194ba5d", null ],
+    [ "range", "classmotive_1_1_overshoot_init.html#acfd878ababbbdfc6b2abad3dc01ea615", null ],
     [ "set_accel_per_difference", "classmotive_1_1_overshoot_init.html#acde84204d58aeb7000beafb6f0e8f9e8", null ],
     [ "set_at_target", "classmotive_1_1_overshoot_init.html#a9e3d6595afcf54528b22b4cb3058b623", null ],
     [ "set_max_delta", "classmotive_1_1_overshoot_init.html#a18831fa622ee66c9fbbf0a7a6871e27b", null ],
     [ "set_max_delta_time", "classmotive_1_1_overshoot_init.html#a141e81e983343e5b2abbfb5c1110d6f7", null ],
     [ "set_max_velocity", "classmotive_1_1_overshoot_init.html#a73f470d22e374c61e654f787e5e14359", null ],
+    [ "set_modular", "classmotive_1_1_overshoot_init.html#aaeec5c00fa341734344a7a6ca1b830ac", null ],
+    [ "set_range", "classmotive_1_1_overshoot_init.html#a75db69960c657d7d364f20e6f543df6a", null ],
     [ "set_wrong_direction_multiplier", "classmotive_1_1_overshoot_init.html#a80febf4744a7ad5df4d20ddfad7ed7e3", null ],
     [ "wrong_direction_multiplier", "classmotive_1_1_overshoot_init.html#aaf8a525072c3a5fc6ee7e0fa5cca6505", null ]
 ];

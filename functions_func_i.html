@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -185,7 +264,8 @@ $(document).ready(function(){initNavTree('functions_func_i.html','');});
 </li>
 <li>Initialize()
 : <a class="el" href="classmotive_1_1_matrix_motivator4f_template.html#a683d9bbfff9059af181d01a4ef443ded">motive::MatrixMotivator4fTemplate&lt; VectorConverter &gt;</a>
-, <a class="el" href="classmotive_1_1_motivator_vector_template.html#a6861183fed124d9298734e87e03e3035">motive::MotivatorVectorTemplate&lt; VectorConverter, kDimensionsT &gt;</a>
+, <a class="el" href="classmotive_1_1_motivator_nf.html#a1a0a78ba14aa203e90527aff0e273799">motive::MotivatorNf</a>
+, <a class="el" href="classmotive_1_1_motivator_xf_template.html#ad135fb03591673ed272e4ccd1b104af0">motive::MotivatorXfTemplate&lt; VectorConverter, kDimensionsParam &gt;</a>
 , <a class="el" href="classmotive_1_1_rig_motivator.html#aba5db4f41518669b7751f70061077cf9">motive::RigMotivator</a>
 </li>
 <li>InitializeIndex()
@@ -194,11 +274,14 @@ $(document).ready(function(){initNavTree('functions_func_i.html','');});
 <li>InitializeMotivator()
 : <a class="el" href="classmotive_1_1_motive_processor.html#adcf9210a521a6892eea08f5d38f07e64">motive::MotiveProcessor</a>
 </li>
-<li>InitializeWithDimension()
-: <a class="el" href="classmotive_1_1_motivator.html#a8f1e254596a0f81483f5ea65be18f518">motive::Motivator</a>
+<li>InitializeWithSplines()
+: <a class="el" href="classmotive_1_1_motivator_nf.html#a9b9f6f87c962ba9f1872fe5c6c9a6df5">motive::MotivatorNf</a>
 </li>
 <li>InitializeWithTarget()
-: <a class="el" href="classmotive_1_1_motivator_vector_template.html#ab28c63d6cdc6c78a8ff6bd2bf235f29a">motive::MotivatorVectorTemplate&lt; VectorConverter, kDimensionsT &gt;</a>
+: <a class="el" href="classmotive_1_1_motivator_xf_template.html#adcd74ed53979b5acd6bfee6adabce691">motive::MotivatorXfTemplate&lt; VectorConverter, kDimensionsParam &gt;</a>
+</li>
+<li>InitializeWithTargets()
+: <a class="el" href="classmotive_1_1_motivator_nf.html#a9ebd7b6022283cc263cf9358b2fb8608">motive::MotivatorNf</a>
 </li>
 <li>InitMatrixAnim()
 : <a class="el" href="classmotive_1_1_rig_anim.html#a2cf84a414461061b2176e91a7ca1db07">motive::RigAnim</a>

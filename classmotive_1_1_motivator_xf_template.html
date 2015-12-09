@@ -1,0 +1,740 @@
+<!-- HTML header for doxygen 1.8.6-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.6"/>
+<title>Motive Animation System: motive::MotivatorXfTemplate&lt; VectorConverter, kDimensionsParam &gt; Class Template Reference</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+  $(document).ready(initResizable);
+  $(window).load(resizeHeight);
+</script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/search.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() { searchBox.OnSelectItem(0); });
+</script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
+<link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="commonprojectlogo">
+    <img alt="Logo" src="fpl_logo_small.png"/>
+  </td>
+  <td style="padding-left: 0.5em;">
+   <div id="projectname">Motive Animation System
+   </div>
+   <div style="font-size:12px;">
+	 An open source project by
+     <a href="https://developers.google.com/games/#Tools">FPL</a>.
+  </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Generated by Doxygen 1.8.6 -->
+<script type="text/javascript">
+var searchBox = new SearchBox("searchBox", "search",false,'Search');
+</script>
+  <div id="navrow1" class="tabs">
+    <ul class="tablist">
+      <li><a href="index.html"><span>Main&#160;Page</span></a></li>
+      <li><a href="usergroup0.html"><span>Building</span></a></li>
+      <li><a href="usergroup1.html"><span>Programmer's&#160;Guide</span></a></li>
+      <li class="current"><a href="motive_api_reference.html"><span>API&#160;Reference</span></a></li>
+      <li><a href="motive_readme.html"><span>Readme</span></a></li>
+      <li><a href="contributing.html"><span>Contributing</span></a></li>
+      <li>
+        <div id="MSearchBox" class="MSearchBoxInactive">
+        <span class="left">
+          <img id="MSearchSelect" src="search/mag_sel.png"
+               onmouseover="return searchBox.OnSearchSelectShow()"
+               onmouseout="return searchBox.OnSearchSelectHide()"
+               alt=""/>
+          <input type="text" id="MSearchField" value="Search" accesskey="S"
+               onfocus="searchBox.OnSearchFieldFocus(true)" 
+               onblur="searchBox.OnSearchFieldFocus(false)" 
+               onkeyup="searchBox.OnSearchFieldChange(event)"/>
+          </span><span class="right">
+            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.png" alt=""/></a>
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li class="current"><a href="annotated.html"><span>Class&#160;List</span></a></li>
+      <li><a href="files.html"><span>File&#160;List</span></a></li>
+    </ul>
+  </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="annotated.html"><span>Class&#160;List</span></a></li>
+      <li><a href="classes.html"><span>Class&#160;Index</span></a></li>
+      <li><a href="hierarchy.html"><span>Class&#160;Hierarchy</span></a></li>
+      <li><a href="functions.html"><span>Class&#160;Members</span></a></li>
+    </ul>
+  </div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){initNavTree('classmotive_1_1_motivator_xf_template.html','');});
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<iframe src="javascript:void(0)" frameborder="0" 
+        name="MSearchResults" id="MSearchResults">
+</iframe>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
+<a href="classmotive_1_1_motivator_xf_template-members.html">List of all members</a>  </div>
+  <div class="headertitle">
+<div class="title">motive::MotivatorXfTemplate&lt; VectorConverter, kDimensionsParam &gt; Class Template Reference</div>  </div>
+</div><!--header-->
+<div class="contents">
+
+<p>Animate a vector of floating-point values.  
+ <a href="classmotive_1_1_motivator_xf_template.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="motivator_8h_source.html">motivator.h</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for motive::MotivatorXfTemplate&lt; VectorConverter, kDimensionsParam &gt;:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="classmotive_1_1_motivator_xf_template.png" usemap="#motive::MotivatorXfTemplate&lt; VectorConverter, kDimensionsParam &gt;_map" alt=""/>
+  <map id="motive::MotivatorXfTemplate&lt; VectorConverter, kDimensionsParam &gt;_map" name="motive::MotivatorXfTemplate&lt; VectorConverter, kDimensionsParam &gt;_map">
+<area href="classmotive_1_1_motivator_nf.html" alt="motive::MotivatorNf" shape="rect" coords="0,56,404,80"/>
+<area href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. " alt="motive::Motivator" shape="rect" coords="0,0,404,24"/>
+</map>
+ </div></div>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><h3>template&lt;class VectorConverter, MotiveDimension kDimensionsParam&gt;<br/>
+class motive::MotivatorXfTemplate&lt; VectorConverter, kDimensionsParam &gt;</h3>
+
+<p>Animate a vector of floating-point values. </p>
+<p>Wraps <code><a class="el" href="classmotive_1_1_motivator_nf.html">MotivatorNf</a></code> to return by value, instead of using <code>out</code> arrays. For <code>kDimension = 1</code>, the vector type is just <code>float</code>. For <code>kDimension &gt; 1</code>, the vector type is determined by <code>VectorConverter</code>. We use <code><a class="el" href="classmotive_1_1_math_fu_vector_converter.html" title="Convert mathfu types to float pointers. ">MathFuVectorConverter</a></code> below to create 2, 3, and 4 dimensional motivators (see Motivator2f, Motivator3f, and Motivator4f). You can use your own VectorConverter to create Motivators of that match your vector types. </p>
+</div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a04445efc73788ea304f08bd378a54bf5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a04445efc73788ea304f08bd378a54bf5"></a>
+typedef <a class="el" href="structmotive_1_1_vector_t.html">VectorT</a>&lt; C, <br class="typebreak"/>
+kDimensions &gt;::type&#160;</td><td class="memItemRight" valign="bottom"><b>Vec</b></td></tr>
+<tr class="separator:a04445efc73788ea304f08bd378a54bf5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8468ec9e1381a791505e2bbd244eef82"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8468ec9e1381a791505e2bbd244eef82"></a>
+typedef <a class="el" href="structmotive_1_1_motive_target_t.html">MotiveTargetT</a><br class="typebreak"/>
+&lt; kDimensions &gt;::type&#160;</td><td class="memItemRight" valign="bottom"><b>Target</b></td></tr>
+<tr class="separator:a8468ec9e1381a791505e2bbd244eef82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc16e3fd45a1f5545c4ae156b9b3665a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abc16e3fd45a1f5545c4ae156b9b3665a"></a>
+typedef <br class="typebreak"/>
+<a class="el" href="classmotive_1_1_motive_target_builder_template.html">MotiveTargetBuilderTemplate</a>&lt; C, <br class="typebreak"/>
+kDimensions &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>TargetBuilder</b></td></tr>
+<tr class="separator:abc16e3fd45a1f5545c4ae156b9b3665a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a6ed1337dd9671baab55d58caf600607b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#a6ed1337dd9671baab55d58caf600607b">MotivatorXfTemplate</a> ()</td></tr>
+<tr class="separator:a6ed1337dd9671baab55d58caf600607b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7af489ef996b42c35da371c9f96d616"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#ae7af489ef996b42c35da371c9f96d616">MotivatorXfTemplate</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine)</td></tr>
+<tr class="separator:ae7af489ef996b42c35da371c9f96d616"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24fbd405cd3bebb1dff630b3c5147379"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#a24fbd405cd3bebb1dff630b3c5147379">MotivatorXfTemplate</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, const Target &amp;t)</td></tr>
+<tr class="separator:a24fbd405cd3bebb1dff630b3c5147379"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad135fb03591673ed272e4ccd1b104af0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad135fb03591673ed272e4ccd1b104af0"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#ad135fb03591673ed272e4ccd1b104af0">Initialize</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine)</td></tr>
+<tr class="memdesc:ad135fb03591673ed272e4ccd1b104af0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize to the motion algorithm specified by <code>init</code>. <br/></td></tr>
+<tr class="separator:ad135fb03591673ed272e4ccd1b104af0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adcd74ed53979b5acd6bfee6adabce691"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#adcd74ed53979b5acd6bfee6adabce691">InitializeWithTarget</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, const Target &amp;t)</td></tr>
+<tr class="separator:adcd74ed53979b5acd6bfee6adabce691"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0622180386b3f923395ac9659c6ede4"><td class="memItemLeft" align="right" valign="top">Vec&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#ac0622180386b3f923395ac9659c6ede4">Value</a> () const </td></tr>
+<tr class="separator:ac0622180386b3f923395ac9659c6ede4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ea2694969ff4a5b743c3c0ab4ed72d9"><td class="memItemLeft" align="right" valign="top">Vec&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#a5ea2694969ff4a5b743c3c0ab4ed72d9">Velocity</a> () const </td></tr>
+<tr class="separator:a5ea2694969ff4a5b743c3c0ab4ed72d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a116c835778d914b03a2e07191b832d63"><td class="memItemLeft" align="right" valign="top">Vec&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#a116c835778d914b03a2e07191b832d63">Direction</a> () const </td></tr>
+<tr class="separator:a116c835778d914b03a2e07191b832d63"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7bfc4c0f6060e605b868b5c801cb6639"><td class="memItemLeft" align="right" valign="top">Vec&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#a7bfc4c0f6060e605b868b5c801cb6639">TargetValue</a> () const </td></tr>
+<tr class="separator:a7bfc4c0f6060e605b868b5c801cb6639"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ad66a0059d201491eca5f6a945b6776"><td class="memItemLeft" align="right" valign="top">Vec&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#a0ad66a0059d201491eca5f6a945b6776">TargetVelocity</a> () const </td></tr>
+<tr class="separator:a0ad66a0059d201491eca5f6a945b6776"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd222a89cae0d36e22137992cfff7bc4"><td class="memItemLeft" align="right" valign="top">Vec&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#acd222a89cae0d36e22137992cfff7bc4">Difference</a> () const </td></tr>
+<tr class="separator:acd222a89cae0d36e22137992cfff7bc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae6bb7144af03456876b8f3525b898555"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#ae6bb7144af03456876b8f3525b898555">SetTarget</a> (const Target &amp;t)</td></tr>
+<tr class="separator:ae6bb7144af03456876b8f3525b898555"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92499e78a0aada5a6de52f25f4078f7f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a92499e78a0aada5a6de52f25f4078f7f"></a>
+MotiveDimension&#160;</td><td class="memItemRight" valign="bottom"><b>Dimensions</b> () const </td></tr>
+<tr class="separator:a92499e78a0aada5a6de52f25f4078f7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classmotive_1_1_motivator_nf"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classmotive_1_1_motivator_nf')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classmotive_1_1_motivator_nf.html">motive::MotivatorNf</a></td></tr>
+<tr class="memitem:a5d7a6a16de4670214aefe1f7830ed05e inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#a5d7a6a16de4670214aefe1f7830ed05e">MotivatorNf</a> ()</td></tr>
+<tr class="separator:a5d7a6a16de4670214aefe1f7830ed05e inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85f1383ed1c21b9bf75e83fcf75ac482 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#a85f1383ed1c21b9bf75e83fcf75ac482">MotivatorNf</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, MotiveDimension dimensions)</td></tr>
+<tr class="separator:a85f1383ed1c21b9bf75e83fcf75ac482 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a1847a42e55be92efd581ea5ad4e90c inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#a4a1847a42e55be92efd581ea5ad4e90c">MotivatorNf</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, MotiveDimension dimensions, const <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> *ts)</td></tr>
+<tr class="separator:a4a1847a42e55be92efd581ea5ad4e90c inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a0a78ba14aa203e90527aff0e273799 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#a1a0a78ba14aa203e90527aff0e273799">Initialize</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, MotiveDimension dimensions)</td></tr>
+<tr class="separator:a1a0a78ba14aa203e90527aff0e273799 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ebd7b6022283cc263cf9358b2fb8608 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#a9ebd7b6022283cc263cf9358b2fb8608">InitializeWithTargets</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, MotiveDimension dimensions, const <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> *targets)</td></tr>
+<tr class="separator:a9ebd7b6022283cc263cf9358b2fb8608 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b9f6f87c962ba9f1872fe5c6c9a6df5 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#a9b9f6f87c962ba9f1872fe5c6c9a6df5">InitializeWithSplines</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, MotiveDimension dimensions, const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *splines, const <a class="el" href="structmotive_1_1_spline_playback.html">SplinePlayback</a> &amp;playback)</td></tr>
+<tr class="separator:a9b9f6f87c962ba9f1872fe5c6c9a6df5 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6f966bf3c40ba812d9eb075692fa0a7 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af6f966bf3c40ba812d9eb075692fa0a7"></a>
+const float *&#160;</td><td class="memItemRight" valign="bottom"><b>Values</b> () const </td></tr>
+<tr class="separator:af6f966bf3c40ba812d9eb075692fa0a7 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96410c4c8393eafde6213f66e422c3bd inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a96410c4c8393eafde6213f66e422c3bd"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Velocities</b> (float *out) const </td></tr>
+<tr class="separator:a96410c4c8393eafde6213f66e422c3bd inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c7cebe043a9fc2d247c332aa45f9082 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9c7cebe043a9fc2d247c332aa45f9082"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Directions</b> (float *out) const </td></tr>
+<tr class="separator:a9c7cebe043a9fc2d247c332aa45f9082 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84b5bfef78b87b98dc85f61241289b91 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a84b5bfef78b87b98dc85f61241289b91"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>TargetValues</b> (float *out) const </td></tr>
+<tr class="separator:a84b5bfef78b87b98dc85f61241289b91 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad8924d91a83d3adbbc8da8ffa2ebcd8a inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad8924d91a83d3adbbc8da8ffa2ebcd8a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>TargetVelocities</b> (float *out) const </td></tr>
+<tr class="separator:ad8924d91a83d3adbbc8da8ffa2ebcd8a inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff592f71b668c21838bbcd7e81c9b8f3 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aff592f71b668c21838bbcd7e81c9b8f3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Differences</b> (float *out) const </td></tr>
+<tr class="separator:aff592f71b668c21838bbcd7e81c9b8f3 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a200b192cee3fc600f4b10cc15a535382 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">MotiveTime&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#a200b192cee3fc600f4b10cc15a535382">TargetTime</a> () const </td></tr>
+<tr class="separator:a200b192cee3fc600f4b10cc15a535382 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50fd99084606a21fecb39c612a7410bc inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">MotiveTime&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#a50fd99084606a21fecb39c612a7410bc">SplineTime</a> () const </td></tr>
+<tr class="separator:a50fd99084606a21fecb39c612a7410bc inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf496458a4ace39e7c6ca63a3da590bd inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#abf496458a4ace39e7c6ca63a3da590bd">SetSpline</a> (const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> &amp;spline, const <a class="el" href="structmotive_1_1_spline_playback.html">SplinePlayback</a> &amp;playback)</td></tr>
+<tr class="separator:abf496458a4ace39e7c6ca63a3da590bd inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adfb8a3b0e1024b7c170dafde376b0507 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#adfb8a3b0e1024b7c170dafde376b0507">SetSplines</a> (const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *splines, const <a class="el" href="structmotive_1_1_spline_playback.html">SplinePlayback</a> &amp;playback)</td></tr>
+<tr class="separator:adfb8a3b0e1024b7c170dafde376b0507 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a61f786877a9cdffdbcfa0f9b3d302340 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#a61f786877a9cdffdbcfa0f9b3d302340">SetSplineTime</a> (MotiveTime time)</td></tr>
+<tr class="separator:a61f786877a9cdffdbcfa0f9b3d302340 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7e9cab9cb20b23c647e71cb28b9c5e6 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#aa7e9cab9cb20b23c647e71cb28b9c5e6">SetSplinePlaybackRate</a> (float playback_rate)</td></tr>
+<tr class="separator:aa7e9cab9cb20b23c647e71cb28b9c5e6 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c9a9003f7942aa2cd344f77245e22c0 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4c9a9003f7942aa2cd344f77245e22c0"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetTargets</b> (const <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> *targets)</td></tr>
+<tr class="separator:a4c9a9003f7942aa2cd344f77245e22c0 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classmotive_1_1_motivator"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classmotive_1_1_motivator')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classmotive_1_1_motivator.html">motive::Motivator</a></td></tr>
+<tr class="memitem:afd3829bb095d1382a84e0f383be974ee inherit pub_methods_classmotive_1_1_motivator"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator.html#afd3829bb095d1382a84e0f383be974ee">Motivator</a> (const <a class="el" href="classmotive_1_1_motivator.html">Motivator</a> &amp;original)</td></tr>
+<tr class="separator:afd3829bb095d1382a84e0f383be974ee inherit pub_methods_classmotive_1_1_motivator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a34deb14e2560fe19082c498dac6854ce inherit pub_methods_classmotive_1_1_motivator"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmotive_1_1_motivator.html">Motivator</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator.html#a34deb14e2560fe19082c498dac6854ce">operator=</a> (const <a class="el" href="classmotive_1_1_motivator.html">Motivator</a> &amp;original)</td></tr>
+<tr class="separator:a34deb14e2560fe19082c498dac6854ce inherit pub_methods_classmotive_1_1_motivator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02db655d215a5bdc04cbadfcbf428556 inherit pub_methods_classmotive_1_1_motivator"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a02db655d215a5bdc04cbadfcbf428556"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator.html#a02db655d215a5bdc04cbadfcbf428556">~Motivator</a> ()</td></tr>
+<tr class="memdesc:a02db655d215a5bdc04cbadfcbf428556 inherit pub_methods_classmotive_1_1_motivator"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove ourselves from the <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a> when we're deleted. <br/></td></tr>
+<tr class="separator:a02db655d215a5bdc04cbadfcbf428556 inherit pub_methods_classmotive_1_1_motivator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a05c9b6a3a36b66b037c2196a57ec97bc inherit pub_methods_classmotive_1_1_motivator"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator.html#a05c9b6a3a36b66b037c2196a57ec97bc">Invalidate</a> ()</td></tr>
+<tr class="separator:a05c9b6a3a36b66b037c2196a57ec97bc inherit pub_methods_classmotive_1_1_motivator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3bbe7d30be75ca1272da9a1d9c9b0678 inherit pub_methods_classmotive_1_1_motivator"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator.html#a3bbe7d30be75ca1272da9a1d9c9b0678">Valid</a> () const </td></tr>
+<tr class="separator:a3bbe7d30be75ca1272da9a1d9c9b0678 inherit pub_methods_classmotive_1_1_motivator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbeff29ebc3b21b280c159b6ab6e3cc8 inherit pub_methods_classmotive_1_1_motivator"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator.html#adbeff29ebc3b21b280c159b6ab6e3cc8">Sane</a> () const </td></tr>
+<tr class="separator:adbeff29ebc3b21b280c159b6ab6e3cc8 inherit pub_methods_classmotive_1_1_motivator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2924e7578b30d91e9699268a3891d6e6 inherit pub_methods_classmotive_1_1_motivator"><td class="memItemLeft" align="right" valign="top">MotivatorType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator.html#a2924e7578b30d91e9699268a3891d6e6">Type</a> () const </td></tr>
+<tr class="separator:a2924e7578b30d91e9699268a3891d6e6 inherit pub_methods_classmotive_1_1_motivator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3deff2046c318a5a2aeccaf9a892692d inherit pub_methods_classmotive_1_1_motivator"><td class="memItemLeft" align="right" valign="top">MotiveDimension&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator.html#a3deff2046c318a5a2aeccaf9a892692d">Dimensions</a> () const </td></tr>
+<tr class="separator:a3deff2046c318a5a2aeccaf9a892692d inherit pub_methods_classmotive_1_1_motivator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:ac2d25d3ad23eec3a5e9b863952209994"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac2d25d3ad23eec3a5e9b863952209994"></a>
+static const MotiveDimension&#160;</td><td class="memItemRight" valign="bottom"><b>kDimensions</b> = kDimensionsParam</td></tr>
+<tr class="separator:ac2d25d3ad23eec3a5e9b863952209994"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pro_methods_classmotive_1_1_motivator_nf"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classmotive_1_1_motivator_nf')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classmotive_1_1_motivator_nf.html">motive::MotivatorNf</a></td></tr>
+<tr class="memitem:aa17778821cc661be7c7fa7a57e520822 inherit pro_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa17778821cc661be7c7fa7a57e520822"></a>
+<a class="el" href="classmotive_1_1_motive_processor_nf.html">MotiveProcessorNf</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>Processor</b> ()</td></tr>
+<tr class="separator:aa17778821cc661be7c7fa7a57e520822 inherit pro_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a214de2b7e2245e171fc70d4f3222569f inherit pro_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a214de2b7e2245e171fc70d4f3222569f"></a>
+const <a class="el" href="classmotive_1_1_motive_processor_nf.html">MotiveProcessorNf</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>Processor</b> () const </td></tr>
+<tr class="separator:a214de2b7e2245e171fc70d4f3222569f inherit pro_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pro_methods_classmotive_1_1_motivator"><td colspan="2" onclick="javascript:toggleInherit('pro_methods_classmotive_1_1_motivator')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classmotive_1_1_motivator.html">motive::Motivator</a></td></tr>
+<tr class="memitem:a544f84511d8e0760e8734d9cd1d154e1 inherit pro_methods_classmotive_1_1_motivator"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a544f84511d8e0760e8734d9cd1d154e1"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Motivator</b> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, MotiveDimension dimensions)</td></tr>
+<tr class="separator:a544f84511d8e0760e8734d9cd1d154e1 inherit pro_methods_classmotive_1_1_motivator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f1e254596a0f81483f5ea65be18f518 inherit pro_methods_classmotive_1_1_motivator"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8f1e254596a0f81483f5ea65be18f518"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>InitializeWithDimension</b> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, MotiveDimension dimensions)</td></tr>
+<tr class="separator:a8f1e254596a0f81483f5ea65be18f518 inherit pro_methods_classmotive_1_1_motivator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3266d7559e28542b3a09763ad6794b94 inherit pro_methods_classmotive_1_1_motivator"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3266d7559e28542b3a09763ad6794b94"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator.html#a3266d7559e28542b3a09763ad6794b94">Init</a> (<a class="el" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a> *processor, MotiveIndex index)</td></tr>
+<tr class="memdesc:a3266d7559e28542b3a09763ad6794b94 inherit pro_methods_classmotive_1_1_motivator"><td class="mdescLeft">&#160;</td><td class="mdescRight">These should only be called by MotiveProcessor! <br/></td></tr>
+<tr class="separator:a3266d7559e28542b3a09763ad6794b94 inherit pro_methods_classmotive_1_1_motivator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40ff48f8e27e6929f9c4f29aaa7b5383 inherit pro_methods_classmotive_1_1_motivator"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a40ff48f8e27e6929f9c4f29aaa7b5383"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Reset</b> ()</td></tr>
+<tr class="separator:a40ff48f8e27e6929f9c4f29aaa7b5383 inherit pro_methods_classmotive_1_1_motivator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9aa0e94900205cca6500bfc1cd904dc2 inherit pro_methods_classmotive_1_1_motivator"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9aa0e94900205cca6500bfc1cd904dc2"></a>
+const <a class="el" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Processor</b> () const </td></tr>
+<tr class="separator:a9aa0e94900205cca6500bfc1cd904dc2 inherit pro_methods_classmotive_1_1_motivator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pro_attribs_classmotive_1_1_motivator"><td colspan="2" onclick="javascript:toggleInherit('pro_attribs_classmotive_1_1_motivator')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classmotive_1_1_motivator.html">motive::Motivator</a></td></tr>
+<tr class="memitem:a795b24929c68a08483ab3b15c2693b86 inherit pro_attribs_classmotive_1_1_motivator"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator.html#a795b24929c68a08483ab3b15c2693b86">processor_</a></td></tr>
+<tr class="separator:a795b24929c68a08483ab3b15c2693b86 inherit pro_attribs_classmotive_1_1_motivator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9b11ce4184546b7cbf00f8ee02c11da inherit pro_attribs_classmotive_1_1_motivator"><td class="memItemLeft" align="right" valign="top">MotiveIndex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator.html#af9b11ce4184546b7cbf00f8ee02c11da">index_</a></td></tr>
+<tr class="separator:af9b11ce4184546b7cbf00f8ee02c11da inherit pro_attribs_classmotive_1_1_motivator"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a class="anchor" id="a6ed1337dd9671baab55d58caf600607b"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorConverter , MotiveDimension kDimensionsParam&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classmotive_1_1_motivator_xf_template.html">motive::MotivatorXfTemplate</a>&lt; VectorConverter, kDimensionsParam &gt;::<a class="el" href="classmotive_1_1_motivator_xf_template.html">MotivatorXfTemplate</a> </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p><a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> is created in a reset state. When in the reset state, it is not being driven, and <a class="el" href="classmotive_1_1_motivator_xf_template.html#ac0622180386b3f923395ac9659c6ede4">Value()</a>, <a class="el" href="classmotive_1_1_motivator_xf_template.html#a5ea2694969ff4a5b743c3c0ab4ed72d9">Velocity()</a>, etc. cannot be called. </p>
+
+</div>
+</div>
+<a class="anchor" id="ae7af489ef996b42c35da371c9f96d616"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorConverter , MotiveDimension kDimensionsParam&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classmotive_1_1_motivator_xf_template.html">motive::MotivatorXfTemplate</a>&lt; VectorConverter, kDimensionsParam &gt;::<a class="el" href="classmotive_1_1_motivator_xf_template.html">MotivatorXfTemplate</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;&#160;</td>
+          <td class="paramname"><em>init</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *&#160;</td>
+          <td class="paramname"><em>engine</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Initialize to the motion algorithm specified by <code>init</code>. Current and target values are not set. </p>
+
+</div>
+</div>
+<a class="anchor" id="a24fbd405cd3bebb1dff630b3c5147379"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorConverter , MotiveDimension kDimensionsParam&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classmotive_1_1_motivator_xf_template.html">motive::MotivatorXfTemplate</a>&lt; VectorConverter, kDimensionsParam &gt;::<a class="el" href="classmotive_1_1_motivator_xf_template.html">MotivatorXfTemplate</a> </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;&#160;</td>
+          <td class="paramname"><em>init</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *&#160;</td>
+          <td class="paramname"><em>engine</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Target &amp;&#160;</td>
+          <td class="paramname"><em>t</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Initialize to the motion algorithm specified by <code>init</code>. Set current and target values as specified by <code>t</code>. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="acd222a89cae0d36e22137992cfff7bc4"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorConverter , MotiveDimension kDimensionsParam&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Vec <a class="el" href="classmotive_1_1_motivator_xf_template.html">motive::MotivatorXfTemplate</a>&lt; VectorConverter, kDimensionsParam &gt;::Difference </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns <a class="el" href="classmotive_1_1_motivator_xf_template.html#a7bfc4c0f6060e605b868b5c801cb6639">TargetValue()</a> minus <a class="el" href="classmotive_1_1_motivator_xf_template.html#ac0622180386b3f923395ac9659c6ede4">Value()</a>. If we're driving a modular type (e.g. an angle), this may not be the naive subtraction. For example, if <a class="el" href="classmotive_1_1_motivator_xf_template.html#a7bfc4c0f6060e605b868b5c801cb6639">TargetValue()</a> = 170 degrees, <a class="el" href="classmotive_1_1_motivator_xf_template.html#ac0622180386b3f923395ac9659c6ede4">Value()</a> = -170 degrees, then <a class="el" href="classmotive_1_1_motivator_xf_template.html#acd222a89cae0d36e22137992cfff7bc4">Difference()</a> = -20 degrees. </p>
+
+</div>
+</div>
+<a class="anchor" id="a116c835778d914b03a2e07191b832d63"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorConverter , MotiveDimension kDimensionsParam&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Vec <a class="el" href="classmotive_1_1_motivator_xf_template.html">motive::MotivatorXfTemplate</a>&lt; VectorConverter, kDimensionsParam &gt;::Direction </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the velocity when playback rate is 1. Useful to know the direction of a multi-dimensional motivator, even when playback rate is 0. </p>
+
+</div>
+</div>
+<a class="anchor" id="adcd74ed53979b5acd6bfee6adabce691"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorConverter , MotiveDimension kDimensionsParam&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classmotive_1_1_motivator_xf_template.html">motive::MotivatorXfTemplate</a>&lt; VectorConverter, kDimensionsParam &gt;::InitializeWithTarget </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;&#160;</td>
+          <td class="paramname"><em>init</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *&#160;</td>
+          <td class="paramname"><em>engine</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Target &amp;&#160;</td>
+          <td class="paramname"><em>t</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Initialize to the motion algorithm specified by <code>init</code>. Set current and target values as specified by <code>t</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="ae6bb7144af03456876b8f3525b898555"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorConverter , MotiveDimension kDimensionsParam&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classmotive_1_1_motivator_xf_template.html">motive::MotivatorXfTemplate</a>&lt; VectorConverter, kDimensionsParam &gt;::SetTarget </td>
+          <td>(</td>
+          <td class="paramtype">const Target &amp;&#160;</td>
+          <td class="paramname"><em>t</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Set the target and (optionally the current) motivator values. Use this call to procedurally drive the <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> towards a specific target. The <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> will transition smoothly to the new target. You can change the target value every frame if you like, and the <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> value should behave calmly but responsively, with the movement qualities of the underlying <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>. Note that the underlying <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a> is allowed to ignore parts of <code>t</code> that are irrelevent to its algorithm. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">t</td><td>A set of waypoints to hit, optionally including the current value. If the current value is not included, maintain the existing current value. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a7bfc4c0f6060e605b868b5c801cb6639"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorConverter , MotiveDimension kDimensionsParam&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Vec <a class="el" href="classmotive_1_1_motivator_xf_template.html">motive::MotivatorXfTemplate</a>&lt; VectorConverter, kDimensionsParam &gt;::TargetValue </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the value this <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> is driving towards. If being driven by a spline, returns the value at the end of the spline. </p>
+
+</div>
+</div>
+<a class="anchor" id="a0ad66a0059d201491eca5f6a945b6776"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorConverter , MotiveDimension kDimensionsParam&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Vec <a class="el" href="classmotive_1_1_motivator_xf_template.html">motive::MotivatorXfTemplate</a>&lt; VectorConverter, kDimensionsParam &gt;::TargetVelocity </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the rate-of-change of this <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> once it reaches <a class="el" href="classmotive_1_1_motivator_xf_template.html#a7bfc4c0f6060e605b868b5c801cb6639">TargetValue()</a>. </p>
+
+</div>
+</div>
+<a class="anchor" id="ac0622180386b3f923395ac9659c6ede4"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorConverter , MotiveDimension kDimensionsParam&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Vec <a class="el" href="classmotive_1_1_motivator_xf_template.html">motive::MotivatorXfTemplate</a>&lt; VectorConverter, kDimensionsParam &gt;::Value </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the current motivator value. The current value is updated when engine-&gt;AdvanceFrame() is called on the <code>engine</code> that initialized this <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a>. Note that the "Vec()" parameter is just a syntactic hack used to access the correct overloaded function in the processor. </p>
+
+</div>
+</div>
+<a class="anchor" id="a5ea2694969ff4a5b743c3c0ab4ed72d9"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorConverter , MotiveDimension kDimensionsParam&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Vec <a class="el" href="classmotive_1_1_motivator_xf_template.html">motive::MotivatorXfTemplate</a>&lt; VectorConverter, kDimensionsParam &gt;::Velocity </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the current rate of change of this motivator. For example, if this <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> is being driven by a spline, returns the derivative at the current time in the spline curve. </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="motivator_8h_source.html">motivator.h</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-49880327-7', 'google.github.io');
+ga('send', 'pageview');
+</script>
+</body>
+</html>

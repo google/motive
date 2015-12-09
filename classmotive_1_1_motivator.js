@@ -11,6 +11,7 @@ var classmotive_1_1_motivator =
     [ "operator=", "classmotive_1_1_motivator.html#a34deb14e2560fe19082c498dac6854ce", null ],
     [ "Processor", "classmotive_1_1_motivator.html#a9aa0e94900205cca6500bfc1cd904dc2", null ],
     [ "Reset", "classmotive_1_1_motivator.html#a40ff48f8e27e6929f9c4f29aaa7b5383", null ],
+    [ "Sane", "classmotive_1_1_motivator.html#adbeff29ebc3b21b280c159b6ab6e3cc8", null ],
     [ "Type", "classmotive_1_1_motivator.html#a2924e7578b30d91e9699268a3891d6e6", null ],
     [ "Valid", "classmotive_1_1_motivator.html#a3bbe7d30be75ca1272da9a1d9c9b0678", null ],
     [ "MotiveProcessor", "classmotive_1_1_motivator.html#a16be93832d0036c29266b3bb07c82df8", null ],

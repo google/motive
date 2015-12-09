@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -137,41 +216,29 @@ Example</h1>
 </div><!-- fragment --><p> Then, in your own header file, you can define a conversion class like this:</p>
 <div class="fragment"><div class="line"><span class="keyword">class </span>MyVectorConverter {</div>
 <div class="line"> <span class="keyword">public</span>:</div>
-<div class="line">  <span class="comment">// MatrixMotivator4fTemplate needs these External.</span></div>
-<div class="line">  <span class="keyword">typedef</span> MyMatrix4 ExternalMatrix4;</div>
-<div class="line">  <span class="keyword">typedef</span> MyVec2 ExternalVector2;</div>
-<div class="line">  <span class="keyword">typedef</span> MyVec3 ExternalVector3;</div>
-<div class="line">  <span class="keyword">typedef</span> MyVec4 ExternalVector4;</div>
+<div class="line">  <span class="comment">// Define our vector types in the public section.</span></div>
+<div class="line">  <span class="keyword">typedef</span> MyVec2 Vector2;</div>
+<div class="line">  <span class="keyword">typedef</span> MyVec3 Vector3;</div>
+<div class="line">  <span class="keyword">typedef</span> MyVec4 Vector4;</div>
+<div class="line">  <span class="keyword">typedef</span> MyMatrix4 Matrix4;</div>
 <div class="line"></div>
-<div class="line">  <span class="comment">// Casting from mathfu::mat4 is ok. The alignment restrictions on mathfu::mat4</span></div>
-<div class="line">  <span class="comment">// (16-bytes) are stricter than for MyMatrix4 (4-bytes). Also, strict aliasing</span></div>
-<div class="line">  <span class="comment">// is not a problem here since &#39;m&#39; was written on the other side of a virtual</span></div>
-<div class="line">  <span class="comment">// function call (see &quot;Strict Aliasing&quot; discussion in documentation).</span></div>
-<div class="line">  <span class="keyword">static</span> <span class="keyword">const</span> MyMatrix4&amp; To(<span class="keyword">const</span> mathfu::mat4&amp; m) {</div>
-<div class="line">    <span class="keywordflow">return</span> <span class="keyword">reinterpret_cast&lt;</span><span class="keyword">const </span>MyMatrix4&amp;<span class="keyword">&gt;</span>(m);</div>
-<div class="line">  }</div>
+<div class="line">  <span class="comment">// Convert the data types to pointers. Note that we currently assume that</span></div>
+<div class="line">  <span class="comment">// external matrices are in column-major format, the same as mathfu&#39;s.</span></div>
+<div class="line">  <span class="comment">// A future change will store the matrices as row-major AffineTransforms</span></div>
+<div class="line">  <span class="comment">// instead of 4x4 matrices.</span></div>
+<div class="line">  <span class="keyword">static</span> <span class="keywordtype">float</span>* ToPtr(<span class="keywordtype">float</span>&amp; f) { <span class="keywordflow">return</span> &amp;f; }</div>
+<div class="line">  <span class="keyword">static</span> <span class="keywordtype">float</span>* ToPtr(Vector2&amp; v) { <span class="keywordflow">return</span> &amp;v.v[0]; }</div>
+<div class="line">  <span class="keyword">static</span> <span class="keywordtype">float</span>* ToPtr(Vector3&amp; v) { <span class="keywordflow">return</span> &amp;v.v[0]; }</div>
+<div class="line">  <span class="keyword">static</span> <span class="keywordtype">float</span>* ToPtr(Vector4&amp; v) { <span class="keywordflow">return</span> &amp;v.v[0]; }</div>
+<div class="line">  <span class="keyword">static</span> <span class="keywordtype">float</span>* ToPtr(Matrix4&amp; m) { <span class="keywordflow">return</span> &amp;m.m[0][0]; }</div>
 <div class="line"></div>
-<div class="line">  <span class="comment">// This call results in a read of &#39;v&#39; and then a write to the stack of</span></div>
-<div class="line">  <span class="comment">// MyVec3. The optimizer will almost certainly eliminate this extra</span></div>
+<div class="line">  <span class="comment">// This call results in a read of &#39;f&#39; and then a write to the stack of</span></div>
+<div class="line">  <span class="comment">// the return value. The optimizer will almost certainly eliminate this extra</span></div>
 <div class="line">  <span class="comment">// read-write, since it does nothing.</span></div>
-<div class="line">  <span class="keyword">static</span> MyVec2 To(<span class="keyword">const</span> mathfu::vec2&amp; v) { <span class="keywordflow">return</span> MyVec2(&amp;v[0]); }</div>
-<div class="line">  <span class="keyword">static</span> MyVec3 To(<span class="keyword">const</span> mathfu::vec3&amp; v) { <span class="keywordflow">return</span> MyVec3(&amp;v[0]); }</div>
-<div class="line">  <span class="keyword">static</span> MyVec4 To(<span class="keyword">const</span> mathfu::vec4&amp; v) { <span class="keywordflow">return</span> MyVec4(&amp;v[0]); }</div>
-<div class="line"></div>
-<div class="line">  <span class="comment">// Here we have to call the constructor for matfu::vec3, because the alignment</span></div>
-<div class="line">  <span class="comment">// restrictions are more strict for mathfu types (16-bytes) than for MyVec3</span></div>
-<div class="line">  <span class="comment">// (4-bytes). The optimizer *may not* be able to eliminate this read-write</span></div>
-<div class="line">  <span class="comment">// since &#39;v&#39; might arrive misaligned. This function may result in overhead,</span></div>
-<div class="line">  <span class="comment">// therefore.</span></div>
-<div class="line">  <span class="keyword">static</span> <span class="keyword">const</span> mathfu::vec2 From(<span class="keyword">const</span> MyVec2&amp; v) {</div>
-<div class="line">    <span class="keywordflow">return</span> mathfu::vec2(&amp;v.v[0]);</div>
-<div class="line">  }</div>
-<div class="line">  <span class="keyword">static</span> <span class="keyword">const</span> mathfu::vec3 From(<span class="keyword">const</span> MyVec3&amp; v) {</div>
-<div class="line">    <span class="keywordflow">return</span> mathfu::vec3(&amp;v.v[0]);</div>
-<div class="line">  }</div>
-<div class="line">  <span class="keyword">static</span> <span class="keyword">const</span> mathfu::vec4 From(<span class="keyword">const</span> MyVec4&amp; v) {</div>
-<div class="line">    <span class="keywordflow">return</span> mathfu::vec4(&amp;v.v[0]);</div>
-<div class="line">  }</div>
+<div class="line">  <span class="keyword">static</span> <span class="keywordtype">float</span> FromPtr(<span class="keyword">const</span> <span class="keywordtype">float</span>* f, <span class="keywordtype">float</span>) { <span class="keywordflow">return</span> *f; }</div>
+<div class="line">  <span class="keyword">static</span> Vector2 FromPtr(<span class="keyword">const</span> <span class="keywordtype">float</span>* f, Vector2) { <span class="keywordflow">return</span> Vector2(f); }</div>
+<div class="line">  <span class="keyword">static</span> Vector3 FromPtr(<span class="keyword">const</span> <span class="keywordtype">float</span>* f, Vector3) { <span class="keywordflow">return</span> Vector3(f); }</div>
+<div class="line">  <span class="keyword">static</span> Vector4 FromPtr(<span class="keyword">const</span> <span class="keywordtype">float</span>* f, Vector4) { <span class="keywordflow">return</span> Vector4(f); }</div>
 <div class="line">};</div>
 </div><!-- fragment --><p> And then define a <code>MatrixMotivator</code> that uses your types in its external API:</p>
 <div class="fragment"><div class="line"><span class="keyword">typedef</span> MatrixMotivator4fTemplate&lt;MyVectorConverter&gt; MyMatrixMotivator4f;</div>

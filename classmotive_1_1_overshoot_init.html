@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -128,17 +207,24 @@ $(document).ready(function(){initNavTree('classmotive_1_1_overshoot_init.html','
 <div class="title">motive::OvershootInit Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Initialize a <a class="el" href="classmotive_1_1_motivator_nf.html">MotivatorNf</a> move towards a target using spring physics.  
+ <a href="classmotive_1_1_overshoot_init.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="init_8h_source.html">init.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for motive::OvershootInit:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="classmotive_1_1_overshoot_init.png" usemap="#motive::OvershootInit_map" alt=""/>
   <map id="motive::OvershootInit_map" name="motive::OvershootInit_map">
-<area href="classmotive_1_1_modular_init.html" alt="motive::ModularInit" shape="rect" coords="0,56,129,80"/>
 <area href="classmotive_1_1_motivator_init.html" alt="motive::MotivatorInit" shape="rect" coords="0,0,129,24"/>
 </map>
  </div></div>
-<table class="memberdecls">
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Initialize a <a class="el" href="classmotive_1_1_motivator_nf.html">MotivatorNf</a> move towards a target using spring physics. </p>
+<p>Call MotivatorNf::SetTargets() to set the target that we swing towards. The name comes from the movement overshooting the target then coming back, the way a dampened oscillator overshoots its resting point. </p>
+</div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a9e5293edfa248c9451dbaf3e8194ba5d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a9e5293edfa248c9451dbaf3e8194ba5d"></a>
@@ -152,6 +238,18 @@ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cla
 <tr class="separator:a8b0085c1f6ff75a117d7ba55c47f7cc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af0d7e085dba2432ab64d9082e3eca6d5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_overshoot_init.html#af0d7e085dba2432ab64d9082e3eca6d5">AtTarget</a> (float dist, float velocity) const </td></tr>
 <tr class="separator:af0d7e085dba2432ab64d9082e3eca6d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acfd878ababbbdfc6b2abad3dc01ea615"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acfd878ababbbdfc6b2abad3dc01ea615"></a>
+const <a class="el" href="classmotive_1_1_range_t.html">Range</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>range</b> () const </td></tr>
+<tr class="separator:acfd878ababbbdfc6b2abad3dc01ea615"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75db69960c657d7d364f20e6f543df6a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a75db69960c657d7d364f20e6f543df6a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_range</b> (const <a class="el" href="classmotive_1_1_range_t.html">Range</a> &amp;r)</td></tr>
+<tr class="separator:a75db69960c657d7d364f20e6f543df6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5039245e6d84d5cb612e609689f4e44f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5039245e6d84d5cb612e609689f4e44f"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>modular</b> () const </td></tr>
+<tr class="separator:a5039245e6d84d5cb612e609689f4e44f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaeec5c00fa341734344a7a6ca1b830ac"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaeec5c00fa341734344a7a6ca1b830ac"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>set_modular</b> (bool modular)</td></tr>
+<tr class="separator:aaeec5c00fa341734344a7a6ca1b830ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a27f7e5536167e4bdd384476b7aed299d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a27f7e5536167e4bdd384476b7aed299d"></a>
 float&#160;</td><td class="memItemRight" valign="bottom"><b>max_velocity</b> () const </td></tr>
 <tr class="separator:a27f7e5536167e4bdd384476b7aed299d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -191,38 +289,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>set_wrong_direction_m
 <tr class="memitem:a141e81e983343e5b2abbfb5c1110d6f7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a141e81e983343e5b2abbfb5c1110d6f7"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>set_max_delta_time</b> (MotiveTime max_delta_time)</td></tr>
 <tr class="separator:a141e81e983343e5b2abbfb5c1110d6f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_classmotive_1_1_modular_init"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classmotive_1_1_modular_init')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classmotive_1_1_modular_init.html">motive::ModularInit</a></td></tr>
-<tr class="memitem:aefcfe8a0cd2fa7b5a2753ab5309d9b57 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aefcfe8a0cd2fa7b5a2753ab5309d9b57"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ModularInit</b> (MotivatorType type)</td></tr>
-<tr class="separator:aefcfe8a0cd2fa7b5a2753ab5309d9b57 inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae24b993ed0f9e4dec6fae724629e30eb inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_modular_init.html#ae24b993ed0f9e4dec6fae724629e30eb">ModularInit</a> (MotivatorType type, const <a class="el" href="classmotive_1_1_range_t.html">Range</a> &amp;range, bool modular)</td></tr>
-<tr class="separator:ae24b993ed0f9e4dec6fae724629e30eb inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af1f210390644301a13b4e121cc86ec94 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_modular_init.html#af1f210390644301a13b4e121cc86ec94">Normalize</a> (float x) const </td></tr>
-<tr class="separator:af1f210390644301a13b4e121cc86ec94 inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0690cf92b8851770349e56c3f57d6028 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_modular_init.html#a0690cf92b8851770349e56c3f57d6028">NormalizeWildValue</a> (float x) const </td></tr>
-<tr class="separator:a0690cf92b8851770349e56c3f57d6028 inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a42516b02d60a3da4a16936380908c9 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_modular_init.html#a3a42516b02d60a3da4a16936380908c9">ClampValue</a> (float x) const </td></tr>
-<tr class="separator:a3a42516b02d60a3da4a16936380908c9 inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3aa3e28c8ccde930d4e528734d83d057 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3aa3e28c8ccde930d4e528734d83d057"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_modular_init.html#a3aa3e28c8ccde930d4e528734d83d057">Min</a> () const </td></tr>
-<tr class="memdesc:a3aa3e28c8ccde930d4e528734d83d057 inherit pub_methods_classmotive_1_1_modular_init"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return minimum value of the range. <br/></td></tr>
-<tr class="separator:a3aa3e28c8ccde930d4e528734d83d057 inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4b5117cb40b88491a09a2b48f878a0b3 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4b5117cb40b88491a09a2b48f878a0b3"></a>
-float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_modular_init.html#a4b5117cb40b88491a09a2b48f878a0b3">Max</a> () const </td></tr>
-<tr class="memdesc:a4b5117cb40b88491a09a2b48f878a0b3 inherit pub_methods_classmotive_1_1_modular_init"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return maximum value of the range. <br/></td></tr>
-<tr class="separator:a4b5117cb40b88491a09a2b48f878a0b3 inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a646d3954b88468fe51110f48541df47f inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a646d3954b88468fe51110f48541df47f"></a>
-const <a class="el" href="classmotive_1_1_range_t.html">Range</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>range</b> () const </td></tr>
-<tr class="separator:a646d3954b88468fe51110f48541df47f inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5b5df81acb134866ae105a5662781b40 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5b5df81acb134866ae105a5662781b40"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_range</b> (const <a class="el" href="classmotive_1_1_range_t.html">Range</a> &amp;r)</td></tr>
-<tr class="separator:a5b5df81acb134866ae105a5662781b40 inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a801354cba908c386ef688f6180f62a45 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a801354cba908c386ef688f6180f62a45"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>modular</b> () const </td></tr>
-<tr class="separator:a801354cba908c386ef688f6180f62a45 inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ba00b89c0da5ffe050028e0230cc920 inherit pub_methods_classmotive_1_1_modular_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3ba00b89c0da5ffe050028e0230cc920"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>set_modular</b> (bool modular)</td></tr>
-<tr class="separator:a3ba00b89c0da5ffe050028e0230cc920 inherit pub_methods_classmotive_1_1_modular_init"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classmotive_1_1_motivator_init"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classmotive_1_1_motivator_init')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classmotive_1_1_motivator_init.html">motive::MotivatorInit</a></td></tr>
 <tr class="memitem:a4bad26a44261bf463f6aef03f9f7ac1a inherit pub_methods_classmotive_1_1_motivator_init"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4bad26a44261bf463f6aef03f9f7ac1a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_init.html#a4bad26a44261bf463f6aef03f9f7ac1a">MotivatorInit</a> (MotivatorType type)</td></tr>

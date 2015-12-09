@@ -24,6 +24,85 @@
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700,700italic|Roboto+Mono:400,700" rel="stylesheet">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<script>
+  /**
+   * Check if the browser rendering this page is being run on an Android device.
+   * It checks if the string 'android' is found in the browser's `userAgent`.
+   * @return {boolean} This returns `true` if the browser's `userAgent` contains
+   * the string 'android' (indicating that the browser is on an Android device).
+   * Otherwise, it returns `false`.
+   */
+  function isAndroidDevice() {
+    if (navigator && navigator.userAgent) {
+      return navigator.userAgent.toLowerCase().indexOf('android') != -1;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Check if an HTML `class` attribute is in the browser-specific format.
+   * @param {string} An HTML `class` attribute in the format 'browser-{device}'.
+   * @return {boolean} Returns `true` if `browserClass` was in the valid format,
+   * prefixed with 'browser-'. Otherwise, it returns false.
+   */
+  function isBrowserSpecificClassName(browserClass) {
+    if (browserClass && browserClass.substring(0, 8) == 'browser-' &&
+        browserClass.length > 8) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Get all the HTML Elements with browser-specific `class` attributes.
+   * @return {array} Returns an array of all the HTML Elements with a `class`
+   * attribute that is prefixed with `browser-`.
+   */
+  function getAllBrowserSpecificElements() {
+    if (document) {
+      var htmlElements = document.getElementsByTagName("*");
+      var browserSpecificElements = [];
+      for (var i = 0; i < htmlElements.length; i++) {
+        if (isBrowserSpecificClassName(htmlElements[i].className)) {
+          browserSpecificElements.push(htmlElements[i]);
+        }
+      }
+      return browserSpecificElements;
+    } else {
+      return null;
+    }
+  }
+  /**
+   * Given a browser-specific HTML `class` attribute, extract the device name.
+   * @param {string} browserClass The string name of an HTML `class` attribute,
+   * in the format `browser-{device}`.
+   * @return {string} Returns a string containing only the device portion of
+   * the class name. If the input was invalid, then it returns `null`.
+   */
+  function extractDeviceFromBrowserClass(browserClass) {
+    if (isBrowserSpecificClassName(browserClass)) {
+      return browserClass.substring(8);
+    }
+    else {
+      return null;
+    }
+  }
+  /**
+   * Hide device specific elements that do not apply to the current device.
+   */
+  function handleDeviceSpecificLoading() {
+    var browserSpecificElements = getAllBrowserSpecificElements();
+    for (var i = 0; i < browserSpecificElements.length; i++) {
+      var device = extractDeviceFromBrowserClass(browserSpecificElements[i].className);
+      if (device && !isAndroidDevice() && device == 'android') {
+        browserSpecificElements[i].innerHTML = '';
+      } else if(device && isAndroidDevice() && device == 'desktop') {
+        browserSpecificElements[i].innerHTML = '';
+      }
+    }
+  }
+  $(document).ready(handleDeviceSpecificLoading);
+</script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -136,7 +215,7 @@ Example</h1>
 <div class="line">  LinearInit() : MotivatorInit(kType) {}</div>
 <div class="line">};</div>
 </div><!-- fragment --><p> The remaining code can be in a .cpp file. There is no need to expose it, since it gets registered with the <code>MotiveEngine</code>, and all calls to it come through <code>MotiveEngine</code>.</p>
-<div class="fragment"><div class="line"><span class="keyword">class </span>LinearMotiveProcessor : <span class="keyword">public</span> VectorProcessor {</div>
+<div class="fragment"><div class="line"><span class="keyword">class </span>LinearMotiveProcessor : <span class="keyword">public</span> MotiveProcessorNf {</div>
 <div class="line"> <span class="keyword">public</span>:</div>
 <div class="line">  <span class="keyword">virtual</span> ~LinearMotiveProcessor() {}</div>
 <div class="line"></div>
@@ -145,15 +224,16 @@ Example</h1>
 <div class="line">  <span class="comment">// allows us to use SIMD or multi-threading when appropriate.</span></div>
 <div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> AdvanceFrame(MotiveTime delta_time) {</div>
 <div class="line">    <span class="comment">// We could optimize this using SIMD.</span></div>
-<div class="line">    <span class="keywordflow">for</span> (<span class="keyword">auto</span> it = data_.begin(); it &lt; data_.end(); ++it) {</div>
-<div class="line">      LinearData&amp; d = *it;</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; data_.size(); ++i) {</div>
+<div class="line">      LinearData&amp; d = data_[i];</div>
+<div class="line">      <span class="keywordtype">float</span>&amp; value = values_[i];</div>
 <div class="line"></div>
 <div class="line">      <span class="comment">// Advance the value by linearly interpolating towards the target.</span></div>
 <div class="line">      <span class="keywordflow">if</span> (d.target_time &gt; 0.0f) {</div>
 <div class="line">        <span class="keyword">const</span> <span class="keywordtype">float</span> percent_complete = delta_time / d.target_time;</div>
-<div class="line">        d.value = mathfu::Lerp(d.value, d.target_value, percent_complete);</div>
+<div class="line">        value = mathfu::Lerp(value, d.target_value, percent_complete);</div>
 <div class="line">      } <span class="keywordflow">else</span> {</div>
-<div class="line">        d.value = d.target_value;</div>
+<div class="line">        value = d.target_value;</div>
 <div class="line">      }</div>
 <div class="line"></div>
 <div class="line">      <span class="comment">// Decrement the target time.</span></div>
@@ -165,24 +245,38 @@ Example</h1>
 <div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">int</span> Priority()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> 0; }</div>
 <div class="line"></div>
 <div class="line">  <span class="comment">// Accessors to allow the user to get and set simulation values.</span></div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">float</span> Value1f(MotiveIndex index)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> Data(index).value; }</div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">float</span> Velocity1f(MotiveIndex index)<span class="keyword"> const </span>{</div>
-<div class="line">    <span class="keyword">const</span> LinearData&amp; d = Data(index);</div>
-<div class="line">    <span class="keywordflow">return</span> d.target_time &lt;= 0.0f ? 0.0f</div>
-<div class="line">        : (d.target_value - d.value) / d.target_time;</div>
+<div class="line">  <span class="keyword">virtual</span> <span class="keyword">const</span> <span class="keywordtype">float</span>* Values(MotiveIndex index)<span class="keyword"> const </span>{</div>
+<div class="line">    <span class="keywordflow">return</span> &amp;values_[index];</div>
 <div class="line">  }</div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">float</span> Direction1f(MotiveIndex index)<span class="keyword"> const </span>{</div>
-<div class="line">    <span class="keywordflow">return</span> Velocity1f(index);</div>
+<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> Velocities(MotiveIndex index, MotiveIndex count,</div>
+<div class="line">                          <span class="keywordtype">float</span>* out)<span class="keyword"> const </span>{</div>
+<div class="line">    <span class="keyword">const</span> LinearData* d = &amp;Data(index);</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">float</span>* values = &amp;values_[index];</div>
+<div class="line">    <span class="keywordflow">for</span> (MotiveDimension i = 0; i &lt; count; ++i, ++d, ++values) {</div>
+<div class="line">      out[i] = d-&gt;target_time &lt;= 0.0f ? 0.0f : (d-&gt;target_value - *values) /</div>
+<div class="line">                                                   d-&gt;target_time;</div>
+<div class="line">    }</div>
 <div class="line">  }</div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">float</span> TargetValue1f(MotiveIndex index)<span class="keyword"> const </span>{</div>
-<div class="line">    <span class="keywordflow">return</span> Data(index).target_value;</div>
+<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> TargetValues(MotiveIndex index, MotiveIndex count,</div>
+<div class="line">                            <span class="keywordtype">float</span>* out)<span class="keyword"> const </span>{</div>
+<div class="line">    <span class="keyword">const</span> LinearData* d = &amp;Data(index);</div>
+<div class="line">    <span class="keywordflow">for</span> (MotiveDimension i = 0; i &lt; count; ++i, ++d) {</div>
+<div class="line">      out[i] = d-&gt;target_value;</div>
+<div class="line">    }</div>
 <div class="line">  }</div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">float</span> TargetVelocity1f(MotiveIndex index)<span class="keyword"> const </span>{</div>
-<div class="line">    (void)index; <span class="keywordflow">return</span> 0.0f;</div>
+<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> TargetVelocities(MotiveIndex <span class="comment">/*index*/</span>, MotiveIndex count,</div>
+<div class="line">                                <span class="keywordtype">float</span>* out)<span class="keyword"> const </span>{</div>
+<div class="line">    <span class="keywordflow">for</span> (MotiveDimension i = 0; i &lt; count; ++i) {</div>
+<div class="line">      out[i] = 0.0f;</div>
+<div class="line">    }</div>
 <div class="line">  }</div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">float</span> Difference1f(MotiveIndex index)<span class="keyword"> const </span>{</div>
-<div class="line">    <span class="keyword">const</span> LinearData&amp; d = Data(index);</div>
-<div class="line">    <span class="keywordflow">return</span> d.target_value - d.value;</div>
+<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> Differences(MotiveIndex index, MotiveIndex count,</div>
+<div class="line">                           <span class="keywordtype">float</span>* out)<span class="keyword"> const </span>{</div>
+<div class="line">    <span class="keyword">const</span> LinearData* d = &amp;Data(index);</div>
+<div class="line">    <span class="keyword">const</span> <span class="keywordtype">float</span>* values = &amp;values_[index];</div>
+<div class="line">    <span class="keywordflow">for</span> (MotiveDimension i = 0; i &lt; count; ++i, ++d, ++values) {</div>
+<div class="line">      out[i] = d-&gt;target_value - *values;</div>
+<div class="line">    }</div>
 <div class="line">  }</div>
 <div class="line">  <span class="keyword">virtual</span> MotiveTime TargetTime(MotiveIndex index)<span class="keyword"> const </span>{</div>
 <div class="line">    <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span>MotiveTime<span class="keyword">&gt;</span>(Data(index).target_time);</div>
@@ -191,38 +285,41 @@ Example</h1>
 <div class="line">  <span class="comment">// Target values are set in bulk. Please see MotiveTarget1f for a description</span></div>
 <div class="line">  <span class="comment">// of the format. It&#39;s basically an array of way points. In our case, we&#39;re</span></div>
 <div class="line">  <span class="comment">// only interested in (at most) two way points: current and target.</span></div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetTarget(MotiveIndex index, <span class="keyword">const</span> MotiveTarget1f&amp; t) {</div>
-<div class="line">    LinearData&amp; d = Data(index);</div>
+<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetTargets(MotiveIndex index, MotiveIndex count,</div>
+<div class="line">                          <span class="keyword">const</span> MotiveTarget1f* ts) {</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; count; ++i) {</div>
+<div class="line">      LinearData&amp; d = Data(index + i);</div>
+<div class="line">      <span class="keyword">const</span> MotiveTarget1f&amp; t = ts[i];</div>
 <div class="line"></div>
-<div class="line">    <span class="comment">// If the first node specifies time=0, that means we want to override the</span></div>
-<div class="line">    <span class="comment">// current values with the values specified in the first node.</span></div>
-<div class="line">    <span class="keyword">const</span> MotiveNode1f&amp; node0 = t.Node(0);</div>
-<div class="line">    <span class="keyword">const</span> <span class="keywordtype">bool</span> override_current = node0.time == 0;</div>
-<div class="line">    <span class="keywordflow">if</span> (override_current) {</div>
-<div class="line">      d.value = node0.value;</div>
-<div class="line">    }</div>
+<div class="line">      <span class="comment">// If the first node specifies time=0, that means we want to override the</span></div>
+<div class="line">      <span class="comment">// current values with the values specified in the first node.</span></div>
+<div class="line">      <span class="keyword">const</span> MotiveNode1f&amp; node0 = t.Node(0);</div>
+<div class="line">      <span class="keyword">const</span> <span class="keywordtype">bool</span> override_current = node0.time == 0;</div>
+<div class="line">      <span class="keywordflow">if</span> (override_current) {</div>
+<div class="line">        values_[index + i] = node0.value;</div>
+<div class="line">      }</div>
 <div class="line"></div>
-<div class="line">    <span class="comment">// If the first node specifies time &gt; 0, that means we want to override the</span></div>
-<div class="line">    <span class="comment">// target values with it. Or, if two nodes are specified, we use the</span></div>
-<div class="line">    <span class="comment">// second for the target values.</span></div>
-<div class="line">    <span class="keyword">const</span> MotiveNode1f* target_node = override_current</div>
-<div class="line">                                    ? (t.num_nodes() &gt; 1 ? &amp;t.Node(1) : <span class="keyword">nullptr</span>)</div>
-<div class="line">                                    : &amp;node0;</div>
-<div class="line">    <span class="keywordflow">if</span> (target_node != <span class="keyword">nullptr</span>) {</div>
-<div class="line">      d.target_value = target_node-&gt;value;</div>
-<div class="line">      d.target_time = <span class="keyword">static_cast&lt;</span><span class="keywordtype">float</span><span class="keyword">&gt;</span>(target_node-&gt;time);</div>
+<div class="line">      <span class="comment">// If the first node specifies time &gt; 0, that means we want to override</span></div>
+<div class="line">      <span class="comment">// the</span></div>
+<div class="line">      <span class="comment">// target values with it. Or, if two nodes are specified, we use the</span></div>
+<div class="line">      <span class="comment">// second for the target values.</span></div>
+<div class="line">      <span class="keyword">const</span> MotiveNode1f* target_node =</div>
+<div class="line">          override_current ? (t.num_nodes() &gt; 1 ? &amp;t.Node(1) : <span class="keyword">nullptr</span>)</div>
+<div class="line">                           : &amp;node0;</div>
+<div class="line">      <span class="keywordflow">if</span> (target_node != <span class="keyword">nullptr</span>) {</div>
+<div class="line">        d.target_value = target_node-&gt;value;</div>
+<div class="line">        d.target_time = <span class="keyword">static_cast&lt;</span><span class="keywordtype">float</span><span class="keyword">&gt;</span>(target_node-&gt;time);</div>
+<div class="line">      }</div>
 <div class="line">    }</div>
 <div class="line">  }</div>
 <div class="line"></div>
 <div class="line"> <span class="keyword">protected</span>:</div>
 <div class="line">  <span class="keyword">struct </span>LinearData {</div>
-<div class="line">    <span class="keywordtype">float</span> value;</div>
 <div class="line">    <span class="keywordtype">float</span> target_value;</div>
 <div class="line">    <span class="keywordtype">float</span> target_time;</div>
 <div class="line"></div>
 <div class="line">    LinearData() { Reset(); }</div>
 <div class="line">    <span class="keywordtype">void</span> Reset() {</div>
-<div class="line">      value = 0.0f;</div>
 <div class="line">      target_value = 0.0f;</div>
 <div class="line">      target_time = 0.0f;</div>
 <div class="line">    }</div>
@@ -231,21 +328,25 @@ Example</h1>
 <div class="line">  <span class="comment">// When an Motivator is initialized with LinearInit, this function will</span></div>
 <div class="line">  <span class="comment">// be called. We allocate data for the new Motivator.</span></div>
 <div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> InitializeIndex(<span class="keyword">const</span> MotivatorInit&amp; init, MotiveIndex index,</div>
-<div class="line">                               MotiveEngine* engine) {</div>
-<div class="line">    (void)init; (void)index; (void)engine;</div>
+<div class="line">                               MotiveEngine* <span class="comment">/*engine*/</span>) {</div>
+<div class="line">    (void)init;</div>
 <div class="line">    assert(init.type() == LinearInit::kType);</div>
+<div class="line">    Data(index).Reset();</div>
+<div class="line">    values_[index] = 0;</div>
 <div class="line">  }</div>
 <div class="line"></div>
 <div class="line">  <span class="comment">// This function is called when an index is removed. We don&#39;t have to do</span></div>
 <div class="line">  <span class="comment">// anything, but for ease of debugging, we call reset.</span></div>
 <div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> RemoveIndex(MotiveIndex index) {</div>
 <div class="line">    Data(index).Reset();</div>
+<div class="line">    values_[index] = 0;</div>
 <div class="line">  }</div>
 <div class="line"></div>
 <div class="line">  <span class="comment">// The base class endeavors to keep our data contiguous in memory, so</span></div>
 <div class="line">  <span class="comment">// whenever Defragment() is called, we may shuffle some indices around.</span></div>
 <div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> MoveIndex(MotiveIndex old_index, MotiveIndex new_index) {</div>
 <div class="line">    data_[new_index] = data_[old_index];</div>
+<div class="line">    values_[new_index] = values_[old_index];</div>
 <div class="line">  }</div>
 <div class="line"></div>
 <div class="line">  <span class="comment">// When new Motivators are being added or removed, this function may be</span></div>
@@ -255,6 +356,7 @@ Example</h1>
 <div class="line">  <span class="comment">// dynamically growing arrays.</span></div>
 <div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetNumIndices(MotiveIndex num_indices) {</div>
 <div class="line">    data_.resize(num_indices);</div>
+<div class="line">    values_.resize(num_indices);</div>
 <div class="line">  }</div>
 <div class="line"></div>
 <div class="line">  <span class="comment">// Handy accessors that double-check the validity of &#39;index&#39;.</span></div>
@@ -272,6 +374,7 @@ Example</h1>
 <div class="line">  <span class="comment">// indices that have been removed. This allows us to process data by</span></div>
 <div class="line">  <span class="comment">// streaming it in, and maximize memory bandwidth.</span></div>
 <div class="line">  std::vector&lt;LinearData&gt; data_;</div>
+<div class="line">  std::vector&lt;float&gt; values_;</div>
 <div class="line">};</div>
 <div class="line"></div>
 <div class="line">MOTIVE_INSTANCE(LinearInit, LinearMotiveProcessor);</div>
@@ -293,7 +396,9 @@ Example</h1>
 <div class="line">    points.push_back(vec2(static_cast&lt;float&gt;(t), linear_motivator.Value()));</div>
 <div class="line">    engine.AdvanceFrame(1);</div>
 <div class="line">  }</div>
-<div class="line">  printf(<span class="stringliteral">&quot;\n%s&quot;</span>, motive::Graph2DPoints(&amp;points[0], points.size()).c_str());</div>
+<div class="line">  printf(<span class="stringliteral">&quot;\n%s&quot;</span>,</div>
+<div class="line">         motive::Graph2DPoints(&amp;points[0], static_cast&lt;int&gt;(points.size()))</div>
+<div class="line">             .c_str());</div>
 </div><!-- fragment --><p> The final output of our example is below. Notice that the variable animates linearly from 10 down to -5. </p>
 <pre class="fragment">y = 10.000000
 |

@@ -1,9 +1,9 @@
 var searchData=
 [
-  ['target',['Target',['../classmotive_1_1_motive_target_builder_template.html#a33627fc5566210036dd340d2fd7cfddc',1,'motive::MotiveTargetBuilderTemplate']]],
-  ['targettime',['TargetTime',['../classmotive_1_1_motivator_vector_template.html#a4f3cbf168f6df494e378d6b1ff52d46d',1,'motive::MotivatorVectorTemplate']]],
-  ['targetvalue',['TargetValue',['../classmotive_1_1_motivator_vector_template.html#aa9f420a664e61a4776647e35a1e8792c',1,'motive::MotivatorVectorTemplate']]],
-  ['targetvelocity',['TargetVelocity',['../classmotive_1_1_motivator_vector_template.html#a50cd8f7c062aa2e4a463093e07419686',1,'motive::MotivatorVectorTemplate']]],
+  ['target',['Target',['../classmotive_1_1_motive_target_builder_template.html#a8315ee0847d49ad058838dd5c31cf989',1,'motive::MotiveTargetBuilderTemplate']]],
+  ['targettime',['TargetTime',['../classmotive_1_1_motivator_nf.html#a200b192cee3fc600f4b10cc15a535382',1,'motive::MotivatorNf']]],
+  ['targetvalue',['TargetValue',['../classmotive_1_1_motivator_xf_template.html#a7bfc4c0f6060e605b868b5c801cb6639',1,'motive::MotivatorXfTemplate']]],
+  ['targetvelocity',['TargetVelocity',['../classmotive_1_1_motivator_xf_template.html#a0ad66a0059d201491eca5f6a945b6776',1,'motive::MotivatorXfTemplate']]],
   ['tarray',['TArray',['../structmotive_1_1_range_t_1_1_t_array.html',1,'motive::RangeT']]],
   ['text',['Text',['../classmotive_1_1_quadratic_curve.html#a555c9eb2708dc4ab2007b5d2f497e84f',1,'motive::QuadraticCurve::Text()'],['../classmotive_1_1_cubic_curve.html#a6e6daaa81d501299394df14c32515b85',1,'motive::CubicCurve::Text()']]],
   ['thirdderivative',['ThirdDerivative',['../classmotive_1_1_quadratic_curve.html#a6184ec2af7f17c88141d4a7c411702ec',1,'motive::QuadraticCurve::ThirdDerivative()'],['../classmotive_1_1_cubic_curve.html#a1778bbb5ae6723f2819830dd733dd66b',1,'motive::CubicCurve::ThirdDerivative()']]],

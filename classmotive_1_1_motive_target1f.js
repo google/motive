@@ -8,6 +8,7 @@ var classmotive_1_1_motive_target1f =
     [ "Node", "classmotive_1_1_motive_target1f.html#ad18523938eed11896ff4ed368601e701", null ],
     [ "num_nodes", "classmotive_1_1_motive_target1f.html#aaf40c3560909cc67342f60f7adbd380d", null ],
     [ "Reset", "classmotive_1_1_motive_target1f.html#a44db9d6ae4dc487c1026f80c332292c8", null ],
+    [ "targets", "classmotive_1_1_motive_target1f.html#a0dc3f583ee67a93e16a37d6b6d39738e", null ],
     [ "ValueRange", "classmotive_1_1_motive_target1f.html#a77558f3fa4fdbda01e343f1c37cb323f", null ],
     [ "kMaxNodes", "classmotive_1_1_motive_target1f.html#addecbf59cbf464c94bbb0ab314f98e16", null ]
 ];

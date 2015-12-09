@@ -60,8 +60,8 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 ".html",
-"classmotive_1_1_motivator_vector_template.html#add6dcde94a257f4dcd20c2b435ad6716",
-"functions_b.html"
+"classmotive_1_1_motivator_nf.html#a200b192cee3fc600f4b10cc15a535382",
+"classmotive_1_1_rig_motivator.html#a7d8178c5ed8471feff4b173f0bb93e43"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
