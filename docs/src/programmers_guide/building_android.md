@@ -69,23 +69,24 @@ Additionally, if you'd like to use the handy tools in [fplutil][],
 
 # Code Generation    {#motive_guide_android_code_generation}
 
-By default, code is generated for devices that support the `armeabi-v7a`,
-`x86`, or `armeabi` ABIs. Alternatively, you can generate a fat `.apk` that
-includes code for all ABIs. To do so, override APP\_ABI on ndk-build's command
-line.
-
 Using `ndk-build`:
 
 ~~~{.sh}
     cd motive
-    ndk-build APP_ABI=all
+    ndk-build
 ~~~
 
 Using `fplutil`:
 ~~~{.sh}
     cd motive
-    ./dependencies/fplutil/bin/build_all_android.py -f APP_ABI=all
+    ./dependencies/fplutil/bin/build_all_android -E dependencies -T debug -i -r
 ~~~
+
+*Note: The `-T debug`, `-i`, and `-r` flags are optional. The `-T` flag sets up
+debug signing of the app, which allows it to be installed for testing purposes.
+The `-i` flag declares that the script should install the app to a connected
+device. The `-r` flag declares that the app should also be run, after it is
+installed.*
 
 
 # The Benchmarker App   {#motive_guide_android_benchmarker_app}
@@ -98,12 +99,12 @@ To install and run the `Benchmarker` app on an Android device:
    * Install the [Prerequisites](@ref motive_android_prerequisites).
    * Attach an Android device for [USB debugging][].
    * Open a command line window and go to motive/benchmarker.
-   * Execute `motive/dependencies/fplutil/bin/build_all_android.py` with the
-     `-i` (install) and `-r` (run) options.
+   * Execute `motive/dependencies/fplutil/bin/build_all_android` with the
+     `-S` (app signing), `-i` (install) and `-r` (run) options.
 
 ~~~{.sh}
-    cd motive/benchmarker
-    ../dependencies/fplutil/bin/build_all_android.py -i -r
+    cd motive/src/benchmarker
+    ../../dependencies/fplutil/bin/build_all_android -E dependencies -S -i -r
 ~~~
 
 
