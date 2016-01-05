@@ -424,10 +424,7 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
   MatrixMotiveProcessor() : time_(0) {}
 
   virtual ~MatrixMotiveProcessor() {
-    const MotiveIndex num_indices = NumIndices();
-    for (MotiveIndex index = 0; index < num_indices; ++index) {
-      RemoveIndex(index);
-    }
+    RemoveIndices(0, NumIndices());
   }
 
   virtual void AdvanceFrame(MotiveTime delta_time) {
@@ -497,31 +494,42 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
     return static_cast<MotiveIndex>(data_.size());
   }
 
-  virtual void InitializeIndex(const MotivatorInit& init, MotiveIndex index,
-                               MotiveEngine* engine) {
-    RemoveIndex(index);
-    auto init_params = static_cast<const MatrixInit&>(init);
-    data_[index] = MatrixData::Create(init_params, engine);
-  }
+  virtual void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
+                                 MotiveDimension dimensions,
+                                 MotiveEngine* engine) {
+    RemoveIndices(index, dimensions);
 
-  virtual void RemoveIndex(MotiveIndex index) {
-    if (data_[index] != nullptr) {
-      MatrixData::Destroy(data_[index]);
-      data_[index] = nullptr;
+    // TODO OPT: Create only one MatrixData that holds `dimensions` matrices,
+    //           so that we can process in bulk.
+    auto init_params = static_cast<const MatrixInit&>(init);
+    for (MotiveIndex i = index; i < index + dimensions; ++i) {
+      data_[i] = MatrixData::Create(init_params, engine);
     }
   }
 
-  virtual void MoveIndex(MotiveIndex old_index, MotiveIndex new_index) {
-    data_[new_index] = data_[old_index];
-    data_[old_index] = nullptr;
+  virtual void RemoveIndices(MotiveIndex index, MotiveDimension dimensions) {
+    for (MotiveIndex i = index; i < index + dimensions; ++i) {
+      if (data_[i] == nullptr) continue;
+      MatrixData::Destroy(data_[i]);
+      data_[i] = nullptr;
+    }
+  }
+
+  virtual void MoveIndices(MotiveIndex old_index, MotiveIndex new_index,
+                           MotiveDimension dimensions) {
+    MotiveIndex old_i = old_index;
+    MotiveIndex new_i = new_index;
+    for (MotiveDimension i = 0; i < dimensions; ++i, ++new_i, ++old_i) {
+      data_[new_i] = data_[old_i];
+      data_[old_i] = nullptr;
+    }
   }
 
   virtual void SetNumIndices(MotiveIndex num_indices) {
-    const MotiveIndex old_num_indices = NumIndices();
-
     // Ensure old items are deleted.
-    for (MotiveIndex i = num_indices; i < old_num_indices; ++i) {
-      RemoveIndex(i);
+    const MotiveIndex old_num_indices = NumIndices();
+    if (old_num_indices > num_indices) {
+      RemoveIndices(num_indices, old_num_indices - num_indices);
     }
 
     // Initialize new items to nullptr.

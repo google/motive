@@ -46,20 +46,27 @@ void BulkSplineEvaluator::SetNumIndices(const Index num_indices) {
   scratch_.resize(num_indices, 0);
 }
 
-void BulkSplineEvaluator::MoveIndex(const Index old_index,
-                                    const Index new_index) {
-  sources_[new_index] = sources_[old_index];
-  y_ranges_[new_index] = y_ranges_[old_index];
-  cubic_xs_[new_index] = cubic_xs_[old_index];
-  cubic_x_ends_[new_index] = cubic_x_ends_[old_index];
-  playback_rates_[new_index] = playback_rates_[old_index];
-  cubics_[new_index] = cubics_[old_index];
-  ys_[new_index] = ys_[old_index];
+void BulkSplineEvaluator::MoveIndices(
+    const Index old_index, const Index new_index, const Index count) {
+  for (Index i = 0; i < count; ++i) {
+    const Index old_i = old_index + i;
+    const Index new_i = new_index + i;
+    sources_[new_i] = sources_[old_i];
+    y_ranges_[new_i] = y_ranges_[old_i];
+    cubic_xs_[new_i] = cubic_xs_[old_i];
+    cubic_x_ends_[new_i] = cubic_x_ends_[old_i];
+    playback_rates_[new_i] = playback_rates_[old_i];
+    cubics_[new_i] = cubics_[old_i];
+    ys_[new_i] = ys_[old_i];
+  }
 }
 
-void BulkSplineEvaluator::SetYRange(const Index index, const Range& modular_range) {
-  YRange& r = y_ranges_[index];
-  r.modular_range = modular_range;
+void BulkSplineEvaluator::SetYRanges(const Index index, const Index count,
+                                     const Range& modular_range) {
+  for (int i = index; i < index + count; ++i) {
+    YRange& r = y_ranges_[i];
+    r.modular_range = modular_range;
+  }
 }
 
 CubicInit BulkSplineEvaluator::CalculateBlendInit(
@@ -149,28 +156,47 @@ void BulkSplineEvaluator::JumpToSpline(const Index index,
   InitCubic(index, playback.start_x);
 }
 
-void BulkSplineEvaluator::SetSpline(
-    const Index index, const CompactSpline& spline,
+void BulkSplineEvaluator::SetSplines(
+    const Index index, const Index count, const CompactSpline* splines,
     const SplinePlayback& playback) {
+  const CompactSpline* spline = splines;
+  for (Index i = index; i < index + count; ++i, ++spline) {
+    // If we're already playing a spline, and the blend time is specified,
+    // create a curve that blends from the current state to a point later in
+    // the new spline.
+    const Source& s = sources_[i];
+    const bool should_blend = s.spline != nullptr && playback.blend_x > 0.0f;
+    if (should_blend) {
+      BlendToSpline(i, *spline, playback);
+    } else {
+      JumpToSpline(i, *spline, playback);
+    }
 
-  // If we're already playing a spline, and the blend time is specified,
-  // create a curve that blends from the current state to a point later in
-  // the new spline.
-  const Source& s = sources_[index];
-  const bool should_blend = s.spline != nullptr && playback.blend_x > 0.0f;
-  if (should_blend) {
-    BlendToSpline(index, spline, playback);
-  } else {
-    JumpToSpline(index, spline, playback);
+    // Update the results.
+    // TODO OPT: Evaluate these in bulk.
+    EvaluateIndex(i);
   }
-
-  // Update the results.
-  EvaluateIndex(index);
 }
 
-void BulkSplineEvaluator::SetX(const Index index, const float x) {
-  InitCubic(index, x);
-  EvaluateIndex(index);
+void BulkSplineEvaluator::ClearSplines(const Index index, const Index count) {
+  for (Index i = index; i < index + count; ++i) {
+    sources_[i].spline = nullptr;
+  }
+}
+
+void BulkSplineEvaluator::SetXs(const Index index, const Index count,
+                                const float x) {
+  for (Index i = index; i < index + count; ++i) {
+    InitCubic(i, x);
+    EvaluateIndex(i);
+  }
+}
+
+void BulkSplineEvaluator::SetPlaybackRates(const Index index, const Index count,
+                                           float playback_rate) {
+  for (Index i = index; i < index + count; ++i) {
+    playback_rates_[i] = playback_rate;
+  }
 }
 
 void BulkSplineEvaluator::UpdateCubicXsAndGetMask_C(const float delta_x,
