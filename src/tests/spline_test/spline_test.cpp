@@ -156,7 +156,7 @@ static void GatherGraphData(const CubicInit& init, GraphData* d,
   BulkSplineEvaluator interpolator;
   interpolator.SetNumIndices(1);
   if (is_angle) {
-    interpolator.SetYRange(0, kAngleRange, true);
+    interpolator.SetYRange(0, kAngleRange);
   }
   interpolator.SetSpline(0, spline, motive::SplinePlayback());
 

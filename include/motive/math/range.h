@@ -486,6 +486,7 @@ typedef RangeFloat Range;
 // Useful constants.
 static const Range kAngleRange(-static_cast<float>(M_PI),
                                static_cast<float>(M_PI));
+static const Range kInvalidRange;
 
 }  // namespace motive
 

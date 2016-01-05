@@ -22,46 +22,48 @@
 
 #define DEBUG_PRINT_MATRICES 0
 
-using motive::Angle;
-using motive::kPi;
-using motive::kHalfPi;
-using motive::Range;
-using motive::CompactSpline;
-using motive::SplinePlayback;
-using motive::MatrixMotivator4f;
-using motive::MotiveDimension;
-using motive::MotiveEngine;
-using motive::Motivator1f;
-using motive::Motivator2f;
-using motive::Motivator3f;
-using motive::Motivator4f;
-using motive::MotiveTime;
-using motive::MotivatorInit;
-using motive::MotiveTarget1f;
-using motive::MotiveTarget2f;
-using motive::MotiveTarget3f;
-using motive::MotiveTarget4f;
-using motive::OvershootInit;
-using motive::SplineInit;
-using motive::MatrixInit;
-using motive::MatrixOperationInit;
-using motive::Settled1f;
-using motive::MatrixOperationType;
-using motive::MatrixOpArray;
-using motive::kRotateAboutX;
-using motive::kRotateAboutY;
-using motive::kRotateAboutZ;
-using motive::kTranslateX;
-using motive::kTranslateY;
-using motive::kTranslateZ;
-using motive::kScaleX;
-using motive::kScaleY;
-using motive::kScaleZ;
-using motive::kScaleUniformly;
 using mathfu::mat4;
 using mathfu::vec2;
 using mathfu::vec3;
 using mathfu::vec4;
+using motive::Angle;
+using motive::CompactSpline;
+using motive::kAngleRange;
+using motive::kHalfPi;
+using motive::kInvalidRange;
+using motive::kPi;
+using motive::kRotateAboutX;
+using motive::kRotateAboutY;
+using motive::kRotateAboutZ;
+using motive::kScaleUniformly;
+using motive::kScaleX;
+using motive::kScaleY;
+using motive::kScaleZ;
+using motive::kTranslateX;
+using motive::kTranslateY;
+using motive::kTranslateZ;
+using motive::MatrixInit;
+using motive::MatrixMotivator4f;
+using motive::MatrixOpArray;
+using motive::MatrixOperationInit;
+using motive::MatrixOperationType;
+using motive::Motivator1f;
+using motive::Motivator2f;
+using motive::Motivator3f;
+using motive::Motivator4f;
+using motive::MotivatorInit;
+using motive::MotiveDimension;
+using motive::MotiveEngine;
+using motive::MotiveTarget1f;
+using motive::MotiveTarget2f;
+using motive::MotiveTarget3f;
+using motive::MotiveTarget4f;
+using motive::MotiveTime;
+using motive::OvershootInit;
+using motive::Range;
+using motive::Settled1f;
+using motive::SplineInit;
+using motive::SplinePlayback;
 
 typedef mathfu::Matrix<float, 3> mat3;
 
@@ -193,14 +195,13 @@ class MotiveTests : public ::testing::Test {
 
  protected:
   virtual void SetUp() {
-    const Range angle_range(-3.14159265359f, 3.14159265359f);
     motive::OvershootInit::Register();
     motive::SplineInit::Register();
     motive::MatrixInit::Register();
 
     // Create an OvershootInit with reasonable values.
     overshoot_angle_init_.set_modular(true);
-    overshoot_angle_init_.set_range(angle_range);
+    overshoot_angle_init_.set_range(kAngleRange);
     overshoot_angle_init_.set_max_velocity(0.021f);
     overshoot_angle_init_.set_max_delta(3.141f);
     overshoot_angle_init_.at_target().max_difference = 0.087f;
@@ -221,11 +222,8 @@ class MotiveTests : public ::testing::Test {
     overshoot_percent_init_.set_wrong_direction_multiplier(4.0f);
     overshoot_percent_init_.set_max_delta_time(10);
 
-    spline_angle_init_.set_modular(true);
-    spline_angle_init_.set_range(angle_range);
-
-    spline_scalar_init.set_modular(false);
-    spline_scalar_init.set_range(Range(-100.0f, 100.0f));
+    spline_angle_init_.set_range(kAngleRange);
+    spline_scalar_init.set_range(kInvalidRange);
 
     // Create a simple spline from time 0~kEndTime. The y-values don't really
     // matter.
