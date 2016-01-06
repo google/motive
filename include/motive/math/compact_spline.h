@@ -16,27 +16,10 @@
 #define MOTIVE_MATH_COMPACT_SPLINE_H_
 
 #include "motive/common.h"
+#include "motive/math/compact_spline_node.h"
 #include "motive/math/curve.h"
 
 namespace motive {
-
-class CompactSplineNode;
-
-/// @typedef CompactSplineXGrain
-/// X-axis is quantized into units of `x_granularity`. X values are represented
-/// by multiples of `x_granularity`. One unit of CompactSplineXGrain represents
-/// one multiple of `x_granularity`.
-typedef uint16_t CompactSplineXGrain;
-
-/// @typedef CompactSplineYRung
-/// Y values within `y_range` can be represented. We quantize the `y_range`
-/// into equally-sized rungs, and round to the closest rung.
-typedef uint16_t CompactSplineYRung;
-
-/// @typedef CompactSplineAngle
-/// Angles strictly between -90 and +90 can be represented. We record the angle
-/// instead of the slope for more uniform distribution.
-typedef int16_t CompactSplineAngle;
 
 /// @typedef CompactSplineIndex
 /// Index into the spline. Some high values have special meaning (see below).
@@ -73,16 +56,30 @@ enum CompactSplineAddMethod {
 /// and read values from the splines in a performant manner.
 class CompactSpline {
  public:
-  CompactSpline();
-  CompactSpline(const Range& y_range, const float x_granularity,
-                const int num_nodes = 0);
+  /// When a `CompactSpline` is created on the stack, it will have this many
+  /// nodes. This amount is sufficient for the vast majority of cases where
+  /// you are procedurally generating a spline. We used a fixed number instead
+  /// of an `std::vector` to avoid dynamic memory allocation.
+  static const CompactSplineIndex kDefaultMaxNodes = 7;
 
-  /// The copy constructors, copy operator, and destructor are all default
-  /// implementations, but must be specified explicitly because
-  /// CompactSplineNode is not specified in the header file.
-  CompactSpline(const CompactSpline& rhs);
-  ~CompactSpline();
-  CompactSpline& operator=(const CompactSpline& rhs);
+  CompactSpline()
+      : x_granularity_(0.0f), num_nodes_(0), max_nodes_(kDefaultMaxNodes) {}
+  CompactSpline(const Range& y_range, const float x_granularity)
+      : max_nodes_(kDefaultMaxNodes) {
+    Init(y_range, x_granularity);
+  }
+  CompactSpline(const CompactSpline& rhs) : max_nodes_(kDefaultMaxNodes) {
+    *this = rhs;
+  }
+  CompactSpline& operator=(const CompactSpline& rhs) {
+    assert(rhs.max_nodes_ <= max_nodes_);
+    y_range_ = rhs.y_range_;
+    x_granularity_ = rhs.x_granularity_;
+    num_nodes_ = rhs.num_nodes_;
+    max_nodes_ = rhs.max_nodes_;
+    memcpy(nodes_, rhs.nodes_, rhs.num_nodes_ * sizeof(nodes_[0]));
+    return *this;
+  }
 
   /// The range of values for x and y must be specified at spline creation time
   /// and cannot be changed afterwards. Empties all nodes, if we have any.
@@ -102,11 +99,11 @@ class CompactSpline {
   ///                      In our example here, you could set
   ///                      x_granularity near 33 / 50. For ease of debugging,
   ///                      an x_granularity of 0.5 or 1 is probably best.
-  /// @param num_nodes A hint for how many nodes are expected to be added.
-  ///                  Try to get this close or slightly too high, to avoid
-  ///                  reallocation of internal memory.
-  void Init(const Range& y_range, const float x_granularity,
-            const int num_nodes = 0);
+  void Init(const Range& y_range, const float x_granularity) {
+    num_nodes_ = 0;
+    y_range_ = y_range;
+    x_granularity_ = x_granularity;
+  }
 
   /// Add a node to the end of the spline. Depending on the method, an
   /// intermediate node may also be inserted.
@@ -128,10 +125,36 @@ class CompactSpline {
   /// Add values without converting them. Useful when initializing from
   /// precalculated data.
   void AddNodeVerbatim(const CompactSplineXGrain x, const CompactSplineYRung y,
-                       const CompactSplineAngle angle);
+                       const CompactSplineAngle angle) {
+    AddNodeVerbatim(detail::CompactSplineNode(x, y, angle));
+  }
 
   /// Remove all nodes from the spline.
-  void Clear();
+  void Clear() { num_nodes_ = 0; }
+
+  /// Returns the memory occupied by this spline.
+  size_t Size() { return Size(max_nodes_); }
+
+  /// Use on an array of splines created by CreateArrayInPlace().
+  /// Returns the next spline in the array.
+  CompactSpline* Next() { return NextAtIdx(1); }
+  const CompactSpline* Next() const { return NextAtIdx(1); }
+
+  /// Use on an array of splines created by CreateArrayInPlace().
+  /// Returns the idx'th spline in the array.
+  CompactSpline* NextAtIdx(int idx) {
+    // Use union to avoid potential aliasing bugs.
+    union {
+      CompactSpline* spline;
+      uint8_t* ptr;
+    } p;
+    p.spline = this;
+    p.ptr += idx * Size();
+    return p.spline;
+  }
+  const CompactSpline* NextAtIdx(int idx) const {
+    return const_cast<CompactSpline*>(this)->NextAtIdx(idx);
+  }
 
   /// Return index of the first node before `x`.
   /// If `x` is before the first node, return kBeforeSplineIndex.
@@ -158,15 +181,19 @@ class CompactSpline {
   CompactSplineIndex ClampIndex(const CompactSplineIndex index, float* x) const;
 
   // First and last x, y, and derivatives in the spline.
-  float StartX() const;
-  float StartY() const;
-  float StartDerivative() const;
-  float EndX() const;
-  float EndY() const;
-  float EndDerivative() const;
+  float StartX() const { return Front().X(x_granularity_); }
+  float StartY() const { return Front().Y(y_range_); }
+  float StartDerivative() const { return nodes_[0].Derivative(); }
+
+  float EndX() const { return Back().X(x_granularity_); }
+  float EndY() const { return Back().Y(y_range_); }
+  float EndDerivative() const { return Back().Derivative(); }
   float NodeX(const CompactSplineIndex index) const;
   float NodeY(const CompactSplineIndex index) const;
-  float NodeDerivative(const CompactSplineIndex index) const;
+  float NodeDerivative(const CompactSplineIndex index) const {
+    assert(index < num_nodes_);
+    return nodes_[index].Derivative();
+  }
   float LengthX() const { return EndX() - StartX(); }
   Range RangeX() const { return Range(StartX(), EndX()); }
   const Range& RangeY() const { return y_range_; }
@@ -193,12 +220,94 @@ class CompactSpline {
   CubicInit CreateCubicInit(const CompactSplineIndex index) const;
 
   /// Returns the number of nodes in this spline.
-  CompactSplineIndex NumNodes() const;
+  CompactSplineIndex num_nodes() const { return num_nodes_; }
+  CompactSplineIndex max_nodes() const { return max_nodes_; }
 
   /// Return const versions of internal values. For serialization.
-  const CompactSplineNode* nodes() const;
+  const detail::CompactSplineNode* nodes() const { return nodes_; }
   const Range& y_range() const { return y_range_; }
   float x_granularity() const { return x_granularity_; }
+
+  /// @param buffer chunk of memory of size CompactSpline::Size(max_nodes)
+  static CompactSpline* CreateInPlace(CompactSplineIndex max_nodes,
+                                      void* buffer) {
+    CompactSpline* spline = new (buffer) CompactSpline();
+    spline->max_nodes_ = max_nodes;
+    return spline;
+  }
+
+  /// Returns `num_splines` placed contiguous in memory.
+  /// Each spline is the same size. Access the next Spline with Next().
+  /// @param buffer chuck of memory of size
+  ///               CompactSpline::Size(max_nodes) * num_splines
+  static CompactSpline* CreateArrayInPlace(CompactSplineIndex max_nodes,
+                                           int num_splines, void* buffer) {
+    const size_t size = Size(max_nodes);
+    uint8_t* b = reinterpret_cast<uint8_t*>(buffer);
+    for (int i = 0; i < num_splines; ++i) {
+      CreateInPlace(max_nodes, b);
+      b += size;
+    }
+    return reinterpret_cast<CompactSpline*>(buffer);
+  }
+
+  /// Allocate memory for a spline using global `new`.
+  /// @param max_nodes The maximum number of nodes that this spline class
+  ///                  can hold. Memory is allocated so that these nodes are
+  ///                  held contiguously in memory with the rest of the
+  ///                  class.
+  static CompactSpline* Create(CompactSplineIndex max_nodes) {
+    uint8_t* buffer = new uint8_t[Size(max_nodes)];
+    return CreateInPlace(max_nodes, buffer);
+  }
+
+  /// Deallocate the splines memory using global `delete`.
+  /// Be sure to call this for every spline returned from Create().
+  static void Destroy(CompactSpline* spline) {
+    if (spline == nullptr) return;
+    // By design, spline does not have a destructor.
+    delete[] reinterpret_cast<uint8_t*>(spline);
+  }
+
+  /// Allocate an array of splines, contiguous in memory, each of which can
+  /// hold up to `max_nodes`. Use the global `new` operator to allocate the
+  /// memory buffer.
+  ///
+  /// This function is useful when passing several-dimensions-worth of splines
+  /// to MotivatorNf::SetSplines(), for example Motivator3f::SetSplines() takes
+  /// an array of three splines, like this function returns.
+  static CompactSpline* CreateArray(CompactSplineIndex max_nodes,
+                                    int num_splines) {
+    uint8_t* buffer = new uint8_t[Size(max_nodes) * num_splines];
+    return CreateArrayInPlace(max_nodes, num_splines, buffer);
+  }
+
+  /// Frees the memory allocated with CreateArray() using global `delete`.
+  static void DestroyArray(CompactSpline* splines, int /*num_splines*/) {
+    if (splines == nullptr) return;
+    // By design, spline does not have a destructor.
+    delete[] reinterpret_cast<uint8_t*>(splines);
+  }
+
+  /// Returns the size, in bytes, of a CompactSpline class with `max_nodes`
+  /// nodes.
+  ///
+  /// This function is useful when you want to provide your own memory buffer
+  /// for splines, and then pass that buffer into CreateInPlace(). Your memory
+  /// buffer must be at least Size().
+  static size_t Size(CompactSplineIndex max_nodes) {
+    return kBaseSize + max_nodes * sizeof(detail::CompactSplineNode);
+  }
+
+  /// Returns the size, in bytes, of an array of CompactSplines (as allocated
+  /// with CreateArray(), say).
+  ///
+  /// This function is useful when allocating a buffer for splines on your own,
+  /// from which you can then call CreateArrayInPlace().
+  static size_t ArraySize(size_t num_splines, size_t num_nodes) {
+    return num_splines * kBaseSize +
+           num_nodes * sizeof(detail::CompactSplineNode);
+  }
 
   /// Recommend a granularity given a maximal-x value. We want to have the
   /// most precise granularity when quantizing x's.
@@ -230,7 +339,16 @@ class CompactSpline {
   }
 
  private:
-  CompactSplineIndex LastNodeIndex() const;
+  static const size_t kBaseSize;
+
+  /// All other AddNode() functions end up calling this one.
+  void AddNodeVerbatim(const detail::CompactSplineNode& node) {
+    assert(num_nodes_ < max_nodes_);
+    nodes_[num_nodes_++] = node;
+  }
+
+  /// Returns the index of the last node in the spline.
+  CompactSplineIndex LastNodeIndex() const { return num_nodes_ - 1; }
 
   /// Return true iff `x` is between the the nodes at `index` and `index` + 1.
   bool IndexContainsX(const CompactSplineXGrain compact_x,
@@ -241,23 +359,46 @@ class CompactSpline {
       const CompactSplineXGrain compact_x) const;
 
   /// Return e.x - s.x, converted from quantized to external units.
-  float WidthX(const CompactSplineNode& s, const CompactSplineNode& e) const;
+  float WidthX(const detail::CompactSplineNode& s,
+               const detail::CompactSplineNode& e) const {
+    return (e.x() - s.x()) * x_granularity_;
+  }
 
   /// Create the initialization parameters for a cubic running from `s` to `e`.
-  CubicInit CreateCubicInit(const CompactSplineNode& s,
-                            const CompactSplineNode& e) const;
+  CubicInit CreateCubicInit(const detail::CompactSplineNode& s,
+                            const detail::CompactSplineNode& e) const;
 
-  /// Array of key points (x, y, derivative) that describe the curve.
-  /// The curve is interpolated smoothly between these key points.
-  /// Key points are stored in quantized form, and converted back to world
-  /// co-ordinates by using `y_range_` and `x_granularity_`.
-  std::vector<CompactSplineNode> nodes_;
+  const detail::CompactSplineNode& Front() const {
+    assert(num_nodes_ > 0);
+    return nodes_[0];
+  }
+
+  const detail::CompactSplineNode& Back() const {
+    assert(num_nodes_ > 0);
+    return nodes_[num_nodes_ - 1];
+  }
 
   /// Extreme values for y. See comments on Init() for details.
   Range y_range_;
 
   /// Minimum increment for x. See comments on Init() for details.
   float x_granularity_;
+
+  /// Length of the `nodes_` array.
+  CompactSplineIndex num_nodes_;
+
+  /// Maximum length of the `nodes_` array. This may be different from
+  /// `kDefaultMaxNodes` if CreateInPlace() was called.
+  CompactSplineIndex max_nodes_;
+
+  /// Array of key points (x, y, derivative) that describe the curve.
+  /// The curve is interpolated smoothly between these key points.
+  /// Key points are stored in quantized form, and converted back to world
+  /// co-ordinates by using `y_range_` and `x_granularity_`.
+  /// Note: This array can be longer or shorter than kDefaultMaxNodes if
+  ///       the class was created with CreateInPlace(). The actual length of
+  ///       this array is stored in max_nodes_.
+  detail::CompactSplineNode nodes_[kDefaultMaxNodes];
 };
 
 /// @class SplinePlayback
@@ -287,6 +428,23 @@ struct SplinePlayback {
 
   /// If true, start back at the beginning after we reach the end.
   bool repeat;
+};
+
+struct SplineState {
+  float y;
+  float derivative;
+
+  SplineState() : y(0.0f), derivative(0.0f) {}
+  SplineState(float y, float derivative) : y(y), derivative(derivative) {}
+};
+
+struct SplineBlend {
+  SplineState current;
+  const CompactSpline* spline;
+
+  SplineBlend() : spline(nullptr) {}
+  SplineBlend(const SplineState& current, const CompactSpline& spline)
+      : current(current), spline(&spline) {}
 };
 
 }  // namespace motive

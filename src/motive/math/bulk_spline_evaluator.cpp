@@ -160,7 +160,7 @@ void BulkSplineEvaluator::SetSplines(
     const Index index, const Index count, const CompactSpline* splines,
     const SplinePlayback& playback) {
   const CompactSpline* spline = splines;
-  for (Index i = index; i < index + count; ++i, ++spline) {
+  for (Index i = index; i < index + count; ++i, spline = spline->Next()) {
     // If we're already playing a spline, and the blend time is specified,
     // create a curve that blends from the current state to a point later in
     // the new spline.

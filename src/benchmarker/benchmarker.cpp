@@ -25,6 +25,7 @@
 using motive::CompactSpline;
 using motive::CubicCurve;
 using motive::CubicInit;
+using motive::kAngleRange;
 using motive::kPi;
 using motive::kTwoPi;
 using motive::QuadraticCurve;
@@ -38,8 +39,8 @@ using motive::MatrixOpArray;
 using motive::MatrixMotivator4f;
 using motive::SplineInit;
 
-static const SplineInit kRotateInit(Range(-kPi, kPi), true);
-static const SplineInit kTranslateInit(Range(-1.0f, 1.0f), true);
+static const SplineInit kRotateInit(kAngleRange);
+static const SplineInit kTranslateInit;
 static const int kNumBenchmarkIds = 10;
 
 struct SplineNode {

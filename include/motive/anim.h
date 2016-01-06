@@ -26,7 +26,12 @@ namespace motive {
 class MatrixAnim {
  public:
   struct Spline {
-    motive::CompactSpline spline;
+    Spline() : spline(nullptr) {}
+    ~Spline() {
+      CompactSpline::Destroy(spline);
+      spline = nullptr;
+    }
+    CompactSpline* spline;
     SplineInit init;
   };
 

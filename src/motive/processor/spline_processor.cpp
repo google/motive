@@ -26,10 +26,6 @@ using motive::Range;
 // that go above or below the supplied nodes.
 static const float kYRangeBufferPercent = 1.2f;
 
-// An intermediate node might be inserted to make the cubic curve well
-// behaved, so reserve 3 nodes in the spline.
-static const int kMaxNodesInLocalSpline = 2 * MotiveTarget1f::kMaxNodes + 1;
-
 struct SplineData {
   SplineData() : local_spline(nullptr) {}
 
@@ -146,7 +142,7 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
     const float end_x = static_cast<float>(t.EndTime());
     const Range y_range = CalculateYRange(index, t, start_y);
     const float x_granularity = CompactSpline::RecommendXGranularity(end_x);
-    d.local_spline->Init(y_range, x_granularity, kMaxNodesInLocalSpline);
+    d.local_spline->Init(y_range, x_granularity);
     d.local_spline->AddNode(0.0f, start_y, start_derivative);
 
     // Add subsequent nodes, in turn, taking care to respect the 'direction'

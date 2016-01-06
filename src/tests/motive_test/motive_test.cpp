@@ -228,7 +228,7 @@ class MotiveTests : public ::testing::Test {
     // Create a simple spline from time 0~kEndTime. The y-values don't really
     // matter.
     const float kSimpleSplineEndTime = 1000;
-    simple_spline_.Init(Range(-1.0f, 1.0f), 1.0f, 3);
+    simple_spline_.Init(Range(-1.0f, 1.0f), 1.0f);
     simple_spline_.AddNode(0.0f, -1.0f, 0.001f);
     simple_spline_.AddNode(0.5f * kSimpleSplineEndTime, 0.5f, 0.0f);
     simple_spline_.AddNode(kSimpleSplineEndTime, 1.0f, 0.001f);
