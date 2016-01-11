@@ -353,15 +353,14 @@ inline void BulkSplineEvaluator::UpdateCubicXsAndGetMask(const float delta_x,
 
 #else  // not defined(MOTIVE_ASSEMBLY_TEST)
 
-  switch (optimization_) {
 #if defined(MOTIVE_NEON)
-    case kNeonOptimizations:
-      UpdateCubicXsAndGetMask_Neon(delta_x, &cubic_x_ends_.front(),
-                                   NumIndices(), &cubic_xs_.front(), masks);
-      break;
+  if (optimization_ == kNeonOptimizations) {
+    UpdateCubicXsAndGetMask_Neon(delta_x, &cubic_x_ends_.front(),
+                                  NumIndices(), &cubic_xs_.front(), masks);
+  } else
 #endif
-    default:
-      UpdateCubicXsAndGetMask_C(delta_x, masks);
+  {
+    UpdateCubicXsAndGetMask_C(delta_x, masks);
   }
 
 #endif  // not defined(MOTIVE_ASSEMBLY_TEST)
@@ -390,13 +389,13 @@ inline size_t BulkSplineEvaluator::UpdateCubicXs(const float delta_x,
 
 #else  // not defined(MOTIVE_ASSEMBLY_TEST)
 
-  switch (optimization_) {
 #if defined(MOTIVE_NEON)
-    case kNeonOptimizations:
-      return UpdateCubicXs_TwoSteps(delta_x, indices_to_init);
+  if (optimization_ == kNeonOptimizations) {
+    return UpdateCubicXs_TwoSteps(delta_x, indices_to_init);
+  } else
 #endif
-    default:
-      return UpdateCubicXs_OneStep(delta_x, indices_to_init);
+  {
+    return UpdateCubicXs_OneStep(delta_x, indices_to_init);
   }
 
 #endif  // not defined(MOTIVE_ASSEMBLY_TEST)
@@ -420,14 +419,13 @@ inline void BulkSplineEvaluator::EvaluateCubics() {
   }
 #else  // not defined(MOTIVE_ASSEMBLY_TEST)
 
-  switch (optimization_) {
 #if defined(MOTIVE_NEON)
-    case kNeonOptimizations:
-      EvaluateCubics_Neon(&cubics_.front(), &cubic_xs_.front(),
-                          &y_ranges_.front(), NumIndices(), &ys_.front());
-      break;
+  if (optimization_ == kNeonOptimizations) {
+    EvaluateCubics_Neon(&cubics_.front(), &cubic_xs_.front(),
+                        &y_ranges_.front(), NumIndices(), &ys_.front());
+  } else
 #endif
-    default:
+  {
       EvaluateCubics_C();
   }
 
