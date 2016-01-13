@@ -38,6 +38,12 @@ class BulkSplineEvaluator {
  public:
   typedef int Index;
 
+  // TODO: Call BestProcessorOptimization() to initialize `optimizations_`.
+  BulkSplineEvaluator() : optimization_(kNoOptimizations) {
+    // Avoid "private member variable unused" warning on OSX.
+    (void)optimization_;
+  }
+
   /// Increase or decrease the total number of indices processed.
   ///
   /// This class holds a set of splines, each is given an index
