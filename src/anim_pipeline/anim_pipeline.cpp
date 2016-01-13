@@ -428,10 +428,10 @@ class FlatAnim {
 
         } else {
           // Output spline MatrixOp.
-          CompactSpline s;
-          CreateCompactSpline(*c, end_time, &s);
-          value = CreateSplineFlatBuffer(fbb, s).Union();
+          CompactSpline* s = CreateCompactSpline(*c, end_time);
+          value = CreateSplineFlatBuffer(fbb, *s).Union();
           value_type = motive::MatrixOpValueFb_CompactSplineFb;
+          CompactSpline::Destroy(s);
         }
 
         ops.push_back(motive::CreateMatrixOpFb(
@@ -731,7 +731,7 @@ class FlatAnim {
       flatbuffers::FlatBufferBuilder& fbb, const CompactSpline& s) {
     auto nodes_fb = fbb.CreateVectorOfStructs(
         reinterpret_cast<const motive::CompactSplineNodeFb*>(s.nodes()),
-        s.NumNodes());
+        s.num_nodes());
 
     auto spline_fb = motive::CreateCompactSplineFb(fbb, s.y_range().start(),
                                                    s.y_range().end(),
@@ -749,8 +749,8 @@ class FlatAnim {
     return y_range;
   }
 
-  static void CreateCompactSpline(const Channel& ch, FlatTime end_time,
-                                  CompactSpline* s) {
+  static CompactSpline* CreateCompactSpline(const Channel& ch,
+                                            FlatTime end_time) {
     const Nodes& nodes = ch.nodes;
     assert(nodes.size() > 1);
 
@@ -761,7 +761,9 @@ class FlatAnim {
     const Range y_range = SplineYRange(ch);
 
     // Construct the Spline from the node data directly.
-    s->Init(y_range, x_granularity, static_cast<int>(nodes.size()));
+    CompactSpline* s = CompactSpline::Create(
+        static_cast<int>(nodes.size()) + 1);
+    s->Init(y_range, x_granularity);
     for (auto n = nodes.begin(); n != nodes.end(); ++n) {
       s->AddNode(static_cast<float>(n->time), n->val, n->derivative,
                  kAddWithoutModification);
@@ -773,6 +775,7 @@ class FlatAnim {
       s->AddNode(static_cast<float>(end_time), back_node.val, 0.0f,
                  kAddWithoutModification);
     }
+    return s;
   }
 
   struct SplineNode {

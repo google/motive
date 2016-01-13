@@ -47,7 +47,7 @@ pingme.txt
 
 # XCode files
 motive.xcodeproj/
-tests/googletest/
+src/tests/googletest/
 src/*/*.xcodeproj
 
 # qt creator

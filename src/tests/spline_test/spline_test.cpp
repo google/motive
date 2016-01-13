@@ -95,7 +95,7 @@ static Range CubicInitYRange(const CubicInit& init, float buffer_percent) {
 
 static void InitializeSpline(const CubicInit& init, CompactSpline* spline) {
   const Range y_range = CubicInitYRange(init, 0.1f);
-  spline->Init(y_range, init.width_x * kXGranularityScale, 3);
+  spline->Init(y_range, init.width_x * kXGranularityScale);
   spline->AddNode(0.0f, init.start_y, init.start_derivative);
   spline->AddNode(init.width_x, init.end_y, init.end_derivative);
 }
@@ -169,7 +169,7 @@ static void GatherGraphData(const CubicInit& init, GraphData* d,
 class SplineTests : public ::testing::Test {
  protected:
   virtual void SetUp() {
-    short_spline_.Init(Range(0.0f, 1.0f), 0.01f, 4);
+    short_spline_.Init(Range(0.0f, 1.0f), 0.01f);
     short_spline_.AddNode(0.0f, 0.1f, 0.0f, motive::kAddWithoutModification);
     short_spline_.AddNode(1.0f, 0.4f, 0.0f, motive::kAddWithoutModification);
     short_spline_.AddNode(4.0f, 0.2f, 0.0f, motive::kAddWithoutModification);
@@ -180,6 +180,39 @@ class SplineTests : public ::testing::Test {
 
   CompactSpline short_spline_;
 };
+
+// Test in-place creation and destruction.
+TEST_F(SplineTests, InPlaceCreation) {
+  // Create a buffer with a constant fill.
+  static const uint8_t kTestFill = 0xAB;
+  uint8_t buffer[1024];
+  memset(buffer, kTestFill, sizeof(buffer));
+
+  // Dynamically create a spline in the buffer.
+  static const int kTestMaxNodes = 3;
+  static const size_t kSplineSize = CompactSpline::Size(kTestMaxNodes);
+  assert(kSplineSize < sizeof(buffer));  // Strictly less to test for overflow.
+  CompactSpline* spline = CompactSpline::CreateInPlace(kTestMaxNodes, buffer);
+  EXPECT_EQ(kTestMaxNodes, spline->max_nodes());
+  EXPECT_EQ(0, spline->num_nodes());
+
+  // Create spline and ensure it now has the max size.
+  spline->Init(kAngleRange, 1.0f);
+  for (int i = 0; i < kTestMaxNodes; ++i) {
+    spline->AddNode(static_cast<float>(i), 0.0f, 0.0f,
+                    motive::kAddWithoutModification);
+  }
+  EXPECT_EQ(kTestMaxNodes, spline->max_nodes());
+  EXPECT_EQ(kTestMaxNodes, spline->num_nodes());
+
+  // Ensure the spline hasn't overflowed its buffer.
+  for (size_t j = kSplineSize; j < sizeof(buffer); ++j) {
+    EXPECT_EQ(buffer[j], kTestFill);
+  }
+
+  // Test node destruction.
+  spline->~CompactSpline();
+}
 
 // Ensure the index lookup is accurate for x's before the range.
 TEST_F(SplineTests, IndexForXBefore) {
@@ -325,7 +358,7 @@ TEST_F(SplineTests, ScaleX) {
 
 // YCalculatedSlowly should return the key-point Y values at key-point X values.
 TEST_F(SplineTests, YSlowAtNodes) {
-  for (CompactSplineIndex i = 0; i < short_spline_.NumNodes(); ++i) {
+  for (CompactSplineIndex i = 0; i < short_spline_.num_nodes(); ++i) {
     EXPECT_NEAR(short_spline_.NodeY(i),
                 short_spline_.YCalculatedSlowly(short_spline_.NodeX(i)),
                 kNodeYPrecision);

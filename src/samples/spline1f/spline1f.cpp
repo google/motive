@@ -63,6 +63,7 @@ int main() {
       target_angular_velocity, target_time));
 
   std::vector<vec2> points(target_time / delta_time + 1);
+  points.clear();
   for (motive::MotiveTime t = 0; t <= target_time; t += delta_time) {
     // All Motivators created with 'engine' are animated here.
     engine.AdvanceFrame(delta_time);
