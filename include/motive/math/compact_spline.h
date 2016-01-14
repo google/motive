@@ -296,7 +296,14 @@ class CompactSpline {
   /// for splines, and then pass that buffer into CreateInPlace(). Your memory
   /// buffer must be at least Size().
   static size_t Size(CompactSplineIndex max_nodes) {
-    return kBaseSize + max_nodes * sizeof(detail::CompactSplineNode);
+    // Total size of the class must be rounded up to the nearest alignment
+    // so that arrays of the class are properly aligned.
+    // Largest type in the class is a float.
+    const size_t kAlignMask = sizeof(float) - 1;
+    const size_t size =
+        kBaseSize + max_nodes * sizeof(detail::CompactSplineNode);
+    const size_t aligned = (size + kAlignMask) & ~kAlignMask;
+    return aligned;
   }
 
   /// Returns the size, in bytes, of an array of CompactSplines (as allocated
