@@ -48,7 +48,9 @@ include_directories(${GUNIT_INCDIR}
                     ${dependencies_flatbuffers_dir}/include)
 
 # These are support sources that are used for unit tests.
-set(SUPPORT_SRCS ${dependencies_flatbuffers_dir}/src/idl_parser.cpp)
+set(SUPPORT_SRCS
+    ${dependencies_flatbuffers_dir}/src/idl_parser.cpp
+    ${dependencies_flatbuffers_dir}/src/util.cpp)
 
 # Common libraries for tests.
 if(NOT MSVC)
