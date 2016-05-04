@@ -47,11 +47,6 @@ include_directories(${GUNIT_INCDIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}
                     ${dependencies_flatbuffers_dir}/include)
 
-# These are support sources that are used for unit tests.
-set(SUPPORT_SRCS
-    ${dependencies_flatbuffers_dir}/src/idl_parser.cpp
-    ${dependencies_flatbuffers_dir}/src/util.cpp)
-
 # Common libraries for tests.
 if(NOT MSVC)
   find_package(Threads)
@@ -67,13 +62,13 @@ set(COMMON_LIBS "gtest;motive;${CMAKE_THREAD_LIBS_INIT}")
 # Where <test-name> is the name of the output test executable and the basename
 # of the source file for the test.  For example, test_executable(CallbackTests)
 # generates an executable called CallbackTests which is the result of compiling
-# CallbackTests.cpp along with any files specified by the SUPPORT_SRCS variable.
+# CallbackTests.cpp.
 
 function(test_executable name)
   cxx_executable_with_flags(${name}_test "${cxx_default}" "${COMMON_LIBS}"
-      ${CMAKE_CURRENT_SOURCE_DIR}/${name}_test/${name}_test.cpp ${SUPPORT_SRCS}
-      ${ARGN})
+      ${CMAKE_CURRENT_SOURCE_DIR}/${name}_test/${name}_test.cpp ${ARGN})
   mathfu_configure_flags(${name}_test)
+  target_link_libraries(${name}_test flatbuffers)
 endfunction()
 
 test_executable(angle)
