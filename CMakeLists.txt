@@ -46,6 +46,7 @@ set_common_build_variables()
 # Option to enable / disable the test build.
 option(motive_build_tests "Build tests for this project." ON)
 option(motive_build_samples "Build samples for this project." ON)
+option(motive_build_viewer "Build fplmesh and motiveanim file viewer." ON)
 
 # Option to only build flatc
 option(motive_only_flatc "Only build FlatBuffers compiler." OFF)
@@ -106,6 +107,7 @@ set(motive_SRCS
     src/motive/motivator.cpp
     src/motive/init.cpp
     src/motive/io/flatbuffers.cpp
+    src/motive/math/angle.cpp
     src/motive/math/bulk_spline_evaluator.cpp
     src/motive/math/compact_spline.cpp
     src/motive/math/curve.cpp
@@ -168,4 +170,9 @@ endif()
 # Samples.
 if(motive_build_samples)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/samples)
+endif()
+
+# Viewer.
+if(motive_build_viewer)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/viewer)
 endif()

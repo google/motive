@@ -89,6 +89,7 @@ endif()
 # Include motive.
 set(motive_build_samples OFF CACHE BOOL "")
 set(motive_build_tests OFF CACHE BOOL "")
+set(motive_build_viewer OFF CACHE BOOL "")
 add_subdirectory("${dependencies_motive_dir}" ${tmp_dir}/motive)
 get_property(MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR
              TARGET motive_generated_includes PROPERTY GENERATED_INCLUDES_DIR)

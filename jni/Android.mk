@@ -43,6 +43,7 @@ MOTIVE_SRC_FILES := \
   $(MOTIVE_RELATIVE_DIR)/src/motive/engine.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/init.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/io/flatbuffers.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/math/angle.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/bulk_spline_evaluator.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/compact_spline.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/curve.cpp \
