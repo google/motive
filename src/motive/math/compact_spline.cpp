@@ -44,16 +44,29 @@ void CompactSpline::AddNode(const float x, const float y,
                             const CompactSplineAddMethod method) {
   const CompactSplineNode new_node(x, y, derivative, x_granularity_, y_range_);
 
-  // Precondition: Nodes must come *after* the last node.
-  // Due to rounding, it's possible that the we have the *same* x as the last
-  // node. This is valid and we do not assert, but we do return immediately.
+  // Precondition: Nodes must come *after* or *at* the last node.
   assert(num_nodes_ == 0 || new_node.x() >= Back().x());
-  const bool strictly_after_last_node =
-      num_nodes_ == 0 || new_node.x() > Back().x();
-  if (!strictly_after_last_node) return;
+
+  // Early out when adding the same node.
+  const bool same_as_back = num_nodes_ > 0 && Back() == new_node;
+  if (same_as_back) return;
+
+  // If we're adding a point at the same x, that means there will be a
+  // discontinuity in the curve at x (either in y or derivative).
+  const bool discontinuity = num_nodes_ > 0 && Back().x() == new_node.x();
+  if (discontinuity) {
+    // No point in having three points with the same x, value. Two points makes
+    // a discontinuity, but for any more, the middle points will just take up
+    // space, so remove it.
+    const bool already_ends_in_discontinuity =
+        num_nodes_ >= 2 && Back().x() == nodes_[num_nodes_ - 2].x();
+    if (already_ends_in_discontinuity) num_nodes_--;
+  }
 
   // Add a dual-cubic mid-node, if required, to keep cubic curves well behaved.
-  if (method == kEnsureCubicWellBehaved && num_nodes_ != 0) {
+  const bool add_middle_node =
+      !discontinuity && method == kEnsureCubicWellBehaved && num_nodes_ != 0;
+  if (add_middle_node) {
     const CompactSplineNode& last_node = Back();
     const CubicInit init = CreateCubicInit(last_node, new_node);
     const CubicCurve curve(init);

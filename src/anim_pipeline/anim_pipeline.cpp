@@ -345,6 +345,34 @@ class FlatAnim {
     }
   }
 
+  /// @brief For each channel that ends before `end_time`, extend it at its
+  ///        current value to `end_time`. If already longer, or has no nodes
+  ///        to begin with, do nothing.
+  void ExtendChannelsToTime(FlatTime end_time) {
+    for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
+      Channels& channels = bone->channels;
+      for (auto ch = channels.begin(); ch != channels.end(); ++ch) {
+        Nodes& n = ch->nodes;
+
+        // Ignore empty channels.
+        if (n.size() == 0) continue;
+
+        // Ignore channels that are already long enough.
+        const SplineNode back = n.back();
+        if (back.time >= end_time) continue;
+
+        // Append a point with zero derivative at the back, if required.
+        // This ensures that the extra segment is a flat line.
+        if (back.derivative != 0) {
+          n.push_back(SplineNode(back.time, back.val, 0.0f));
+        }
+
+        // Append a point at the end time, also with zero derivative.
+        n.push_back(SplineNode(end_time, back.val, 0.0f));
+      }
+    }
+  }
+
   void LogChannel(FlatChannelId channel_id) const {
     const Channels& channels = CurChannels();
     const Nodes& n = channels[channel_id].nodes;
@@ -398,9 +426,6 @@ class FlatAnim {
       return false;
     }
 
-    // All the channels should end at the same time.
-    const FlatTime end_time = MaxAnimatedTime();
-
     flatbuffers::FlatBufferBuilder fbb;
     std::vector<flatbuffers::Offset<motive::MatrixAnimFb>> matrix_anims;
     std::vector<flatbuffers::Offset<flatbuffers::String>> bone_names;
@@ -428,7 +453,7 @@ class FlatAnim {
 
         } else {
           // Output spline MatrixOp.
-          CompactSpline* s = CreateCompactSpline(*c, end_time);
+          CompactSpline* s = CreateCompactSpline(*c, log_);
           value = CreateSplineFlatBuffer(fbb, *s).Union();
           value_type = motive::MatrixOpValueFb_CompactSplineFb;
           CompactSpline::Destroy(s);
@@ -509,6 +534,20 @@ class FlatAnim {
     return static_cast<int>(num_bytes);
   }
 
+  /// @brief Return the time of the channel that requires the most time.
+  FlatTime MaxAnimatedTime() const {
+    FlatTime max_time = 0;
+    for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
+      const Channels& channels = bone->channels;
+      for (auto ch = channels.begin(); ch != channels.end(); ++ch) {
+        if (ch->nodes.size() > 0) {
+          max_time = std::max(max_time, ch->nodes.back().time);
+        }
+      }
+    }
+    return max_time;
+  }
+
  private:
   MOTIVE_DISALLOW_COPY_AND_ASSIGN(FlatAnim);
 
@@ -529,20 +568,6 @@ class FlatAnim {
   float Tolerance(FlatChannelId channel_id) const {
     const Channels& channels = CurChannels();
     return ToleranceForOp(channels[channel_id].op);
-  }
-
-  /// Return the time of the channel that requires the most time.
-  FlatTime MaxAnimatedTime() const {
-    FlatTime max_time = 0;
-    for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
-      const Channels& channels = bone->channels;
-      for (auto ch = channels.begin(); ch != channels.end(); ++ch) {
-        if (ch->nodes.size() > 0) {
-          max_time = std::max(max_time, ch->nodes.back().time);
-        }
-      }
-    }
-    return max_time;
   }
 
   /// Return the first channel of the first bone that isn't repeatable.
@@ -749,32 +774,24 @@ class FlatAnim {
     return y_range;
   }
 
-  static CompactSpline* CreateCompactSpline(const Channel& ch,
-                                            FlatTime end_time) {
+  static CompactSpline* CreateCompactSpline(const Channel& ch, Logger& log) {
     const Nodes& nodes = ch.nodes;
     assert(nodes.size() > 1);
 
     // Maximize the bits we get for x by making the last time the maximum
     // x-value.
     const float x_granularity =
-        CompactSpline::RecommendXGranularity(static_cast<float>(end_time));
+        CompactSpline::RecommendXGranularity(nodes.back().time);
     const Range y_range = SplineYRange(ch);
 
     // Construct the Spline from the node data directly.
-    CompactSpline* s = CompactSpline::Create(
-        static_cast<int>(nodes.size()) + 1);
+    CompactSpline* s = CompactSpline::Create(static_cast<int>(nodes.size()));
     s->Init(y_range, x_granularity);
     for (auto n = nodes.begin(); n != nodes.end(); ++n) {
       s->AddNode(static_cast<float>(n->time), n->val, n->derivative,
                  kAddWithoutModification);
     }
 
-    // Append one more node so that all channels end at the same time.
-    const SplineNode& back_node = nodes.back();
-    if (back_node.time < end_time) {
-      s->AddNode(static_cast<float>(end_time), back_node.val, 0.0f,
-                 kAddWithoutModification);
-    }
     return s;
   }
 
@@ -1275,6 +1292,7 @@ struct AnimPipelineArgs {
         output_file(""),
         log_level(kLogWarning),
         repeat_preference(kRepeatIfRepeatable),
+        stagger_end_times(false),
         debug_time(-1) {}
 
   string fbx_file;        /// FBX input file to convert.
@@ -1282,6 +1300,7 @@ struct AnimPipelineArgs {
   LogLevel log_level;     /// Amount of logging to dump during conversion.
   Tolerances tolerances;  /// Amount output curves can deviate from input.
   RepeatPreference repeat_preference;  /// Loop back to start when reaches end.
+  bool stagger_end_times; /// Allow each channel to end at its authored time.
   int debug_time;  /// If >0 output animation state at this time.
 };
 
@@ -1390,6 +1409,9 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         args->repeat_preference = repeat_preference;
       }
 
+    } else if (arg == "--stagger" || arg == "stagger_end_times") {
+      args->stagger_end_times = true;
+
     } else if (arg == "--debug_time") {
       if (i + 1 < argc - 1) {
         args->debug_time = atoi(argv[i + 1]);
@@ -1416,7 +1438,8 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         "Usage: anim_pipeline [-v|-d|-i] [-o OUTPUT_FILE]\n"
         "           [-s SCALE_TOLERANCE] [-r ROTATE_TOLERANCE]\n"
         "           [-t TRANSLATE_TOLERANCE] [-a DERIVATIVE_TOLERANCE]\n"
-        "           [--repeat|--norepeat] [--debug_time TIME] FBX_FILE\n"
+        "           [--repeat|--norepeat] [--stagger] [--debug_time TIME]\n"
+        "           FBX_FILE\n"
         "\n"
         "Pipeline to convert FBX animations into FlatBuffer animations.\n"
         "Outputs a .motiveanim file with the same base name as FBX_FILE.\n\n"
@@ -1449,6 +1472,14 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         "                        specified, the animation is marked as\n"
         "                        repeating when it starts and ends\n"
         "                        with the same pose and derivatives.\n"
+        "  --stagger, --stagger_end_times\n"
+        "                        allow every channel to end at its authored\n"
+        "                        time, instead of adding extra spline nodes\n"
+        "                        to plum-up every channel.\n"
+        "                        This may cause strage behavior with\n"
+        "                        animations that repeat, since the shorter\n"
+        "                        channels will start to repeat before the\n"
+        "                        longer ones.\n"
         "  --debug_time TIME     output the local transforms for each bone in\n"
         "                        the animation at TIME, in ms, and then exit.\n"
         "                        Useful for debugging situations where the\n"
@@ -1484,6 +1515,11 @@ int main(int argc, char** argv) {
   // Gather data into a format conducive to our FlatBuffer format.
   motive::FlatAnim anim(args.tolerances, log);
   pipe.GatherFlatAnim(&anim);
+
+  // We want all of our animation channels to end at the same time.
+  if (!args.stagger_end_times) {
+    anim.ExtendChannelsToTime(anim.MaxAnimatedTime());
+  }
 
   // Output gathered data to a binary FlatBuffer.
   anim.LogAllChannels();

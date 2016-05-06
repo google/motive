@@ -95,6 +95,15 @@ class CompactSplineNode {
   CompactSplineYRung y() const { return y_; }
   CompactSplineAngle angle() const { return angle_; }
 
+  // Equivalence can be tested reasonably because internal types are integral,
+  // not floating point.
+  bool operator==(const CompactSplineNode& rhs) const {
+    return x_ == rhs.x_ && y_ == rhs.y_ && angle_ == rhs.angle_;
+  }
+  bool operator!=(const CompactSplineNode& rhs) const {
+    return !operator==(rhs);
+  }
+
   // Convert from real-world to quantized values.
   // Please see type definitions for documentation on the quantized format.
   static int QuantizeX(const float x, const float x_granularity) {
