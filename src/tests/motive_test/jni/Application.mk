@@ -17,5 +17,5 @@ APP_ABI:=all
 APP_STL:=gnustl_static
 APP_CPPFLAGS+=-std=c++11 -Wno-literal-suffix
 APP_MODULES:=motive_motive_test
-# 4.8 is required for FlatBuffers
-NDK_TOOLCHAIN_VERSION := 4.8
+
+
