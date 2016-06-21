@@ -57,6 +57,7 @@ union MatrixOpValueFb {
 // One operation performed on the matrix.
 // The input value to the operation can be constant, or driven by a spline.
 table MatrixOpFb {
+  id:byte;
   type:MatrixOperationTypeFb;
   value:MatrixOpValueFb;
 }

@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include <map>
+
 #include "anim_generated.h"
 #include "anim_table_generated.h"
 #include "motive/anim_table.h"
@@ -19,28 +21,6 @@
 using motive::Range;
 
 namespace motive {
-
-static const MatrixOperationType kCanonicalRigAnimOps[] = {
-    kTranslateX,   kTranslateY, kTranslateZ, kRotateAboutZ, kRotateAboutY,
-    kRotateAboutX, kScaleX,     kScaleY,     kScaleZ,       kScaleUniformly, };
-
-#if !defined(NDEBUG)  // Since only called in assert statement.
-static bool IsCanonicalAnim(const RigAnim& anim) {
-  for (BoneIndex i = 0; i < anim.NumBones(); ++i) {
-    const MatrixOpArray::OpVector& ops = anim.Anim(i).ops().ops();
-    size_t canon_idx = 0;
-    for (size_t j = 0; j < ops.size(); ++j) {
-      const MatrixOperationInit& op_init = ops[j];
-      while (kCanonicalRigAnimOps[canon_idx] != op_init.type) {
-        canon_idx++;
-        if (canon_idx == MOTIVE_ARRAY_SIZE(kCanonicalRigAnimOps)) return false;
-      }
-      canon_idx++;
-    }
-  }
-  return true;
-}
-#endif
 
 static const RigAnim* FindCompleteRig(const RigAnim** anims, size_t num_anims) {
   // We assume that that animation with the most bones has all the bones.
@@ -66,11 +46,6 @@ static const MatrixOperationInit* FindOpInit(const MatrixOpArray::OpVector& ops,
 
 static void CreateDefiningAnim(const RigAnim** anims, size_t num_anims,
                                RigAnim* defining_anim) {
-  // This function only works for animations that follow the canonical order.
-  for (size_t i = 0; i < num_anims; ++i) {
-    assert(IsCanonicalAnim(*anims[i]));
-  }
-
   // Get the bone hierarchy that covers all the hierarchies in `anims`.
   const RigAnim* complete_rig = FindCompleteRig(anims, num_anims);
   const BoneIndex num_bones = complete_rig->NumBones();
@@ -84,52 +59,62 @@ static void CreateDefiningAnim(const RigAnim** anims, size_t num_anims,
         defining_anim->InitMatrixAnim(j, parents[j], complete_rig->BoneName(j));
     MatrixOpArray& ops = matrix_anim.ops();
 
-    // Loop through all possible operations for this bone.
-    Range ranges[MOTIVE_ARRAY_SIZE(kCanonicalRigAnimOps)];
-    for (size_t k = 0; k < MOTIVE_ARRAY_SIZE(kCanonicalRigAnimOps); ++k) {
-      const MatrixOperationType op = kCanonicalRigAnimOps[k];
+    // Create a sorted map from operation id to the range of values that it
+    // takes.
+    struct OpRange {
+      MatrixOperationType op;
+      Range range;
+    };
+    std::map<int, OpRange> id_to_range;
 
-      // Loop over all anims, checking to see if they have this operation.
-      for (size_t i = 0; i < num_anims; ++i) {
-        if (j >= anims[i]->NumBones()) continue;
+    for (size_t i = 0; i < num_anims; ++i) {
+      if (j >= anims[i]->NumBones()) continue;
+      const MatrixOpArray::OpVector& opv = anims[i]->Anim(j).ops().ops();
+      for (auto op_it = opv.begin(); op_it != opv.end(); ++op_it) {
+        const MatrixOperationInit& op_init = *op_it;
+        auto& range_it = id_to_range[op_init.id];
 
-        const MatrixOpArray::OpVector& opv = anims[i]->Anim(j).ops().ops();
-        const MatrixOperationInit* op_init = FindOpInit(opv, op);
-        if (op_init == nullptr) continue;
+        // Bone `j` with matrix op id `op_init.id` has two animations with
+        // mismatched operations. Things will go strangely when a kTranslateX
+        // is blended with a kScaleZ, for example.
+        assert(range_it.op == kInvalidMatrixOperation ||
+               range_it.op == op_init.type);
 
-        if (op_init->init == nullptr) {
-          ranges[k] = ranges[k].Include(op_init->initial_value);
+        range_it.op = op_init.type;
+        Range& range = range_it.range;
+        if (op_init.init == nullptr) {
+          range = range.Include(op_init.initial_value);
         } else {
-          ranges[k] = Range::Full();
+          range = Range::Full();
         }
       }
     }
 
     // Count the number of ranges that need init parameters.
     int num_ops_with_init = 0;
-    for (size_t k = 0; k < MOTIVE_ARRAY_SIZE(kCanonicalRigAnimOps); ++k) {
-      if (ranges[k].Valid() && ranges[k].Length() > 0.0f) num_ops_with_init++;
+    for (auto it = id_to_range.begin(); it != id_to_range.end(); ++it) {
+      if (it->second.range.Length() > 0.0f) num_ops_with_init++;
     }
     MatrixAnim::Spline* splines = matrix_anim.Construct(num_ops_with_init);
 
     // Create the array of matrix operations.
     int num_ops_inited = 0;
-    for (size_t k = 0; k < MOTIVE_ARRAY_SIZE(kCanonicalRigAnimOps); ++k) {
-      if (!ranges[k].Valid()) continue;
-
+    for (auto it = id_to_range.begin(); it != id_to_range.end(); ++it) {
       // If this operation exists, add it to the `defining_anim`.
-      const MatrixOperationType op = kCanonicalRigAnimOps[k];
-      if (ranges[k].Length() == 0.0f) {
+      const MatrixOpId id = it->first;
+      const MatrixOperationType op = it->second.op;
+      const Range& range = it->second.range;
+      if (range.Length() == 0.0f) {
         // If there is only one value for an operation, add it as a const.
-        const float const_value = ranges[k].start();
-        ops.AddOp(op, const_value);
+        const float const_value = range.start();
+        ops.AddOp(id, op, const_value);
       } else {
         // Otherwise, add it as an animated parameter.
         // The range is modular for rotate operations, but not for scale or
         // translate operations.
         const Range& op_range = RangeOfOp(op);
         splines[num_ops_inited].init = SplineInit(op_range);
-        ops.AddOp(op, splines[num_ops_inited].init);
+        ops.AddOp(id, op, splines[num_ops_inited].init);
         num_ops_inited++;
       }
     }
@@ -150,24 +135,21 @@ AnimTable::AnimIndex AnimTable::AddAnimName(const char* anim_name) {
   return new_idx;
 }
 
-void AnimTable::InitNameMapFromFlatBuffers(const AnimTableFb& params) {
+void AnimTable::InitNameMap(const AnimFileNames& anim_file_names) {
   // Allocate the index arrays.
-  indices_.resize(params.lists()->size());
-  defining_anims_.resize(params.lists()->size());
-  for (flatbuffers::uoffset_t i = 0; i < indices_.size(); ++i) {
-    indices_[i].resize(params.lists()->Get(i)->anim_files()->Length());
+  indices_.resize(anim_file_names.size());
+  defining_anims_.resize(anim_file_names.size());
+  for (size_t i = 0; i < anim_file_names.size(); ++i) {
+    indices_[i].resize(anim_file_names[i].size());
   }
 
   // Create the name map and allocate indices into anims_.
-  for (flatbuffers::uoffset_t i = 0; i < indices_.size(); ++i) {
-    const AnimListFb* anim_list = params.lists()->Get(i);
-
+  for (size_t i = 0; i < indices_.size(); ++i) {
     // Record the indices of each animation for this object.
-    auto files_fb = anim_list->anim_files();
+    const std::vector<std::string>& anims = anim_file_names[i];
     AnimList& list = indices_[i];
-    for (flatbuffers::uoffset_t j = 0; j < list.size(); ++j) {
-      const char* anim_name = files_fb->Get(j)->c_str();
-      list[j] = AddAnimName(anim_name);
+    for (size_t j = 0; j < anims.size(); ++j) {
+      list[j] = AddAnimName(anims[j].c_str());
     }
   }
 
@@ -197,8 +179,26 @@ bool AnimTable::LoadAnimations(LoadRigAnimFn* load_fn) {
 
 bool AnimTable::InitFromFlatBuffers(const AnimTableFb& params,
                                     LoadRigAnimFn* load_fn) {
+  AnimFileNames anim_file_names;
+  anim_file_names.resize(params.lists()->size());
+
+  // Convert the vector of vectors-of-strings from Flatbuffers to C++.
+  for (flatbuffers::uoffset_t i = 0; i < anim_file_names.size(); ++i) {
+    auto files_fb = params.lists()->Get(i)->anim_files();
+    anim_file_names[i].resize(files_fb->size());
+
+    for (flatbuffers::uoffset_t j = 0; j < files_fb->size(); ++j) {
+      anim_file_names[i][j] = files_fb->Get(j)->str();
+    }
+  }
+
+  return InitFromAnimFileNames(anim_file_names, load_fn);
+}
+
+bool AnimTable::InitFromAnimFileNames(const AnimFileNames& anim_file_names,
+                                      LoadRigAnimFn* load_fn) {
   // Deserialize `params` into the vector-of-vectors of animations.
-  InitNameMapFromFlatBuffers(params);
+  InitNameMap(anim_file_names);
 
   // Load each FlatBuffer animation file in turn using the callback `load_fn`.
   const bool load_ok = LoadAnimations(load_fn);
@@ -208,6 +208,14 @@ bool AnimTable::InitFromFlatBuffers(const AnimTableFb& params,
   // which is the union of all the animations on an object.
   CalculateDefinineAnims();
   return true;
+}
+
+bool AnimTable::InitFromAnimFileNames(
+    const std::vector<std::string>& anim_file_names_one_object,
+    LoadRigAnimFn* load_fn) {
+  AnimFileNames anim_file_names(1);
+  anim_file_names[0] = anim_file_names_one_object;
+  return InitFromAnimFileNames(anim_file_names, load_fn);
 }
 
 /// Enumerate all animations that are held in this table. Animations are

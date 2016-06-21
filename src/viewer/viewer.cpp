@@ -23,6 +23,7 @@
 #include "mathfu/matrix.h"
 #include "mathfu/matrix_4x4.h"
 #include "motive/anim.h"
+#include "motive/anim_table.h"
 #include "motive/engine.h"
 #include "motive/io/flatbuffers.h"
 #include "motive/math/angle.h"
@@ -48,13 +49,15 @@ enum AnimationState {
 struct ViewerArgs {
   ViewerArgs()
       : playback_rate(1.0f),
+        blend_time(0.0f),
         bone_idx(-1),
         coordinate_system(motive::kAngleToVectorXY) {}
 
-  std::string anim_file;
+  std::vector<std::string> anim_files;
   std::string mesh_file;
   std::string out_file;
   float playback_rate;
+  float blend_time;
   int bone_idx;
   AngleToVectorSystem coordinate_system;
 };
@@ -170,7 +173,7 @@ static const char kFragmentShaderFlatTexture[] =
 
 static const char kCommandLineUsage[] =
     "Usage: fplviewer [-x|-y|-z] [-f FRAMES_PER_SECOND] [-b BONE_IDX]\n"
-    "                 [-o ANIM_DEBUG_OUTPUT.csv]\n"
+    "                 [-t BLEND_TIME] [-o ANIM_DEBUG_OUTPUT.csv]\n"
     "                 [ANIMATION_FILE.motiveanim] [MESH_FILE.fplmesh]\n"
     "\n"
     "Tool to preview and debug FPL meshes and Motive animations.\n"
@@ -185,6 +188,7 @@ static const char kCommandLineUsage[] =
     "  -b, --bone            Bone index to debug. Transform data is output\n"
     "                        every frame for this bone. Bone indices can be\n"
     "                        found with the -i switch on mesh_pipeline.\n"
+    "  -t, --blend_time      Time to blend to next animation, in ms.\n"
     "  -o, --out             Comma-separated output file to which we write\n"
     "                        all the animation channels. Open in any\n"
     "                        spreadsheet to examine and graph.\n"
@@ -207,9 +211,9 @@ static const char kControls[] =
     "\n";
 
 static bool ParseCommandLine(int argc, char* argv[], ViewerArgs* args) {
-  // Parse options. The last argument can't be an option.
+  // Parse options.
   int i = 1;  // Skip the first argument, which is the executible name.
-  for (; i < argc - 1; ++i) {
+  for (; i < argc; ++i) {
     // Exit once we run out of options.
     const std::string option = argv[i];
     if (option[0] != '-') break;
@@ -257,6 +261,15 @@ static bool ParseCommandLine(int argc, char* argv[], ViewerArgs* args) {
       continue;
     }
 
+    if (option == "-t" || option == "--blend_time") {
+      args->blend_time = atoi(option_value.c_str());
+      if (args->blend_time < 0 || args->blend_time > 10000) {
+        printf("ERROR: Invalid blend time %f.\n\n", args->blend_time);
+        return false;
+      }
+      continue;
+    }
+
     if (option == "-o" || option == "--out") {
       args->out_file = option_value;
       continue;
@@ -269,7 +282,7 @@ static bool ParseCommandLine(int argc, char* argv[], ViewerArgs* args) {
     const std::string file_extension = fplutil::FileExtension(file_name);
 
     if (file_extension == "motiveanim") {
-      args->anim_file = file_name;
+      args->anim_files.push_back(file_name);
 
       // Initialize other file names based on anim file name.
       const std::string anim_base = fplutil::RemoveExtensionFromName(file_name);
@@ -341,18 +354,6 @@ Camera::Camera(AngleToVectorSystem coordinate_system, float aspect_ratio,
   // Set near and far planes based on the distance to the model.
   z_near = distance / 32.0f;
   z_far = distance * 256.0f;
-}
-
-static bool LoadAnim(const char* anim_name, motive::RigAnim* anim) {
-  std::string anim_buf;
-  const bool load_ok = fplbase::LoadFile(anim_name, &anim_buf);
-  if (!load_ok) {
-    // printf("Failed to load animation file\n");
-    return false;
-  }
-  const motive::RigAnimFb* anim_fb = motive::GetRigAnimFb(anim_buf.c_str());
-  motive::RigAnimFromFlatBuffers(*anim_fb, anim_name, anim);
-  return true;
 }
 
 static vec3 CameraPosition(const Camera& camera) {
@@ -459,6 +460,16 @@ static float AspectRatio(const fplbase::Renderer& renderer) {
          renderer.window_size().y();
 }
 
+static const motive::RigAnimFb* LoadRigAnim(const char* anim_name,
+                                            std::string* scratch_buf) {
+  const bool load_ok = fplbase::LoadFile(anim_name, scratch_buf);
+  if (!load_ok) {
+    printf("ERROR: Could not load animation file %s.\n\n", anim_name);
+    return nullptr;
+  }
+  return motive::GetRigAnimFb(scratch_buf->c_str());
+}
+
 extern "C" int FPL_main(int argc, char* argv[]) {
   // Output command-line usage if arguments invalid.
   ViewerArgs args;
@@ -481,14 +492,11 @@ extern "C" int FPL_main(int argc, char* argv[]) {
 
   // Load animation file.
   fplbase::AssetManager asset_manager(renderer);
-  motive::RigAnim anim;
-  if (args.anim_file.length() > 0) {
-    const bool anim_result = LoadAnim(args.anim_file.c_str(), &anim);
-    if (!anim_result) {
-      printf("ERROR: Could not load animation file `%s`\n\n",
-             args.anim_file.c_str());
-      return 1;
-    }
+  motive::AnimTable anim_table;
+  if (args.anim_files.size() > 0) {
+    const bool anim_result =
+        anim_table.InitFromAnimFileNames(args.anim_files, LoadRigAnim);
+    if (!anim_result) return 1;
   }
 
   // Load mesh file.
@@ -503,14 +511,23 @@ extern "C" int FPL_main(int argc, char* argv[]) {
   while (!asset_manager.TryFinalize()) {
   }
 
+  // UX values.
+  Camera camera(args.coordinate_system, AspectRatio(renderer),
+                mesh->min_position(), mesh->max_position());
+  AnimationState animation_state = anim_table.NumObjects() > 0
+                                       ? kAnimationStateAnimating
+                                       : kAnimationStateNoAnimation;
+
   // Compile shaders.
   const bool mesh_has_textures = mesh->GetMaterial(0) != nullptr &&
                                  mesh->GetMaterial(0)->textures().size() > 0;
-  const bool mesh_is_skinned = mesh->num_shader_bones() > 0;
+  const bool use_skinning = animation_state != kAnimationStateNoAnimation &&
+                            mesh->num_shader_bones() > 0 &&
+                            anim_table.DefiningAnim(0).NumBones() > 1;
   const char* fragment_shader =
       mesh_has_textures ? kFragmentShaderFlatTexture : kFragmentShaderPhong;
   const char* vertex_shader =
-      mesh_is_skinned ? kVertexShaderSkinned : kVertexShaderMonolythic;
+      use_skinning ? kVertexShaderSkinned : kVertexShaderMonolythic;
   fplbase::Shader* shader =
       renderer.CompileAndLinkShader(vertex_shader, fragment_shader);
   if (!shader) {
@@ -519,46 +536,42 @@ extern "C" int FPL_main(int argc, char* argv[]) {
     return 1;
   }
 
-  // UX values.
-  Camera camera(args.coordinate_system, AspectRatio(renderer),
-                mesh->min_position(), mesh->max_position());
-  float playback_rate = args.playback_rate;
-  AnimationState animation_state = anim.NumBones() > 0
-                                       ? kAnimationStateAnimating
-                                       : kAnimationStateNoAnimation;
-
   // Ensure the mesh and the animation are compatible.
   const bool compatible =
-      animation_state == kAnimationStateNoAnimation || anim.NumBones() == 1 ||
+      animation_state == kAnimationStateNoAnimation || !use_skinning ||
       motive::RigInit::MatchesHierarchy(
-          anim, mesh->bone_parents(),
-          static_cast<motive::BoneIndex>(mesh->num_bones()));
+          anim_table.DefiningAnim(0), mesh->bone_parents(), mesh->num_bones());
   if (!compatible) {
     printf(
-        "ERROR: Animation %s and mesh %s do not have a compatible hierarchy.\n"
-        "       Did you run mesh_pipeline with -h?\n\n",
-        args.anim_file.c_str(), args.mesh_file.c_str());
+        "ERROR: Animations and mesh %s do not have a compatible hierarchy.\n\n",
+        args.mesh_file.c_str());
     return 1;
   }
 
-  // Initialize the RigMotivator to animate the `mesh` according to `anim`.
+  // Initialize the RigMotivator to animate the `mesh` according to the
+  // defining animation.
   motive::MotiveEngine engine;
   motive::RigMotivator motivator;
+  motive::SplinePlayback playback(0.0f, true, args.playback_rate,
+                                  args.blend_time);
+  int anim_idx = 0;
   if (animation_state != kAnimationStateNoAnimation) {
     const motive::RigInit init(
-        anim, mesh->bone_transforms(), mesh->bone_parents(),
+        anim_table.DefiningAnim(0), mesh->bone_parents(),
         static_cast<motive::BoneIndex>(mesh->num_bones()));
     motivator.Initialize(init, &engine);
-    motivator.BlendToAnim(
-        anim, motive::SplinePlayback(0.0f, true, args.playback_rate));
+    motivator.BlendToAnim(*anim_table.Query(0, anim_idx), playback);
   }
 
   // Create an array to hold the bone matrices that are pushed to the shader.
   std::vector<mathfu::AffineTransform> shader_transforms(
-      mesh->num_shader_bones());
+      mesh->num_shader_bones(), mat4::ToAffineTransform(mat4::Identity()));
 
   // Output how-to-use message, with commands.
   printf(kControls);
+  const vec3 mesh_size = mesh->max_position() - mesh->min_position();
+  printf("Displaying mesh with width %.2f, height %.2f, and depth %.2f\n",
+         mesh_size.x(), mesh_size.y(), mesh_size.z());
 
   // Open file that recieves debug info.
   FILE* out_file = nullptr;
@@ -571,18 +584,29 @@ extern "C" int FPL_main(int argc, char* argv[]) {
     printf(out_file_msg, args.out_file.c_str());
   }
 
-  // Output header if we're debugging all the bones, not just one specific one.
+  // Output header if we're debugging all the bones.
   if (out_file) {
     fprintf(out_file, "%s", motivator.CsvHeaderForDebugging().c_str());
   }
 
   while (!(input.exit_requested() ||
            input.GetButton(fplbase::FPLK_AC_BACK).went_down())) {
+    const MotiveTime motive_delta_time =
+        static_cast<MotiveTime>(kMotiveAnimTicksPerSecond * input.DeltaTime());
+
+    // Start next animation if we've reached the end of the current one.
+    if ((animation_state == kAnimationStateAnimating ||
+         animation_state == kAnimationStateStepOneFrame) &&
+        motivator.TimeRemaining() < motive_delta_time) {
+      anim_idx = (anim_idx + 1) % anim_table.NumAnims(0);
+      motivator.BlendToAnim(*anim_table.Query(0, anim_idx), playback);
+    }
+
     // Process input.
     UpdateCamera(&input, &camera);
     animation_state = UpdateAnimationState(animation_state, &input);
-    if (UpdatePlaybackRate(animation_state, &input, &playback_rate)) {
-      motivator.SetPlaybackRate(playback_rate);
+    if (UpdatePlaybackRate(animation_state, &input, &playback.playback_rate)) {
+      motivator.SetPlaybackRate(playback.playback_rate);
     }
 
     // Update sub-systems.
@@ -590,33 +614,29 @@ extern "C" int FPL_main(int argc, char* argv[]) {
     input.AdvanceFrame(&renderer.window_size());
     if (animation_state == kAnimationStateAnimating ||
         animation_state == kAnimationStateStepOneFrame) {
-      engine.AdvanceFrame(static_cast<MotiveTime>(kMotiveAnimTicksPerSecond *
-                                                  input.DeltaTime()));
-    }
+      engine.AdvanceFrame(motive_delta_time);
 
-    // Output debug information for this frame.
-    if (out_file) {
-      fprintf(out_file, "%s\n", motivator.CsvValuesForDebugging().c_str());
-    }
-    if (args.bone_idx >= 0) {
-      printf("%s", motivator
-                       .LocalTransformsForDebugging(
-                           static_cast<motive::BoneIndex>(args.bone_idx))
-                       .c_str());
+      // Output debug information for this frame.
+      if (out_file) {
+        fprintf(out_file, "%s\n", motivator.CsvValuesForDebugging().c_str());
+      }
+
+      if (args.bone_idx >= 0) {
+        printf("%s",
+               motivator.LocalTransformsForDebugging(args.bone_idx).c_str());
+      }
     }
 
     // Render the mesh.
     renderer.ClearFrameBuffer(mathfu::vec4(0.0, 0.0f, 0.0, 1.0f));
     mat4 mvp = CalculateMvp(camera);
 
-    if (mesh_is_skinned) {
-      // Set the bone trasform uniforms.
-      // If animated, grab from animation. Otherwise, use default values.
-      const mathfu::AffineTransform* bone_transforms =
-          animation_state == kAnimationStateNoAnimation
-              ? mesh->bone_global_transforms()
-              : motivator.GlobalTransforms();
-      mesh->GatherShaderTransforms(bone_transforms, shader_transforms.data());
+    if (use_skinning) {
+      // If not animating, use default identity matrices.
+      if (animation_state != kAnimationStateNoAnimation) {
+        mesh->GatherShaderTransforms(motivator.GlobalTransforms(),
+                                     shader_transforms.data());
+      }
       renderer.SetBoneTransforms(shader_transforms.data(),
                                  static_cast<int>(mesh->num_shader_bones()));
     } else if (animation_state != kAnimationStateNoAnimation) {

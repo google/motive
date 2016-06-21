@@ -115,14 +115,14 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
         // since these are referenced by pointer.
         const Range& op_range = RangeOfOp(op_type);
         s.init = SplineInit(op_range);
-        ops.AddOp(op_type, s.init, *s.spline);
+        ops.AddOp(op->id(), op_type, s.init, *s.spline);
         break;
       }
 
       case MatrixOpValueFb_ConstantOpFb: {
         const ConstantOpFb* const_fb =
             reinterpret_cast<const ConstantOpFb*>(op->value());
-        ops.AddOp(op_type, const_fb->y_const());
+        ops.AddOp(op->id(), op_type, const_fb->y_const());
         break;
       }
 

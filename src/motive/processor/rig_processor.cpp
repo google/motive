@@ -52,8 +52,7 @@ class RigData {
     // Initialize the motivators that drive the local transforms.
     for (BoneIndex i = 0; i < num_bones; ++i) {
       const MatrixOpArray& ops = defining_anim_->Anim(i).ops();
-      const MatrixInit matrix_init(ops, init.bone_transforms()[i]);
-      motivators_[i].Initialize(matrix_init, engine);
+      motivators_[i].Initialize(MatrixInit(ops), engine);
     }
 
     // Initialize global transforms to default pose.

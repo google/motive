@@ -220,34 +220,47 @@ struct MatrixOperationInit {
   };
 
   /// Matrix operation never changes. Always use 'const_value'.
-  MatrixOperationInit(MatrixOperationType type, float const_value)
+  MatrixOperationInit(MatrixOpId id, MatrixOperationType type,
+                      float const_value)
       : init(nullptr),
+        id(id),
         type(type),
         union_type(kUnionInitialValue),
         initial_value(const_value) {}
 
   /// Matrix operation is driven by Motivator defined by 'init'.
-  MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init)
-      : init(&init), type(type), union_type(kUnionEmpty) {}
+  MatrixOperationInit(MatrixOpId id, MatrixOperationType type,
+                      const MotivatorInit& init)
+      : init(&init), id(id), type(type), union_type(kUnionEmpty) {}
 
   /// Matrix operation is driven by Motivator defined by 'init'. Specify initial
   /// value as well.
-  MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init,
-                      float initial_value)
+  MatrixOperationInit(MatrixOpId id, MatrixOperationType type,
+                      const MotivatorInit& init, float initial_value)
       : init(&init),
+        id(id),
         type(type),
         union_type(kUnionInitialValue),
         initial_value(initial_value) {}
 
-  MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init,
-                      const MotiveTarget1f& target)
-      : init(&init), type(type), union_type(kUnionTarget), target(&target) {}
+  MatrixOperationInit(MatrixOpId id, MatrixOperationType type,
+                      const MotivatorInit& init, const MotiveTarget1f& target)
+      : init(&init),
+        id(id),
+        type(type),
+        union_type(kUnionTarget),
+        target(&target) {}
 
-  MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init,
-                      const CompactSpline& spline)
-      : init(&init), type(type), union_type(kUnionSpline), spline(&spline) {}
+  MatrixOperationInit(MatrixOpId id, MatrixOperationType type,
+                      const MotivatorInit& init, const CompactSpline& spline)
+      : init(&init),
+        id(id),
+        type(type),
+        union_type(kUnionSpline),
+        spline(&spline) {}
 
   const MotivatorInit* init;
+  MatrixOpId id;
   MatrixOperationType type;
   UnionType union_type;
   union {
@@ -298,36 +311,37 @@ class MatrixOpArray {
 
   /// Operation is constant. For example, use to put something flat on the
   /// ground, with 'type' = kRotateAboutX and 'const_value' = pi/2.
-  void AddOp(MatrixOperationType type, float const_value) {
-    ops_.push_back(MatrixOperationInit(type, const_value));
+  void AddOp(MatrixOpId id, MatrixOperationType type, float const_value) {
+    ops_.push_back(MatrixOperationInit(id, type, const_value));
   }
 
   /// Operation is driven by a one dimensional motivator. For example, you can
   /// control the face angle of a standing object with 'type' = kRotateAboutY
   /// and 'init' a curve specified by SplineInit.
-  void AddOp(MatrixOperationType type, const MotivatorInit& init) {
-    ops_.push_back(MatrixOperationInit(type, init));
+  void AddOp(MatrixOpId id, MatrixOperationType type,
+             const MotivatorInit& init) {
+    ops_.push_back(MatrixOperationInit(id, type, init));
   }
 
   /// Operation is driven by a one dimensional motivator, and initial value
   /// is specified.
-  void AddOp(MatrixOperationType type, const MotivatorInit& init,
+  void AddOp(MatrixOpId id, MatrixOperationType type, const MotivatorInit& init,
              float initial_value) {
-    ops_.push_back(MatrixOperationInit(type, init, initial_value));
+    ops_.push_back(MatrixOperationInit(id, type, init, initial_value));
   }
 
   /// Operation is driven by a one dimensional motivator, which is initialized
   /// to traverse the key points specified in `target`.
-  void AddOp(MatrixOperationType type, const MotivatorInit& init,
+  void AddOp(MatrixOpId id, MatrixOperationType type, const MotivatorInit& init,
              const MotiveTarget1f& target) {
-    ops_.push_back(MatrixOperationInit(type, init, target));
+    ops_.push_back(MatrixOperationInit(id, type, init, target));
   }
 
   /// Operation is driven by a one dimensional motivator, which is initialized
   /// to follow the predefined curve specified in `spline`.
-  void AddOp(MatrixOperationType type, const MotivatorInit& init,
+  void AddOp(MatrixOpId id, MatrixOperationType type, const MotivatorInit& init,
              const CompactSpline& spline) {
-    ops_.push_back(MatrixOperationInit(type, init, spline));
+    ops_.push_back(MatrixOperationInit(id, type, init, spline));
   }
 
   // Maximum duration of any of the splines.
@@ -355,17 +369,9 @@ class MatrixInit : public MotivatorInit {
   typedef std::vector<MatrixOperationInit> OpVector;
 
   explicit MatrixInit(const MatrixOpArray& ops)
-      : MotivatorInit(kType),
-        ops_(&ops),
-        start_transform_(&mathfu::kAffineIdentity) {}
-  MatrixInit(const MatrixOpArray& ops,
-             const mathfu::AffineTransform& start_transform)
-      : MotivatorInit(kType), ops_(&ops), start_transform_(&start_transform) {}
+      : MotivatorInit(kType), ops_(&ops) {}
 
   const OpVector& ops() const { return ops_->ops(); }
-  const mathfu::AffineTransform& start_transform() const {
-    return *start_transform_;
-  }
 
  private:
   /// Reference to the union of all operations that this matrix will be able
@@ -373,20 +379,14 @@ class MatrixInit : public MotivatorInit {
   /// operations that are a subset of those in `ops_`.
   /// In `RigAnim`, these represent operations in the defining anim.
   const MatrixOpArray* ops_;
-
-  /// Constant transform from which to start applying `ops_`.
-  /// For example, `RigAnim`s use it to represent the constant transformation
-  /// from a bone to its parent.
-  const mathfu::AffineTransform* start_transform_;
 };
 
 class RigInit : public MotivatorInit {
  public:
   MOTIVE_INTERFACE();
 
-  RigInit(const RigAnim& defining_anim,
-          const mathfu::AffineTransform* bone_transforms,
-          const BoneIndex* bone_parents, BoneIndex num_bones);
+  RigInit(const RigAnim& defining_anim, const BoneIndex* bone_parents,
+          BoneIndex num_bones);
   const RigAnim& defining_anim() const { return *defining_anim_; }
   const mathfu::AffineTransform* bone_transforms() const {
     return bone_transforms_;

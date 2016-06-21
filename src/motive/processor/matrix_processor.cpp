@@ -41,6 +41,7 @@ class MatrixOperation {
   MatrixOperation(const MatrixOperationInit& init, MotiveEngine* engine) {
     const AnimationType animation_type =
         init.init == nullptr ? kConstValueAnimation : kMotivatorAnimation;
+    SetId(init.id);
     SetType(init.type);
     SetAnimationType(animation_type);
 
@@ -61,6 +62,9 @@ class MatrixOperation {
     }
   }
 
+  // Return the id identifying the operation between animations.
+  MatrixOpId Id() const { return matrix_operation_id_; }
+
   // Return the type of operation we are animating.
   MatrixOperationType Type() const {
     return static_cast<MatrixOperationType>(matrix_operation_type_);
@@ -70,6 +74,11 @@ class MatrixOperation {
   float Value() const {
     return animation_type_ == kMotivatorAnimation ? Motivator().Value()
                                                   : value_.const_value;
+  }
+
+  // Return true if we can blend to `op`.
+  bool Blendable(const MatrixOperationInit& init) const {
+    return matrix_operation_id_ == init.id;
   }
 
   // Return the child motivator if it is valid. Otherwise, return nullptr.
@@ -173,6 +182,11 @@ class MatrixOperation {
     float const_value;
   };
 
+  void SetId(MatrixOpId id) {
+    assert(id <= kMaxMatrixOpId);
+    matrix_operation_id_ = id;
+  }
+
   void SetType(MatrixOperationType type) {
     matrix_operation_type_ = static_cast<uint8_t>(type);
   }
@@ -190,6 +204,10 @@ class MatrixOperation {
     assert(animation_type_ == kMotivatorAnimation);
     return *reinterpret_cast<const Motivator1f*>(value_.motivator_memory);
   }
+
+  // Identify an operation so that it can be matched across different
+  // animations, and thus blended.
+  MatrixOpId matrix_operation_id_;
 
   // Enum MatrixOperationType compressed to 8-bits to save memory.
   // The matrix operation that we're performing.
@@ -217,15 +235,6 @@ static inline void RotateAboutAxis(const float angle, vec4* column0,
   *column1 = c * c1 - s * c0;
 }
 
-// Due to aliasing problems, mat4 does not have a GetColumn() function.
-// We load it using the load load operations, which is slightly slower since
-// the compiler doesn't know it's doing an aligned load.
-// TODO: Add a LoadColumn() funtion to mat4 that returns the vec4 instead of a
-//       vec4&, and uses an aligned load.
-static inline vec4 MatrixColumn(const mat4& m, int i) {
-  return vec4(&m[4 * i]);
-}
-
 // Hold a series of matrix operations, and their resultant matrix.
 //
 // This class is of variable size, to keep compact and to avoid cache misses
@@ -243,10 +252,10 @@ class MatrixData {
   // fast).
   mat4 CalculateResultMatrix() const {
     // Start with the identity matrix.
-    vec4 c0 = start_matrix_[0];
-    vec4 c1 = start_matrix_[1];
-    vec4 c2 = start_matrix_[2];
-    vec4 c3 = start_matrix_[3];
+    vec4 c0 = mathfu::kAxisX4f;
+    vec4 c1 = mathfu::kAxisY4f;
+    vec4 c2 = mathfu::kAxisZ4f;
+    vec4 c3 = mathfu::kAxisW4f;
 
     for (int i = 0; i < num_ops_; ++i) {
       const MatrixOperation& op = ops_[i];
@@ -327,11 +336,7 @@ class MatrixData {
     int new_op_idx = 0;
     for (int i = 0; i < num_ops_; ++i) {
       MatrixOperation& op = ops_[i];
-      const MatrixOperationType defining_type = op.Type();
-      const MatrixOperationType op_type = new_op_idx < num_new_ops ?
-          new_ops[new_op_idx].type : kInvalidMatrixOperation;
-
-      if (defining_type == op_type) {
+      if (new_op_idx < num_new_ops && op.Blendable(new_ops[new_op_idx])) {
         op.BlendToOp(new_ops[new_op_idx], playback);
         new_op_idx++;
       } else {
@@ -368,12 +373,7 @@ class MatrixData {
     const size_t size = SizeOfClass(num_ops);
     uint8_t* buffer = new uint8_t[size];
     MatrixData* d = new (buffer) MatrixData();
-    d->result_matrix_ = mat4::FromAffineTransform(init.start_transform());
-    // Explicitly call constructors on members.
-    for (size_t i = 0; i < MOTIVE_ARRAY_SIZE(d->start_matrix_); ++i) {
-      d->start_matrix_[i] =
-          MatrixColumn(d->result_matrix_, static_cast<int>(i));
-    }
+    d->result_matrix_ = mat4::Identity();
     d->num_ops_ = num_ops;
     for (int i = 0; i < num_ops; ++i) {
       new (&d->ops_[i]) MatrixOperation(ops[i], engine);
@@ -399,11 +399,6 @@ class MatrixData {
     return sizeof(MatrixData) +
            sizeof(MatrixOperation) * std::max(0, num_ops - 1);
   }
-
-  /// Constants transforms that get applied before all other transforms.
-  /// Useful for skeletons, where it represents the transform from the
-  /// parent bone.
-  vec4 start_matrix_[4];
 
   /// Result of the most recent matrix update.
   mat4 result_matrix_;

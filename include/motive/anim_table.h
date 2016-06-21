@@ -30,6 +30,8 @@ struct RigAnimFb;
 /// @brief Hold animation lists for several object types.
 class AnimTable {
  public:
+  typedef std::vector<std::vector<std::string>> AnimFileNames;
+
   /// Callback that returns a pointer to the `RigAnimFb` FlatBuffer table for
   /// `anim_name`. Your implementation may vary, but one possibility is to
   /// load the file with `anim_name` into `scratch_buf`, and then return a
@@ -52,6 +54,17 @@ class AnimTable {
   /// For each animation in the AnimTable, `load_fn` is called to get the
   /// `RigAnimFb` associated with the animation.
   bool InitFromFlatBuffers(const AnimTableFb& params, LoadRigAnimFn* load_fn);
+
+  /// Load the AnimTable specified in the vector of vectors.
+  /// The top level vector represents the `object` index.
+  /// The bottom level vector represents the `anim_idx`.
+  bool InitFromAnimFileNames(const AnimFileNames& anim_file_names,
+                             LoadRigAnimFn* load_fn);
+
+  /// Load the AnimTable for only one `object`.
+  bool InitFromAnimFileNames(
+      const std::vector<std::string>& anim_file_names_one_object,
+      LoadRigAnimFn* load_fn);
 
   /// Get an animation by index. This is fast and is the preferred way to
   /// look up an animation.
@@ -86,6 +99,12 @@ class AnimTable {
   /// of vectors.
   int NumObjects() const { return static_cast<int>(indices_.size()); }
 
+  /// Return size of the bottom-most vector. Recall that AnimTable is a vector
+  /// of vectors.
+  int NumAnims(int object) const {
+    return static_cast<int>(indices_[object].size());
+  }
+
  private:
   typedef uint16_t AnimIndex;
   typedef std::vector<AnimIndex> AnimList;
@@ -93,7 +112,7 @@ class AnimTable {
   static const AnimIndex kInvalidAnimIndex = static_cast<AnimIndex>(-1);
 
   AnimIndex AddAnimName(const char* anim_name);
-  void InitNameMapFromFlatBuffers(const AnimTableFb& params);
+  void InitNameMap(const AnimFileNames& anim_file_names);
   bool LoadAnimations(LoadRigAnimFn* load_fn);
   void AnimNames(std::vector<const char*>* anim_names) const;
   size_t MaxAnimIndex() const;
