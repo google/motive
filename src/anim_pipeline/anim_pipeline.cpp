@@ -828,7 +828,8 @@ class FbxAnimParser {
 
   bool Valid() const { return manager_ != nullptr && scene_ != nullptr; }
 
-  bool Load(const char* file_name) {
+  bool Load(const char* file_name, AxisSystem axis_system,
+            float distance_unit_scale) {
     if (!Valid()) return false;
 
     log_.Log(
@@ -871,6 +872,14 @@ class FbxAnimParser {
 
     // Exit if the import failed.
     if (!import_status) return false;
+
+    // Ensure the correct distance unit and axis system are being used.
+    fplutil::ConvertFbxScale(distance_unit_scale, scene_, &log_);
+    fplutil::ConvertFbxAxes(axis_system, scene_, &log_);
+
+    // Log nodes after we've processed them.
+    log_.Log(kLogVerbose, "Converted scene nodes\n");
+    fplutil::LogFbxScene(scene_, 0, kLogVerbose, &log_);
 
     // Get global scale from the internal units.
     global_scale_ =
@@ -1179,6 +1188,8 @@ struct AnimPipelineArgs {
         log_level(kLogWarning),
         repeat_preference(kRepeatIfRepeatable),
         stagger_end_times(false),
+        axis_system(fplutil::kUnspecifiedAxisSystem),
+        distance_unit_scale(-1.0f),
         debug_time(-1) {}
 
   string fbx_file;        /// FBX input file to convert.
@@ -1187,8 +1198,97 @@ struct AnimPipelineArgs {
   Tolerances tolerances;  /// Amount output curves can deviate from input.
   RepeatPreference repeat_preference;  /// Loop back to start when reaches end.
   bool stagger_end_times; /// Allow each channel to end at its authored time.
-  int debug_time;  /// If >0 output animation state at this time.
+  AxisSystem axis_system; /// Which axes are up, front, left.
+  float distance_unit_scale; /// This number of cm is set to one unit.
+  int debug_time;         /// If >0 output animation state at this time.
 };
+
+static void LogUsage(Logger* log) {
+  static const char kOptionIndent[] = "                           ";
+  log->Log(
+      kLogImportant,
+      "Usage: anim_pipeline [-v|-d|-i] [-o OUTPUT_FILE]\n"
+      "                     [-st SCALE_TOLERANCE] [-rt ROTATE_TOLERANCE]\n"
+      "                     [-tt TRANSLATE_TOLERANCE]\n"
+      "                     [-at DERIVATIVE_TOLERANCE] [--repeat|--norepeat]\n"
+      "                     [--stagger] [-a AXES] [-u (unit)|(scale)]\n"
+      "                     [--debug_time TIME]\n"
+      "                     FBX_FILE\n"
+      "\n"
+      "Pipeline to convert FBX animations into FlatBuffer animations.\n"
+      "Outputs a .motiveanim file with the same base name as FBX_FILE.\n\n"
+      "Options:\n"
+      "  -v, --verbose output all informative messages\n"
+      "  -d, --details output important informative messages\n"
+      "  -i, --info    output more than details, less than verbose.\n"
+      "  -o, --out OUTPUT_FILE\n"
+      "                file to write .motiveanim file to.\n"
+      "                Can be an absolute or relative path.\n"
+      "                when unspecified, uses base FBX name + .motiveanim.\n"
+      "  -st, --scale SCALE_TOLERANCE\n"
+      "                max deviation of output scale curves from input\n"
+      "                scale curves; unitless\n"
+      "  -rt, --rotate ROTATE_TOLERANCE\n"
+      "                max deviation of output rotate curves from intput\n"
+      "                rotate curves; in degrees\n"
+      "  -tt, --translate TRANSLATE_TOLERANCE\n"
+      "                max deviation of output translate curves from input\n"
+      "                translate curves; in scene's distance unit\n"
+      "  -at, --angle DERIVATIVE_TOLERANCE\n"
+      "                max deviation of curve derivatives,\n"
+      "                considered as an angle in the x/y plane\n"
+      "                (e.g. derivative 1 ==> 45 degrees); in degrees.\n"
+      "  --repeat, --norepeat\n"
+      "                mark the animation as repeating or not repeating.\n"
+      "                A repeating animation cycles over and over.\n"
+      "                If neither option is specified, the animation\n"
+      "                is marked as repeating when it starts and ends\n"
+      "                with the same pose and derivatives.\n"
+      "  --stagger, --stagger_end_times\n"
+      "                allow every channel to end at its authored time,\n"
+      "                instead of adding extra spline nodes to plum-up\n"
+      "                every channel.\n"
+      "                This may cause strage behavior with animations that\n"
+      "                repeat, since the shorter channels will start\n"
+      "                to repeat before the longer ones.\n"
+      "  -a, --axes AXES\n"
+      "                coordinate system of exported file, in format\n"
+      "                    (up-axis)(front-axis)(left-axis) \n"
+      "                where,\n"
+      "                    'up' = [x|y|z]\n"
+      "                    'front' = [+x|-x|+y|-y|+z|-z], is the axis\n"
+      "                      pointing out of the front of the mesh.\n"
+      "                      For example, the vector pointing out of a\n"
+      "                      character's belly button.\n"
+      "                    'left' = [+x|-x|+y|-y|+z|-z], is the axis\n"
+      "                      pointing out the left of the mesh.\n"
+      "                      For example, the vector from the character's\n"
+      "                      neck to his left shoulder.\n"
+      "                For example, 'z+y+x' is z-axis up, positive y-axis\n"
+      "                out of a character's belly button, positive x-axis\n"
+      "                out of a character's left side.\n"
+      "                If unspecified, use file's coordinate system.\n"
+      "  -u, --unit (unit)|(scale)\n"
+      "                Outputs mesh in target units. You can override the\n"
+      "                FBX file's distance unit with this option.\n"
+      "                For example, if your game runs in meters,\n"
+      "                specify '-u m' to ensure the output .fplmesh file\n"
+      "                is in meters, no matter the distance unit of the\n"
+      "                FBX file.\n"
+      "                (unit) can be one of the following:\n");
+  LogOptions(kOptionIndent, fplutil::DistanceUnitNames(), log);
+  log->Log(
+      kLogImportant,
+      "                (scale) is the number of centimeters in your\n"
+      "                distance unit. For example, instead of '-u inches',\n"
+      "                you could also use '-u 2.54'.\n"
+      "                If unspecified, use FBX file's unit.\n"
+      "  --debug_time TIME\n"
+      "                output the local transforms for each bone in\n"
+      "                the animation at TIME, in ms, and then exit.\n"
+      "                Useful for debugging situations where the\n"
+      "                runtime doesn't match source data.\n");
+}
 
 static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
                                   AnimPipelineArgs* args) {
@@ -1229,7 +1329,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         valid_args = false;
       }
 
-    } else if (arg == "-s" || arg == "--scale") {
+    } else if (arg == "-st" || arg == "--scale") {
       if (i + 1 < argc - 1) {
         args->tolerances.scale = static_cast<float>(atof(argv[i + 1]));
         if (args->tolerances.scale <= 0.0f) {
@@ -1241,7 +1341,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         valid_args = false;
       }
 
-    } else if (arg == "-r" || arg == "--rotate") {
+    } else if (arg == "-rt" || arg == "--rotate") {
       if (i + 1 < argc - 1) {
         const float degrees = static_cast<float>(atof(argv[i + 1]));
         if (degrees <= 0.0f || degrees > 180.0f) {
@@ -1256,7 +1356,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         valid_args = false;
       }
 
-    } else if (arg == "-t" || arg == "--translate") {
+    } else if (arg == "-tt" || arg == "--translate") {
       if (i + 1 < argc - 1) {
         args->tolerances.translate = static_cast<float>(atof(argv[i + 1]));
         if (args->tolerances.translate <= 0.0f) {
@@ -1268,7 +1368,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         valid_args = false;
       }
 
-    } else if (arg == "-a" || arg == "--angle") {
+    } else if (arg == "-at" || arg == "--angle") {
       if (i + 1 < argc - 1) {
         const float degrees = static_cast<float>(atof(argv[i + 1]));
         if (degrees <= 0.0f || degrees > 90.0f) {
@@ -1298,6 +1398,30 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
     } else if (arg == "--stagger" || arg == "stagger_end_times") {
       args->stagger_end_times = true;
 
+    } else if (arg == "-a" || arg == "--axes") {
+      if (i + 1 < argc - 1) {
+        args->axis_system = fplutil::AxisSystemFromName(argv[i + 1]);
+        valid_args = args->axis_system >= 0;
+        if (!valid_args) {
+          log.Log(kLogError, "Unknown coordinate system: %s\n\n", argv[i + 1]);
+        }
+        i++;
+      } else {
+        valid_args = false;
+      }
+
+    } else if (arg == "-u" || arg == "--unit") {
+      if (i + 1 < argc - 1) {
+        args->distance_unit_scale = fplutil::DistanceUnitFromName(argv[i + 1]);
+        valid_args = args->distance_unit_scale > 0.0f;
+        if (!valid_args) {
+          log.Log(kLogError, "Unknown distance unit: %s\n\n", argv[i + 1]);
+        }
+        i++;
+      } else {
+        valid_args = false;
+      }
+
     } else if (arg == "--debug_time") {
       if (i + 1 < argc - 1) {
         args->debug_time = atoi(argv[i + 1]);
@@ -1318,60 +1442,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
   }
 
   // Print usage.
-  if (!valid_args) {
-    log.Log(
-        kLogImportant,
-        "Usage: anim_pipeline [-v|-d|-i] [-o OUTPUT_FILE]\n"
-        "           [-s SCALE_TOLERANCE] [-r ROTATE_TOLERANCE]\n"
-        "           [-t TRANSLATE_TOLERANCE] [-a DERIVATIVE_TOLERANCE]\n"
-        "           [--repeat|--norepeat] [--stagger] [--debug_time TIME]\n"
-        "           FBX_FILE\n"
-        "\n"
-        "Pipeline to convert FBX animations into FlatBuffer animations.\n"
-        "Outputs a .motiveanim file with the same base name as FBX_FILE.\n\n"
-        "Options:\n"
-        "  -v, --verbose         output all informative messages\n"
-        "  -d, --details         output important informative messages\n"
-        "  -i, --info            output more than details, less than verbose.\n"
-        "  -o, --out OUTPUT_FILE file to write .motiveanim file to;\n"
-        "                        can be an absolute or relative path;\n"
-        "                        when unspecified, uses base FBX name\n"
-        "                        + .motiveanim\n"
-        "  -s, --scale SCALE_TOLERANCE\n"
-        "                        max deviation of output scale curves\n"
-        "                        from input scale curves, unitless\n"
-        "  -r, --rotate ROTATE_TOLERANCE\n"
-        "                        max deviation of output rotate curves\n"
-        "                        from intput rotate curves, in degrees\n"
-        "  -t, --translate TRANSLATE_TOLERANCE\n"
-        "                        max deviation of output translate curves\n"
-        "                        from input translate curves, in scene's\n"
-        "                        units of distance\n"
-        "  -a, --angle DERIVATIVE_TOLERANCE\n"
-        "                        max deviation of curve derivatives,\n"
-        "                        considered as an angle in the x/y plane\n"
-        "                        (e.g. derivative 1 ==> 45 degrees),\n"
-        "                        in degrees.\n"
-        "  --repeat, --norepeat  mark the animation as repeating or not\n"
-        "                        repeating. A repeating animation cycles\n"
-        "                        over and over. If neither option is\n"
-        "                        specified, the animation is marked as\n"
-        "                        repeating when it starts and ends\n"
-        "                        with the same pose and derivatives.\n"
-        "  --stagger, --stagger_end_times\n"
-        "                        allow every channel to end at its authored\n"
-        "                        time, instead of adding extra spline nodes\n"
-        "                        to plum-up every channel.\n"
-        "                        This may cause strage behavior with\n"
-        "                        animations that repeat, since the shorter\n"
-        "                        channels will start to repeat before the\n"
-        "                        longer ones.\n"
-        "  --debug_time TIME     output the local transforms for each bone in\n"
-        "                        the animation at TIME, in ms, and then exit.\n"
-        "                        Useful for debugging situations where the\n"
-        "                        runtime doesn't match source data.\n");
-  }
-
+  if (!valid_args) { LogUsage(&log); }
   return valid_args;
 }
 
@@ -1389,7 +1460,8 @@ int main(int argc, char** argv) {
 
   // Load the FBX file.
   motive::FbxAnimParser pipe(log);
-  const bool load_status = pipe.Load(args.fbx_file.c_str());
+  const bool load_status = pipe.Load(args.fbx_file.c_str(), args.axis_system,
+                                     args.distance_unit_scale);
   if (!load_status) return 1;
 
   // Output debug information for the specific time of the animation.
