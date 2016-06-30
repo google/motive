@@ -12,19 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Suppress warnings in external header.
-#pragma warning(push)            // for Visual Studio
-#pragma warning(disable : 4068)  // "unknown pragma" -- for Visual Studio
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wignored-qualifiers"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wpedantic"
-#pragma GCC diagnostic ignored "-Wunused-value"
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#include <fbxsdk.h>
-#pragma GCC diagnostic pop
-#pragma warning(pop)
-
 #include <assert.h>
 #include <fstream>
 #include <functional>
@@ -35,6 +22,7 @@
 #include <vector>
 
 #include "anim_generated.h"
+#include "fbx_common/fbx_common.h"
 #include "fplutil/file_utils.h"
 #include "mathfu/glsl_mappings.h"
 #include "motive/anim.h"
@@ -44,6 +32,16 @@
 
 namespace motive {
 
+using fplutil::AxisSystem;
+using fplutil::IndexOfName;
+using fplutil::Logger;
+using fplutil::LogLevel;
+using fplutil::LogOptions;
+using fplutil::kLogVerbose;
+using fplutil::kLogInfo;
+using fplutil::kLogImportant;
+using fplutil::kLogWarning;
+using fplutil::kLogError;
 using motive::MatrixOperationType;
 using motive::kInvalidMatrixOperation;
 using motive::kNumMatrixOperationTypes;
@@ -67,58 +65,6 @@ static const int kRotationOrderToChannelOrder[][3] = {
     {0, 2, 1},  // eOrderZXY,
     {0, 1, 2},  // eOrderZYX,
     {2, 1, 0},  // eOrderSphericXYZ
-};
-
-// Each log message is given a level of importance.
-// We only output messages that have level >= our current logging level.
-enum LogLevel {
-  kLogVerbose,
-  kLogInfo,
-  kLogImportant,
-  kLogWarning,
-  kLogError,
-  kNumLogLevels
-};
-
-// Prefix log messages at this level with this message.
-static const char* kLogPrefix[] = {"",           // kLogVerbose
-                                   "",           // kLogInfo
-                                   "",           // kLogImportant
-                                   "Warning: ",  // kLogWarning
-                                   "Error: "     // kLogError
-};
-static_assert(MOTIVE_ARRAY_SIZE(kLogPrefix) == kNumLogLevels,
-              "kLogPrefix length is incorrect");
-
-/// @class Logger
-/// @brief Output log messages if they are above an adjustable threshold.
-class Logger {
- public:
-  Logger() : level_(kLogImportant) {}
-
-  void set_level(LogLevel level) { level_ = level; }
-  LogLevel level() const { return level_; }
-
-  /// Output a printf-style message if our current logging level is
-  /// >= `level`.
-  void Log(LogLevel level, const char* format, ...) const {
-    if (level < level_) return;
-
-    // Prefix message with log level, if required.
-    const char* prefix = kLogPrefix[level];
-    if (prefix[0] != '\0') {
-      printf("%s", prefix);
-    }
-
-    // Redirect output to stdout.
-    va_list args;
-    va_start(args, format);
-    vprintf(format, args);
-    va_end(args);
-  }
-
- private:
-  LogLevel level_;
 };
 
 // Half a percent.
@@ -941,13 +887,8 @@ class FbxAnimParser {
     GatherFlatAnimRecursive(scene_->GetRootNode(), -1, out);
   }
 
-  // For debugging. Very useful to output the local transform matrices (and
-  // component values) at a given time of the animation. We can compare these
-  // to the runtime values, if something doesn't match up.
   void LogAnimStateAtTime(int time_in_ms) const {
-    FbxTime time;
-    time.SetMilliSeconds(time_in_ms);
-    LogAnimStateAtTimeRecursive(scene_->GetRootNode(), time);
+    fplutil::LogFbxScene(scene_, time_in_ms, kLogInfo, &log_);
   }
 
  private:
@@ -957,61 +898,6 @@ class FbxAnimParser {
     FbxPropertyT<FbxDouble3>* property;
     motive::MatrixOperationType x_op;
   };
-
-  void LogIfNotEqual(const FbxVector4& v, const FbxVector4& compare,
-                     const char* name) const {
-    if (v == compare) return;
-    log_.Log(kLogInfo, "%s: (%6.2f %6.2f %6.2f %6.2f)\n", name, v[0], v[1],
-             v[2], v[3]);
-  }
-
-  // For each mesh in the tree of nodes under `node`, add a surface to `out`.
-  void LogAnimStateAtTimeRecursive(FbxNode* node, const FbxTime& time) const {
-    // We're only interested in mesh nodes. If a node and all nodes under it
-    // have no meshes, we early out.
-    if (node == nullptr || !NodeHasMesh(node)) return;
-    log_.Log(kLogInfo, "Node: %s\n", node->GetName());
-
-    // Log local transform. It's an affine transform so is 4x3.
-    const FbxAMatrix& local = node->EvaluateLocalTransform(time);
-    for (int i = 0; i < 3; ++i) {
-      const FbxVector4 r = local.GetColumn(i);
-      log_.Log(kLogInfo, "  (%6.2f %6.2f %6.2f %6.2f)\n", r[0], r[1], r[2],
-               r[3]);
-    }
-
-    // Log the components of the local transform, but only if they don't
-    // match their default values.
-    const FbxVector4 zero(0.0, 0.0, 0.0, 0.0);
-    const FbxVector4 one(1.0, 1.0, 1.0, 1.0);
-    LogIfNotEqual(node->EvaluateLocalTranslation(time), zero, "translate");
-    LogIfNotEqual(node->GetRotationOffset(FbxNode::eSourcePivot), zero,
-                  "rotation_offset");
-    LogIfNotEqual(node->GetRotationPivot(FbxNode::eSourcePivot), zero,
-                  "rotation_pivot");
-    LogIfNotEqual(node->GetPreRotation(FbxNode::eSourcePivot), zero,
-                  "pre_rotation");
-    LogIfNotEqual(node->EvaluateLocalRotation(time), zero, "rotate");
-    LogIfNotEqual(node->GetPostRotation(FbxNode::eSourcePivot), zero,
-                  "post_rotation");
-    LogIfNotEqual(node->GetScalingOffset(FbxNode::eSourcePivot), zero,
-                  "scaling_offset");
-    LogIfNotEqual(node->GetScalingPivot(FbxNode::eSourcePivot), zero,
-                  "scaling_pivot");
-    LogIfNotEqual(node->EvaluateLocalScaling(time), one, "scaling");
-    LogIfNotEqual(node->GetGeometricTranslation(FbxNode::eSourcePivot), zero,
-                  "geometric_translation");
-    LogIfNotEqual(node->GetGeometricRotation(FbxNode::eSourcePivot), zero,
-                  "geometric_rotation");
-    LogIfNotEqual(node->GetGeometricScaling(FbxNode::eSourcePivot), one,
-                  "geometric_scaling");
-    log_.Log(kLogInfo, "\n");
-
-    // Recursively traverse each node in the scene
-    for (int i = 0; i < node->GetChildCount(); i++) {
-      LogAnimStateAtTimeRecursive(node->GetChild(i), time);
-    }
-  }
 
   static FlatTime FbxToFlatTime(const FbxTime& t) {
     const FbxLongLong milliseconds = t.GetMilliSeconds();
@@ -1492,7 +1378,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
 }  // namespace motive
 
 int main(int argc, char** argv) {
-  motive::Logger log;
+  fplutil::Logger log;
 
   // Parse the command line arguments.
   motive::AnimPipelineArgs args;
