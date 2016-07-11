@@ -240,7 +240,7 @@ static bool ParseCommandLine(int argc, char* argv[], ViewerArgs* args) {
     i++;
 
     if (option == "-r" || option == "--playbackrate") {
-      args->playback_rate = atof(option_value.c_str());
+      args->playback_rate = static_cast<float>(atof(option_value.c_str()));
       if (args->playback_rate <= 0.0f || args->playback_rate > 1000.0f) {
         printf("ERROR: Invalid playback rate %f.\n\n", args->playback_rate);
         return false;
@@ -528,10 +528,11 @@ extern "C" int FPL_main(int argc, char* argv[]) {
                                        : kAnimationStateNoAnimation;
 
   // Ensure the mesh and the animation are compatible.
-  const bool compatible = animation_state == kAnimationStateNoAnimation ||
-                          anim.NumBones() == 1 ||
-                          motive::RigInit::MatchesHierarchy(
-                              anim, mesh->bone_parents(), mesh->num_bones());
+  const bool compatible =
+      animation_state == kAnimationStateNoAnimation || anim.NumBones() == 1 ||
+      motive::RigInit::MatchesHierarchy(
+          anim, mesh->bone_parents(),
+          static_cast<motive::BoneIndex>(mesh->num_bones()));
   if (!compatible) {
     printf(
         "ERROR: Animation %s and mesh %s do not have a compatible hierarchy.\n"
@@ -598,8 +599,10 @@ extern "C" int FPL_main(int argc, char* argv[]) {
       fprintf(out_file, "%s\n", motivator.CsvValuesForDebugging().c_str());
     }
     if (args.bone_idx >= 0) {
-      printf("%s",
-             motivator.LocalTransformsForDebugging(args.bone_idx).c_str());
+      printf("%s", motivator
+                       .LocalTransformsForDebugging(
+                           static_cast<motive::BoneIndex>(args.bone_idx))
+                       .c_str());
     }
 
     // Render the mesh.
@@ -615,7 +618,7 @@ extern "C" int FPL_main(int argc, char* argv[]) {
               : motivator.GlobalTransforms();
       mesh->GatherShaderTransforms(bone_transforms, shader_transforms.data());
       renderer.SetBoneTransforms(shader_transforms.data(),
-                                 mesh->num_shader_bones());
+                                 static_cast<int>(mesh->num_shader_bones()));
     } else if (animation_state != kAnimationStateNoAnimation) {
       // We're animating but there are no bones uniforms. Just move the
       // root bone.
