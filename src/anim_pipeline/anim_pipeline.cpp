@@ -55,7 +55,6 @@ enum RepeatPreference {
   kNeverRepeat
 };
 
-static const int kTimeGranularityMiliseconds = 10;
 static const int kDefaultChannelOrder[] = {0, 1, 2};
 static const int kRotationOrderToChannelOrder[][3] = {
     {2, 1, 0},  // eOrderXYZ,
@@ -399,7 +398,7 @@ class FlatAnim {
 
         } else {
           // Output spline MatrixOp.
-          CompactSpline* s = CreateCompactSpline(*c, log_);
+          CompactSpline* s = CreateCompactSpline(*c);
           value = CreateSplineFlatBuffer(fbb, *s).Union();
           value_type = motive::MatrixOpValueFb_CompactSplineFb;
           CompactSpline::Destroy(s);
@@ -720,7 +719,7 @@ class FlatAnim {
     return y_range;
   }
 
-  static CompactSpline* CreateCompactSpline(const Channel& ch, Logger& log) {
+  static CompactSpline* CreateCompactSpline(const Channel& ch) {
     const Nodes& nodes = ch.nodes;
     assert(nodes.size() > 1);
 

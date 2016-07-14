@@ -38,6 +38,9 @@ endif()
 # Include functions fbx_compile_options() and fbx_configure_target()
 include(${fpl_root}/fplutil/fbx_common/cmake_fbx.txt)
 
+# Set compile options for FBX programs.
+fbx_compile_options()
+
 # Include motive.
 set(motive_build_samples OFF CACHE BOOL "")
 set(motive_build_tests OFF CACHE BOOL "")
@@ -63,9 +66,6 @@ include_directories(${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${dependencies_fplutil_dir}/libfplutil/include)
 include_directories(${dependencies_motive_dir}/include)
-
-# Set compile options for FBX programs.
-fbx_compile_options()
 
 # Executable target.
 add_executable(anim_pipeline ${CMAKE_CURRENT_SOURCE_DIR}/anim_pipeline.cpp)
