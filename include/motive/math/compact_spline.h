@@ -234,18 +234,23 @@ class CompactSpline {
   Range RangeX() const { return Range(StartX(), EndX()); }
   const Range& RangeY() const { return y_range_; }
 
-  /// Evaluate spline at `x`. This function is somewhat slow because it
-  /// must find the node for `x` and create the cubic before the returned
-  /// y can be evaluated.
+  /// Calls CalculatedSlowly at `x`, with `kCurveValue` to evaluate the y value.
   /// If calling from inside a loop, replace the loop with one call to Ys(),
   /// which is significantly faster.
-  float YCalculatedSlowly(const float x) const;
+  float YCalculatedSlowly(const float x) const {
+    return CalculatedSlowly(x, kCurveValue);
+  }
+
+  /// Evaluate spline at `x`. This function is somewhat slow because it
+  /// must find the node for `x` and create the cubic before the returned
+  /// value can be evaluated.
+  float CalculatedSlowly(const float x, const CurveValueType value_type) const;
 
   /// Fast evaluation of a subset of the x-domain of the spline.
   /// Spline is evaluated from `start_x` and subsequent intervals of `delta_x`.
-  /// Evaluated values are returned in `ys`.
-  void Ys(const float start_x, const float delta_x, const int num_ys,
-          float* ys) const;
+  /// Evaluated values are returned in `ys` and, if not nullptr, `derivatives`.
+  void Ys(const float start_x, const float delta_x, const size_t num_points,
+          float* ys, float* derivatives = nullptr) const;
 
   /// The start and end x-values covered by the segment after `index`.
   Range RangeX(const CompactSplineIndex index) const;
@@ -361,14 +366,18 @@ class CompactSpline {
   /// @param num_splines number of splines to evaluate.
   /// @param start_x starting point for every spline.
   /// @param delta_x increment for each output y.
-  /// @param num_ys length of the `ys` array.
-  /// @param ys two dimensional output array, ys[num_ys][num_splines].
+  /// @param num_points the upper dimension of the `ys` and `derivatives`
+  ///                   arrays.
+  /// @param ys two dimensional output array, ys[num_points][num_splines].
   ///           ys[0] are `splines` evaluated at start_x.
-  ///           ys[num_ys - 1] are `splines` evaluated at
-  ///           start_x + delta_x * num_ys.
-  static void BulkYs(const CompactSpline* const splines, const int num_splines,
-                     const float start_x, const float delta_x,
-                     const size_t num_ys, float* ys);
+  ///           ys[num_points - 1] are `splines` evaluated at
+  ///           start_x + delta_x * num_points.
+  /// @param derivatives two dimensional output array, with the same indexing
+  ///                    as `ys`.
+  static void BulkYs(const CompactSpline* const splines,
+                     const size_t num_splines, const float start_x,
+                     const float delta_x, const size_t num_points, float* ys,
+                     float* derivatives = nullptr);
 
   /// Fast evaluation of several splines, with mathfu::VectorPacked interface.
   /// Useful for evaluate three splines which together form a mathfu::vec3,

@@ -374,31 +374,44 @@ TEST_F(SplineTests, BulkYsStartAndEnd) {
   // Then compare returned `ys` with start end end values of spline.
   for (size_t num_ys = 2; num_ys < kMaxBulkYs; ++num_ys) {
     float ys[kMaxBulkYs];
+    float derivatives[kMaxBulkYs];
     CompactSpline::BulkYs(&short_spline_, 1, 0.0f,
-                          short_spline_.EndX() / (num_ys - 1), num_ys, ys);
+                          short_spline_.EndX() / (num_ys - 1), num_ys, ys,
+                          derivatives);
 
     EXPECT_NEAR(short_spline_.StartY(), ys[0], kNodeYPrecision);
     EXPECT_NEAR(short_spline_.EndY(), ys[num_ys - 1], kNodeYPrecision);
+    EXPECT_NEAR(short_spline_.StartDerivative(), derivatives[0],
+                kNodeYPrecision);
+    EXPECT_NEAR(short_spline_.EndDerivative(), derivatives[num_ys - 1],
+                kDerivativePrecision);
   }
 }
 
 // BulkYs should return the proper start and end values.
 TEST_F(SplineTests, BulkYsVsSlowYs) {
-  static const int kMaxBulkYs = 15;
+  static const int kMaxBulkYs = 21;
 
-  // Get bulk data at several delta_xs, but always starting at the start of the
-  // spline and ending at the end of the spline.
+  // Get bulk data at several delta_xs, but always starting at 3 delta_x
+  // prior to start of the spline and ending at 3 delta_x after the end
+  // of the spline.
   // Then compare returned `ys` with start end end values of spline.
-  for (size_t num_ys = 2; num_ys < kMaxBulkYs; ++num_ys) {
+  for (size_t num_ys = 2; num_ys < kMaxBulkYs - 6; ++num_ys) {
     // Collect `num_ys` evenly-spaced samples from short_spline_.
     float ys[kMaxBulkYs];
+    float derivatives[kMaxBulkYs];
     const float delta_x = short_spline_.EndX() / (num_ys - 1);
-    CompactSpline::BulkYs(&short_spline_, 1, 0.0f, delta_x, num_ys, ys);
+    const float start_x = 0.0f - 3 * delta_x;
+    const size_t num_points = num_ys + 6;
+    CompactSpline::BulkYs(&short_spline_, 1, start_x, delta_x, num_points, ys,
+                          derivatives);
 
     // Compare bulk samples to slowly calcuated samples.
-    float x = 0.0f;
-    for (size_t j = 0; j < num_ys; ++j) {
+    float x = start_x;
+    for (size_t j = 0; j < num_points; ++j) {
       EXPECT_NEAR(short_spline_.YCalculatedSlowly(x), ys[j], kNodeYPrecision);
+      EXPECT_NEAR(short_spline_.CalculatedSlowly(x, motive::kCurveDerivative),
+                  derivatives[j], kDerivativePrecision);
       x += delta_x;
     }
   }

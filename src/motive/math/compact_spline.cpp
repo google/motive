@@ -114,32 +114,37 @@ float CompactSpline::NodeY(const CompactSplineIndex index) const {
   return nodes_[index].Y(y_range_);
 }
 
-float CompactSpline::YCalculatedSlowly(const float x) const {
+float CompactSpline::CalculatedSlowly(const float x,
+                                      const CurveValueType value_type) const {
   const CompactSplineIndex index = IndexForX(x, 0);
 
   // Handle cases where `x` is outside the spline's domain.
-  if (index == kBeforeSplineIndex) return StartY();
-  if (index == kAfterSplineIndex) return EndY();
+  if (index == kBeforeSplineIndex)
+    // The curve is flat outside the bounds, so all derivatives
+    // outside the bounds are 0.
+    return value_type == kCurveValue ? StartY() : 0.0f;
+  if (index == kAfterSplineIndex)
+    return value_type == kCurveValue ? EndY() : 0.0f;
 
   // Create the cubic curve for `index` and evaluate it.
   const CubicCurve cubic(CreateCubicInit(index));
   const float cubic_x = x - NodeX(index);
-  const float y = cubic.Evaluate(cubic_x);
-  return y;
+  return CurveValue<CubicCurve>(cubic, cubic_x, value_type);
 }
 
 void CompactSpline::Ys(const float start_x, const float delta_x,
-                       const int num_ys, float* ys) const {
+                       const size_t num_points, float* ys,
+                       float* derivatives) const {
   // Use the BulkSplineEvaluator even though we're only evaluating one spline.
   // Still faster, since it doesn't have to recreate the cubic for every x.
-  BulkYs(this, 1, start_x, delta_x, num_ys, ys);
+  BulkYs(this, 1, start_x, delta_x, num_points, ys, derivatives);
 }
 
 // static
 void CompactSpline::BulkYs(const CompactSpline* const splines,
-                           const int num_splines, const float start_x,
-                           const float delta_x, const size_t num_ys,
-                           float* ys) {
+                           const size_t num_splines, const float start_x,
+                           const float delta_x, const size_t num_points,
+                           float* ys, float* derivatives) {
   BulkSplineEvaluator evaluator;
 
   // Initialize the evaluator with the splines.
@@ -150,10 +155,19 @@ void CompactSpline::BulkYs(const CompactSpline* const splines,
   evaluator.SetSplines(0, num_splines, splines, playback);
 
   // Grab y values, then advance spline evaluation by delta_x.
-  // Repeat num_ys times.
-  const float* end_y = &ys[num_splines * num_ys];
-  for (float* y = ys; y < end_y; y += num_splines) {
+  // Repeat num_points times.
+  for (size_t i = 0; i < num_points; ++i) {
+    const int offset = i * num_splines;
+    float* y = ys + offset;
     memcpy(y, evaluator.Ys(0), num_splines * sizeof(y[0]));
+
+    if (derivatives) {
+      float* derivatives_for_i = derivatives + offset;
+      for (size_t j = 0; j < num_splines; ++j) {
+        derivatives_for_i[j] = evaluator.Derivative(j);
+      }
+    }
+
     evaluator.AdvanceFrame(delta_x);
   }
 }
