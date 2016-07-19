@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+include "compact_spline.fbs";
+
 namespace motive;
 
 // Same as MatrixOperationType in motive/init.h.
@@ -28,21 +30,6 @@ enum MatrixOperationTypeFb : byte {
   kScaleZ,
   kScaleUniformly,
   kNumMatrixOperationTypes
-}
-
-// Same as CompactSplineNode in compact_spline.cpp.
-struct CompactSplineNodeFb {
-  x:ushort;
-  y:ushort;
-  angle:short;
-}
-
-// Similar to CompactSpline in compact_spline.h.
-table CompactSplineFb {
-  y_range_start:float;
-  y_range_end:float;
-  x_granularity:float;
-  nodes:[CompactSplineNodeFb];
 }
 
 table ConstantOpFb {

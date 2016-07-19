@@ -129,11 +129,48 @@ class CompactSpline {
     AddNodeVerbatim(detail::CompactSplineNode(x, y, angle));
   }
 
+  /// Indicate that we have stopped adding nodes and want to release the
+  /// remaining memory. Useful for when we have one giant buffer from which
+  /// we want to add many splines of (potentially unknown) various sizes.
+  /// We can do something like,
+  ///  \code{.cpp}
+  ///  size_t CreateSplines(char* memory_buffer, size_t memory_buffer_size) {
+  ///    char* buf = memory_buffer;
+  ///    const char* end = memory_buffer + memory_buffer_size;
+  ///
+  ///    while (MoreSplinesToCreate()) {
+  ///      // Allocate a spline that can hold as many nodes as buf can hold.
+  ///      CompactSpline* spline =
+  ///          CompactSpline::CreateInPlaceMaxNodes(buf, end - buf);
+  ///
+  ///      while (MoreNodesToAdd()) {
+  ///        // Ensure we haven't reached the end of the buffer.
+  ///        if (spline->num_splines() == spline->max_splines()) break;
+  ///
+  ///        // ... spline creation logic ...
+  ///        spline->AddNode(...);
+  ///      }
+  ///
+  ///      // Shrink `spline` to be the size that it actually is.
+  ///      spline->Finalize();
+  ///
+  ///      // Advance pointer so next spline starts where this one ends.
+  ///      buf += spline->Size();
+  ///    }
+  ///
+  ///    // Return the total bytes consumed from `memory_buffer`.
+  ///    return end - buf;
+  ///  }
+  ///  \endcode
+  void Finalize() {
+    max_nodes_ = num_nodes_;
+  }
+
   /// Remove all nodes from the spline.
   void Clear() { num_nodes_ = 0; }
 
   /// Returns the memory occupied by this spline.
-  size_t Size() { return Size(max_nodes_); }
+  size_t Size() const { return Size(max_nodes_); }
 
   /// Use on an array of splines created by CreateArrayInPlace().
   /// Returns the next spline in the array.
