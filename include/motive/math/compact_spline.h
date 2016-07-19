@@ -72,11 +72,10 @@ class CompactSpline {
     *this = rhs;
   }
   CompactSpline& operator=(const CompactSpline& rhs) {
-    assert(rhs.max_nodes_ <= max_nodes_);
+    assert(rhs.num_nodes_ <= max_nodes_);
     y_range_ = rhs.y_range_;
     x_granularity_ = rhs.x_granularity_;
     num_nodes_ = rhs.num_nodes_;
-    max_nodes_ = rhs.max_nodes_;
     memcpy(nodes_, rhs.nodes_, rhs.num_nodes_ * sizeof(nodes_[0]));
     return *this;
   }
