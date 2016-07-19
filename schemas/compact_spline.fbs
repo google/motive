@@ -25,7 +25,7 @@ struct CompactSplineNodeFb {
 struct CompactSplineFloatNodeFb {
   value: float;
   time: float;
-  angle: float;
+  derivative: float;
 }
 
 // Similar to CompactSpline in compact_spline.h.
