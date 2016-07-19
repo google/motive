@@ -106,6 +106,27 @@ class RigAnim {
   /// Total number of matrix operations across all MatrixAnims in this RigAnim.
   int NumOps() const;
 
+  /// Gets the splines and constants that drive the operations in `ops`,
+  /// for the specified bone. If an operation is not driven by the bone,
+  /// return the default value for that op in `constants`.
+  ///
+  /// If the bone has multiple operations that match `ops[i]`, return the
+  /// first one.
+  ///
+  /// @param bone The bone whose operations you want to pull data for.
+  /// @param ops And array of length `num_ops` with the operations you're
+  ///            interested in.
+  /// @params num_ops Length of the `ops` array.
+  /// @params splines Output array, length `num_ops`. For each element of
+  ///                 `ops`, receives the driving spline, or nullptr if that
+  ///                 operation is not driven by a spline.
+  /// @params constants Output array, length `num_ops`. For each element of
+  ///                 `ops`, receives the constant value of that operation,
+  ///                 if no spline drives that operation.
+  void GetSplinesAndConstants(BoneIndex bone, const MatrixOperationType* ops,
+                              int num_ops, const CompactSpline** splines,
+                              float* constants) const;
+
   /// For debugging. The number of lines in the header. You call them separately
   /// in case you want to prefix or append extra columns.
   int NumCsvHeaderLines() const { return 2; }

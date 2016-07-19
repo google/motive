@@ -92,9 +92,7 @@ class Motivator {
 
   /// Return true if this Motivator is currently being driven by a
   /// MotiveProcessor. That is, if it has been successfully initialized.
-  bool Valid() const {
-    return processor_ != nullptr;
-  }
+  bool Valid() const { return processor_ != nullptr; }
 
   /// Check consistency of internal state. Useful for debugging.
   /// If this function ever returns false, there has been some sort of memory
@@ -240,8 +238,7 @@ class MotivatorNf : public Motivator {
   /// @param playback The time into the splines to initiate playback,
   ///                 the blend time to the splines, and whether to repeat
   ///                 from the beginning after the end of the spline is reached.
-  void SetSpline(const CompactSpline& spline,
-                 const SplinePlayback& playback) {
+  void SetSpline(const CompactSpline& spline, const SplinePlayback& playback) {
     assert(Dimensions() == 1);
     Processor().SetSplines(index_, Dimensions(), &spline, playback);
   }
@@ -273,9 +270,28 @@ class MotivatorNf : public Motivator {
     Processor().SetSplinePlaybackRate(index_, Dimensions(), playback_rate);
   }
 
-  // target is of length `dimensions`.
+  /// Set the target and (optionally the current) motivator values.
+  /// Use this call to procedurally drive the Motivator towards a specific
+  /// target. The Motivator will transition smoothly to the new target.
+  /// @param targets The targets that each value should achieve.
+  ///                An array of length Dimensions().
   void SetTargets(const MotiveTarget1f* targets) {
     Processor().SetTargets(index_, Dimensions(), targets);
+  }
+
+  /// Drive some channels with splines and others with targets.
+  /// For i between 0 and Dimensions()-1, if splines[i] != NULL drive
+  /// channel i with splines[i]. Otherwise, drive channel i with targets[i].
+  /// @param splines Array of pointers to splines, length Dimensions().
+  ///                Pointers can be NULL.
+  /// @param playback Various parameters for `splines`.
+  /// @param targets Array of targets that are used when splines are not
+  ///                specified. Length Dimensions().
+  void SetSplinesAndTargets(const CompactSpline* const* splines,
+                            const SplinePlayback& playback,
+                            const MotiveTarget1f* targets) {
+    Processor().SetSplinesAndTargets(index_, Dimensions(), splines, playback,
+                                     targets);
   }
 
  protected:
@@ -531,8 +547,7 @@ class MatrixMotivator4fTemplate : public Motivator {
 
   /// Match existing MatrixOps with those in `ops` and smoothly transition
   /// to the new parameters in `ops`.
-  void BlendToOps(const MatrixOpArray& ops,
-                  const SplinePlayback& playback) {
+  void BlendToOps(const MatrixOpArray& ops, const SplinePlayback& playback) {
     Processor().BlendToOps(index_, ops, playback);
   }
 
@@ -566,8 +581,7 @@ class RigMotivator : public Motivator {
   /// Blend time is specified in `anim` itself.
   /// If the current state is unspecified because no animation
   /// has yet been played, snap to `anim`.
-  void BlendToAnim(const RigAnim& anim,
-                   const SplinePlayback& playback) {
+  void BlendToAnim(const RigAnim& anim, const SplinePlayback& playback) {
     Processor().BlendToAnim(index_, anim, playback);
   }
 

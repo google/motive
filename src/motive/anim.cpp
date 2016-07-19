@@ -51,6 +51,44 @@ int RigAnim::NumOps() const {
   return static_cast<int>(num_ops);
 }
 
+void RigAnim::GetSplinesAndConstants(BoneIndex bone,
+                                     const MatrixOperationType* ops,
+                                     int num_ops, const CompactSpline** splines,
+                                     float* constants) const {
+  const MatrixOpArray::OpVector& matrix_ops = Anim(bone).ops().ops();
+  for (int i = 0; i < num_ops; ++i) {
+    const MatrixOperationType op = ops[i];
+    const MatrixOperationType alternate_op =
+        ScaleOp(op) ? kScaleUniformly : kInvalidMatrixOperation;
+
+    // Initialize return values. If the operation isn't found, we return these
+    // default values.
+    splines[i] = nullptr;
+    constants[i] = OperationDefaultValue(op);
+
+    // Loop through all the operations on this matrix.
+    for (auto it = matrix_ops.begin(); it != matrix_ops.end(); ++it) {
+      if (it->type != op && it->type != alternate_op) continue;
+
+      // Use the first operation that matches.
+      switch (it->union_type) {
+        case MatrixOperationInit::kUnionInitialValue:
+          constants[i] = it->initial_value;
+          break;
+
+        case MatrixOperationInit::kUnionSpline:
+          splines[i] = it->spline;
+          break;
+
+        default:
+          // We don't support other types of initialization.
+          break;
+      }
+      break;
+    }
+  }
+}
+
 std::string RigAnim::CsvHeaderForDebugging(int line) const {
   std::ostringstream oss;
 

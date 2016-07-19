@@ -319,14 +319,23 @@ class MotiveProcessorNf : public MotiveProcessor {
                           const MotiveTarget1f* ts) = 0;
 
   // Drive the Motivator by following splines specified in the playback.
-  virtual void SetSplines(MotiveIndex /*index*/, MotiveIndex /*count*/,
-                          const motive::CompactSpline* /*splines*/,
-                          const motive::SplinePlayback& /*playback*/) {}
+  virtual void SetSplines(MotiveIndex /*index*/, MotiveDimension /*dimensions*/,
+                          const CompactSpline* /*splines*/,
+                          const SplinePlayback& /*playback*/) {}
 
-  virtual void SetSplineTime(MotiveIndex /*index*/, MotiveIndex /*count*/,
+  // For each i from 0..dimensions-1, drive the value with with splines[i]
+  // when splines[i] != NULL, and with targets[i] otherwise.
+  virtual void SetSplinesAndTargets(MotiveIndex /*index*/,
+                                    MotiveDimension /*dimensions*/,
+                                    const CompactSpline* const* /*splines*/,
+                                    const SplinePlayback& /*playback*/,
+                                    const MotiveTarget1f* /*targets*/) {}
+
+  virtual void SetSplineTime(MotiveIndex /*index*/,
+                             MotiveDimension /*dimensions*/,
                              MotiveTime /*time*/) {}
   virtual void SetSplinePlaybackRate(MotiveIndex /*index*/,
-                                     MotiveIndex /*count*/,
+                                     MotiveDimension /*dimensions*/,
                                      float /*playback_rate*/) {}
 };
 
@@ -359,7 +368,7 @@ class MatrixProcessor4f : public MotiveProcessor {
 
   /// Smoothly transition to the operations specified in `ops`.
   virtual void BlendToOps(MotiveIndex /*index*/, const MatrixOpArray& /*ops*/,
-                          const motive::SplinePlayback& /*playback*/){}
+                          const motive::SplinePlayback& /*playback*/) {}
 
   /// Instantly change the playback speed of this animation.
   virtual void SetPlaybackRate(MotiveIndex index, float playback_rate) = 0;
@@ -370,8 +379,8 @@ class RigProcessor : public MotiveProcessor {
   /// Returns an array of length `DefiningAnim.NumBones()`.
   /// The i'th element of the array represents the transform from the root
   /// bone to the bone-space on the i'th bone.
-  virtual const mathfu::AffineTransform* GlobalTransforms(MotiveIndex index)
-      const = 0;
+  virtual const mathfu::AffineTransform* GlobalTransforms(
+      MotiveIndex index) const = 0;
 
   /// Return the time remaining in the current matrix animation.
   virtual MotiveTime TimeRemaining(MotiveIndex index) const = 0;
