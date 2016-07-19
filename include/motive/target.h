@@ -205,7 +205,7 @@ inline MotiveTarget1f Target1f(float target_value, float target_velocity,
                                MotiveTime target_time,
                                motive::ModularDirection direction =
                                    motive::kDirectionClosest) {
-  assert(target_time > 0);
+  assert(target_time >= 0);
   return MotiveTarget1f(
       MotiveNode1f(target_value, target_velocity, target_time, direction));
 }
