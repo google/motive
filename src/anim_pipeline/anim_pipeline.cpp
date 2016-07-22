@@ -159,12 +159,16 @@ typedef float FlatVal;
 // Slope of animation curves.
 typedef float FlatDerivative;
 
+// Start and end range of bone indices.
+typedef RangeT<BoneIndex> BoneRange;
+
 /// @class FlatAnim
 /// @brief Hold animation data to be written to FlatBuffer animation format.
 class FlatAnim {
  public:
-  explicit FlatAnim(const Tolerances& tolerances, Logger& log)
-      : tolerances_(tolerances), log_(log) {}
+  explicit FlatAnim(const Tolerances& tolerances, bool root_bones_only,
+                    Logger& log)
+      : tolerances_(tolerances), root_bones_only_(root_bones_only), log_(log) {}
 
   void AllocBone(const char* bone_name, int depth) {
     bones_.push_back(Bone(bone_name, depth));
@@ -174,6 +178,15 @@ class FlatAnim {
     Channels& channels = CurChannels();
     channels.push_back(Channel(op, id));
     return static_cast<FlatChannelId>(channels.size() - 1);
+  }
+
+  // Return true if we should keep decending down the mesh tree looking for
+  // more animation.
+  bool ShouldRecurse() const {
+    // When searching for just the root bones, keep recursing until we find
+    // a bone that has animation data.
+    return !root_bones_only_ || bones_.size() == 0 ||
+           bones_.back().channels.size() == 0;
   }
 
   void AddConstant(FlatChannelId channel_id, FlatVal const_val) {
@@ -423,87 +436,42 @@ class FlatAnim {
 
   bool OutputFlatBuffer(const string& output_file,
                         RepeatPreference repeat_preference) const {
-    // Ensure output directory exists.
-    const string output_dir = fplutil::DirectoryName(output_file);
-    if (!fplutil::CreateDirectory(output_dir.c_str())) {
-      log_.Log(kLogError, "Could not create output directory %s\n",
-               output_dir.c_str());
+    // Output entire bone range to output_file.
+    const BoneIndex num_bones = static_cast<BoneIndex>(bones_.size());
+    if (!root_bones_only_)
+      return OutputBoneRangeToFlatBuffer(output_file, repeat_preference,
+                                         BoneRange(0, num_bones));
+
+    // See if there's more than one output file.
+    bool success = true;
+    const int num_bones_with_animation = NumBonesWithAnimation();
+    if (num_bones_with_animation == 0) {
+      log_.Log(kLogWarning, "No animation found.\n");
       return false;
     }
 
-    flatbuffers::FlatBufferBuilder fbb;
-    std::vector<flatbuffers::Offset<motive::MatrixAnimFb>> matrix_anims;
-    std::vector<flatbuffers::Offset<flatbuffers::String>> bone_names;
-    std::vector<BoneIndex> bone_parents;
-    const size_t num_bones = bones_.size();
-    matrix_anims.reserve(num_bones);
-    bone_names.reserve(num_bones);
-    bone_parents.reserve(num_bones);
+    // Output each bone to a separate file.
+    const string output_file_base_name =
+        fplutil::RemoveExtensionFromName(output_file);
     for (BoneIndex bone_idx = 0; bone_idx < num_bones; ++bone_idx) {
+      // Skip bones that have no animation data.
       const Bone& bone = bones_[bone_idx];
-      const Channels& channels = bone.channels;
+      if (bone.channels.size() == 0) continue;
 
-      // Output each channel as a MatrixOp, and gather in the `ops` vector.
-      std::vector<flatbuffers::Offset<motive::MatrixOpFb>> ops;
-      for (auto c = channels.begin(); c != channels.end(); ++c) {
-        const Nodes& n = c->nodes;
-        assert(n.size() > 0);
+      // Concatenate the bone name to output_file.
+      const string bone_output_file = num_bones_with_animation == 1
+                                          ? output_file
+                                          : output_file_base_name + "_" +
+                                                bone.name + "." +
+                                                motive::RigAnimFbExtension();
 
-        flatbuffers::Offset<void> value;
-        motive::MatrixOpValueFb value_type;
-        if (n.size() <= 1) {
-          // Output constant value MatrixOp.
-          value = motive::CreateConstantOpFb(fbb, n[0].val).Union();
-          value_type = motive::MatrixOpValueFb_ConstantOpFb;
-
-        } else {
-          // Output spline MatrixOp.
-          CompactSpline* s = CreateCompactSpline(*c);
-          value = CreateSplineFlatBuffer(fbb, *s).Union();
-          value_type = motive::MatrixOpValueFb_CompactSplineFb;
-          CompactSpline::Destroy(s);
-        }
-
-        ops.push_back(motive::CreateMatrixOpFb(
-            fbb, c->id, static_cast<motive::MatrixOperationTypeFb>(c->op),
-            value_type, value));
-      }
-
-      // Convert vector into a FlatBuffers vector, and create the
-      // MatrixAnimation.
-      auto ops_fb = fbb.CreateVector(ops);
-      auto matrix_anim_fb = CreateMatrixAnimFb(fbb, ops_fb);
-      matrix_anims.push_back(matrix_anim_fb);
-      bone_names.push_back(fbb.CreateString(bone.name));
-      bone_parents.push_back(BoneParent(bone_idx));
+      // Write only this bone to the file.
+      const bool bone_success =
+          OutputBoneRangeToFlatBuffer(bone_output_file, repeat_preference,
+                                      BoneRange(bone_idx, bone_idx + 1));
+      success = success && bone_success;
     }
-
-    // Finish off the FlatBuffer by creating the root RigAnimFb table.
-    auto bone_names_fb = fbb.CreateVector(bone_names);
-    auto bone_parents_fb = fbb.CreateVector(bone_parents);
-    auto matrix_anims_fb = fbb.CreateVector(matrix_anims);
-    const bool repeat = Repeat(repeat_preference);
-    auto rig_anim_fb = CreateRigAnimFb(fbb, matrix_anims_fb, bone_parents_fb,
-                                       bone_names_fb, repeat);
-    motive::FinishRigAnimFbBuffer(fbb, rig_anim_fb);
-
-    // Create the output file.
-    FILE* file = fopen(output_file.c_str(), "wb");
-    if (file == nullptr) {
-      log_.Log(kLogError, "Could not open %s for writing\n",
-               output_file.c_str());
-      return false;
-    }
-
-    // Write the binary data to the file and close it.
-    log_.Log(kLogVerbose, "Writing %s", output_file.c_str());
-    fwrite(fbb.GetBufferPointer(), 1, fbb.GetSize(), file);
-    fclose(file);
-
-    // Log summary.
-    log_.Log(kLogImportant, "  %s (%d bytes)\n",
-             fplutil::RemoveDirectoryFromName(output_file).c_str(), NumBytes());
-    return true;
+    return success;
   }
 
   float ToleranceForOp(MatrixOperationType op) const {
@@ -573,6 +541,101 @@ class FlatAnim {
   float Tolerance(FlatChannelId channel_id) const {
     const Channels& channels = CurChannels();
     return ToleranceForOp(channels[channel_id].op);
+  }
+
+  int NumBonesWithAnimation() const {
+    int num_bones_with_animation = 0;
+    for (auto it = bones_.begin(); it != bones_.end(); ++it) {
+      if (it->channels.size() > 0) num_bones_with_animation++;
+    }
+    return num_bones_with_animation;
+  }
+
+  bool OutputBoneRangeToFlatBuffer(const string& output_file,
+                                   RepeatPreference repeat_preference,
+                                   const BoneRange& bone_range) const {
+    // Ensure output directory exists.
+    const string output_dir = fplutil::DirectoryName(output_file);
+    if (!fplutil::CreateDirectory(output_dir.c_str())) {
+      log_.Log(kLogError, "Could not create output directory %s\n",
+               output_dir.c_str());
+      return false;
+    }
+
+    flatbuffers::FlatBufferBuilder fbb;
+    std::vector<flatbuffers::Offset<motive::MatrixAnimFb>> matrix_anims;
+    std::vector<flatbuffers::Offset<flatbuffers::String>> bone_names;
+    std::vector<BoneIndex> bone_parents;
+    const size_t num_bones = bone_range.Length();
+    matrix_anims.reserve(num_bones);
+    bone_names.reserve(num_bones);
+    bone_parents.reserve(num_bones);
+    for (BoneIndex bone_idx = bone_range.start(); bone_idx < bone_range.end();
+         ++bone_idx) {
+      const Bone& bone = bones_[bone_idx];
+      const Channels& channels = bone.channels;
+
+      // Output each channel as a MatrixOp, and gather in the `ops` vector.
+      std::vector<flatbuffers::Offset<motive::MatrixOpFb>> ops;
+      for (auto c = channels.begin(); c != channels.end(); ++c) {
+        const Nodes& n = c->nodes;
+        assert(n.size() > 0);
+
+        flatbuffers::Offset<void> value;
+        motive::MatrixOpValueFb value_type;
+        if (n.size() <= 1) {
+          // Output constant value MatrixOp.
+          value = motive::CreateConstantOpFb(fbb, n[0].val).Union();
+          value_type = motive::MatrixOpValueFb_ConstantOpFb;
+
+        } else {
+          // Output spline MatrixOp.
+          CompactSpline* s = CreateCompactSpline(*c);
+          value = CreateSplineFlatBuffer(fbb, *s).Union();
+          value_type = motive::MatrixOpValueFb_CompactSplineFb;
+          CompactSpline::Destroy(s);
+        }
+
+        ops.push_back(motive::CreateMatrixOpFb(
+            fbb, c->id, static_cast<motive::MatrixOperationTypeFb>(c->op),
+            value_type, value));
+      }
+
+      // Convert vector into a FlatBuffers vector, and create the
+      // MatrixAnimation.
+      auto ops_fb = fbb.CreateVector(ops);
+      auto matrix_anim_fb = CreateMatrixAnimFb(fbb, ops_fb);
+      matrix_anims.push_back(matrix_anim_fb);
+      bone_names.push_back(fbb.CreateString(bone.name));
+      bone_parents.push_back(BoneParent(bone_idx));
+    }
+
+    // Finish off the FlatBuffer by creating the root RigAnimFb table.
+    auto bone_names_fb = fbb.CreateVector(bone_names);
+    auto bone_parents_fb = fbb.CreateVector(bone_parents);
+    auto matrix_anims_fb = fbb.CreateVector(matrix_anims);
+    const bool repeat = Repeat(repeat_preference);
+    auto rig_anim_fb = CreateRigAnimFb(fbb, matrix_anims_fb, bone_parents_fb,
+                                       bone_names_fb, repeat);
+    motive::FinishRigAnimFbBuffer(fbb, rig_anim_fb);
+
+    // Create the output file.
+    FILE* file = fopen(output_file.c_str(), "wb");
+    if (file == nullptr) {
+      log_.Log(kLogError, "Could not open %s for writing\n",
+               output_file.c_str());
+      return false;
+    }
+
+    // Write the binary data to the file and close it.
+    log_.Log(kLogVerbose, "Writing %s", output_file.c_str());
+    fwrite(fbb.GetBufferPointer(), 1, fbb.GetSize(), file);
+    fclose(file);
+
+    // Log summary.
+    log_.Log(kLogImportant, "  %s (%d bytes)\n",
+             fplutil::RemoveDirectoryFromName(output_file).c_str(), NumBytes());
+    return true;
   }
 
   /// Return the first channel of the first bone that isn't repeatable.
@@ -953,6 +1016,10 @@ class FlatAnim {
   // Amount output curves are allowed to deviate from input.
   Tolerances tolerances_;
 
+  // Only record animations for first bones in the skeleton to have animation.
+  // Each such bone gets its own animation file.
+  bool root_bones_only_;
+
   // Information and warnings.
   Logger& log_;
 };
@@ -1116,8 +1183,10 @@ class FbxAnimParser {
     }
 
     // Recursively traverse each node in the scene
-    for (int i = 0; i < node->GetChildCount(); i++) {
-      GatherFlatAnimRecursive(node->GetChild(i), depth + 1, out);
+    if (out->ShouldRecurse()) {
+      for (int i = 0; i < node->GetChildCount(); i++) {
+        GatherFlatAnimRecursive(node->GetChild(i), depth + 1, out);
+      }
     }
   }
 
@@ -1357,6 +1426,7 @@ struct AnimPipelineArgs {
         log_level(kLogWarning),
         repeat_preference(kRepeatIfRepeatable),
         stagger_end_times(false),
+        root_bones_only(false),
         axis_system(fplutil::kUnspecifiedAxisSystem),
         distance_unit_scale(-1.0f),
         debug_time(-1) {}
@@ -1367,6 +1437,7 @@ struct AnimPipelineArgs {
   Tolerances tolerances;  /// Amount output curves can deviate from input.
   RepeatPreference repeat_preference;  /// Loop back to start when reaches end.
   bool stagger_end_times; /// Allow each channel to end at its authored time.
+  bool root_bones_only;   /// Output bone that has path of animation only.
   AxisSystem axis_system; /// Which axes are up, front, left.
   float distance_unit_scale; /// This number of cm is set to one unit.
   int debug_time;         /// If >0 output animation state at this time.
@@ -1381,7 +1452,7 @@ static void LogUsage(Logger* log) {
       "                     [-tt TRANSLATE_TOLERANCE]\n"
       "                     [-at DERIVATIVE_TOLERANCE] [--repeat|--norepeat]\n"
       "                     [--stagger] [-a AXES] [-u (unit)|(scale)]\n"
-      "                     [--debug_time TIME]\n"
+      "                     [--roots] [--debug_time TIME]\n"
       "                     FBX_FILE\n"
       "\n"
       "Pipeline to convert FBX animations into FlatBuffer animations.\n"
@@ -1438,7 +1509,7 @@ static void LogUsage(Logger* log) {
       "                out of a character's left side.\n"
       "                If unspecified, use file's coordinate system.\n"
       "  -u, --unit (unit)|(scale)\n"
-      "                Outputs mesh in target units. You can override the\n"
+      "                output animation in target units. You can override the\n"
       "                FBX file's distance unit with this option.\n"
       "                For example, if your game runs in meters,\n"
       "                specify '-u m' to ensure the output .fplmesh file\n"
@@ -1452,6 +1523,11 @@ static void LogUsage(Logger* log) {
       "                distance unit. For example, instead of '-u inches',\n"
       "                you could also use '-u 2.54'.\n"
       "                If unspecified, use FBX file's unit.\n"
+      "  --roots, --root_bones_only\n"
+      "                output only the root bones of each mesh.\n"
+      "                Each mesh gets its animation file.\n"
+      "                Useful for pulling just the path data from an\n"
+      "                animation.\n"
       "  --debug_time TIME\n"
       "                output the local transforms for each bone in\n"
       "                the animation at TIME, in ms, and then exit.\n"
@@ -1591,6 +1667,9 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         valid_args = false;
       }
 
+    } else if (arg == "--roots" || arg == "--root_bones_only") {
+      args->root_bones_only = true;
+
     } else if (arg == "--debug_time") {
       if (i + 1 < argc - 1) {
         args->debug_time = atoi(argv[i + 1]);
@@ -1640,7 +1719,7 @@ int main(int argc, char** argv) {
   }
 
   // Gather data into a format conducive to our FlatBuffer format.
-  motive::FlatAnim anim(args.tolerances, log);
+  motive::FlatAnim anim(args.tolerances, args.root_bones_only, log);
   pipe.GatherFlatAnim(&anim);
 
   // We want all of our animation channels to end at the same time.
