@@ -219,7 +219,8 @@ CompactSplineIndex CompactSpline::IndexForXAllowingRepeat(
   }
 
   // Repeats, so wrap `x` back to 0 and find the index again.
-  const float repeat_x = x - EndX();
+  const Range x_range(0.0f, EndX());
+  const float repeat_x = x_range.NormalizeCloseValue(x);
   const CompactSplineIndex repeat_index = IndexForX(repeat_x, 0);
   *final_x = repeat_x;
   return repeat_index;
