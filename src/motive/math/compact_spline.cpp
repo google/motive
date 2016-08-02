@@ -151,20 +151,23 @@ void CompactSpline::BulkYs(const CompactSpline* const splines,
   // Note that we set `repeat` = false, so that we can accurately get the last
   // value in the spline.
   const SplinePlayback playback(start_x);
-  evaluator.SetNumIndices(num_splines);
-  evaluator.SetSplines(0, num_splines, splines, playback);
+  const BulkSplineEvaluator::Index num_splines_as_index =
+      static_cast<BulkSplineEvaluator::Index>(num_splines);
+  evaluator.SetNumIndices(num_splines_as_index);
+  evaluator.SetSplines(0, num_splines_as_index, splines, playback);
 
   // Grab y values, then advance spline evaluation by delta_x.
   // Repeat num_points times.
   for (size_t i = 0; i < num_points; ++i) {
-    const int offset = i * num_splines;
+    const size_t offset = i * num_splines;
     float* y = ys + offset;
     memcpy(y, evaluator.Ys(0), num_splines * sizeof(y[0]));
 
     if (derivatives) {
       float* derivatives_for_i = derivatives + offset;
       for (size_t j = 0; j < num_splines; ++j) {
-        derivatives_for_i[j] = evaluator.Derivative(j);
+        derivatives_for_i[j] =
+            evaluator.Derivative(static_cast<BulkSplineEvaluator::Index>(j));
       }
     }
 
