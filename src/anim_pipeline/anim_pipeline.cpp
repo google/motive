@@ -1083,24 +1083,30 @@ class FbxAnimParser {
     FbxManager::GetFileFormatVersion(sdk_major, sdk_minor, sdk_revision);
     importer->GetFileVersion(file_major, file_minor, file_revision);
 
-    // Report version information.
-    log_.Log(kLogVerbose, "File version %d.%d.%d, SDK version %d.%d.%d\n",
-             file_major, file_minor, file_revision, sdk_major, sdk_minor,
-             sdk_revision);
-
     // Exit on load error.
     if (!init_status) {
       FbxString error = importer->GetStatus().GetErrorString();
       log_.Log(kLogError, "%s\n\n", error.Buffer());
-      return false;
-    }
-    if (!importer->IsFBX()) {
-      log_.Log(kLogError, "Not an FBX file\n\n");
+      importer->Destroy();
       return false;
     }
 
     // Import the scene.
     const bool import_status = importer->Import(scene_);
+
+    // Report version information.
+    const LogLevel version_log_level = import_status ? kLogVerbose : kLogError;
+    log_.Log(version_log_level, "File version %d.%d.%d, SDK version %d.%d.%d\n",
+             file_major, file_minor, file_revision, sdk_major, sdk_minor,
+             sdk_revision);
+
+    // Exit on import error.
+    if (!import_status) {
+      FbxString error = importer->GetStatus().GetErrorString();
+      log_.Log(kLogError, "%s\n\n", error.Buffer());
+      importer->Destroy();
+      return false;
+    }
 
     // Clean-up temporaries.
     importer->Destroy();
