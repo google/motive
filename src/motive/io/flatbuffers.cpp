@@ -132,14 +132,15 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
   }
 }
 
-void RigAnimFromFlatBuffers(const RigAnimFb& params, const char* anim_name,
-                            RigAnim* anim) {
-  const size_t num_bones = params.matrix_anims()->Length();
+void RigAnimFromFlatBuffers(const RigAnimFb& params, RigAnim* anim) {
+  const size_t num_bones = flatbuffers::VectorLength(params.matrix_anims());
   const auto names = params.bone_names();
   const auto parents = params.bone_parents();
   const bool record_names = names != nullptr && names->Length() == num_bones;
-  assert(parents != nullptr && parents->Length() == num_bones);
+  assert(flatbuffers::VectorLength(parents) == num_bones);
 
+  const char* anim_name =
+      params.name() == nullptr ? "Unknown" : params.name()->c_str();
   anim->Init(anim_name, static_cast<motive::BoneIndex>(num_bones),
              record_names);
 

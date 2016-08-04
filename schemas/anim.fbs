@@ -73,6 +73,9 @@ table RigAnimFb {
 
   // True if all the data streams end where they started.
   repeat:bool;
+
+  // Optional name for the overall animation. Used in AnimTable::QueryByName().
+  name:string;
 }
 
 root_type RigAnimFb;

@@ -460,14 +460,13 @@ static float AspectRatio(const fplbase::Renderer& renderer) {
          renderer.window_size().y();
 }
 
-static const motive::RigAnimFb* LoadRigAnim(const char* anim_name,
-                                            std::string* scratch_buf) {
-  const bool load_ok = fplbase::LoadFile(anim_name, scratch_buf);
+static const char* AnimLoadFn(const char* file_name, std::string* scratch_buf) {
+  const bool load_ok = fplbase::LoadFile(file_name, scratch_buf);
   if (!load_ok) {
-    printf("ERROR: Could not load animation file %s.\n\n", anim_name);
+    printf("ERROR: Could not load animation file %s.\n\n", file_name);
     return nullptr;
   }
-  return motive::GetRigAnimFb(scratch_buf->c_str());
+  return scratch_buf->c_str();
 }
 
 extern "C" int FPL_main(int argc, char* argv[]) {
@@ -495,7 +494,7 @@ extern "C" int FPL_main(int argc, char* argv[]) {
   motive::AnimTable anim_table;
   if (args.anim_files.size() > 0) {
     const bool anim_result =
-        anim_table.InitFromAnimFileNames(args.anim_files, LoadRigAnim);
+        anim_table.InitFromAnimFileNames(args.anim_files, AnimLoadFn);
     if (!anim_result) return 1;
   }
 

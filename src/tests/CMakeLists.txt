@@ -76,4 +76,5 @@ test_executable(motive)
 test_executable(range)
 test_executable(curve)
 test_executable(spline)
+test_executable(table)
 

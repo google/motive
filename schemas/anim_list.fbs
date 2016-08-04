@@ -1,0 +1,53 @@
+// Copyright 2016 Google Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+include "anim.fbs";
+
+namespace motive;
+
+// Load the specified file and cast it to a RigAnimFb.
+table AnimSourceFileName {
+  file_name:string;
+}
+
+// The RigAnimFb is embedded into the same FlatBuffer.
+table AnimSourceEmbedded {
+  embedded:RigAnimFb;
+}
+
+union AnimSourceUnion {
+  AnimSourceFileName,
+  AnimSourceEmbedded,
+}
+
+table AnimSource {
+  u:AnimSourceUnion;
+}
+
+// In this table, you should only use one of `anim_files` or `anims`.
+table AnimListFb {
+  // Convenience interface. Same as specifying anims[i].u.file_name
+  // (i.e. through AnimSourceFileName part of union), but less tedius
+  // when writing json files.
+  // Also exists to support legacy interface.
+  anim_files:[string];
+
+  // Array of animations that are either embedded in the FlatBuffers or
+  // need to be loaded by file name.
+  anims:[AnimSource];
+}
+
+root_type AnimListFb;
+file_identifier "ALIS";
+file_extension "motivelist";

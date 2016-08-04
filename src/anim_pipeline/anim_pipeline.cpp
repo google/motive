@@ -615,8 +615,10 @@ class FlatAnim {
     auto bone_parents_fb = fbb.CreateVector(bone_parents);
     auto matrix_anims_fb = fbb.CreateVector(matrix_anims);
     const bool repeat = Repeat(repeat_preference);
+    const string anim_name = fplutil::RemoveDirectoryFromName(output_file);
+    auto anim_name_fb = fbb.CreateString(anim_name);
     auto rig_anim_fb = CreateRigAnimFb(fbb, matrix_anims_fb, bone_parents_fb,
-                                       bone_names_fb, repeat);
+                                       bone_names_fb, repeat, anim_name_fb);
     motive::FinishRigAnimFbBuffer(fbb, rig_anim_fb);
 
     // Create the output file.
@@ -633,8 +635,7 @@ class FlatAnim {
     fclose(file);
 
     // Log summary.
-    log_.Log(kLogImportant, "  %s (%d bytes)\n",
-             fplutil::RemoveDirectoryFromName(output_file).c_str(), NumBytes());
+    log_.Log(kLogImportant, "  %s (%d bytes)\n", anim_name.c_str(), NumBytes());
     return true;
   }
 

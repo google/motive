@@ -22,6 +22,232 @@ using motive::Range;
 
 namespace motive {
 
+// Wrap the source data for an AnimTable.
+// Allows AnimTables to be loaded from many different data sources.
+class TableDescriberInterface {
+ public:
+  virtual int NumObjects() const = 0;
+  virtual int NumAnims(int object) const = 0;
+  virtual const char* SourceFileName(int object, int anim_idx) const = 0;
+  virtual const RigAnimFb* SourceRigAnimFb(int object, int anim_idx) const = 0;
+};
+
+static int AnimListLen(const AnimListFb* list) {
+  if (list == nullptr) return 0;
+
+  // Handle `anims` interface (with union).
+  if (list->anims() != nullptr) return static_cast<int>(list->anims()->size());
+
+  // Handle `anim_files` interface.
+  if (list->anim_files() != nullptr)
+    return static_cast<int>(list->anim_files()->size());
+
+  return 0;
+}
+
+static const char* AnimListFileName(const AnimListFb* list, int anim_idx) {
+  if (list == nullptr) return nullptr;
+
+  // Handle `anims` interface (with union).
+  if (list->anims() != nullptr) {
+    const AnimSource* source = list->anims()->Get(anim_idx);
+    if (source->u_type() != AnimSourceUnion_AnimSourceFileName) return nullptr;
+    return reinterpret_cast<const AnimSourceFileName*>(source->u())
+        ->file_name()
+        ->c_str();
+  }
+
+  // Handle `anim_files` interface.
+  if (list->anim_files() != nullptr)
+    return list->anim_files()->Get(anim_idx)->c_str();
+
+  return nullptr;
+}
+
+static const RigAnimFb* AnimListRigAnimFb(const AnimListFb* list,
+                                          int anim_idx) {
+  if (list == nullptr) return nullptr;
+
+  // Handle `anims` interface (with union).
+  if (list->anims() != nullptr) {
+    const AnimSource* source = list->anims()->Get(anim_idx);
+    if (source->u_type() != AnimSourceUnion_AnimSourceEmbedded) return nullptr;
+    return reinterpret_cast<const AnimSourceEmbedded*>(source->u())->embedded();
+  }
+
+  return nullptr;
+}
+
+class AnimTableFbDescriber : public TableDescriberInterface {
+ public:
+  explicit AnimTableFbDescriber(const AnimTableFb& table_fb)
+      : table_fb_(&table_fb) {}
+  virtual int NumObjects() const {
+    return table_fb_->lists() == nullptr
+               ? 0
+               : static_cast<int>(table_fb_->lists()->size());
+  }
+  virtual int NumAnims(int object) const { return AnimListLen(List(object)); }
+  virtual const char* SourceFileName(int object, int anim_idx) const {
+    return AnimListFileName(List(object), anim_idx);
+  }
+  virtual const RigAnimFb* SourceRigAnimFb(int object, int anim_idx) const {
+    return AnimListRigAnimFb(List(object), anim_idx);
+  }
+
+ protected:
+  const AnimListFb* List(int object) const {
+    return table_fb_->lists() == nullptr ? nullptr
+                                         : table_fb_->lists()->Get(object);
+  }
+
+  const AnimTableFb* table_fb_;
+};
+
+class AnimListFbDescriber : public TableDescriberInterface {
+ public:
+  explicit AnimListFbDescriber(const AnimListFb& list_fb)
+      : list_fb_(&list_fb) {}
+  virtual int NumObjects() const { return AnimListLen(list_fb_) == 0 ? 0 : 1; }
+  virtual int NumAnims(int /*object*/) const { return AnimListLen(list_fb_); }
+  virtual const char* SourceFileName(int /*object*/, int anim_idx) const {
+    return AnimListFileName(list_fb_, anim_idx);
+  }
+  virtual const RigAnimFb* SourceRigAnimFb(int /*object*/, int anim_idx) const {
+    return AnimListRigAnimFb(list_fb_, anim_idx);
+  }
+
+ protected:
+  const AnimListFb* list_fb_;
+};
+
+class TableFileNamesDescriber : public TableDescriberInterface {
+ public:
+  explicit TableFileNamesDescriber(const AnimTable::TableFileNames& table_names)
+      : table_names_(&table_names) {}
+  virtual int NumObjects() const { return table_names_->size(); }
+  virtual int NumAnims(int object) const {
+    return (*table_names_)[object].size();
+  }
+  virtual const char* SourceFileName(int object, int anim_idx) const {
+    return (*table_names_)[object][anim_idx].c_str();
+  }
+  virtual const RigAnimFb* SourceRigAnimFb(int /*object*/,
+                                           int /*anim_idx*/) const {
+    return nullptr;
+  }
+
+ protected:
+  const AnimTable::TableFileNames* table_names_;
+};
+
+class ListFileNamesDescriber : public TableDescriberInterface {
+ public:
+  explicit ListFileNamesDescriber(const AnimTable::ListFileNames& list_names)
+      : list_names_(&list_names) {}
+  virtual int NumObjects() const { return list_names_->size() == 0 ? 0 : 1; }
+  virtual int NumAnims(int /*object*/) const { return list_names_->size(); }
+  virtual const char* SourceFileName(int /*object*/, int anim_idx) const {
+    return (*list_names_)[anim_idx].c_str();
+  }
+  virtual const RigAnimFb* SourceRigAnimFb(int /*object*/,
+                                           int /*anim_idx*/) const {
+    return nullptr;
+  }
+
+ protected:
+  const AnimTable::ListFileNames* list_names_;
+};
+
+bool AnimTable::InitFromFlatBuffers(const AnimTableFb& table_fb,
+                                    LoadFn* load_fn) {
+  AnimTableFbDescriber describer(table_fb);
+  return Load(&describer, load_fn);
+}
+
+bool AnimTable::InitFromFlatBuffers(const AnimListFb& list_fb,
+                                    LoadFn* load_fn) {
+  AnimListFbDescriber describer(list_fb);
+  return Load(&describer, load_fn);
+}
+
+bool AnimTable::InitFromAnimFileNames(const TableFileNames& table_names,
+                                      LoadFn* load_fn) {
+  TableFileNamesDescriber describer(table_names);
+  return Load(&describer, load_fn);
+}
+
+bool AnimTable::InitFromAnimFileNames(const ListFileNames& list_names,
+                                      LoadFn* load_fn) {
+  ListFileNamesDescriber describer(list_names);
+  return Load(&describer, load_fn);
+}
+
+bool AnimTable::Load(TableDescriberInterface* describer, LoadFn* load_fn) {
+  std::string scratch_buf;
+  bool success = true;
+
+  // An AnimTable is a list-of-lists. The outside list is indexed by object.
+  // Loop through each object (e.g. character type).
+  const int num_objects = describer->NumObjects();
+  indices_.resize(num_objects);
+  defining_anims_.resize(num_objects);
+  for (int object = 0; object < num_objects; ++object) {
+    const int num_anims = describer->NumAnims(object);
+    indices_[object].resize(num_anims);
+
+    // The inside list is animations for the given object.
+    // Loop through all animations, loading animations or referencing animations
+    // that have already been loaded.
+    AnimList& list = indices_[object];
+    for (int anim_idx = 0; anim_idx < num_anims; ++anim_idx) {
+      // Initialize this anim_idx to point to no data.
+      list[anim_idx] = kInvalidAnimIndex;
+
+      const RigAnimFb* anim_fb = describer->SourceRigAnimFb(object, anim_idx);
+      const char* anim_name = anim_fb != nullptr
+                                  ? anim_fb->name()->c_str()
+                                  : describer->SourceFileName(object, anim_idx);
+
+      // Case 1: source data is empty.
+      if (anim_name == nullptr || anim_name[0] == '\0') continue;
+
+      // Case 2: source data has already been processed.
+      auto existing = name_map_.find(anim_name);
+      if (existing != name_map_.end()) {
+        list[anim_idx] = existing->second;
+        continue;
+      }
+
+      // Case 3: load source data.
+      if (anim_fb == nullptr) {
+        const char* anim_buf = load_fn(anim_name, &scratch_buf);
+        anim_fb = anim_buf == nullptr ? nullptr : GetRigAnimFb(anim_buf);
+
+        // Error loading file. Keep loading but return false.
+        if (anim_fb == nullptr) {
+          success = false;
+          continue;
+        }
+      }
+
+      // Create RigAnim from FlatBuffer.
+      const AnimIndex new_idx = static_cast<AnimIndex>(anims_.size());
+      anims_.resize(new_idx + 1);
+      RigAnimFromFlatBuffers(*anim_fb, &anims_[new_idx]);
+
+      // Insert index into name map so that we only load this anim once.
+      name_map_.insert(NameToIndex(anim_name, new_idx));
+      list[anim_idx] = new_idx;
+    }
+  }
+
+  // Now that all animations have been loaded, calculate defining animation,
+  // which is the union of all the animations on an object.
+  CalculateDefiningAnims();
+  return success;
+}
+
 static const RigAnim* FindCompleteRig(const RigAnim** anims, size_t num_anims) {
   // We assume that that animation with the most bones has all the bones.
   // Not necessarily true, since all animations could animate a subset of the
@@ -121,114 +347,6 @@ static void CreateDefiningAnim(const RigAnim** anims, size_t num_anims,
   }
 }
 
-AnimTable::AnimIndex AnimTable::AddAnimName(const char* anim_name) {
-  // Allow empty indices in the animation table.
-  if (anim_name == nullptr || *anim_name == '\0') return kInvalidAnimIndex;
-
-  // If this anim already exists, re-use it.
-  auto existing = name_map_.find(anim_name);
-  if (existing != name_map_.end()) return existing->second;
-
-  // Allocate a new index and insert into name map.
-  const AnimIndex new_idx = static_cast<AnimIndex>(name_map_.size());
-  name_map_.insert(NameToIndex(anim_name, new_idx));
-  return new_idx;
-}
-
-void AnimTable::InitNameMap(const AnimFileNames& anim_file_names) {
-  // Allocate the index arrays.
-  indices_.resize(anim_file_names.size());
-  defining_anims_.resize(anim_file_names.size());
-  for (size_t i = 0; i < anim_file_names.size(); ++i) {
-    indices_[i].resize(anim_file_names[i].size());
-  }
-
-  // Create the name map and allocate indices into anims_.
-  for (size_t i = 0; i < indices_.size(); ++i) {
-    // Record the indices of each animation for this object.
-    const std::vector<std::string>& anims = anim_file_names[i];
-    AnimList& list = indices_[i];
-    for (size_t j = 0; j < anims.size(); ++j) {
-      list[j] = AddAnimName(anims[j].c_str());
-    }
-  }
-
-  // Initialize the array of animations. These must be loaded separately.
-  anims_.resize(name_map_.size());
-}
-
-bool AnimTable::LoadAnimations(LoadRigAnimFn* load_fn) {
-  std::vector<const char*> anim_names;
-  AnimNames(&anim_names);
-
-  // Loop through each name.
-  std::string scratch_buf;
-  for (auto it = anim_names.begin(); it != anim_names.end(); ++it) {
-    const char* anim_name = *it;
-
-    // Load the animation file.
-    const RigAnimFb* anim_fb = load_fn(anim_name, &scratch_buf);
-    if (anim_fb == nullptr) return false;
-
-    // Initialize the animation file into `anim_table`.
-    RigAnim* anim = QueryByName(anim_name);
-    RigAnimFromFlatBuffers(*anim_fb, anim_name, anim);
-  }
-  return true;
-}
-
-bool AnimTable::InitFromFlatBuffers(const AnimTableFb& params,
-                                    LoadRigAnimFn* load_fn) {
-  AnimFileNames anim_file_names;
-  anim_file_names.resize(params.lists()->size());
-
-  // Convert the vector of vectors-of-strings from Flatbuffers to C++.
-  for (flatbuffers::uoffset_t i = 0; i < anim_file_names.size(); ++i) {
-    auto files_fb = params.lists()->Get(i)->anim_files();
-    anim_file_names[i].resize(files_fb->size());
-
-    for (flatbuffers::uoffset_t j = 0; j < files_fb->size(); ++j) {
-      anim_file_names[i][j] = files_fb->Get(j)->str();
-    }
-  }
-
-  return InitFromAnimFileNames(anim_file_names, load_fn);
-}
-
-bool AnimTable::InitFromAnimFileNames(const AnimFileNames& anim_file_names,
-                                      LoadRigAnimFn* load_fn) {
-  // Deserialize `params` into the vector-of-vectors of animations.
-  InitNameMap(anim_file_names);
-
-  // Load each FlatBuffer animation file in turn using the callback `load_fn`.
-  const bool load_ok = LoadAnimations(load_fn);
-  if (!load_ok) return false;
-
-  // Now that all animations have been loaded, calculate defining animation,
-  // which is the union of all the animations on an object.
-  CalculateDefinineAnims();
-  return true;
-}
-
-bool AnimTable::InitFromAnimFileNames(
-    const std::vector<std::string>& anim_file_names_one_object,
-    LoadRigAnimFn* load_fn) {
-  AnimFileNames anim_file_names(1);
-  anim_file_names[0] = anim_file_names_one_object;
-  return InitFromAnimFileNames(anim_file_names, load_fn);
-}
-
-/// Enumerate all animations that are held in this table. Animations are
-/// listed only once. Multiple indices may map to one animation.
-/// Valid after InitFromFlatBuffers() is called.
-void AnimTable::AnimNames(std::vector<const char*>* anim_names) const {
-  anim_names->clear();
-  anim_names->reserve(name_map_.size());
-  for (auto it = name_map_.begin(); it != name_map_.end(); ++it) {
-    anim_names->push_back(it->first.c_str());
-  }
-}
-
 size_t AnimTable::MaxAnimIndex() const {
   size_t max_anim_idx = 0;
   for (size_t i = 0; i < indices_.size(); ++i) {
@@ -247,10 +365,12 @@ size_t AnimTable::GatherObjectAnims(int object, const RigAnim** anims) const {
   return num_anims;
 }
 
-void AnimTable::CalculateDefinineAnims() {
+void AnimTable::CalculateDefiningAnims() {
   std::vector<const RigAnim*> anims(MaxAnimIndex());
   for (int object = 0; object < NumObjects(); ++object) {
     const size_t num_anims = GatherObjectAnims(object, &anims[0]);
+    if (num_anims == 0) continue;
+
     CreateDefiningAnim(&anims[0], num_anims, &defining_anims_[object]);
   }
 }
