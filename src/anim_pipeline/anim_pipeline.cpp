@@ -15,6 +15,7 @@
 #include <assert.h>
 #include <fstream>
 #include <functional>
+#include <sstream>
 #include <stdarg.h>
 #include <stdio.h>
 #include <unordered_map>
@@ -22,6 +23,7 @@
 #include <vector>
 
 #include "anim_generated.h"
+#include "anim_list_generated.h"
 #include "fbx_common/fbx_common.h"
 #include "fplutil/file_utils.h"
 #include "mathfu/glsl_mappings.h"
@@ -434,44 +436,47 @@ class FlatAnim {
     }
   }
 
-  bool OutputFlatBuffer(const string& output_file,
+  bool OutputFlatBuffer(const string& suggested_output_file,
                         RepeatPreference repeat_preference) const {
-    // Output entire bone range to output_file.
-    const BoneIndex num_bones = static_cast<BoneIndex>(bones_.size());
-    if (!root_bones_only_)
-      return OutputBoneRangeToFlatBuffer(output_file, repeat_preference,
-                                         BoneRange(0, num_bones));
+    const string anim_name =
+        fplutil::RemoveDirectoryFromName(
+            fplutil::RemoveExtensionFromName(suggested_output_file));
 
-    // See if there's more than one output file.
-    bool success = true;
-    const int num_bones_with_animation = NumBonesWithAnimation();
-    if (num_bones_with_animation == 0) {
-      log_.Log(kLogWarning, "No animation found.\n");
+    // Build the flatbuffer into `fbb`.
+    flatbuffers::FlatBufferBuilder fbb;
+    const int num_rig_anims = CreateFlatBuffer(fbb, repeat_preference, anim_name);
+    if (num_rig_anims == 0) return false;
+
+    // Set the extension appropriately.
+    const string output_file =
+        fplutil::RemoveExtensionFromName(suggested_output_file) + "." +
+        (num_rig_anims == 1 ? motive::RigAnimFbExtension() : motive::AnimListFbExtension());
+
+    // Ensure output directory exists.
+    const string output_dir = fplutil::DirectoryName(output_file);
+    if (!fplutil::CreateDirectory(output_dir.c_str())) {
+      log_.Log(kLogError, "Could not create output directory %s\n",
+               output_dir.c_str());
       return false;
     }
 
-    // Output each bone to a separate file.
-    const string output_file_base_name =
-        fplutil::RemoveExtensionFromName(output_file);
-    for (BoneIndex bone_idx = 0; bone_idx < num_bones; ++bone_idx) {
-      // Skip bones that have no animation data.
-      const Bone& bone = bones_[bone_idx];
-      if (bone.channels.size() == 0) continue;
-
-      // Concatenate the bone name to output_file.
-      const string bone_output_file = num_bones_with_animation == 1
-                                          ? output_file
-                                          : output_file_base_name + "_" +
-                                                bone.name + "." +
-                                                motive::RigAnimFbExtension();
-
-      // Write only this bone to the file.
-      const bool bone_success =
-          OutputBoneRangeToFlatBuffer(bone_output_file, repeat_preference,
-                                      BoneRange(bone_idx, bone_idx + 1));
-      success = success && bone_success;
+    // Create the output file.
+    FILE* file = fopen(output_file.c_str(), "wb");
+    if (file == nullptr) {
+      log_.Log(kLogError, "Could not open %s for writing\n",
+               output_file.c_str());
+      return false;
     }
-    return success;
+
+    // Write the binary data to the file and close it.
+    log_.Log(kLogVerbose, "Writing %s", output_file.c_str());
+    fwrite(fbb.GetBufferPointer(), 1, fbb.GetSize(), file);
+    fclose(file);
+
+    // Log summary.
+    log_.Log(kLogImportant, "  %s (%d bytes)\n",
+             fplutil::RemoveDirectoryFromName(output_file).c_str(), NumBytes());
+    return true;
   }
 
   float ToleranceForOp(MatrixOperationType op) const {
@@ -551,18 +556,71 @@ class FlatAnim {
     return num_bones_with_animation;
   }
 
-  bool OutputBoneRangeToFlatBuffer(const string& output_file,
-                                   RepeatPreference repeat_preference,
-                                   const BoneRange& bone_range) const {
-    // Ensure output directory exists.
-    const string output_dir = fplutil::DirectoryName(output_file);
-    if (!fplutil::CreateDirectory(output_dir.c_str())) {
-      log_.Log(kLogError, "Could not create output directory %s\n",
-               output_dir.c_str());
-      return false;
+  // Build the FlatBuffer to be output into `fbb` and return the number of
+  // `RigAnimFb` tables output to `fbb`. If the number is >1, then aggregate
+  // them all into one `AnimListFb`.
+  int CreateFlatBuffer(flatbuffers::FlatBufferBuilder& fbb,
+                       RepeatPreference repeat_preference,
+                       const string& anim_name) const {
+    const BoneIndex num_bones = static_cast<BoneIndex>(bones_.size());
+
+    // Output entire bone range into one RigAnim.
+    if (!root_bones_only_) {
+      const flatbuffers::Offset<RigAnimFb> rig_anim_offset =
+          CreateRigAnimFbFromBoneRange(fbb, repeat_preference,
+                                       BoneRange(0, num_bones), anim_name);
+      motive::FinishRigAnimFbBuffer(fbb, rig_anim_offset);
+      return 1;
     }
 
-    flatbuffers::FlatBufferBuilder fbb;
+    // Output each bone into a separate RigAnim.
+    std::vector<flatbuffers::Offset<RigAnimFb>> rig_anim_offsets;
+    rig_anim_offsets.reserve(num_bones);
+    for (BoneIndex bone_idx = 0; bone_idx < num_bones; ++bone_idx) {
+      // Skip bones that have no animation data.
+      const Bone& bone = bones_[bone_idx];
+      if (bone.channels.size() == 0) continue;
+
+      // Use the bone index to ensure that the anim name is unique in the
+      // AnimTable. Note that the bone name may be the same for multiple bones.
+      std::stringstream bone_anim_name;
+      bone_anim_name << anim_name << "_" << static_cast<int>(bone_idx);
+
+      // Create a RigAnim with only `bone_idx`.
+      rig_anim_offsets.push_back(CreateRigAnimFbFromBoneRange(
+          fbb, repeat_preference, BoneRange(bone_idx, bone_idx + 1),
+          bone_anim_name.str()));
+    }
+
+    // No bones had any animation data, so do nothing.
+    if (rig_anim_offsets.size() == 0) {
+      log_.Log(kLogWarning, "No animation found.\n");
+      return 0;
+    }
+
+    // If only one bone with animation data exists, just output a RigAnim.
+    if (rig_anim_offsets.size() == 1) {
+      motive::FinishRigAnimFbBuffer(fbb, rig_anim_offsets[0]);
+      return 1;
+    }
+
+    // Multiple animations, so output an AnimList of RigAnims.
+    std::vector<flatbuffers::Offset<AnimSource>> anims;
+    anims.reserve(rig_anim_offsets.size());
+    for (auto it = rig_anim_offsets.begin(); it != rig_anim_offsets.end(); ++it) {
+      anims.push_back(
+          motive::CreateAnimSource(
+              fbb, motive::AnimSourceUnion_AnimSourceEmbedded,
+              motive::CreateAnimSourceEmbedded(fbb, *it).Union()));
+    }
+    auto list_offset = motive::CreateAnimListFb(fbb, 0, fbb.CreateVector(anims));
+    motive::FinishAnimListFbBuffer(fbb, list_offset);
+    return static_cast<int>(rig_anim_offsets.size());
+  }
+
+  flatbuffers::Offset<RigAnimFb> CreateRigAnimFbFromBoneRange(
+      flatbuffers::FlatBufferBuilder& fbb, RepeatPreference repeat_preference,
+      const BoneRange& bone_range, const string anim_name) const {
     std::vector<flatbuffers::Offset<motive::MatrixAnimFb>> matrix_anims;
     std::vector<flatbuffers::Offset<flatbuffers::String>> bone_names;
     std::vector<BoneIndex> bone_parents;
@@ -606,7 +664,7 @@ class FlatAnim {
       auto ops_fb = fbb.CreateVector(ops);
       auto matrix_anim_fb = CreateMatrixAnimFb(fbb, ops_fb);
       matrix_anims.push_back(matrix_anim_fb);
-      bone_names.push_back(fbb.CreateString(bone.name));
+      bone_names.push_back(fbb.CreateString(BoneBaseName(bone.name)));
       bone_parents.push_back(BoneParent(bone_idx));
     }
 
@@ -615,28 +673,10 @@ class FlatAnim {
     auto bone_parents_fb = fbb.CreateVector(bone_parents);
     auto matrix_anims_fb = fbb.CreateVector(matrix_anims);
     const bool repeat = Repeat(repeat_preference);
-    const string anim_name = fplutil::RemoveDirectoryFromName(output_file);
     auto anim_name_fb = fbb.CreateString(anim_name);
     auto rig_anim_fb = CreateRigAnimFb(fbb, matrix_anims_fb, bone_parents_fb,
                                        bone_names_fb, repeat, anim_name_fb);
-    motive::FinishRigAnimFbBuffer(fbb, rig_anim_fb);
-
-    // Create the output file.
-    FILE* file = fopen(output_file.c_str(), "wb");
-    if (file == nullptr) {
-      log_.Log(kLogError, "Could not open %s for writing\n",
-               output_file.c_str());
-      return false;
-    }
-
-    // Write the binary data to the file and close it.
-    log_.Log(kLogVerbose, "Writing %s", output_file.c_str());
-    fwrite(fbb.GetBufferPointer(), 1, fbb.GetSize(), file);
-    fclose(file);
-
-    // Log summary.
-    log_.Log(kLogImportant, "  %s (%d bytes)\n", anim_name.c_str(), NumBytes());
-    return true;
+    return rig_anim_fb;
   }
 
   /// Return the first channel of the first bone that isn't repeatable.
@@ -695,7 +735,7 @@ class FlatAnim {
                  "Animation marked as repeating (as requested),"
                  " but it does not repeat on bone %s's"
                  " `%s` channel\n",
-                 bone.name.c_str(), MatrixOpName(channel.op));
+                 BoneBaseName(bone.name), MatrixOpName(channel.op));
       }
     } else if (repeat_preference == kRepeatIfRepeatable) {
       log_.Log(kLogVerbose, repeat ? "Animation repeats.\n"
