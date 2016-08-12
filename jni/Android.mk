@@ -107,6 +107,7 @@ MOTIVE_SCHEMA_INCLUDE_DIRS :=
 MOTIVE_SCHEMA_FILES := \
   $(MOTIVE_SCHEMA_DIR)/anim.fbs \
   $(MOTIVE_SCHEMA_DIR)/anim_table.fbs \
+  $(MOTIVE_SCHEMA_DIR)/anim_list.fbs \
   $(MOTIVE_SCHEMA_DIR)/compact_spline.fbs \
   $(MOTIVE_SCHEMA_DIR)/motive.fbs \
   $(MOTIVE_SCHEMA_DIR)/spline_anim.fbs
