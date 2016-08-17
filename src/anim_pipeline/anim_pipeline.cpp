@@ -365,6 +365,20 @@ class FlatAnim {
     }
   }
 
+  /// @brief Shift all times in all channels by `time_offset`.
+  void ShiftTime(FlatTime time_offset) {
+    if (time_offset == 0) return;
+    log_.Log(kLogImportant, "Shifting animation by %d ticks.\n", time_offset);
+
+    for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
+      for (auto ch = bone->channels.begin(); ch != bone->channels.end(); ++ch) {
+        for (auto n = ch->nodes.begin(); n != ch->nodes.end(); ++n) {
+          n->time += time_offset;
+        }
+      }
+    }
+  }
+
   /// @brief For each channel that ends before `end_time`, extend it at its
   ///        current value to `end_time`. If already longer, or has no nodes
   ///        to begin with, do nothing.
@@ -514,16 +528,30 @@ class FlatAnim {
 
   /// @brief Return the time of the channel that requires the most time.
   FlatTime MaxAnimatedTime() const {
-    FlatTime max_time = 0;
+    FlatTime max_time = std::numeric_limits<FlatTime>::min();
     for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
-      const Channels& channels = bone->channels;
-      for (auto ch = channels.begin(); ch != channels.end(); ++ch) {
+      for (auto ch = bone->channels.begin(); ch != bone->channels.end(); ++ch) {
         if (ch->nodes.size() > 0) {
           max_time = std::max(max_time, ch->nodes.back().time);
         }
       }
     }
-    return max_time;
+    return max_time == std::numeric_limits<FlatTime>::min() ? 0 : max_time;
+  }
+
+  /// @brief Return the time of the channel that starts the earliest.
+  ///
+  /// Could be a negative time.
+  FlatTime MinAnimatedTime() const {
+    FlatTime min_time = std::numeric_limits<FlatTime>::max();
+    for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
+      for (auto ch = bone->channels.begin(); ch != bone->channels.end(); ++ch) {
+        if (ch->nodes.size() > 0) {
+          min_time = std::min(min_time, ch->nodes[0].time);
+        }
+      }
+    }
+    return min_time == std::numeric_limits<FlatTime>::max() ? 0 : min_time;
   }
 
  private:
@@ -546,14 +574,6 @@ class FlatAnim {
   float Tolerance(FlatChannelId channel_id) const {
     const Channels& channels = CurChannels();
     return ToleranceForOp(channels[channel_id].op);
-  }
-
-  int NumBonesWithAnimation() const {
-    int num_bones_with_animation = 0;
-    for (auto it = bones_.begin(); it != bones_.end(); ++it) {
-      if (it->channels.size() > 0) num_bones_with_animation++;
-    }
-    return num_bones_with_animation;
   }
 
   // Build the FlatBuffer to be output into `fbb` and return the number of
@@ -620,7 +640,7 @@ class FlatAnim {
 
   flatbuffers::Offset<RigAnimFb> CreateRigAnimFbFromBoneRange(
       flatbuffers::FlatBufferBuilder& fbb, RepeatPreference repeat_preference,
-      const BoneRange& bone_range, const string anim_name) const {
+      const BoneRange& bone_range, const string& anim_name) const {
     std::vector<flatbuffers::Offset<motive::MatrixAnimFb>> matrix_anims;
     std::vector<flatbuffers::Offset<flatbuffers::String>> bone_names;
     std::vector<BoneIndex> bone_parents;
@@ -647,6 +667,12 @@ class FlatAnim {
           value_type = motive::MatrixOpValueFb_ConstantOpFb;
 
         } else {
+          // We clamp negative times to 0, but it's going to look strange.
+          if (n[0].time < 0) {
+            log_.Log(kLogWarning, "%s (%s) starts at negative time %d\n",
+                     BoneBaseName(bone.name), MatrixOpName(c->op), n[0].time);
+          }
+
           // Output spline MatrixOp.
           CompactSpline* s = CreateCompactSpline(*c);
           value = CreateSplineFlatBuffer(fbb, *s).Union();
@@ -1003,8 +1029,8 @@ class FlatAnim {
     CompactSpline* s = CompactSpline::Create(static_cast<int>(nodes.size()));
     s->Init(y_range, x_granularity);
     for (auto n = nodes.begin(); n != nodes.end(); ++n) {
-      s->AddNode(static_cast<float>(n->time), n->val, n->derivative,
-                 kAddWithoutModification);
+      const float n_time = static_cast<float>(std::max(0, n->time));
+      s->AddNode(n_time, n->val, n->derivative, kAddWithoutModification);
     }
 
     return s;
@@ -1473,6 +1499,7 @@ struct AnimPipelineArgs {
         log_level(kLogWarning),
         repeat_preference(kRepeatIfRepeatable),
         stagger_end_times(false),
+        preserve_start_time(false),
         root_bones_only(false),
         axis_system(fplutil::kUnspecifiedAxisSystem),
         distance_unit_scale(-1.0f),
@@ -1484,6 +1511,7 @@ struct AnimPipelineArgs {
   Tolerances tolerances;  /// Amount output curves can deviate from input.
   RepeatPreference repeat_preference;  /// Loop back to start when reaches end.
   bool stagger_end_times; /// Allow each channel to end at its authored time.
+  bool preserve_start_time;  /// Don't shift channels to start at time 0.
   bool root_bones_only;   /// Output bone that has path of animation only.
   AxisSystem axis_system; /// Which axes are up, front, left.
   float distance_unit_scale; /// This number of cm is set to one unit.
@@ -1498,8 +1526,8 @@ static void LogUsage(Logger* log) {
       "                     [-st SCALE_TOLERANCE] [-rt ROTATE_TOLERANCE]\n"
       "                     [-tt TRANSLATE_TOLERANCE]\n"
       "                     [-at DERIVATIVE_TOLERANCE] [--repeat|--norepeat]\n"
-      "                     [--stagger] [-a AXES] [-u (unit)|(scale)]\n"
-      "                     [--roots] [--debug_time TIME]\n"
+      "                     [--stagger] [--start] [-a AXES]\n"
+      "                     [-u (unit)|(scale)] [--roots] [--debug_time TIME]\n"
       "                     FBX_FILE\n"
       "\n"
       "Pipeline to convert FBX animations into FlatBuffer animations.\n"
@@ -1538,6 +1566,10 @@ static void LogUsage(Logger* log) {
       "                This may cause strage behavior with animations that\n"
       "                repeat, since the shorter channels will start\n"
       "                to repeat before the longer ones.\n"
+      "  --start, --preserve_start_time\n"
+      "                start the animation at the same time as in the source.\n"
+      "                By default, the animation is shifted such that its\n"
+      "                start time is zero.\n"
       "  -a, --axes AXES\n"
       "                coordinate system of exported file, in format\n"
       "                    (up-axis)(front-axis)(left-axis) \n"
@@ -1687,8 +1719,11 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         args->repeat_preference = repeat_preference;
       }
 
-    } else if (arg == "--stagger" || arg == "stagger_end_times") {
+    } else if (arg == "--stagger" || arg == "--stagger_end_times") {
       args->stagger_end_times = true;
+
+    } else if (arg == "--start" || arg == "--preserve_start_time") {
+      args->preserve_start_time = true;
 
     } else if (arg == "-a" || arg == "--axes") {
       if (i + 1 < argc - 1) {
@@ -1768,6 +1803,11 @@ int main(int argc, char** argv) {
   // Gather data into a format conducive to our FlatBuffer format.
   motive::FlatAnim anim(args.tolerances, args.root_bones_only, log);
   pipe.GatherFlatAnim(&anim);
+
+  // We want the animation to start from tick 0.
+  if (!args.preserve_start_time) {
+    anim.ShiftTime(-anim.MinAnimatedTime());
+  }
 
   // We want all of our animation channels to end at the same time.
   if (!args.stagger_end_times) {
