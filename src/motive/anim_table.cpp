@@ -26,6 +26,7 @@ namespace motive {
 // Allows AnimTables to be loaded from many different data sources.
 class TableDescriberInterface {
  public:
+  virtual ~TableDescriberInterface() {}
   virtual int NumObjects() const = 0;
   virtual int NumAnims(int object) const = 0;
   virtual const char* SourceFileName(int object, int anim_idx) const = 0;
