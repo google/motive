@@ -813,6 +813,49 @@ void PlaybackRate(MotiveTests& t) {
 }
 TEST_ALL_VECTOR_MOTIVATORS_F(PlaybackRate)
 
+// Test the MotivatorVector::Splines() function.
+template <class MotivatorT>
+void Splines(MotiveTests& t) {
+  static const MotiveTime kStartTime = 250;
+  static const MotiveTime kDeltaTime = 500;
+
+  const motive::CompactSpline* splines =
+      t.simple_splines(MotivatorT::kDimensions);
+  const MotiveTime end_time = static_cast<MotiveTime>(splines[0].EndX());
+
+  // Two updates of kDeltaTime should wrap past end_time.
+  assert(kStartTime + 2 * kDeltaTime > end_time);
+
+  // Create a motivator that plays `spline` from kStartTime, and repeats
+  // at the start when it reaches the end.
+  MotivatorT angle(t.spline_angle_init(), &t.engine());
+  angle.SetSplines(splines,
+                   SplinePlayback(static_cast<float>(kStartTime), true));
+
+  // Gather the currently active splines and compare them to the ones we set.
+  const motive::CompactSpline* fetched_splines[MotivatorT::kDimensions];
+  angle.Splines(fetched_splines);
+
+  const motive::CompactSpline* s = splines;
+  for (int i = 0; i < MotivatorT::kDimensions; ++i) {
+    EXPECT_EQ(s, fetched_splines[i]);
+    s = s->Next();
+  }
+
+  // Since the playback rate is 1, we expect the spline time to advance with
+  // the delta time.
+  t.engine().AdvanceFrame(kDeltaTime);
+  EXPECT_EQ(angle.SplineTime(), kStartTime + kDeltaTime);
+
+  // Should still have the same splines playing.
+  s = splines;
+  for (int i = 0; i < MotivatorT::kDimensions; ++i) {
+    EXPECT_EQ(s, fetched_splines[i]);
+    s = s->Next();
+  }
+}
+TEST_ALL_VECTOR_MOTIVATORS_F(Splines)
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

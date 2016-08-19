@@ -232,6 +232,12 @@ class MotivatorNf : public Motivator {
   /// then SplineTime() will periodically loop back to time 0.
   MotiveTime SplineTime() const { return Processor().SplineTime(index_); }
 
+  /// Gather pointers to the splines currently being played, on each dimension.
+  /// @param splines Output array of length Dimensions().
+  void Splines(const CompactSpline** splines) const {
+    Processor().Splines(index_, Dimensions(), splines);
+  }
+
   /// Follow the curve specified in `spline`. Overrides the existing current
   /// value.
   /// @param spline The spline to follow. Array of length Dimensions().

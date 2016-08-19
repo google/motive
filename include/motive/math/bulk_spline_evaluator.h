@@ -168,6 +168,11 @@ class BulkSplineEvaluator {
     return sources_[index].spline;
   }
 
+  /// Return the splines currently playing back from `index` to `index + count`.
+  /// `splines` is an output array of length `count`.
+  void Splines(const Index index, const Index count,
+               const CompactSpline** splines) const;
+
   /// Return the raw cubic curve for `index`. Useful if you need to calculate
   /// the second or third derivatives (which are not calculated in
   /// AdvanceFrame), or plot the curve for debug reasons.

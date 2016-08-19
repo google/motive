@@ -323,6 +323,13 @@ class MotiveProcessorNf : public MotiveProcessor {
                           const CompactSpline* /*splines*/,
                           const SplinePlayback& /*playback*/) {}
 
+  // Gather the splines currently being played back. If dimension is not being
+  // driven by a spline, returns nullptr at that dimension.
+  virtual void Splines(MotiveIndex /*index*/, MotiveIndex count,
+                       const CompactSpline** splines) const {
+    for (MotiveIndex i = 0; i < count; ++i) splines[i] = nullptr;
+  }
+
   // For each i from 0..dimensions-1, drive the value with with splines[i]
   // when splines[i] != NULL, and with targets[i] otherwise.
   virtual void SetSplinesAndTargets(MotiveIndex /*index*/,

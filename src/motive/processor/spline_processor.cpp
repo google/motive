@@ -119,6 +119,12 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
     }
   }
 
+  virtual void Splines(MotiveIndex index, MotiveDimension dimensions,
+                       const motive::CompactSpline** splines) const {
+    // Get splines at index for dimensions.
+    interpolator_.Splines(index, dimensions, splines);
+  }
+
   // TODO: Push this loop into BulkSplineInterpolator.
   virtual void SetSplineTime(MotiveIndex index, MotiveDimension dimensions,
                              MotiveTime time) {

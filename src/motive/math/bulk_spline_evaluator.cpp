@@ -178,6 +178,13 @@ void BulkSplineEvaluator::SetSplines(
   }
 }
 
+void BulkSplineEvaluator::Splines(const Index index, const Index count,
+                                  const CompactSpline** splines) const {
+  for (Index i = 0; i < count; ++i) {
+    splines[i] = sources_[index + i].spline;
+  }
+}
+
 void BulkSplineEvaluator::ClearSplines(const Index index, const Index count) {
   for (Index i = index; i < index + count; ++i) {
     sources_[i].spline = nullptr;
