@@ -37,7 +37,35 @@ const float CompactSplineNode::kYScale = 1.0f / static_cast<float>(kMaxY);
 const float CompactSplineNode::kAngleScale =
     static_cast<float>(-M_PI / static_cast<double>(kMinAngle));
 
+// YsBulkOutput records the evaluated y and derivative values into 2D arrays.
+// Arrays are of length num_points * num_splines.
+class YsBulkOutput : public CompactSpline::BulkOutput {
+ public:
+  YsBulkOutput(float* ys, float* derivatives, size_t num_splines)
+      : ys(ys), derivatives(derivatives), num_splines(num_splines) {}
 
+  /// Gets the Y and derivative values of the evaluator.
+  virtual void AddPoint(int i, const BulkSplineEvaluator& evaluator) {
+    assert(num_splines == static_cast<size_t>(evaluator.NumIndices()));
+
+    const size_t offset = i * num_splines;
+    float* y = ys + offset;
+    memcpy(y, evaluator.Ys(0), num_splines * sizeof(y[0]));
+
+    if (derivatives) {
+      float* derivatives_for_i = derivatives + offset;
+      for (size_t j = 0; j < num_splines; ++j) {
+        derivatives_for_i[j] =
+            evaluator.Derivative(static_cast<CompactSplineIndex>(j));
+      }
+    }
+  }
+
+ private:
+  float* ys;
+  float* derivatives;
+  size_t num_splines;
+};
 
 void CompactSpline::AddNode(const float x, const float y,
                             const float derivative,
@@ -140,39 +168,34 @@ void CompactSpline::Ys(const float start_x, const float delta_x,
   BulkYs(this, 1, start_x, delta_x, num_points, ys, derivatives);
 }
 
-// static
-void CompactSpline::BulkYs(const CompactSpline* const splines,
-                           const size_t num_splines, const float start_x,
-                           const float delta_x, const size_t num_points,
-                           float* ys, float* derivatives) {
+void CompactSpline::BulkEvaluate(const CompactSpline* const splines,
+                                 const size_t num_splines, const float start_x,
+                                 const float delta_x, const size_t num_points,
+                                 BulkOutput* out) {
   BulkSplineEvaluator evaluator;
 
   // Initialize the evaluator with the splines.
   // Note that we set `repeat` = false, so that we can accurately get the last
   // value in the spline.
   const SplinePlayback playback(start_x);
-  const BulkSplineEvaluator::Index num_splines_as_index =
-      static_cast<BulkSplineEvaluator::Index>(num_splines);
-  evaluator.SetNumIndices(num_splines_as_index);
-  evaluator.SetSplines(0, num_splines_as_index, splines, playback);
+  evaluator.SetNumIndices(num_splines);
+  evaluator.SetSplines(0, num_splines, splines, playback);
 
   // Grab y values, then advance spline evaluation by delta_x.
   // Repeat num_points times.
-  for (size_t i = 0; i < num_points; ++i) {
-    const size_t offset = i * num_splines;
-    float* y = ys + offset;
-    memcpy(y, evaluator.Ys(0), num_splines * sizeof(y[0]));
-
-    if (derivatives) {
-      float* derivatives_for_i = derivatives + offset;
-      for (size_t j = 0; j < num_splines; ++j) {
-        derivatives_for_i[j] =
-            evaluator.Derivative(static_cast<BulkSplineEvaluator::Index>(j));
-      }
-    }
-
+  for (CompactSplineIndex i = 0; i < num_points; ++i) {
+    out->AddPoint(i, evaluator);
     evaluator.AdvanceFrame(delta_x);
   }
+}
+
+// static
+void CompactSpline::BulkYs(const CompactSpline* const splines,
+                           const size_t num_splines, const float start_x,
+                           const float delta_x, const size_t num_points,
+                           float* ys, float* derivatives) {
+  YsBulkOutput output(ys, derivatives, num_splines);
+  BulkEvaluate(splines, num_splines, start_x, delta_x, num_points, &output);
 }
 
 Range CompactSpline::RangeX(const CompactSplineIndex index) const {

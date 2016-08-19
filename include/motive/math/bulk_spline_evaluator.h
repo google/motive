@@ -44,6 +44,10 @@ class BulkSplineEvaluator {
     (void)optimization_;
   }
 
+  /// Return the number of indices currently allocated. Each index is one
+  /// spline that's being evaluated.
+  Index NumIndices() const { return static_cast<Index>(sources_.size()); }
+
   /// Increase or decrease the total number of indices processed.
   ///
   /// This class holds a set of splines, each is given an index
@@ -268,7 +272,6 @@ class BulkSplineEvaluator {
 
  private:
   void InitCubic(const Index index, const float start_x);
-  Index NumIndices() const { return static_cast<Index>(sources_.size()); }
   float SplineStartX(const Index index) const {
     return sources_[index].spline->StartX();
   }

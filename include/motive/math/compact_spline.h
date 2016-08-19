@@ -21,6 +21,8 @@
 
 namespace motive {
 
+class BulkSplineEvaluator;
+
 /// @typedef CompactSplineIndex
 /// Index into the spline. Some high values have special meaning (see below).
 typedef uint16_t CompactSplineIndex;
@@ -360,6 +362,24 @@ class CompactSpline {
   /// Recommend a granularity given a maximal-x value. We want to have the
   /// most precise granularity when quantizing x's.
   static float RecommendXGranularity(const float max_x);
+
+  /// Callback interface for BulkEvaluate(). AddPoint() will be called
+  /// `num_points` times, once for every x = start_x + n * delta_x,
+  /// where n = 0..num_points-1.
+  class BulkOutput {
+   public:
+    virtual ~BulkOutput() {}
+    virtual void AddPoint(int point_index,
+                          const BulkSplineEvaluator& evaluator) = 0;
+  };
+
+  /// Called by BulkYs with the an additional BulkOutputInterface
+  /// parameter. BulkOutputInterface specifies the type of evaluations
+  /// on the splines.
+  static void BulkEvaluate(const CompactSpline* const splines,
+                           const size_t num_splines, const float start_x,
+                           const float delta_x, const size_t num_points,
+                           BulkOutput* out);
 
   /// Fast evaluation of several splines.
   /// @param splines input splines of length `num_splines`.
