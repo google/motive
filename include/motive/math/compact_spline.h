@@ -44,6 +44,18 @@ enum CompactSplineAddMethod {
                             /// to ensure cubic splines have uniform curvature.
 };
 
+/// @struct UncompressedNode
+/// @brief Float representation of a point on the spline.
+///
+/// This node represents the x, y, and derivative values of a data point.
+/// Users can pass in an array of such nodes to CompactSpline::InitFromNodes().
+/// Useful when you want to specify a reasonably short spline in code.
+struct UncompressedNode {
+  float x;
+  float y;
+  float derivative;
+};
+
 /// @class CompactSpline
 /// @brief Represent a smooth curve in a small amount of memory.
 ///
@@ -106,6 +118,19 @@ class CompactSpline {
     x_granularity_ = x_granularity;
   }
 
+  /// Initialize the CompactSpline and add curve in the `nodes` array.
+  ///
+  /// @param nodes An array of uncompressed nodes.
+  /// @param num_nodes Length of the `nodes` array.
+  void InitFromNodes(const UncompressedNode* nodes, size_t num_nodes);
+
+  /// Evaluate `spline` at uniform x intervals, where the distance between
+  /// consecutive x's is spline.LengthX() / (max_nodes() - 1). Initialize
+  /// this spline with the results.
+  ///
+  /// @param spline The source spline to evaluate at uniform x intervals.
+  void InitFromSpline(const CompactSpline& spline);
+
   /// Add a node to the end of the spline. Depending on the method, an
   /// intermediate node may also be inserted.
   ///
@@ -129,6 +154,12 @@ class CompactSpline {
                        const CompactSplineAngle angle) {
     AddNodeVerbatim(detail::CompactSplineNode(x, y, angle));
   }
+
+  /// Compress `nodes` and append them to the spline.
+  ///
+  /// @param nodes An array of uncompressed nodes.
+  /// @param num_nodes Length of the `nodes` array.
+  void AddUncompressedNodes(const UncompressedNode* nodes, size_t num_nodes);
 
   /// Indicate that we have stopped adding nodes and want to release the
   /// remaining memory. Useful for when we have one giant buffer from which
@@ -283,29 +314,6 @@ class CompactSpline {
   const Range& y_range() const { return y_range_; }
   float x_granularity() const { return x_granularity_; }
 
-  /// @param buffer chunk of memory of size CompactSpline::Size(max_nodes)
-  static CompactSpline* CreateInPlace(CompactSplineIndex max_nodes,
-                                      void* buffer) {
-    CompactSpline* spline = new (buffer) CompactSpline();
-    spline->max_nodes_ = max_nodes;
-    return spline;
-  }
-
-  /// Returns `num_splines` placed contiguous in memory.
-  /// Each spline is the same size. Access the next Spline with Next().
-  /// @param buffer chuck of memory of size
-  ///               CompactSpline::Size(max_nodes) * num_splines
-  static CompactSpline* CreateArrayInPlace(CompactSplineIndex max_nodes,
-                                           int num_splines, void* buffer) {
-    const size_t size = Size(max_nodes);
-    uint8_t* b = reinterpret_cast<uint8_t*>(buffer);
-    for (int i = 0; i < num_splines; ++i) {
-      CreateInPlace(max_nodes, b);
-      b += size;
-    }
-    return reinterpret_cast<CompactSpline*>(buffer);
-  }
-
   /// Allocate memory for a spline using global `new`.
   /// @param max_nodes The maximum number of nodes that this spline class
   ///                  can hold. Memory is allocated so that these nodes are
@@ -316,8 +324,75 @@ class CompactSpline {
     return CreateInPlace(max_nodes, buffer);
   }
 
+  /// Create a CompactSpline in the memory provided by `buffer`.
+  /// @param buffer chunk of memory of size CompactSpline::Size(max_nodes)
+  ///
+  /// Useful for creating small splines on the stack.
+  static CompactSpline* CreateInPlace(CompactSplineIndex max_nodes,
+                                      void* buffer) {
+    CompactSpline* spline = new (buffer) CompactSpline();
+    spline->max_nodes_ = max_nodes;
+    return spline;
+  }
+
+  /// Allocate memory using global `new`, and initialize it with `nodes`.
+  /// @param nodes An array holding the curve, in uncompressed floats.
+  /// @param num_nodes The length of the `nodes` array, and max nodes in the
+  ///                  returned spline.
+  static CompactSpline* CreateFromNodes(const UncompressedNode* nodes,
+                                        size_t num_nodes) {
+    CompactSpline* spline = Create(num_nodes);
+    spline->InitFromNodes(nodes, num_nodes);
+    return spline;
+  }
+
+  /// Create a CompactSpline from `nodes` in the memory provided by `buffer`.
+  /// @param nodes array of node data, uncompressed as floats.
+  /// @param num_nodes length of the `nodes` array.
+  /// @param buffer chunk of memory of size CompactSpline::Size(num_nodes).
+  ///
+  /// The returned CompactSpline does not need to be destroyed, but once the
+  /// backing memory `buffer` disappears (e.g. if `buffer` is an array on the
+  /// stack), you must stop referencing the returned CompactSpline.
+  static CompactSpline* CreateFromNodesInPlace(const UncompressedNode* nodes,
+                                               size_t num_nodes, void* buffer) {
+    CompactSpline* spline = CreateInPlace(num_nodes, buffer);
+    spline->InitFromNodes(nodes, num_nodes);
+    return spline;
+  }
+
+  /// Allocate memory using global `new`, and initialize it by evaluating
+  /// `source_spline` at a uniform x-interval.
+  /// @param source_spline Spline to evaluate. The curve in the returned spline
+  ///                      matches `source_spline` with its x points spaced
+  ///                      uniformly.
+  /// @param num_nodes The number of uniform x-intervals in the returned spline.
+  ///                  Also the max_nodes of the returned spline.
+  static CompactSpline* CreateFromSpline(const CompactSpline& source_spline,
+                                         size_t num_nodes) {
+    CompactSpline* spline = Create(num_nodes);
+    spline->InitFromSpline(source_spline);
+    return spline;
+  }
+
+  /// Create a CompactSpline from `source_spline` in the memory provided by
+  /// `buffer`.
+  /// @param source_spline Spline to evaluate. The curve in the returned spline
+  ///                      matches `source_spline` with its x points spaced
+  ///                      uniformly.
+  /// @param num_nodes The number of uniform x-intervals in the returned spline.
+  ///                  Also the max_nodes of the returned spline.
+  /// @param buffer chunk of memory of size CompactSpline::Size(num_nodes).
+  static CompactSpline* CreateFromSplineInPlace(
+      const CompactSpline& source_spline, size_t num_nodes, void* buffer) {
+    CompactSpline* spline = CreateInPlace(num_nodes, buffer);
+    spline->InitFromSpline(source_spline);
+    return spline;
+  }
+
   /// Deallocate the splines memory using global `delete`.
-  /// Be sure to call this for every spline returned from Create().
+  /// Be sure to call this for every spline returned from @ref Create(),
+  /// @ref CreateFromNodes(), @ref CreateFromSpline().
   static void Destroy(CompactSpline* spline) {
     if (spline == nullptr) return;
     // By design, spline does not have a destructor.
@@ -335,6 +410,26 @@ class CompactSpline {
                                     int num_splines) {
     uint8_t* buffer = new uint8_t[Size(max_nodes) * num_splines];
     return CreateArrayInPlace(max_nodes, num_splines, buffer);
+  }
+
+  /// Allocates `num_splines` CompactSplines contiguously in memory, and returns
+  /// a pointer to the first spline.
+  /// Each spline is the same size. Access the next Spline with Next().
+  /// @param buffer chuck of memory of size
+  ///               CompactSpline::Size(max_nodes) * num_splines
+  ///
+  /// The returned CompactSpline array does not need to be destroyed, but once
+  /// the backing memory `buffer` disappears (e.g. if `buffer` is an array on
+  /// the stack), you must stop referencing the returned CompactSpline array.
+  static CompactSpline* CreateArrayInPlace(CompactSplineIndex max_nodes,
+                                           int num_splines, void* buffer) {
+    const size_t size = Size(max_nodes);
+    uint8_t* b = reinterpret_cast<uint8_t*>(buffer);
+    for (int i = 0; i < num_splines; ++i) {
+      CreateInPlace(max_nodes, b);
+      b += size;
+    }
+    return reinterpret_cast<CompactSpline*>(buffer);
   }
 
   /// Frees the memory allocated with CreateArray() using global `delete`.

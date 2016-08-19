@@ -36,6 +36,7 @@ const CompactSplineAngle CompactSplineNode::kMinAngle =
 const float CompactSplineNode::kYScale = 1.0f / static_cast<float>(kMaxY);
 const float CompactSplineNode::kAngleScale =
     static_cast<float>(-M_PI / static_cast<double>(kMinAngle));
+static const float kYRangeBufferPercent = 1.05f;
 
 // YsBulkOutput records the evaluated y and derivative values into 2D arrays.
 // Arrays are of length num_points * num_splines.
@@ -66,6 +67,57 @@ class YsBulkOutput : public CompactSpline::BulkOutput {
   float* derivatives;
   size_t num_splines;
 };
+
+// `splines` is an array of length num_splines.
+// AppendToSplineBulkOutput adds the evaluated x, y, and derivative values at
+// index to the the corresponding spline in `splines`.
+class AppendToSplineBulkOutput : public CompactSpline::BulkOutput {
+ public:
+  AppendToSplineBulkOutput(CompactSpline** splines, size_t num_splines)
+      : splines(splines), num_splines(num_splines) {}
+
+  /// Adds the current x, y, and derivative values of the evaluator
+  /// to the spline.
+  virtual void AddPoint(int i, const BulkSplineEvaluator& evaluator) {
+    assert(num_splines == static_cast<size_t>(evaluator.NumIndices()));
+    (void)i;
+
+    for (size_t j = 0; j < num_splines; ++j) {
+      float x = evaluator.X(static_cast<CompactSplineIndex>(j));
+      float y = evaluator.Y(static_cast<CompactSplineIndex>(j));
+      float derivative =
+          evaluator.Derivative(static_cast<CompactSplineIndex>(j));
+      splines[j]->AddNode(x, y, derivative, kAddWithoutModification);
+    }
+  }
+
+ private:
+  CompactSpline** splines;
+  size_t num_splines;
+};
+
+void CompactSpline::InitFromNodes(const UncompressedNode* nodes,
+                                  size_t num_nodes) {
+  const float end_x = nodes[num_nodes - 1].x;
+  const float x_granularity = CompactSpline::RecommendXGranularity(end_x);
+
+  const Range y_range = Range::CoversLambda(
+      nodes, num_nodes, [](const UncompressedNode& n) { return n.y; });
+  Init(y_range, x_granularity);
+
+  AddUncompressedNodes(nodes, num_nodes);
+}
+
+void CompactSpline::InitFromSpline(const CompactSpline& spline) {
+  assert(max_nodes_ > 1);
+  Init(spline.y_range().Lengthen(kYRangeBufferPercent), spline.x_granularity());
+  const float total_x = spline.EndX() - spline.StartX();
+  const float delta_x = total_x / (max_nodes_ - 1);
+  CompactSpline* splines[] = {this};
+  AppendToSplineBulkOutput out(splines, MOTIVE_ARRAY_SIZE(splines));
+  spline.BulkEvaluate(&spline, MOTIVE_ARRAY_SIZE(splines), spline.StartX(),
+                      delta_x, max_nodes_, &out);
+}
 
 void CompactSpline::AddNode(const float x, const float y,
                             const float derivative,
@@ -122,6 +174,14 @@ void CompactSpline::AddNode(const float x, const float y,
 
   // Add the new node.
   AddNodeVerbatim(new_node);
+}
+
+void CompactSpline::AddUncompressedNodes(const UncompressedNode* nodes,
+                                         size_t num_nodes) {
+  for (size_t i = 0; i < num_nodes; ++i) {
+    AddNode(nodes[i].x, nodes[i].y, nodes[i].derivative,
+            kAddWithoutModification);
+  }
 }
 
 float CompactSpline::NodeX(const CompactSplineIndex index) const {

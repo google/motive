@@ -60,6 +60,7 @@ static const float kFixedPointEpsilon = 0.02f;
 static const float kDerivativePrecision = 0.01f;
 static const float kSecondDerivativePrecision = 0.26f;
 static const float kThirdDerivativePrecision = 6.0f;
+static const float kNodeXPrecision = 0.0001f;
 static const float kNodeYPrecision = 0.0001f;
 static const float kXGranularityScale = 0.01f;
 static const Range kAngleRange(-kPi, kPi);
@@ -440,6 +441,80 @@ TEST_F(SplineTests, BulkYsVec3) {
     EXPECT_EQ(y.x(), y.y());
     EXPECT_EQ(y.y(), y.z());
   }
+}
+
+static const motive::UncompressedNode kUncompressed[] = {
+    {0.0f, 0.0f, 0.0f},
+    {1.0f, 0.5f, 0.03f},
+    {1.5f, 0.6f, 0.02f},
+    {3.0f, 0.0f, -0.04f},
+};
+
+static void CheckUncompressedNodes(const CompactSpline& spline,
+                                   const motive::UncompressedNode* nodes,
+                                   size_t num_nodes) {
+  for (size_t i = 0; i < num_nodes; ++i) {
+    const motive::UncompressedNode& n = nodes[i];
+    EXPECT_NEAR(n.x, spline.NodeX(i), kNodeXPrecision);
+    EXPECT_NEAR(n.y, spline.NodeY(i), kNodeYPrecision);
+    EXPECT_NEAR(n.derivative, spline.NodeDerivative(i), kDerivativePrecision);
+  }
+}
+
+// Uncompressed nodes should be evaluated pretty much unchanged.
+TEST_F(SplineTests, InitFromUncompressedNodes) {
+  CompactSpline* spline = CompactSpline::CreateFromNodes(
+      kUncompressed, MOTIVE_ARRAY_SIZE(kUncompressed));
+  CheckUncompressedNodes(*spline, kUncompressed,
+                         MOTIVE_ARRAY_SIZE(kUncompressed));
+  CompactSpline::Destroy(spline);
+}
+
+// In-place construction from uncompressed nodes should be evaluated pretty
+// much unchanged.
+TEST_F(SplineTests, InitFromUncompressedNodesInPlace) {
+  uint8_t spline_buf[1024];
+  assert(sizeof(spline_buf) >=
+         CompactSpline::Size(MOTIVE_ARRAY_SIZE(kUncompressed)));
+  CompactSpline* spline = CompactSpline::CreateFromNodesInPlace(
+      kUncompressed, MOTIVE_ARRAY_SIZE(kUncompressed), spline_buf);
+  CheckUncompressedNodes(*spline, kUncompressed,
+                         MOTIVE_ARRAY_SIZE(kUncompressed));
+}
+
+static const motive::UncompressedNode kUniformSpline[] = {
+    {0.0f, 0.0f, 0.0f},   {1.0f, 0.5f, 0.03f},   {2.0f, 0.6f, 0.02f},
+    {3.0f, 0.0f, -0.04f}, {4.0f, 0.03f, -0.02f}, {5.0f, 0.9f, -0.1f},
+};
+
+// CreateFromSpline of an already uniform spline should evaluate to the same
+// spline.
+TEST_F(SplineTests, InitFromSpline) {
+  CompactSpline* uniform_spline = CompactSpline::CreateFromNodes(
+      kUniformSpline, MOTIVE_ARRAY_SIZE(kUniformSpline));
+  CompactSpline* spline = CompactSpline::CreateFromSpline(
+      *uniform_spline, MOTIVE_ARRAY_SIZE(kUniformSpline));
+  CheckUncompressedNodes(*spline, kUniformSpline,
+                         MOTIVE_ARRAY_SIZE(kUniformSpline));
+  CompactSpline::Destroy(spline);
+  CompactSpline::Destroy(uniform_spline);
+}
+
+// CreateFromSpline of an already uniform spline should evaluate to the same
+// spline. Test in-place construction.
+TEST_F(SplineTests, InitFromSplineInPlace) {
+  uint8_t uniform_spline_buf[1024];
+  uint8_t spline_buf[1024];
+  assert(sizeof(spline_buf) >=
+             CompactSpline::Size(MOTIVE_ARRAY_SIZE(kUniformSpline)) &&
+         sizeof(uniform_spline_buf) >=
+             CompactSpline::Size(MOTIVE_ARRAY_SIZE(kUniformSpline)));
+  CompactSpline* uniform_spline = CompactSpline::CreateFromNodesInPlace(
+      kUniformSpline, MOTIVE_ARRAY_SIZE(kUniformSpline), uniform_spline_buf);
+  CompactSpline* spline = CompactSpline::CreateFromSplineInPlace(
+      *uniform_spline, MOTIVE_ARRAY_SIZE(kUniformSpline), spline_buf);
+  CheckUncompressedNodes(*spline, kUniformSpline,
+                         MOTIVE_ARRAY_SIZE(kUniformSpline));
 }
 
 int main(int argc, char** argv) {
