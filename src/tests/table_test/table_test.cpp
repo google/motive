@@ -119,7 +119,7 @@ static const AnimTableFb& CreateAnimTableFb(
   for (auto it = names.begin(); it != names.end(); ++it) {
     lists.push_back(CreateAnimListFbOffset(fbb, *it, source));
   }
-  auto table_fb_offset = motive::CreateAnimTableFb(fbb, &lists);
+  auto table_fb_offset = motive::CreateAnimTableFbDirect(fbb, &lists);
   motive::FinishAnimTableFbBuffer(fbb, table_fb_offset);
   return *motive::GetAnimTableFb(fbb.GetBufferPointer());
 }
