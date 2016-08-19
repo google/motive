@@ -40,7 +40,6 @@ void BulkSplineEvaluator::SetNumIndices(const Index num_indices) {
   y_ranges_.resize(num_indices);
   cubic_xs_.resize(num_indices, 0.0f);
   cubic_x_ends_.resize(num_indices, 0.0f);
-  playback_rates_.resize(num_indices, 1.0f);
   cubics_.resize(num_indices);
   ys_.resize(num_indices, 0.0f);
   scratch_.resize(num_indices, 0);
@@ -55,7 +54,6 @@ void BulkSplineEvaluator::MoveIndices(
     y_ranges_[new_i] = y_ranges_[old_i];
     cubic_xs_[new_i] = cubic_xs_[old_i];
     cubic_x_ends_[new_i] = cubic_x_ends_[old_i];
-    playback_rates_[new_i] = playback_rates_[old_i];
     cubics_[new_i] = cubics_[old_i];
     ys_[new_i] = ys_[old_i];
   }
@@ -135,10 +133,12 @@ void BulkSplineEvaluator::BlendToSpline(const Index index,
   const float cubic_start_x = blend_start_x - spline.NodeX(blend_start_index);
 
   Source& s = sources_[index];
+  s.rate = playback.playback_rate;
+  s.y_offset = playback.y_offset;
+  s.y_scale = playback.y_scale;
   s.spline = &spline;
   s.x_index = blend_start_index;
   s.repeat = playback.repeat;
-  playback_rates_[index] = playback.playback_rate;
   cubic_xs_[index] = cubic_start_x;
   cubic_x_ends_[index] = cubic_start_x + playback.blend_x;
   cubics_[index].Init(blend_init);
@@ -149,10 +149,12 @@ void BulkSplineEvaluator::JumpToSpline(const Index index,
                                        const CompactSpline& spline,
                                        const SplinePlayback& playback) {
   Source& s = sources_[index];
+  s.rate = playback.playback_rate;
+  s.y_offset = playback.y_offset;
+  s.y_scale = playback.y_scale;
   s.spline = &spline;
   s.x_index = kInvalidSplineIndex;
   s.repeat = playback.repeat;
-  playback_rates_[index] = playback.playback_rate;
   InitCubic(index, playback.start_x);
 }
 
@@ -202,7 +204,7 @@ void BulkSplineEvaluator::SetXs(const Index index, const Index count,
 void BulkSplineEvaluator::SetPlaybackRates(const Index index, const Index count,
                                            float playback_rate) {
   for (Index i = index; i < index + count; ++i) {
-    playback_rates_[i] = playback_rate;
+    sources_[i].rate = playback_rate;
   }
 }
 
@@ -213,7 +215,7 @@ void BulkSplineEvaluator::UpdateCubicXsAndGetMask_C(const float delta_x,
   float* xs = &cubic_xs_.front();
 
   for (int i = 0; i < num_xs; ++i) {
-    xs[i] += delta_x * playback_rates_[i];
+    xs[i] += delta_x * sources_[i].rate;
     masks[i] = xs[i] > x_ends[i] ? 0xFF : 0x00;
   }
 }
@@ -261,7 +263,7 @@ size_t BulkSplineEvaluator::UpdateCubicXs_OneStep(const float delta_x,
 
   for (Index i = 0; i < num_indices; ++i) {
     // Increment each cubic x value by delta_x.
-    cubic_xs_[i] += delta_x * playback_rates_[i];
+    cubic_xs_[i] += delta_x * sources_[i].rate;
 
     // When x has gone past the end of the cubic, it should be reinitialized.
     if (cubic_xs_[i] > cubic_x_ends_[i]) {
@@ -296,6 +298,9 @@ void BulkSplineEvaluator::InitCubic(const Index index, const float start_x) {
   CubicCurve& c = cubics_[index];
   const CubicInit init = s.spline->CreateCubicInit(x_index);
   c.Init(init);
+
+  c.ScaleUp(s.y_scale);
+  c.ShiftUp(s.y_offset);
 }
 
 void BulkSplineEvaluator::EvaluateIndex(const Index index) {

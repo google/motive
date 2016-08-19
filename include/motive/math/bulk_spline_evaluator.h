@@ -163,9 +163,7 @@ class BulkSplineEvaluator {
   }
 
   /// Return the current playback rate of the spline at `index`.
-  float PlaybackRate(const Index index) const {
-    return playback_rates_[index];
-  }
+  float PlaybackRate(const Index index) const { return sources_[index].rate; }
 
   /// Return the spline that is currently being traversed at `index`.
   const CompactSpline* SourceSpline(const Index index) const {
@@ -297,6 +295,36 @@ class BulkSplineEvaluator {
   void EvaluateCubics_C();
 
   struct Source {
+    Source()
+        : rate(1.0f),
+          y_offset(0.0f),
+          y_scale(1.0f),
+          spline(nullptr),
+          x_index(kInvalidSplineIndex),
+          repeat(false) {}
+
+    Source(float rate, float y_offset, float y_scale)
+        : rate(rate),
+          y_offset(y_offset),
+          y_scale(y_scale),
+          spline(nullptr),
+          x_index(kInvalidSplineIndex),
+          repeat(false) {}
+
+    /// Speed at which time flows, relative to the spline's authored rate.
+    ///     0   ==> paused
+    ///     0.5 ==> half speed (slow motion)
+    ///     1   ==> authored speed
+    ///     2   ==> double speed (fast forward)
+    float rate;
+
+    /// Offset that we add to spline to shift it along the y-axis.
+    float y_offset;
+
+    /// Factor by which we scale the spline along the y-axis. We first scale
+    /// the spline along the y-axis before shifting it.
+    float y_scale;
+
     /// Pointer to the source spline node. Spline data is owned externally.
     /// We neither allocate or free this pointer here.
     const CompactSpline* spline;
@@ -308,9 +336,6 @@ class BulkSplineEvaluator {
     /// If true, start again at the beginning of the spline when we reach
     /// the end.
     bool repeat;
-
-    Source()
-      : spline(nullptr), x_index(motive::kInvalidSplineIndex), repeat(false) {}
   };
 
   struct YRange {
@@ -346,13 +371,6 @@ class BulkSplineEvaluator {
 
   /// The last valid x value in `cubics_`.
   std::vector<float> cubic_x_ends_;
-
-  /// Speed at which time flows, relative to the spline's authored rate.
-  ///     0   ==> paused
-  ///     0.5 ==> half speed (slow motion)
-  ///     1   ==> authored speed
-  ///     2   ==> double speed (fast forward)
-  std::vector<float> playback_rates_;
 
   /// Currently active segment of sources_.spline.
   /// Instantiated from

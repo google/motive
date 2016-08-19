@@ -583,8 +583,13 @@ struct SplinePlayback {
   /// Initialize all channels with same spline.
   /// Especially useful when kDimensions = 1, since there is only one channel.
   explicit SplinePlayback(float start_x = 0.0f, bool repeat = false,
-                          float playback_rate = 1.0f, float blend_x = 0.0f)
-      : start_x(start_x), blend_x(blend_x), playback_rate(playback_rate),
+                          float playback_rate = 1.0f, float blend_x = 0.0f,
+                          float y_offset = 0.0f, float y_scale = 1.0f)
+      : start_x(start_x),
+        blend_x(blend_x),
+        playback_rate(playback_rate),
+        y_offset(y_offset),
+        y_scale(y_scale),
         repeat(repeat) {}
 
   /// The starting point from which to play.
@@ -601,6 +606,14 @@ struct SplinePlayback {
   ///     1   ==> authored speed
   ///     2   ==> double speed (fast forward)
   float playback_rate;
+
+  /// Offset that we add to spline to shift it along the y-axis.
+  /// The spline is scaled first by `y_scale`, and then shifted by `y_offset`.
+  float y_offset;
+
+  /// Factor by which we scale the spline along the y-axis.
+  /// The spline is scaled first by `y_scale`, and then shifted by `y_offset`.
+  float y_scale;
 
   /// If true, start back at the beginning after we reach the end.
   bool repeat;

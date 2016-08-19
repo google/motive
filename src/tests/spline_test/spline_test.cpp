@@ -149,8 +149,9 @@ static void PrintSplineAsAsciiGraph(const GraphData& d) {
 #endif  // PRINT_SPLINES_AS_ASCII_GRAPHS
 }
 
-static void GatherGraphData(const CubicInit& init, GraphData* d,
-                            bool is_angle = false) {
+static void GatherGraphData(
+    const CubicInit& init, GraphData* d, bool is_angle = false,
+    const motive::SplinePlayback& playback = motive::SplinePlayback()) {
   CompactSpline spline;
   InitializeSpline(init, &spline);
 
@@ -159,9 +160,24 @@ static void GatherGraphData(const CubicInit& init, GraphData* d,
   if (is_angle) {
     interpolator.SetYRanges(0, 1, kAngleRange);
   }
-  interpolator.SetSplines(0, 1, &spline, motive::SplinePlayback());
+  interpolator.SetSplines(0, 1, &spline, playback);
 
   ExecuteInterpolator(interpolator, kNumCheckPoints, d);
+
+  // Double-check start and end y values and derivitives, taking y-scale and
+  // y-offset into account.
+  const CubicCurve c(init);
+  const float y_precision = spline.RangeY().Length() * kFixedPointEpsilon;
+  const float derivative_precision =
+      fabs(playback.y_scale) * kDerivativePrecision;
+  EXPECT_NEAR(c.Evaluate(0.0f) * playback.y_scale + playback.y_offset,
+              d->points[0].y(), y_precision);
+  EXPECT_NEAR(c.Derivative(0.0f) * playback.y_scale, d->derivatives[0].first,
+              derivative_precision);
+  EXPECT_NEAR(c.Evaluate(init.width_x) * playback.y_scale + playback.y_offset,
+              d->points[kNumCheckPoints - 1].y(), y_precision);
+  EXPECT_NEAR(c.Derivative(init.width_x) * playback.y_scale,
+              d->derivatives[kNumCheckPoints - 1].first, derivative_precision);
 
   PrintGraphDataAsCsv(*d);
   PrintSplineAsAsciiGraph(*d);
@@ -515,6 +531,27 @@ TEST_F(SplineTests, InitFromSplineInPlace) {
       *uniform_spline, MOTIVE_ARRAY_SIZE(kUniformSpline), spline_buf);
   CheckUncompressedNodes(*spline, kUniformSpline,
                          MOTIVE_ARRAY_SIZE(kUniformSpline));
+}
+
+TEST_F(SplineTests, YScaleAndOffset) {
+  static const float kOffsets[] = {0.0f, 2.0f, 0.111f, 10.0f, -1.5f, -1.0f};
+  static const float kScales[] = {1.0f, 2.0f, 0.1f, 1.1f, 0.0f, -1.0f, -1.3f};
+
+  motive::SplinePlayback playback;
+  for (size_t k = 0; k < MOTIVE_ARRAY_SIZE(kScales); ++k) {
+    playback.y_offset = kOffsets[k];
+
+    for (size_t j = 0; j < MOTIVE_ARRAY_SIZE(kScales); ++j) {
+      playback.y_scale = kScales[j];
+
+      for (int i = 0; i < kNumSimpleSplines; ++i) {
+        const CubicInit& init = kSimpleSplines[i];
+
+        GraphData d;
+        GatherGraphData(init, &d, false, playback);
+      }
+    }
+  }
 }
 
 int main(int argc, char** argv) {

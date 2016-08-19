@@ -245,6 +245,16 @@ class CubicCurve {
   /// Shift the curve along the x-axis: x_shift to the right.
   void ShiftRight(const float x_shift) { ShiftLeft(-x_shift); }
 
+  /// Shift the curve along the y-axis by y_offset: y_offset up the y-axis.
+  void ShiftUp(float y_offset) { c_[0] += y_offset; }
+
+  /// Scale the curve along the y-axis by a factor of y_scale.
+  void ScaleUp(float y_scale) {
+    for (int i = 0; i < kNumCoeff; ++i) {
+      c_[i] *= y_scale;
+    }
+  }
+
   /// Return the cubic function's value at `x`.
   /// f(x) = c3*x^3 + c2*x^2 + c1*x + c0
   float Evaluate(const float x) const {
