@@ -50,6 +50,7 @@ class RangeT {
 
   // By default, initialize to an invalid range.
   RangeT() : start_(static_cast<T>(1)), end_(static_cast<T>(0)) {}
+  explicit RangeT(const T point) : start_(point), end_(point) {}
   RangeT(const T start, const T end) : start_(start), end_(end) {}
 
   /// A range is valid if it contains at least one number.
@@ -445,6 +446,26 @@ class RangeT {
   template <size_t kMaxLen>
   static T ClampToClosest(T x, const RangeArray<kMaxLen>& ranges) {
     return ClampToClosest(x, ranges.arr, ranges.len);
+  }
+
+  /// Returns the range that covers all values in f(array).
+  /// f is a lambda to calculate T from S. See Covers() for a simple example.
+  /// In general, if your S has a function `T GetValue()`, then your lambda
+  /// can look something like,
+  ///     const RangeT<T> range = RangeT<T>::CoversLambda(
+  ///         s_array, len, [](const S& s) { return s.GetValue(); });
+  template <typename S, typename F>
+  static RangeT<T> CoversLambda(const S* array, size_t len, const F& f) {
+    RangeT<T> r = Empty();
+    for (size_t i = 0; i < len; ++i) {
+      r = r.Include(f(array[i]));
+    }
+    return r;
+  }
+
+  /// Return the range that covers all values in `array`.
+  static RangeT<T> Covers(const T* array, size_t len) {
+    return CoversLambda(array, len, [](const T& t) { return t; });
   }
 
   /// Returns the complete range. Every T is contained in this range.
