@@ -221,7 +221,13 @@ CompactSplineIndex CompactSpline::IndexForX(
   if (quantized_x < Front().x()) return kBeforeSplineIndex;
 
   // Return index of the last index if beyond the last index.
-  if (quantized_x >= Back().x()) return kAfterSplineIndex;
+  if (quantized_x > Back().x()) return kAfterSplineIndex;
+
+  // When we are exactly on the last node, we want to return the index of the
+  // last segment (i.e. the second last node). This is so that the derivative
+  // at the end matches the derivative of the last node, and not 0 (since
+  // derivatives beyond the spline are forced to 0).
+  if (quantized_x == Back().x()) return std::max(0, num_nodes_ - 2);
 
   // Check the guess value first.
   const CompactSplineXGrain compact_x =

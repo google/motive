@@ -238,7 +238,7 @@ TEST_F(SplineTests, IndexForXAfter) {
 
 // Ensure the index lookup is accurate for x's barely after the range.
 TEST_F(SplineTests, IndexForXJustAfter) {
-  EXPECT_EQ(motive::kAfterSplineIndex,
+  EXPECT_EQ(short_spline_.LastSegmentIndex(),
             short_spline_.IndexForX(100.0001f, kRidiculousSplineIndex));
 }
 
@@ -249,13 +249,13 @@ TEST_F(SplineTests, IndexForXStart) {
 
 // Ensure the index lookup is accurate for x right at end.
 TEST_F(SplineTests, IndexForXEnd) {
-  EXPECT_EQ(motive::kAfterSplineIndex,
+  EXPECT_EQ(short_spline_.LastSegmentIndex(),
             short_spline_.IndexForX(100.0f, kRidiculousSplineIndex));
 }
 
 // Ensure the index lookup is accurate for x just inside end.
 TEST_F(SplineTests, IndexForXAlmostEnd) {
-  EXPECT_EQ(motive::kAfterSplineIndex,
+  EXPECT_EQ(short_spline_.LastSegmentIndex(),
             short_spline_.IndexForX(99.9999f, kRidiculousSplineIndex));
 }
 

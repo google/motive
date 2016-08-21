@@ -262,6 +262,18 @@ class CompactSpline {
   /// or kAfterSplineIndex.
   CubicInit CreateCubicInit(const CompactSplineIndex index) const;
 
+  /// Returns the index of the last node in the spline.
+  CompactSplineIndex LastNodeIndex() const {
+    assert(num_nodes_ >= 1);
+    return num_nodes_ - 1;
+  }
+
+  /// Returns the start index of the last segment in the spline.
+  CompactSplineIndex LastSegmentIndex() const {
+    assert(num_nodes_ >= 2);
+    return num_nodes_ - 2;
+  }
+
   /// Returns the number of nodes in this spline.
   CompactSplineIndex num_nodes() const { return num_nodes_; }
   CompactSplineIndex max_nodes() const { return max_nodes_; }
@@ -418,9 +430,6 @@ class CompactSpline {
     assert(num_nodes_ < max_nodes_);
     nodes_[num_nodes_++] = node;
   }
-
-  /// Returns the index of the last node in the spline.
-  CompactSplineIndex LastNodeIndex() const { return num_nodes_ - 1; }
 
   /// Return true iff `x` is between the the nodes at `index` and `index` + 1.
   bool IndexContainsX(const CompactSplineXGrain compact_x,
