@@ -262,7 +262,7 @@ static bool ParseCommandLine(int argc, char* argv[], ViewerArgs* args) {
     }
 
     if (option == "-t" || option == "--blend_time") {
-      args->blend_time = atoi(option_value.c_str());
+      args->blend_time = static_cast<float>(atof(option_value.c_str()));
       if (args->blend_time < 0 || args->blend_time > 10000) {
         printf("ERROR: Invalid blend time %f.\n\n", args->blend_time);
         return false;
@@ -539,7 +539,8 @@ extern "C" int FPL_main(int argc, char* argv[]) {
   const bool compatible =
       animation_state == kAnimationStateNoAnimation || !use_skinning ||
       motive::RigInit::MatchesHierarchy(
-          anim_table.DefiningAnim(0), mesh->bone_parents(), mesh->num_bones());
+          anim_table.DefiningAnim(0), mesh->bone_parents(),
+          static_cast<motive::BoneIndex>(mesh->num_bones()));
   if (!compatible) {
     printf(
         "ERROR: Animations and mesh %s do not have a compatible hierarchy.\n\n",
@@ -621,8 +622,10 @@ extern "C" int FPL_main(int argc, char* argv[]) {
       }
 
       if (args.bone_idx >= 0) {
-        printf("%s",
-               motivator.LocalTransformsForDebugging(args.bone_idx).c_str());
+        printf("%s", motivator
+                         .LocalTransformsForDebugging(
+                             static_cast<motive::BoneIndex>(args.bone_idx))
+                         .c_str());
       }
     }
 

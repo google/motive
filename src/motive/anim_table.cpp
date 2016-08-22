@@ -126,9 +126,11 @@ class TableFileNamesDescriber : public TableDescriberInterface {
  public:
   explicit TableFileNamesDescriber(const AnimTable::TableFileNames& table_names)
       : table_names_(&table_names) {}
-  virtual int NumObjects() const { return table_names_->size(); }
+  virtual int NumObjects() const {
+    return static_cast<int>(table_names_->size());
+  }
   virtual int NumAnims(int object) const {
-    return (*table_names_)[object].size();
+    return static_cast<int>((*table_names_)[object].size());
   }
   virtual const char* SourceFileName(int object, int anim_idx) const {
     return (*table_names_)[object][anim_idx].c_str();
@@ -147,7 +149,9 @@ class ListFileNamesDescriber : public TableDescriberInterface {
   explicit ListFileNamesDescriber(const AnimTable::ListFileNames& list_names)
       : list_names_(&list_names) {}
   virtual int NumObjects() const { return list_names_->size() == 0 ? 0 : 1; }
-  virtual int NumAnims(int /*object*/) const { return list_names_->size(); }
+  virtual int NumAnims(int /*object*/) const {
+    return static_cast<int>(list_names_->size());
+  }
   virtual const char* SourceFileName(int /*object*/, int anim_idx) const {
     return (*list_names_)[anim_idx].c_str();
   }
@@ -263,14 +267,6 @@ static const RigAnim* FindCompleteRig(const RigAnim** anims, size_t num_anims) {
   return anims[max_bone_index];
 }
 
-static const MatrixOperationInit* FindOpInit(const MatrixOpArray::OpVector& ops,
-                                             MatrixOperationType op) {
-  for (size_t i = 0; i < ops.size(); ++i) {
-    if (ops[i].type == op) return &ops[i];
-  }
-  return nullptr;
-}
-
 static void CreateDefiningAnim(const RigAnim** anims, size_t num_anims,
                                RigAnim* defining_anim) {
   // Get the bone hierarchy that covers all the hierarchies in `anims`.
@@ -328,7 +324,7 @@ static void CreateDefiningAnim(const RigAnim** anims, size_t num_anims,
     int num_ops_inited = 0;
     for (auto it = id_to_range.begin(); it != id_to_range.end(); ++it) {
       // If this operation exists, add it to the `defining_anim`.
-      const MatrixOpId id = it->first;
+      const MatrixOpId id = static_cast<MatrixOpId>(it->first);
       const MatrixOperationType op = it->second.op;
       const Range& range = it->second.range;
       if (range.Length() == 0.0f) {
