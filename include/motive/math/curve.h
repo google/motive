@@ -128,6 +128,23 @@ class QuadraticCurve {
     return *this;
   }
 
+  /// Shift the curve along the x-axis: x_shift to the left.
+  /// That is x_shift becomes the curve's x=0.
+  void ShiftLeft(const float x_shift);
+
+  /// Shift the curve along the x-axis: x_shift to the right.
+  void ShiftRight(const float x_shift) { ShiftLeft(-x_shift); }
+
+  /// Shift the curve along the y-axis by y_offset: y_offset up the y-axis.
+  void ShiftUp(const float y_offset) { c_[0] += y_offset; }
+
+  /// Scale the curve along the y-axis by a factor of y_scale.
+  void ScaleUp(const float y_scale) {
+    for (int i = 0; i < kNumCoeff; ++i) {
+      c_[i] *= y_scale;
+    }
+  }
+
   /// Return the quadratic function's value at `x`.
   /// f(x) = c2*x^2 + c1*x + c0
   float Evaluate(const float x) const {
@@ -158,14 +175,21 @@ class QuadraticCurve {
 
   /// Returns a value below which floating point precision is unreliable.
   /// If we're testing for zero, for instance, we should test against this
-  /// Epsilon().
-  float Epsilon() const {
-    return Epsilon(MaxCoeff());
+  /// value. Pass in the x-range as well, in case that coefficient dominates
+  /// the others.
+  float EpsilonInRange(const float max_x) const {
+    return Epsilon(std::max(std::fabs(max_x), MaxCoeff()));
   }
+
+  /// Returns a value below which floating point precision is unreliable.
+  /// If we're testing for zero, for instance, we should test against this
+  /// value. We don't consider the x-range here, so this value is useful only
+  /// when dealing with the equation itself.
+  float EpsilonOfCoefficients() const { return Epsilon(MaxCoeff()); }
 
   /// Given values in the range of `x`, returns a value below which should be
   /// considered zero.
-  float Epsilon(float x) const {
+  float Epsilon(const float x) const {
     return x * kEpsilonScale;
   }
 
@@ -175,7 +199,8 @@ class QuadraticCurve {
   /// the coefficients, and floating point precision is poor for floats.
   float MaxCoeff() const {
     using std::max;
-    return max(max(fabs(c_[2]), fabs(c_[1])), fabs(c_[0]));
+    const QuadraticCurve abs = AbsCoeff();
+    return max(max(abs.c_[2], abs.c_[1]), abs.c_[0]);
   }
 
   /// Used for finding roots, and more.
@@ -189,7 +214,7 @@ class QuadraticCurve {
 
   /// Return the x at which the derivative is zero.
   float CriticalPoint() const {
-    assert(fabs(c_[2]) >= Epsilon());
+    assert(std::fabs(c_[2]) >= EpsilonOfCoefficients());
 
     /// 0 = f'(x) = 2*c2*x + c1  ==>  x = -c1 / 2c2
     return -(c_[1] / c_[2]) * 0.5f;
@@ -199,6 +224,15 @@ class QuadraticCurve {
   /// and put them into `roots`, in ascending order.
   /// Returns the 0, 1, or 2, the number of unique values put into `roots`.
   void Roots(RootsArray* roots) const { roots->len = Roots(roots->arr); }
+
+  /// Same as Roots() but do not normalize the quadratic for precision.
+  /// This function is not recommended, in general. Normalizing does not take
+  /// much time, and floating point precision is something that we only like to
+  /// think we can ignore. It may be safe to call this function if you are
+  /// certain that your x^2 coefficient is near 1.
+  void RootsWithoutNormalizing(RootsArray* roots) const {
+    roots->len = RootsWithoutNormalizing(roots->arr);
+  }
 
   /// Calculate the x-coordinates within the range [start_x, end_x] where the
   /// quadratic is zero. Put them into `roots`. Return the number of unique
@@ -211,7 +245,7 @@ class QuadraticCurve {
   /// twice, there can be at most two ranges. Ranges are clamped to `x_limits`.
   /// `sign` is used to determine above or below zero only--actual value is
   /// ignored.
-  void RangesMatchingSign(const Range& x_limits, float sign,
+  void RangesMatchingSign(const Range& x_limits, const float sign,
                           RangeArray* matching) const {
     matching->len = RangesMatchingSign(x_limits, sign, matching->arr);
   }
@@ -232,6 +266,32 @@ class QuadraticCurve {
   /// Returns the number of coefficients in this curve.
   int NumCoeff() const { return kNumCoeff; }
 
+  /// Returns the curve f(x / x_scale), where f is the current quadratic.
+  /// This stretches the curve along the x-axis by x_scale.
+  QuadraticCurve ScaleInX(const float x_scale) const {
+    return ScaleInXByReciprocal(1.0f / x_scale);
+  }
+
+  /// Returns the curve f(x * x_scale_reciprocal), where f is the current
+  /// quadratic.
+  /// This stretches the curve along the x-axis by 1/x_scale_reciprocal
+  QuadraticCurve ScaleInXByReciprocal(const float x_scale_reciprocal) const {
+    return QuadraticCurve(c_[2] * x_scale_reciprocal * x_scale_reciprocal,
+                          c_[1] * x_scale_reciprocal, c_[0]);
+  }
+
+  /// Returns the curve y_scale * f(x).
+  QuadraticCurve ScaleInY(const float y_scale) const {
+    return QuadraticCurve(*this, y_scale);
+  }
+
+  /// Returns the same curve but with all coefficients in absolute value.
+  /// Useful for numerical precision work.
+  QuadraticCurve AbsCoeff() const {
+    using std::fabs;
+    return QuadraticCurve(fabs(c_[2]), fabs(c_[1]), fabs(c_[0]));
+  }
+
   /// Equality. Checks for exact match. Useful for testing.
   bool operator==(const QuadraticCurve& rhs) const;
   bool operator!=(const QuadraticCurve& rhs) const { return !operator==(rhs); }
@@ -242,8 +302,9 @@ class QuadraticCurve {
  private:
   // Feel free to expose these versions in the external API if they're useful.
   size_t Roots(float roots[2]) const;
+  size_t RootsWithoutNormalizing(float roots[2]) const;
   size_t RootsInRange(const Range& x_limits, float roots[2]) const;
-  size_t RangesMatchingSign(const Range& x_limits, float sign,
+  size_t RangesMatchingSign(const Range& x_limits, const float sign,
                             Range matching[2]) const;
 
   float c_[kNumCoeff];  /// c_[2] * x^2  +  c_[1] * x  +  c_[0]
@@ -355,6 +416,7 @@ class CubicCurve {
   /// Epsilon().
   float Epsilon() const {
     using std::max;
+    using std::fabs;
     const float max_c =
         max(max(max(fabs(c_[3]), fabs(c_[2])), fabs(c_[1])), fabs(c_[0]));
     return max_c * kEpsilonScale;

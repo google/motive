@@ -18,6 +18,10 @@
 #include "motive/math/bulk_spline_evaluator.h"
 #include "motive/math/float.h"
 
+#ifdef _DEBUG
+#define MOTIVE_CURVE_SANITY_CHECKS
+#endif // _DEBUG
+
 using mathfu::vec2;
 using mathfu::vec2i;
 
@@ -58,6 +62,25 @@ void QuadraticCurve::Init(const QuadraticInitWithPoint& init) {
   c_[0] = init.y_at_x - init.x * (c_[2] * init.x + c_[1]);
 }
 
+void QuadraticCurve::ShiftLeft(const float x_shift) {
+  // Early out optimization.
+  if (x_shift == 0.0f) return;
+
+  // s = x_shift
+  // f(x) = cx^2 + bx + a
+  // f(x + s) = c(x+s)^2 + b(x+s) + a
+  //          = c(x^2 + 2sx + s^2) + b(x + s) + a
+  //          = cx^2 + (2c + b)x + (cs^2 + bs + a)
+  //          = cx^2 + f'(s) x + f(s)
+  //
+  // Or, for an more general formulation, see:
+  //     http://math.stackexchange.com/questions/694565/polynomial-shift
+  const float new_b = Derivative(x_shift);
+  const float new_a = Evaluate(x_shift);
+  c_[0] = new_a;
+  c_[1] = new_b;
+}
+
 float QuadraticCurve::ReliableDiscriminant(const float epsilon) const {
   // When discriminant is (relative to coefficients) close to zero, we treat
   // it as zero. It's possible that the discriminant is barely below zero due
@@ -66,30 +89,106 @@ float QuadraticCurve::ReliableDiscriminant(const float epsilon) const {
   return ClampNearZero(discriminant, epsilon);
 }
 
+size_t QuadraticCurve::Roots(float roots[2]) const {
+  // Leave a little headroom for arithmetic.
+  static const int kMaxExponentForRootCoeff = kMaxInvertableExponent - 1;
+
+  // Scale in the x-axis so that c2 is in the range of the larger of c1 or c0.
+  // This eliminates numerical precision problems in cases where, for example,
+  // we have a tiny second derivative and a large constant.
+  //
+  // The x-axis scale is applied non-uniformly across the polynomial.
+  //    f(x_scale * x) = x_scale^2 * c2 * x^2  +  x_scale * c1 * x  +  c0
+  // We use this to bring x_scale^2 * c2 in approximately equal to
+  // either x_scale * c1 or c0.
+  const QuadraticCurve abs = AbsCoeff();
+  const bool scale_with_linear = abs.c_[1] >= abs.c_[0];
+  const float comparison_coeff = std::max(abs.c_[1], abs.c_[0]);
+  const float x_scale_quotient = abs.c_[2] / comparison_coeff;
+  const float x_scale_reciprocal_unclamped =
+      !kInvertablePowerOf2Range.Contains(x_scale_quotient)
+          ? 1.0f
+          : scale_with_linear ? ReciprocalExponent(x_scale_quotient)
+                              : SqrtReciprocalExponent(x_scale_quotient);
+
+  // Since we normalize through powers of 2, the scale can be large without
+  // losing precision. But we still have to worry about scaling to infinity.
+  // Note that in x-scale, only the linear (c1) and quadratic (c2) coefficients
+  // are
+  // scaled, and the quadratic coefficient is scaled to match an existing
+  // coefficient,
+  // so we only need to check the linear coefficient.
+  const float x_scale_reciprocal_max =
+      MaxPowerOf2Scale(abs.c_[1], kMaxInvertableExponent);
+  const float x_scale_reciprocal =
+      std::min(x_scale_reciprocal_unclamped, x_scale_reciprocal_max);
+
+  // Create the quatratic scaled in x.
+  const QuadraticCurve x_scaled = ScaleInXByReciprocal(x_scale_reciprocal);
+  const QuadraticCurve x_scaled_abs = x_scaled.AbsCoeff();
+
+#ifdef MOTIVE_CURVE_SANITY_CHECKS
+  // Sanity checks to ensure our math is correct.
+  if (kInvertablePowerOf2Range.Contains(x_scale_quotient)) {
+    const float x_scaled_quotient =
+        x_scaled_abs.c_[2] /
+        (scale_with_linear ? x_scaled_abs.c_[1] : x_scaled_abs.c_[0]);
+    assert(0.5f <= x_scaled_quotient && x_scaled_quotient <= 2.0f);
+    (void)x_scaled_quotient;
+  }
+#endif  // MOTIVE_CURVE_SANITY_CHECKS
+
+  // Calculate the y-axis scale so that c2 is near 1.
+  // We need this because the quadratic equation divides by c2.
+  //
+  // The y-scale is applied evenly to all coefficients, and doesn't affect the
+  // roots.
+  //   y_scale * f(x) = y_scale * c2 * x^2  +  y_scale * c1 * x  +  y_scale * c0
+  //
+  // Check need to clamp our y-scale so that the linear (c1) and constant (c0)
+  // coefficients
+  // don't go to infinity or denormalize. Note that the y-scale is calculated to
+  // bring the
+  // quadratic (c2) coefficient near 1, so we don't have to check the quadratic
+  // coefficient.
+  const float y_scale_unclamped =
+      ReciprocalExponent(kInvertablePowerOf2Range.Clamp(x_scaled_abs.c_[2]));
+  const float y_scale_max =
+      std::min(MaxPowerOf2Scale(x_scaled_abs.c_[0], kMaxExponentForRootCoeff),
+               MaxPowerOf2Scale(x_scaled_abs.c_[1], kMaxExponentForRootCoeff));
+  const float y_scale = std::min(y_scale_max, y_scale_unclamped);
+
+  // Create a scaled version of our quadratic.
+  const QuadraticCurve x_and_y_scaled = x_scaled.ScaleInY(y_scale);
+
+#ifdef MOTIVE_CURVE_SANITY_CHECKS
+  // Sanity check to ensure our math is correct.
+  const QuadraticCurve x_and_y_scaled_abs = x_and_y_scaled.AbsCoeff();
+  assert((Range(0.5f, 2.0f).Contains(x_and_y_scaled_abs.c_[2]) ||
+          !kInvertablePowerOf2Range.Contains(x_scaled_abs.c_[2]) ||
+          y_scale != y_scale_unclamped) &&
+         x_and_y_scaled_abs.c_[1] <= std::numeric_limits<float>::max() &&
+         x_and_y_scaled_abs.c_[0] <= std::numeric_limits<float>::max());
+  (void)x_and_y_scaled_abs;
+#endif  // MOTIVE_CURVE_SANITY_CHECKS
+
+  // Calculate the roots and then undo the x_scaling.
+  const size_t num_roots = x_and_y_scaled.RootsWithoutNormalizing(roots);
+  for (size_t i = 0; i < num_roots; ++i) {
+    roots[i] *= x_scale_reciprocal;
+  }
+  return num_roots;
+}
+
 // See the Quadratic Formula for details:
 // http://en.wikipedia.org/wiki/Quadratic_formula
 // Roots returned in sorted order, smallest to largest.
-size_t QuadraticCurve::Roots(float roots[2]) const {
-  // The coefficients must be near 1, since we take the reciprocal when
-  // calculating `divisor` below. If they're not near one, we'll end up
-  // multiplying very small and very large numbers together, which will result
-  // in poor precision.
-  const float max_coeff = MaxCoeff();
-  const bool is_near_one = kEpsilonScale < max_coeff &&
-                           max_coeff < kEpsilonPrecision;
-  if (!is_near_one) {
-    // Multiplication by power-of-two exponents loses no precision.
-    // Note that scaling y does not change the x-roots.
-    const float reciprocal = ReciprocalExponent(max_coeff);
-    const QuadraticCurve normalized(*this, reciprocal);
-    return normalized.Roots(roots);
-  }
-
+size_t QuadraticCurve::RootsWithoutNormalizing(float roots[2]) const {
   // x^2 coefficient of zero means that curve is linear or constant.
-  const float epsilon = Epsilon(max_coeff);
-  if (fabs(c_[2]) < epsilon) {
+  const float epsilon = EpsilonOfCoefficients();
+  if (std::fabs(c_[2]) < epsilon) {
     // If constant, even if zero, return no roots. This is arbitrary.
-    if (fabs(c_[1]) < epsilon) return 0;
+    if (std::fabs(c_[1]) < epsilon) return 0;
 
     // Linear 0 = c1x + c0 ==> x = -c0 / c1.
     roots[0] = -c_[0] / c_[1];
