@@ -53,13 +53,43 @@ struct QuadraticInitWithStartDerivative {
   float end_y;
 };
 
+/// @class QuadraticInitWithOrigin
+/// @brief Initialization parameters to create a quaternion with
+///        values and derivatives at x=0.
+struct QuadraticInitWithOrigin {
+  QuadraticInitWithOrigin(const float y, const float derivative,
+                          const float second_derivative)
+      : y(y), derivative(derivative), second_derivative(second_derivative) {}
+
+  float y;
+  float derivative;
+  float second_derivative;
+};
+
+/// @class QuadraticInitWithPoint
+/// @brief Initialization parameters to create a quaternion with
+///        values and derivatives at a specified x.
+struct QuadraticInitWithPoint {
+  QuadraticInitWithPoint(const float x, const float y_at_x,
+                         const float derivative_at_x,
+                         const float second_derivative)
+      : x(x),
+        y_at_x(y_at_x),
+        derivative_at_x(derivative_at_x),
+        second_derivative(second_derivative) {}
+
+  float x;
+  float y_at_x;
+  float derivative_at_x;
+  float second_derivative;
+};
+
 /// @class QuadraticCurve
 /// @brief Represent a quadratic polynomial in the form
 ///        c_[2] * x^2  +  c_[1] * x  +  c_[0]
 class QuadraticCurve {
-  static const int kNumCoeff = 3;
-
  public:
+  static const int kNumCoeff = 3;
   typedef Range::TArray<2> RootsArray;
   typedef Range::RangeArray<2> RangeArray;
 
@@ -70,13 +100,33 @@ class QuadraticCurve {
     c_[0] = c0;
   }
   QuadraticCurve(const float* c) { memcpy(c_, c, sizeof(c_)); }
-  QuadraticCurve(const QuadraticCurve& q, const float scale) {
+  QuadraticCurve(const QuadraticCurve& q, const float y_scale) {
     for (int i = 0; i < kNumCoeff; ++i) {
-      c_[i] = scale * q.c_[i];
+      c_[i] = y_scale * q.c_[i];
     }
   }
   QuadraticCurve(const QuadraticInitWithStartDerivative& init) { Init(init); }
+  QuadraticCurve(const QuadraticInitWithOrigin& init) { Init(init); }
+  QuadraticCurve(const QuadraticInitWithPoint& init) { Init(init); }
   void Init(const QuadraticInitWithStartDerivative& init);
+  void Init(const QuadraticInitWithOrigin& init);
+  void Init(const QuadraticInitWithPoint& init);
+
+  /// Add the coefficients of another quadratic curve to this one.
+  QuadraticCurve& operator+=(const QuadraticCurve& rhs) {
+    for (int i = 0; i < kNumCoeff; ++i) {
+      c_[i] += rhs.c_[i];
+    }
+    return *this;
+  }
+
+  /// Subtract the coefficients of another quadratic curve from this one.
+  QuadraticCurve& operator-=(const QuadraticCurve& rhs) {
+    for (int i = 0; i < kNumCoeff; ++i) {
+      c_[i] -= rhs.c_[i];
+    }
+    return *this;
+  }
 
   /// Return the quadratic function's value at `x`.
   /// f(x) = c2*x^2 + c1*x + c0
@@ -89,13 +139,13 @@ class QuadraticCurve {
   float Derivative(const float x) const { return 2.0f * c_[2] * x + c_[1]; }
 
   /// Return the quadratic function's constant second derivative.
+  /// f''(x) = 2*c2
+  float SecondDerivative() const { return 2.0f * c_[2]; }
+
+  /// Return the quadratic function's constant second derivative.
   /// Even though `x` is unused, we pass it in for consistency with other
   /// curve classes.
-  /// f''(x) = 2*c2
-  float SecondDerivative(const float x) const {
-    (void)x;
-    return 2.0f * c_[2];
-  }
+  float SecondDerivative(const float /*x*/) const { return SecondDerivative(); }
 
   /// Return the quadratic function's constant third derivative: 0.
   /// Even though `x` is unused, we pass it in for consistency with other
@@ -199,6 +249,18 @@ class QuadraticCurve {
   float c_[kNumCoeff];  /// c_[2] * x^2  +  c_[1] * x  +  c_[0]
 };
 
+inline QuadraticCurve operator+(const QuadraticCurve& a,
+                                const QuadraticCurve& b) {
+  return QuadraticCurve(a.Coeff(2) + b.Coeff(2), a.Coeff(1) + b.Coeff(1),
+                        a.Coeff(0) + b.Coeff(0));
+}
+
+inline QuadraticCurve operator-(const QuadraticCurve& a,
+                                const QuadraticCurve& b) {
+  return QuadraticCurve(a.Coeff(2) - b.Coeff(2), a.Coeff(1) - b.Coeff(1),
+                        a.Coeff(0) - b.Coeff(0));
+}
+
 /// @class CubicInit
 /// @brief Initialization parameters to create a cubic curve with start and
 ///        end y-values and derivatives.
@@ -224,9 +286,8 @@ struct CubicInit {
 /// @brief Represent a cubic polynomial of the form,
 ///   c_[3] * x^3  +  c_[2] * x^2  +  c_[1] * x  +  c_[0]
 class CubicCurve {
-  static const int kNumCoeff = 4;
-
  public:
+  static const int kNumCoeff = 4;
   CubicCurve() { memset(c_, 0, sizeof(c_)); }
   CubicCurve(const float c3, const float c2, const float c1, const float c0) {
     c_[3] = c3;

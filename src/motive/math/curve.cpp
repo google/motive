@@ -34,6 +34,30 @@ void QuadraticCurve::Init(const QuadraticInitWithStartDerivative& init) {
   c_[2] = init.end_y - init.start_y - init.start_derivative;
 }
 
+void QuadraticCurve::Init(const QuadraticInitWithOrigin& init) {
+  //  f(u) = cu^2 + bu + a
+  //  f(0) = a
+  //  f'(0) = b
+  //  f''(0) = 2c  ==>  c = f''(0) / 2
+  c_[0] = init.y;
+  c_[1] = init.derivative;
+  c_[2] = 0.5f * init.second_derivative;
+}
+
+void QuadraticCurve::Init(const QuadraticInitWithPoint& init) {
+  //  f(u) = cu^2 + bu + a
+  //  f'(u) = 2cu + b
+  //  f''(u) = 2c
+  //     ==>  c = f''(x) / 2
+  //     ==>  b = f'(x) - 2cx
+  //            = f'(x) - f''(x)*x
+  //     ==>  a = f(x) - cx^2 - bx
+  //            = f(x) - x(cx + b)
+  c_[2] = 0.5f * init.second_derivative;
+  c_[1] = init.derivative_at_x - init.second_derivative * init.x;
+  c_[0] = init.y_at_x - init.x * (c_[2] * init.x + c_[1]);
+}
+
 float QuadraticCurve::ReliableDiscriminant(const float epsilon) const {
   // When discriminant is (relative to coefficients) close to zero, we treat
   // it as zero. It's possible that the discriminant is barely below zero due

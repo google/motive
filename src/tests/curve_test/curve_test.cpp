@@ -17,6 +17,9 @@
 #include "motive/common.h"
 
 using motive::QuadraticCurve;
+using motive::QuadraticInitWithStartDerivative;
+using motive::QuadraticInitWithOrigin;
+using motive::QuadraticInitWithPoint;
 using motive::CubicCurve;
 using motive::CubicInit;
 using motive::Range;
@@ -29,6 +32,68 @@ protected:
   virtual void SetUp() {}
   virtual void TearDown() {}
 };
+
+TEST_F(CurveTests, QuadraticInitWithStartDerivative) {
+  const QuadraticInitWithStartDerivative init(1.0f, 0.3f, 2.2f);
+  const QuadraticCurve c(init);
+  EXPECT_EQ(c.Evaluate(0.0f), init.start_y);
+  EXPECT_EQ(c.Evaluate(1.0f), init.end_y);
+  EXPECT_EQ(c.Derivative(0.0f), init.start_derivative);
+}
+
+TEST_F(CurveTests, QuadraticInitWithOrigin) {
+  const QuadraticInitWithOrigin init(-10.0f, 3.2f, 0.2f);
+  const QuadraticCurve c(init);
+  EXPECT_EQ(c.Evaluate(0.0f), init.y);
+  EXPECT_EQ(c.Derivative(0.0f), init.derivative);
+  EXPECT_EQ(c.SecondDerivative(), init.second_derivative);
+}
+
+TEST_F(CurveTests, QuadraticInitWithPoint) {
+  const QuadraticInitWithPoint init(3.0f, 1.7f, 0.33f, 0.01f);
+  const QuadraticCurve c(init);
+  EXPECT_EQ(c.Evaluate(init.x), init.y_at_x);
+  EXPECT_EQ(c.Derivative(init.x), init.derivative_at_x);
+  EXPECT_EQ(c.SecondDerivative(), init.second_derivative);
+}
+
+TEST_F(CurveTests, Plus) {
+  const QuadraticCurve c1(1.0f, -2.0f, 3.0f);
+  const QuadraticCurve c2(2.1f, -0.3f, 0.0001f);
+  QuadraticCurve c = c1;
+  c += c2;
+  for (int i = 0; i < QuadraticCurve::kNumCoeff; ++i) {
+    EXPECT_EQ(c.Coeff(i), c1.Coeff(i) + c2.Coeff(i));
+  }
+}
+
+TEST_F(CurveTests, Minus) {
+  const QuadraticCurve c1(1.0f, -2.0f, 3.0f);
+  const QuadraticCurve c2(2.1f, -0.3f, 0.0001f);
+  QuadraticCurve c = c1;
+  c -= c2;
+  for (int i = 0; i < QuadraticCurve::kNumCoeff; ++i) {
+    EXPECT_EQ(c.Coeff(i), c1.Coeff(i) - c2.Coeff(i));
+  }
+}
+
+TEST_F(CurveTests, PlusExternal) {
+  const QuadraticCurve c1(1.0f, -2.0f, 3.0f);
+  const QuadraticCurve c2(2.1f, -0.3f, 0.0001f);
+  const QuadraticCurve c = c1 + c2;
+  for (int i = 0; i < QuadraticCurve::kNumCoeff; ++i) {
+    EXPECT_EQ(c.Coeff(i), c1.Coeff(i) + c2.Coeff(i));
+  }
+}
+
+TEST_F(CurveTests, MinusExternal) {
+  const QuadraticCurve c1(1.0f, -2.0f, 3.0f);
+  const QuadraticCurve c2(2.1f, -0.3f, 0.0001f);
+  const QuadraticCurve c = c1 - c2;
+  for (int i = 0; i < QuadraticCurve::kNumCoeff; ++i) {
+    EXPECT_EQ(c.Coeff(i), c1.Coeff(i) - c2.Coeff(i));
+  }
+}
 
 static void CheckQuadraticRoots(const QuadraticCurve& s,
                                 size_t num_expected_roots) {
