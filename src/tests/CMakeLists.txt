@@ -73,6 +73,7 @@ endfunction()
 
 test_executable(angle)
 test_executable(curve)
+test_executable(curve_util)
 test_executable(float)
 test_executable(motive)
 test_executable(range)

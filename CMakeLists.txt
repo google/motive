@@ -95,6 +95,7 @@ set(motive_SRCS
     include/motive/math/bulk_spline_evaluator.h
     include/motive/math/compact_spline.h
     include/motive/math/curve.h
+    include/motive/math/curve_util.h
     include/motive/math/dual_cubic.h
     include/motive/math/float.h
     include/motive/math/range.h
@@ -112,6 +113,7 @@ set(motive_SRCS
     src/motive/math/bulk_spline_evaluator.cpp
     src/motive/math/compact_spline.cpp
     src/motive/math/curve.cpp
+    src/motive/math/curve_util.cpp
     src/motive/math/float.cpp
     src/motive/math/dual_cubic.cpp
     src/motive/processor.cpp

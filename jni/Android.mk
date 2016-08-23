@@ -47,6 +47,7 @@ MOTIVE_SRC_FILES := \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/bulk_spline_evaluator.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/compact_spline.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/curve.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/math/curve_util.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/dual_cubic.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/float.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/motivator.cpp \

@@ -241,6 +241,12 @@ class QuadraticCurve {
     roots->len = RootsInRange(x_limits, roots->arr);
   }
 
+  /// Calculate the x-coordinates at the value.
+  void XsForValue(float value, RootsArray* roots) const {
+    const QuadraticCurve shifted_down(c_[2], c_[1], c_[0] - value);
+    shifted_down.Roots(roots);
+  }
+
   /// Get ranges above or below zero. Since a quadratic can cross zero at most
   /// twice, there can be at most two ranges. Ranges are clamped to `x_limits`.
   /// `sign` is used to determine above or below zero only--actual value is
