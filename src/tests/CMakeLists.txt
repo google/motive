@@ -72,9 +72,10 @@ function(test_executable name)
 endfunction()
 
 test_executable(angle)
+test_executable(curve)
+test_executable(float)
 test_executable(motive)
 test_executable(range)
-test_executable(curve)
 test_executable(spline)
 test_executable(table)
 

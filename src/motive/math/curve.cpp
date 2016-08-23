@@ -12,54 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
 #include <sstream>
+#include <string>
 #include <vector>
 #include "motive/math/bulk_spline_evaluator.h"
+#include "motive/math/float.h"
 
 using mathfu::vec2;
 using mathfu::vec2i;
 
 namespace motive {
-
-union IntFloatUnion {
-  uint32_t i;
-  float f;
-};
-
-static const uint32_t kExponentMask = 0x000000FF;
-static const int kExponentShift = 23;
-
-// Return floor(log2(f)), as an int.
-// See: https://en.wikipedia.org/wiki/Single-precision_floating-point_format
-static inline int ExponentAsInt(const float f) {
-  IntFloatUnion u;
-  u.f = f;
-  return ((u.i >> kExponentShift) & kExponentMask) - 127;
-}
-
-// Return 2^i as a float.
-// See: https://en.wikipedia.org/wiki/Single-precision_floating-point_format
-static inline float ExponentFromInt(const int i) {
-  IntFloatUnion u;
-  u.i = (i + 127) << kExponentShift;
-  return u.f;
-}
-
-// Returns the reciprocal of the exponent of f.
-// e.g. f = 2.0, 2.1, or 3.99999 --> returns 0.5
-// e.g. f = 1/4 = 0.25 --> returns 4
-static inline float ReciprocalExponent(const float f) {
-  return ExponentFromInt(-ExponentAsInt(f));
-}
-
-// If the absolute value of `x` is less than epsilon, return zero.
-// Otherwise, return `x`. This function is useful in situations where the
-// mathematical result depends on knowing if a number is zero or not.
-static inline float ClampNearZero(const float x, const float epsilon) {
-  const bool is_near_zero = fabs(x) <= epsilon;
-  return is_near_zero ? 0.0f : x;
-}
 
 void QuadraticCurve::Init(const QuadraticInitWithStartDerivative& init) {
   //  f(u) = cu^2 + bu + a

@@ -48,6 +48,7 @@ MOTIVE_SRC_FILES := \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/compact_spline.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/curve.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/dual_cubic.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/math/float.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/motivator.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/processor/matrix_processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/processor/overshoot_processor.cpp \
