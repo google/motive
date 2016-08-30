@@ -275,6 +275,7 @@ class BulkSplineEvaluator {
   }
   float CubicStartX(const Index index) const {
     const Source& s = sources_[index];
+    assert(s.spline != nullptr);
     return s.spline->NodeX(s.x_index);
   }
   CubicInit CalculateBlendInit(const Index index, const CompactSpline& spline,

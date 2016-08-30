@@ -163,6 +163,13 @@ void BulkSplineEvaluator::SetSplines(
     const SplinePlayback& playback) {
   const CompactSpline* spline = splines;
   for (Index i = index; i < index + count; ++i, spline = spline->Next()) {
+    // `splines` should specify `count` splines, but gracefully handle the
+    // case when it doesn't.
+    if (spline == nullptr) {
+      ClearSplines(i, count - i + index);
+      break;
+    }
+
     // If we're already playing a spline, and the blend time is specified,
     // create a curve that blends from the current state to a point later in
     // the new spline.
@@ -190,6 +197,9 @@ void BulkSplineEvaluator::Splines(const Index index, const Index count,
 void BulkSplineEvaluator::ClearSplines(const Index index, const Index count) {
   for (Index i = index; i < index + count; ++i) {
     sources_[i].spline = nullptr;
+    cubics_[i] = CubicCurve(0.0f, 0.0f, 0.0f, cubic_xs_[i]);
+    cubic_xs_[i] = 0.0f;
+    cubic_x_ends_[i] = std::numeric_limits<float>::infinity();
   }
 }
 
