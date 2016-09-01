@@ -68,6 +68,8 @@ class AnimTable {
   ///
   typedef const char* LoadFn(const char* file_name, std::string* scratch_buf);
 
+  ~AnimTable();
+
   /// Load the AnimTable specified in the FlatBuffer `params`.
   /// For each animation in the AnimTable, `load_fn` is called to get the
   /// to load the individual animation files, if they're not embedded in
@@ -103,7 +105,7 @@ class AnimTable {
   ///                 match between objects.
   const RigAnim* Query(int object, int anim_idx) const {
     const AnimIndex idx = CalculateIndex(object, anim_idx);
-    return idx == kInvalidAnimIndex ? nullptr : &anims_[idx];
+    return idx == kInvalidAnimIndex ? nullptr : anims_[idx];
   }
 
   /// Get an animation by name. This is slow and should be avoided when
@@ -146,7 +148,7 @@ class AnimTable {
   RigAnim* QueryByName(const char* anim_name) {
     auto map_entry = name_map_.find(anim_name);
     if (map_entry == name_map_.end()) return nullptr;
-    return &anims_[map_entry->second];
+    return anims_[map_entry->second];
   }
 
   AnimIndex CalculateIndex(int object, int anim_idx) const {
@@ -172,7 +174,7 @@ class AnimTable {
   std::unordered_map<std::string, AnimIndex> name_map_;
 
   /// Animation data. Contains no duplicate entries, thanks to name_map_.
-  std::vector<RigAnim> anims_;
+  std::vector<RigAnim*> anims_;
 };
 
 }  // namespace motive
