@@ -164,6 +164,13 @@ class ListFileNamesDescriber : public TableDescriberInterface {
   const AnimTable::ListFileNames* list_names_;
 };
 
+AnimTable::~AnimTable() {
+  for (size_t i = 0; i < anims_.size(); ++i) {
+    delete anims_[i];
+    anims_[i] = nullptr;
+  }
+}
+
 bool AnimTable::InitFromFlatBuffers(const AnimTableFb& table_fb,
                                     LoadFn* load_fn) {
   AnimTableFbDescriber describer(table_fb);
@@ -238,8 +245,9 @@ bool AnimTable::Load(TableDescriberInterface* describer, LoadFn* load_fn) {
 
       // Create RigAnim from FlatBuffer.
       const AnimIndex new_idx = static_cast<AnimIndex>(anims_.size());
-      anims_.resize(new_idx + 1);
-      RigAnimFromFlatBuffers(*anim_fb, &anims_[new_idx]);
+      RigAnim* anim = new RigAnim();
+      RigAnimFromFlatBuffers(*anim_fb, anim);
+      anims_.push_back(anim);
 
       // Insert index into name map so that we only load this anim once.
       name_map_.insert(NameToIndex(anim_name, new_idx));
@@ -357,7 +365,7 @@ size_t AnimTable::GatherObjectAnims(int object, const RigAnim** anims) const {
   size_t num_anims = 0;
   for (size_t j = 0; j < list.size(); ++j) {
     if (list[j] == kInvalidAnimIndex) continue;
-    anims[num_anims++] = &anims_[list[j]];
+    anims[num_anims++] = anims_[list[j]];
   }
   return num_anims;
 }
