@@ -331,7 +331,8 @@ class FlatAnim {
           //
           // So to convert from scale-? id to scale-uniformly id, we add on
           // the difference kScaleUniformly - kScale?.
-          channels[ch].id += motive::kScaleUniformly - channels[ch].op;
+          channels[ch].id += motive::kScaleUniformly -
+                             static_cast<MatrixOpId>(channels[ch].op);
           channels[ch].op = motive::kScaleUniformly;
           channels.erase(channels.begin() + (ch + 1),
                          channels.begin() + (ch + 3));
@@ -1021,12 +1022,13 @@ class FlatAnim {
 
     // Maximize the bits we get for x by making the last time the maximum
     // x-value.
-    const float x_granularity =
-        CompactSpline::RecommendXGranularity(nodes.back().time);
+    const float x_granularity = CompactSpline::RecommendXGranularity(
+        static_cast<float>(nodes.back().time));
     const Range y_range = SplineYRange(ch);
 
     // Construct the Spline from the node data directly.
-    CompactSpline* s = CompactSpline::Create(static_cast<int>(nodes.size()));
+    CompactSpline* s =
+        CompactSpline::Create(static_cast<CompactSplineIndex>(nodes.size()));
     s->Init(y_range, x_granularity);
     for (auto n = nodes.begin(); n != nodes.end(); ++n) {
       const float n_time = static_cast<float>(std::max(0, n->time));
@@ -1379,7 +1381,7 @@ class FbxAnimParser {
 
         // Allocate a channel_id for the output data.
         const FlatChannelId channel_id =
-            out->AllocChannel(op, p.id + channel_idx);
+            out->AllocChannel(op, static_cast<MatrixOpId>(p.id + channel_idx));
 
         // Record constant value for this channel.
         if (anim_const) {

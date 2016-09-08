@@ -32,6 +32,8 @@ static const CompactSplineIndex kBeforeSplineIndex =
     static_cast<CompactSplineIndex>(-2);
 static const CompactSplineIndex kAfterSplineIndex =
     static_cast<CompactSplineIndex>(-3);
+static const CompactSplineIndex kMaxSplineIndex =
+    static_cast<CompactSplineIndex>(-4);
 
 /// Return true if `index` is not an index into the spline.
 inline bool OutsideSpline(CompactSplineIndex index) {
@@ -341,7 +343,8 @@ class CompactSpline {
   ///                  returned spline.
   static CompactSpline* CreateFromNodes(const UncompressedNode* nodes,
                                         size_t num_nodes) {
-    CompactSpline* spline = Create(num_nodes);
+    assert(num_nodes <= kMaxSplineIndex);
+    CompactSpline* spline = Create(static_cast<CompactSplineIndex>(num_nodes));
     spline->InitFromNodes(nodes, num_nodes);
     return spline;
   }
@@ -356,7 +359,9 @@ class CompactSpline {
   /// stack), you must stop referencing the returned CompactSpline.
   static CompactSpline* CreateFromNodesInPlace(const UncompressedNode* nodes,
                                                size_t num_nodes, void* buffer) {
-    CompactSpline* spline = CreateInPlace(num_nodes, buffer);
+    assert(num_nodes <= kMaxSplineIndex);
+    CompactSpline* spline =
+        CreateInPlace(static_cast<CompactSplineIndex>(num_nodes), buffer);
     spline->InitFromNodes(nodes, num_nodes);
     return spline;
   }
@@ -370,7 +375,8 @@ class CompactSpline {
   ///                  Also the max_nodes of the returned spline.
   static CompactSpline* CreateFromSpline(const CompactSpline& source_spline,
                                          size_t num_nodes) {
-    CompactSpline* spline = Create(num_nodes);
+    assert(num_nodes <= kMaxSplineIndex);
+    CompactSpline* spline = Create(static_cast<CompactSplineIndex>(num_nodes));
     spline->InitFromSpline(source_spline);
     return spline;
   }
@@ -385,7 +391,9 @@ class CompactSpline {
   /// @param buffer chunk of memory of size CompactSpline::Size(num_nodes).
   static CompactSpline* CreateFromSplineInPlace(
       const CompactSpline& source_spline, size_t num_nodes, void* buffer) {
-    CompactSpline* spline = CreateInPlace(num_nodes, buffer);
+    assert(num_nodes <= kMaxSplineIndex);
+    CompactSpline* spline =
+        CreateInPlace(static_cast<CompactSplineIndex>(num_nodes), buffer);
     spline->InitFromSpline(source_spline);
     return spline;
   }

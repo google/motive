@@ -152,6 +152,7 @@ class MotiveTests : public ::testing::Test {
   const CompactSpline* simple_splines(MotiveDimension dimension) const {
     assert(static_cast<size_t>(dimension) <=
            MOTIVE_ARRAY_SIZE(simple_splines_));
+    (void)dimension;
     return simple_splines_;
   }
 

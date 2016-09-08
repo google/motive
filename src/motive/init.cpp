@@ -48,6 +48,7 @@ RigInit::RigInit(const RigAnim& defining_anim, const BoneIndex* bone_parents,
   assert(defining_anim.NumBones() == 1 ||
          MatchesHierarchy(defining_anim, bone_parents, num_bones));
   (void)bone_parents;
+  (void)num_bones;
 }
 
 // static

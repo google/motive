@@ -471,9 +471,13 @@ static void CheckUncompressedNodes(const CompactSpline& spline,
                                    size_t num_nodes) {
   for (size_t i = 0; i < num_nodes; ++i) {
     const motive::UncompressedNode& n = nodes[i];
-    EXPECT_NEAR(n.x, spline.NodeX(i), kNodeXPrecision);
-    EXPECT_NEAR(n.y, spline.NodeY(i), kNodeYPrecision);
-    EXPECT_NEAR(n.derivative, spline.NodeDerivative(i), kDerivativePrecision);
+    EXPECT_NEAR(n.x, spline.NodeX(static_cast<CompactSplineIndex>(i)),
+                kNodeXPrecision);
+    EXPECT_NEAR(n.y, spline.NodeY(static_cast<CompactSplineIndex>(i)),
+                kNodeYPrecision);
+    EXPECT_NEAR(n.derivative,
+                spline.NodeDerivative(static_cast<CompactSplineIndex>(i)),
+                kDerivativePrecision);
   }
 }
 
