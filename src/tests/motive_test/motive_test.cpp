@@ -12,22 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "gtest/gtest.h"
 #include "flatbuffers/flatbuffers.h"
+#include "gtest/gtest.h"
+#include "mathfu/constants.h"
+#include "motive/common.h"
 #include "motive/engine.h"
 #include "motive/init.h"
-#include "mathfu/constants.h"
 #include "motive/math/angle.h"
-#include "motive/common.h"
+#include "motive/math/curve_util.h"
 
 #define DEBUG_PRINT_MATRICES 0
 
 using mathfu::mat4;
 using mathfu::vec2;
+using mathfu::vec2i;
 using mathfu::vec3;
 using mathfu::vec4;
 using motive::Angle;
 using motive::CompactSpline;
+using motive::EaseInEaseOutInit;
 using motive::kAngleRange;
 using motive::kHalfPi;
 using motive::kInvalidRange;
@@ -71,6 +74,9 @@ static const MotiveTime kTimePerFrame = 10;
 static const MotiveTime kMaxTime = 10000;
 static const float kMatrixEpsilon = 0.001f;
 static const float kAngleEpsilon = 0.01f;
+static const int kNumCheckPoints = motive::kDefaultGraphWidth;
+static const vec2i kGraphSize(kNumCheckPoints, motive::kDefaultGraphHeight);
+static const float kEpsilonScale = 0.001f;
 
 #define TEST_ALL_VECTOR_MOTIVATORS_F(MOTIVE_TEST_NAME) \
   TEST_F(MotiveTests, MOTIVE_TEST_NAME##Test) {        \
@@ -148,6 +154,7 @@ class MotiveTests : public ::testing::Test {
   }
   const SplineInit& spline_angle_init() const { return spline_angle_init_; }
   const SplineInit& smooth_scalar_init() const { return spline_scalar_init; }
+  const EaseInEaseOutInit& ease_init_() const { return ease_init__; }
   const CompactSpline& simple_spline() const { return simple_spline_; }
   const CompactSpline* simple_splines(MotiveDimension dimension) const {
     assert(static_cast<size_t>(dimension) <=
@@ -166,6 +173,19 @@ class MotiveTests : public ::testing::Test {
         init, &engine_,
         Tar::CurrentToTarget(Vec(start_value), Vec(start_velocity),
                              Vec(target_value), Vec(0.0f), 1));
+  }
+
+  template <class MotivatorT>
+  void InitEaseInEaseOutMotivator(const MotivatorInit& init, float start_value,
+                                  float start_velocity, float target_value,
+                                  float target_velocity,
+                                  MotivatorT* motivator) {
+    typedef typename MotivatorT::TargetBuilder Tar;
+    typedef typename MotivatorT::Vec Vec;
+    motivator->InitializeWithTarget(
+        init, &engine_,
+        Tar::CurrentToTarget(Vec(start_value), Vec(start_velocity),
+                             Vec(target_value), Vec(target_velocity), 1));
   }
 
   template <class MotivatorT>
@@ -198,6 +218,7 @@ class MotiveTests : public ::testing::Test {
   virtual void SetUp() {
     motive::OvershootInit::Register();
     motive::SplineInit::Register();
+    motive::EaseInEaseOutInit::Register();
     motive::MatrixInit::Register();
 
     // Create an OvershootInit with reasonable values.
@@ -246,9 +267,202 @@ class MotiveTests : public ::testing::Test {
   OvershootInit overshoot_percent_init_;
   SplineInit spline_angle_init_;
   SplineInit spline_scalar_init;
+  EaseInEaseOutInit ease_init__;
   CompactSpline simple_spline_;
   CompactSpline simple_splines_[4];
 };
+
+template <class MotivatorT>
+static void TestEaseInEaseOutInternal(float start_value, float start_velocity,
+                                      float target_value, float target_velocity,
+                                      float typical_delta_value,
+                                      float typical_total_time, float bias,
+                                      float delta_time,
+                                      bool test_with_set_target_every_frame,
+                                      MotiveTests* t) {
+  typedef typename MotivatorT::TargetBuilder Tar;
+  typedef typename MotivatorT::Vec Vec;
+
+  const float value_epsilon = std::fabs(target_value) * kEpsilonScale;
+  const float velocity_epsilon = std::fabs(target_velocity) * kEpsilonScale;
+
+  // Set up a motivator with the desired input values.
+  motive::EaseInEaseOutInit ease_in_ease_out_init(
+      EaseInEaseOutInit(typical_delta_value, typical_total_time, bias));
+  MotivatorT motivator;
+  t->InitEaseInEaseOutMotivator(ease_in_ease_out_init, start_value,
+                                start_velocity, target_value, target_velocity,
+                                &motivator);
+
+  EXPECT_TRUE(
+      VectorNear(Vec(start_value), motivator.Value(), Vec(value_epsilon)));
+  EXPECT_TRUE(VectorNear(Vec(start_velocity), motivator.Velocity(),
+                         Vec(velocity_epsilon)));
+  EXPECT_TRUE(VectorNear(Vec(target_value), motivator.TargetValue(),
+                         Vec(value_epsilon)));
+
+  float current_velocity[MotivatorT::kDimensions];
+  motivator.Velocities(current_velocity);
+  float past_velocity = std::numeric_limits<float>::infinity();
+  float past_value = std::numeric_limits<float>::infinity();
+
+  // Create a vector of points for printing the graph.
+  std::vector<vec2> points;
+  points.push_back(vec2(0.0f, motivator.Values()[0]));
+
+  // Advance frame more so we go past
+  // the total_x. We want to test the behavior
+  // of it past the original total x.
+  while (current_velocity[0] != past_velocity &&
+         motivator.Values()[0] != past_value) {
+    past_velocity = current_velocity[0];
+    past_value = motivator.Values()[0];
+    t->engine().AdvanceFrame(delta_time);
+    motivator.Velocities(current_velocity);
+
+    // Setting the target to the same target should have no affect.
+    if (test_with_set_target_every_frame && motivator.TargetTime() > 0.0f) {
+      const float target_time = motivator.TargetTime();
+      motivator.SetTarget(Tar::CurrentToTarget(
+          Vec(motivator.Values()[0]), Vec(current_velocity[0]),
+          Vec(target_value), Vec(target_velocity), 1));
+      EXPECT_EQ(target_time, motivator.TargetTime());
+    }
+    points.push_back(vec2(points.size() * delta_time, motivator.Values()[0]));
+  }
+
+  // Go another kPointsPastZeroVelocity ticks past reaching 0 velocity.
+  const int kPointsPastZeroVelocity = 30;
+  for (int j = 0; j < kPointsPastZeroVelocity; ++j) {
+    t->engine().AdvanceFrame(delta_time);
+    EXPECT_GE(0, motivator.TargetTime());
+    EXPECT_TRUE(VectorEqual(motivator.Velocity(), Vec(0.0f)));
+    points.push_back(vec2(points.size() * delta_time, motivator.Values()[0]));
+  }
+  EXPECT_TRUE(
+      VectorNear(Vec(target_value), motivator.Value(), Vec(value_epsilon)));
+#ifdef MOTIVE_OUTPUT_DEBUG_CURVES_IN_TESTS
+  printf("\n%s\n\n",
+         motive::Graph2DPoints(&points[0], static_cast<int>(points.size()),
+                               kGraphSize)
+             .c_str());
+#endif  // MOTIVE_OUTPUT_DEBUG_CURVES_IN_TESTS
+}
+
+template <class MotivatorT>
+static void TestEaseInEaseOut(float start_value, float start_velocity,
+                              float target_value, float target_velocity,
+                              float typical_delta_value, float typical_time,
+                              float bias, float delta_x, MotiveTests* t) {
+  TestEaseInEaseOutInternal<MotivatorT>(
+      start_value, start_velocity, target_value, target_velocity,
+      typical_delta_value, typical_time, bias, delta_x, true, t);
+  TestEaseInEaseOutInternal<MotivatorT>(
+      start_value, start_velocity, target_value, target_velocity,
+      typical_delta_value, typical_time, bias, delta_x, false, t);
+}
+
+// Simple test to create a 1 dimensional motivator, initialize it from 0~50,
+// and advance it past the end.
+TEST_F(MotiveTests, EaseInEaseOut1Dimension) {
+  TestEaseInEaseOut<Motivator1f>(0.0f, 0.0f, 50.0f, 0.0f, 100.0f, 200.0f, 0.85f,
+                                 1, this);
+}
+
+// 1D motivator with a right bias and larger than one delta_time.
+TEST_F(MotiveTests, EaseInEaseOut1DimensionDeltaTime) {
+  TestEaseInEaseOut<Motivator1f>(0.0f, 0.0f, 50.0f, 0.0f, 100.0f, 200.0f, 0.5f,
+                                 10, this);
+}
+
+// 1D motivator with a right bias and huge delta_time.
+TEST_F(MotiveTests, EaseInEaseOut1DimensionHugeDeltaTime) {
+  TestEaseInEaseOut<Motivator1f>(0.0f, 0.0f, 50.0f, 0.0f, 100.0f, 200.0f, 0.5f,
+                                 310, this);
+}
+
+// 1D motivator with a left bias.
+TEST_F(MotiveTests, EaseInEaseOut1DimensionLeftBias) {
+  TestEaseInEaseOut<Motivator1f>(0.0f, 0.0f, 50.0f, 0.0f, 87.4f, 189.0f, 0.15f,
+                                 1, this);
+}
+
+// 1D motivator with a left bias and non-zero start and end velocities.
+TEST_F(MotiveTests, EaseInEaseOut1DimensionLeftBiasNonZeroStartEnd) {
+  TestEaseInEaseOut<Motivator1f>(0.0f, 0.2f, 75.0f, 0.67f, 87.4f, 1845.01f,
+                                 0.19f, 1, this);
+}
+
+// 1D motivator with a right bias and non-zero start and end velocities.
+TEST_F(MotiveTests, EaseInEaseOut1DimensionRightBiasNonZeroStartEnd) {
+  TestEaseInEaseOut<Motivator1f>(0.0f, 0.1f, 23.0f, 0.8f, 11.2f, 34.0f, 0.9f, 1,
+                                 this);
+}
+
+// 1D motivator with a right bias.
+TEST_F(MotiveTests, EaseInEaseOut1DimensionRightBias) {
+  TestEaseInEaseOut<Motivator1f>(0.0f, 0.0f, 103.4f, 0.0f, 150.2f, 93.0f, 0.75f,
+                                 1, this);
+}
+
+// 1D motivator with a non-zero end velocity.
+TEST_F(MotiveTests, EaseInEaseOut1DimensionNonZeroEndDerivative) {
+  TestEaseInEaseOut<Motivator1f>(0.0f, 0.0f, 50.0f, 0.8f, 100.0f, 200.0f, 0.5f,
+                                 1, this);
+}
+
+// 1D motivator with a negative end velocity.
+TEST_F(MotiveTests, EaseInEaseOut1DimensionNonZeroFlipped) {
+  TestEaseInEaseOut<Motivator1f>(0.0f, 0.0f, 50.0f, -0.8f, 100.0f, 200.0f, 0.5f,
+                                 1, this);
+}
+
+// 1D motivator with a close start and end point with a left bias.
+TEST_F(MotiveTests, CloseStartEnd1Dimension) {
+  TestEaseInEaseOut<Motivator1f>(48.0f, 0.0f, 50.0f, 0.0f, 1.0f, 12.0f, 0.3f, 1,
+                                 this);
+}
+
+// 2D motivator with a right bias.
+TEST_F(MotiveTests, EaseInEaseOut2Dimension) {
+  TestEaseInEaseOut<Motivator2f>(0.0f, 0.0f, 50.0f, 0.0f, 100.0f, 200.0f, 0.87f,
+                                 1, this);
+}
+
+// 3D motivator with a right bias.
+TEST_F(MotiveTests, EaseInEaseOut3Dimension) {
+  TestEaseInEaseOut<Motivator3f>(0.0f, 0.0f, 65.3f, 0.0f, 134.0f, 89.3f, 0.60f,
+                                 1, this);
+}
+
+// Test with extra active motivators.
+TEST_F(MotiveTests, EaseInEaseOutMultiMotivators) {
+  float start_value = 0.0f;
+  float start_velocity = 0.0f;
+  float target_value = 65.3f;
+  float target_velocity = 0.0f;
+  float typical_delta_value = 134.0f;
+  float typical_total_time = 89.3f;
+  float bias = 0.60f;
+  int delta_x = 1;
+  const int kNumTestMotivators = 100;
+
+  // Create test motivators to exist while
+  // the tests are run.
+  Motivator1f test_motivators[kNumTestMotivators];
+  motive::EaseInEaseOutInit ease_in_ease_out_init(
+      EaseInEaseOutInit(134.0f, typical_total_time, bias));
+  for (int i = 0; i < kNumTestMotivators; ++i) {
+    test_motivators[i] = motive::Motivator1f();
+    InitEaseInEaseOutMotivator(ease_in_ease_out_init, start_value,
+                               start_velocity, target_value, target_velocity,
+                               &test_motivators[i]);
+  }
+
+  TestEaseInEaseOut<Motivator1f>(start_value, start_velocity, target_value,
+                                 target_velocity, typical_delta_value,
+                                 typical_total_time, bias, delta_x, this);
+}
 
 // Ensure we wrap around from pi to -pi.
 template <class MotivatorT>
@@ -299,7 +513,7 @@ void SettlesOnMax(MotiveTests& t) {
 }
 TEST_ALL_VECTOR_MOTIVATORS_F(SettlesOnMax)
 
-// Ensure the simulation does not exceed the max bound, on constrants that
+// Ensure the simulation does not exceed the max bound, on constraints that
 // do not wrap around.
 template <class MotivatorT>
 void StaysWithinBound(MotiveTests& t) {
@@ -310,9 +524,8 @@ void StaysWithinBound(MotiveTests& t) {
 
   // Even though we're at the bound and trying to travel beyond the bound,
   // the simulation should clamp our position to the bound.
-  EXPECT_TRUE(
-      VectorEqual(motivator.Value(),
-                  Vec(t.overshoot_percent_init().range().end())));
+  EXPECT_TRUE(VectorEqual(motivator.Value(),
+                          Vec(t.overshoot_percent_init().range().end())));
 }
 TEST_ALL_VECTOR_MOTIVATORS_F(StaysWithinBound)
 

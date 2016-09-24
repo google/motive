@@ -139,6 +139,9 @@ class MotivatorInit {
   TypeName(const TypeName&);                      \
   void operator=(const TypeName&)
 
+/// Print ASCII curves in motive tests.
+#define MOTIVE_OUTPUT_DEBUG_CURVES_IN_TESTS
+
 }  // namespace motive
 
 #endif  // MOTIVE_COMMON_H_

@@ -29,8 +29,10 @@ static const float kEpsilonScale = 0.001f;
 static const float kNumTestPoints = 100.0f;
 
 static void PrintCurveAsAsciiGraph(const QuadraticEaseInEaseOut& q) {
+#ifdef MOTIVE_OUTPUT_DEBUG_CURVES_IN_TESTS
   printf("%s", GraphCurveOnXRange(q, motive::kCurveValue, Range(0, q.total_x()))
                    .c_str());
+#endif  // MOTIVE_OUTPUT_DEBUG_CURVES_IN_TESTS
 }
 
 class CurveUtilTests : public ::testing::Test {
@@ -43,10 +45,12 @@ static void TestEaseInEaseOut(float start_value, float start_derivative,
                               float start_second_derivative_abs,
                               float end_value, float end_derivative,
                               float end_second_derivative_abs,
+                              float typical_delta_value,
                               float typical_total_x) {
   QuadraticEaseInEaseOut start_q = motive::CalculateQuadraticEaseInEaseOut(
       start_value, start_derivative, start_second_derivative_abs, end_value,
-      end_derivative, end_second_derivative_abs, typical_total_x);
+      end_derivative, end_second_derivative_abs, typical_delta_value,
+      typical_total_x);
   PrintCurveAsAsciiGraph(start_q);
 
   // TODO(laijess): Epsilon values still need to be improved.
@@ -84,7 +88,8 @@ static void TestEaseInEaseOut(float start_value, float start_derivative,
   for (;;) {
     QuadraticEaseInEaseOut q = motive::CalculateQuadraticEaseInEaseOut(
         cur_value, cur_derivative, start_second_derivative_abs, end_value,
-        end_derivative, end_second_derivative_abs, typical_total_x);
+        end_derivative, end_second_derivative_abs, typical_delta_value,
+        typical_total_x);
 
     // Reevaluated curve should end and transition at the same time.
     EXPECT_NEAR(q.total_x() + cur_x, start_q.total_x(), x_epsilon);
@@ -131,7 +136,7 @@ static void TestEaseInEaseOutWithTypicalValues(
       &end_second_derivative_abs);
   TestEaseInEaseOut(start_value, start_derivative, start_second_derivative_abs,
                     end_value, end_derivative, end_second_derivative_abs,
-                    typical_total_x);
+                    typical_delta_value, typical_total_x);
 }
 
 // Actual same as typical.
@@ -149,128 +154,128 @@ void TestActualMatchesTypical(float typical_delta_value, float typical_total_x,
   // and the difference between start and end value is typical_delta_value.
   QuadraticEaseInEaseOut q = motive::CalculateQuadraticEaseInEaseOut(
       0.0f, 0.0f, start_second_derivative_abs, typical_delta_value, 0.0f,
-      end_second_derivative_abs, typical_total_x);
+      end_second_derivative_abs, typical_delta_value, typical_total_x);
   EXPECT_EQ(q.total_x(), typical_total_x);
 }
 
 // Super-simple ease in ease out, start and end derivatives 0.
 TEST_F(CurveUtilTests, EaseInEaseOutZeroToOne) {
-  TestEaseInEaseOut(0.0f, 0.0f, 0.1f, 1.0f, 0.0f, 0.1f, 6.4f);
+  TestEaseInEaseOut(0.0f, 0.0f, 0.1f, 1.0f, 0.0f, 0.1f, 1.0f, 6.4f);
 }
 
 // Fast ease-in and slow ease-out.
 TEST_F(CurveUtilTests, FastInSlowOut) {
-  TestEaseInEaseOut(0.0f, 0.0f, 0.2f, 1.0f, 0.0f, 0.05f, 7.1f);
+  TestEaseInEaseOut(0.0f, 0.0f, 0.2f, 1.0f, 0.0f, 0.05f, 1.0f, 7.1f);
 }
 
 // Slow ease-in and fast ease-out.
 TEST_F(CurveUtilTests, SlowInFastOut) {
-  TestEaseInEaseOut(0.0f, 0.0f, 0.01f, 1.0f, 0.0f, 0.1f, 14.9f);
+  TestEaseInEaseOut(0.0f, 0.0f, 0.01f, 1.0f, 0.0f, 0.1f, 1.0f, 14.9f);
 }
 
 // Really small second derivatives.
 TEST_F(CurveUtilTests, LongTime) {
-  TestEaseInEaseOut(0.0f, 0.0f, 0.0001f, 1.0f, 0.0f, 0.0003f, 163.3f);
+  TestEaseInEaseOut(0.0f, 0.0f, 0.0001f, 1.0f, 0.0f, 0.0003f, 1.0f, 163.3f);
 }
 
 // Larger second derivatives.
 TEST_F(CurveUtilTests, ShortTime) {
-  TestEaseInEaseOut(0.0f, 0.0f, 0.6f, 1.0f, 0.0f, 0.8f, 2.5f);
+  TestEaseInEaseOut(0.0f, 0.0f, 0.6f, 1.0f, 0.0f, 0.8f, 1.0f, 2.5f);
 }
 
 // Simple fast ease in ease out.
 TEST_F(CurveUtilTests, FastInFastOut) {
-  TestEaseInEaseOut(0.0f, 0.0f, 0.8f, 1.0f, 0.0f, 0.8f, 2.3f);
+  TestEaseInEaseOut(0.0f, 0.0f, 0.8f, 1.0f, 0.0f, 0.8f, 1.0f, 2.3f);
 }
 
 // Has a non-zero end derivative.
 TEST_F(CurveUtilTests, EndNonzeroFirst) {
-  TestEaseInEaseOut(0.0f, 0.0f, 0.1f, 1.0f, 0.2f, 0.1f, 5.0f);
+  TestEaseInEaseOut(0.0f, 0.0f, 0.1f, 1.0f, 0.2f, 0.1f, 1.0f, 5.0f);
 }
 
 // Has a non-zero start derivative.
 TEST_F(CurveUtilTests, StartNonzeroFirst) {
-  TestEaseInEaseOut(0.0f, 0.2f, 0.1f, 1.0f, 0.0f, 0.1f, 5.0f);
+  TestEaseInEaseOut(0.0f, 0.2f, 0.1f, 1.0f, 0.0f, 0.1f, 1.0f, 5.0f);
 }
 
 // Similar start and end with large start derivative.
 TEST_F(CurveUtilTests, CloseStartEndLargeStartDerivative) {
-  TestEaseInEaseOut(0.3f, 1.3f, 0.1f, .32f, 0.0f, 0.1f, 13.0f);
+  TestEaseInEaseOut(0.3f, 1.3f, 0.1f, .32f, 0.0f, 0.1f, 0.02f, 13.0f);
 }
 
 // Fast ease-in and slow ease-out when points are very close.
 TEST_F(CurveUtilTests, FastInSlowOutCloseStartEnd) {
-  TestEaseInEaseOut(0.1f, 0.0f, 0.2f, 0.2f, 0.0f, 0.05f, 2.3f);
+  TestEaseInEaseOut(0.1f, 0.0f, 0.2f, 0.2f, 0.0f, 0.05f, 0.1f, 2.3f);
 }
 
 // Slow ease-in and fast ease-out when points are very close.
 TEST_F(CurveUtilTests, SlowInFastOutCloseStartEnd) {
-  TestEaseInEaseOut(0.1f, 0.0f, 0.01f, 0.12f, 0.0f, 0.1f, 2.1f);
+  TestEaseInEaseOut(0.1f, 0.0f, 0.01f, 0.12f, 0.0f, 0.1f, 0.02f, 2.1f);
 }
 
 // Super-simple ease in ease out, start and end derivatives 0.
 TEST_F(CurveUtilTests, EaseInEaseOutOneToZero) {
-  TestEaseInEaseOut(1.0f, 0.0f, 0.1f, 0.0f, 0.0f, 0.1f, 6.4f);
+  TestEaseInEaseOut(1.0f, 0.0f, 0.1f, 0.0f, 0.0f, 0.1f, 1.0f, 6.4f);
 }
 
 // Fast ease-in and slow ease-out.
 TEST_F(CurveUtilTests, FastInSlowOutOneToZero) {
-  TestEaseInEaseOut(1.0f, 0.0f, 0.2f, 0.0f, 0.0f, 0.05f, 7.1f);
+  TestEaseInEaseOut(1.0f, 0.0f, 0.2f, 0.0f, 0.0f, 0.05f, 1.0f, 7.1f);
 }
 
 // Fast test with large start derivative.
 TEST_F(CurveUtilTests, ShortTimeLargeStartDerivative) {
-  TestEaseInEaseOut(0.0f, 0.5f, 0.2f, 1.0f, 0.0f, 0.8f, 2.1f);
+  TestEaseInEaseOut(0.0f, 0.5f, 0.2f, 1.0f, 0.0f, 0.8f, 1.0f, 2.1f);
 }
 
 // Long test, start and end close.
 TEST_F(CurveUtilTests, LongTimeCloseStartEnd) {
-  TestEaseInEaseOut(0.0f, 0.0f, 0.0001f, 0.15f, 0.0f, 0.0003f, 63.3f);
+  TestEaseInEaseOut(0.0f, 0.0f, 0.0001f, 0.15f, 0.0f, 0.0003f, 0.15f, 63.3f);
 }
 
 // Negative derivatives.
 TEST_F(CurveUtilTests, NegativeStartDerivative) {
-  TestEaseInEaseOut(0.0f, -0.1f, 0.1f, 1.0f, 0.1f, 0.1f, 6.7f);
+  TestEaseInEaseOut(0.0f, -0.1f, 0.1f, 1.0f, 0.1f, 0.1f, 1.0f, 6.7f);
 }
 
 // // Negative derivatives.
 TEST_F(CurveUtilTests, ReallyNegativeStartDerivative) {
-  TestEaseInEaseOut(0.0f, -0.9f, 0.1f, 1.0f, 0.1f, 0.1f, 22.3f);
+  TestEaseInEaseOut(0.0f, -0.9f, 0.1f, 1.0f, 0.1f, 0.1f, 1.0f, 22.3f);
 }
 
 // Large start derivative.
 TEST_F(CurveUtilTests, LargeStartDerivative) {
-  TestEaseInEaseOut(0.0f, 0.9f, 0.1f, 1.0f, 0.0f, 0.1f, 9.0f);
+  TestEaseInEaseOut(0.0f, 0.9f, 0.1f, 1.0f, 0.0f, 0.1f, 1.0f, 9.0f);
 }
 
 // Slow test with large end derivative.
 TEST_F(CurveUtilTests, LongTimeLargeEndDerivative) {
-  TestEaseInEaseOut(0.0f, 0.0f, 0.0001f, 1.0f, 0.9f, 0.0003f, 6001.2f);
+  TestEaseInEaseOut(0.0f, 0.0f, 0.0001f, 1.0f, 0.9f, 0.0003f, 1.0f, 6001.2f);
 }
 
 // Similar start and end with large end derivative.
 TEST_F(CurveUtilTests, CloseStartEndLargeEndDerivative) {
-  TestEaseInEaseOut(0.9f, 0.0f, 0.1f, 1.0f, 0.9f, 0.1f, 9.0f);
+  TestEaseInEaseOut(0.9f, 0.0f, 0.1f, 1.0f, 0.9f, 0.1f, 0.1f, 9.0f);
 }
 
 // Slow in with big start derivative.
 TEST_F(CurveUtilTests, SlowInLargeStartDerivative) {
-  TestEaseInEaseOut(0.0f, 0.9f, 0.0001f, 1.0f, 0.0f, 0.1f, 12.4f);
+  TestEaseInEaseOut(0.0f, 0.9f, 0.0001f, 1.0f, 0.0f, 0.1f, 1.0f, 12.4f);
 }
 
 // Similar start and end with large end derivative and nonzero start.
 TEST_F(CurveUtilTests, CloseStartEndLargeEndNonzeroStartDerivative) {
-  TestEaseInEaseOut(0.9f, 0.3f, 0.1f, 1.0f, 0.9f, 0.1f, 6.0f);
+  TestEaseInEaseOut(0.9f, 0.3f, 0.1f, 1.0f, 0.9f, 0.1f, 0.1f, 6.0f);
 }
 
 // Large end derivative.
 TEST_F(CurveUtilTests, LargeEndDerivative) {
-  TestEaseInEaseOut(0.0f, 0.0f, 0.1f, 1.0f, 0.9f, 0.1f, 9.0f);
+  TestEaseInEaseOut(0.0f, 0.0f, 0.1f, 1.0f, 0.9f, 0.1f, 1.0f, 9.0f);
 }
 
 // Same start and end with time between.
 TEST_F(CurveUtilTests, SameStartEndTime) {
-  TestEaseInEaseOut(1.0f, -0.1f, 0.1f, 1.0f, -0.1f, 0.1f, 4.0f);
+  TestEaseInEaseOut(1.0f, -0.1f, 0.1f, 1.0f, -0.1f, 0.1f, 0.1f, 4.0f);
 }
 
 // Super-simple ease in ease out, with typical values.

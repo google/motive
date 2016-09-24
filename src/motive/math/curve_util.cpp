@@ -279,16 +279,42 @@ QuadraticEaseInEaseOut CalculateQuadraticFlyIn(float start_value,
 
 // Returns a QuadraticEaseInEaseOut curve that best matches
 // the requested start and end values, derivatives,
-// and second derivative;
+// and second derivative.
 QuadraticEaseInEaseOut CalculateQuadraticEaseInEaseOut(
     float start_value, float start_derivative,
     float start_second_derivative_abs, float end_value, float end_derivative,
-    float end_second_derivative_abs, float typical_total_x) {
+    float end_second_derivative_abs, float typical_delta_value,
+    float typical_total_x) {
   // Ensure that both second derivatives are greater than or equal to 0.
   assert(start_second_derivative_abs > 0.0f &&
-         end_second_derivative_abs > 0.0f);
+         end_second_derivative_abs > 0.0f && typical_delta_value > 0.0f &&
+         typical_total_x > 0.0f);
 
-  const float start_curvature = end_value >= start_value ? 1.0f : -1.0f;
+  const float value_epsilon = kEpsilonScale * typical_delta_value;
+  const float typical_derivative = typical_delta_value / typical_total_x;
+  const float derivative_epsilon = kEpsilonScale * typical_derivative;
+
+  bool end_value_eq_start_value =
+      std::fabs(end_value - start_value) <= value_epsilon;
+
+  // If the end and start derivative are close to each other
+  // and we are at the desired value, return a single
+  // point at the value.
+  if (end_value_eq_start_value &&
+      std::fabs(end_derivative - start_derivative) <= derivative_epsilon) {
+    return QuadraticEaseInEaseOut(
+        QuadraticInitWithOrigin(start_value, start_derivative, 0), 0.0f);
+  }
+
+  // If the end value and start value are equal, the curvature
+  // should be positive if start_derivative is negative and
+  // negative if it's not.
+  float start_curvature = 0.0f;
+  if (end_value_eq_start_value) {
+    start_curvature = start_derivative < 0.0f ? 1.0f : -1.0f;
+  } else {
+    start_curvature = end_value >= start_value ? 1.0f : -1.0f;
+  }
 
   // If either second derivative is infinity, calculate the curve
   // using either just the in curve or just the out curve.
@@ -314,14 +340,6 @@ QuadraticEaseInEaseOut CalculateQuadraticEaseInEaseOut(
       in_curve, out_curve, typical_total_x, &intersection_x, &total_x);
   assert(success);
   (void)success;
-
-  // TODO(laijess): Fix to account for floating point errors.
-  // If the end and start derivative are of the same sign and
-  // we are at the desired value, return a single point at the value.
-  if (end_derivative * start_derivative >= 0.0f && end_value == start_value) {
-    return QuadraticEaseInEaseOut(
-        QuadraticInitWithOrigin(start_value, start_derivative, 0), 0.0f);
-  }
 
   // If the desired end derivative occurs after intersection or
   // if the intersection is before our start_x, then

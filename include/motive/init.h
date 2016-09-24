@@ -70,6 +70,47 @@ inline Range RangeOfOp(MatrixOperationType op) {
 /// Return a string with the operation name. Used for debugging.
 const char* MatrixOpName(const MatrixOperationType op);
 
+/// @class EaseInEaseOutInit
+/// @brief Initialize a MotivatorNf move towards target using ease-in
+///        ease-out math.
+///
+/// Call @ref MotivatorNf::SetTargets to set the target the curve
+/// moves towards.
+class EaseInEaseOutInit : public MotivatorInit {
+ public:
+  MOTIVE_INTERFACE();
+
+  EaseInEaseOutInit()
+      : MotivatorInit(kType),
+        typical_delta_value_(0.0f),
+        typical_total_time_(0.0f),
+        bias_(0.0f) {}
+
+  /// Please see @ref CalculateQuadraticEaseInEaseOut for a
+  /// description of the parameters.
+  EaseInEaseOutInit(float typical_delta_value, float typical_total_time,
+                    float bias)
+      : MotivatorInit(kType),
+        typical_delta_value_(typical_delta_value),
+        typical_total_time_(typical_total_time),
+        bias_(bias) {}
+
+  float typical_delta_value() const { return typical_delta_value_; }
+  float typical_total_time() const { return typical_total_time_; }
+  float bias() const { return bias_; }
+
+ private:
+  /// Typical y-distance traveled in typical total time.
+  float typical_delta_value_;
+
+  /// Typical total time required to travel desired distance.
+  float typical_total_time_;
+
+  /// A value from 0.0 to 1.0 that determines how much of the
+  /// curve is ease-in and how much is ease-out.
+  float bias_;
+};
+
 /// @class OvershootInit
 /// @brief Initialize a MotivatorNf move towards a target using spring physics.
 ///

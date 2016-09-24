@@ -107,6 +107,8 @@ class QuadraticEaseInEaseOut {
 /// @param end_second_derivative_abs Absolute value of the float that represents
 ///                                  the QuadraticEaseInEaseOut's desired final
 ///                                  second derivative.
+/// @param typical_delta_value Used with typical_total_x to calculate epsilon
+///                            value for derivatives.
 /// @param typical_total_x The total_x() value of the returned curve that you
 ///                        would expect in a typical longer curve. Used to
 ///                        calculate epsilon value for floating point
@@ -114,7 +116,8 @@ class QuadraticEaseInEaseOut {
 QuadraticEaseInEaseOut CalculateQuadraticEaseInEaseOut(
     float start_value, float start_derivative,
     float start_second_derivative_abs, float end_value, float end_derivative,
-    float end_second_derivative_abs, float typical_total_x);
+    float end_second_derivative_abs, float typical_delta_value,
+    float typical_total_x);
 
 /// @brief Provides an intuitive way to calculate second derivatives for
 /// a QuadraticEaseInEaseOut curve.
