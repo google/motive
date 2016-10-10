@@ -23,7 +23,7 @@ using motive::QuadraticEaseInEaseOut;
 using motive::Range;
 
 // The scale to be used to estimate error in our tests.
-static const float kEpsilonScale = 0.0001f;
+static const float kEpsilonScale = 0.001f;
 
 // The number of points we want to test on our curve.
 static const float kNumTestPoints = 100.0f;
@@ -63,18 +63,14 @@ static void TestEaseInEaseOut(float start_value, float start_derivative,
                std::abs(end_derivative)) *
       kEpsilonScale;
   EXPECT_NEAR(start_q.in_curve().Evaluate(0.0f), start_value, value_epsilon);
-  EXPECT_NEAR(start_q.in_curve().Derivative(0.0f), start_derivative,
-              derivative_epsilon);
+  if (!std::isinf(start_second_derivative_abs)) {
+    EXPECT_NEAR(start_q.in_curve().Derivative(0.0f), start_derivative,
+                derivative_epsilon);
+  }
 
-  // Equal in_curve and out_curve means that the desired end derivative is not
-  // attainable. Therefore, we are prioritizing achieving the end value
-  // and using just the in_curve.
-  if (start_q.out_curve() == start_q.in_curve()) {
-    EXPECT_NEAR(start_q.in_curve().Evaluate(start_q.total_x()), end_value,
-                value_epsilon);
-  } else {
-    EXPECT_NEAR(start_q.out_curve().Evaluate(start_q.total_x()), end_value,
-                value_epsilon);
+  EXPECT_NEAR(start_q.out_curve().Evaluate(start_q.total_x()), end_value,
+              value_epsilon);
+  if (start_q.out_curve() != start_q.in_curve()) {
     EXPECT_NEAR(start_q.out_curve().Derivative(start_q.total_x()),
                 end_derivative, derivative_epsilon);
   }
@@ -107,11 +103,9 @@ static void TestEaseInEaseOut(float start_value, float start_derivative,
       EXPECT_NEAR(q.Derivative(x), start_q.Derivative(start_x),
                   derivative_epsilon);
     }
-    if (q.out_curve() == q.in_curve()) {
-      EXPECT_NEAR(q.in_curve().Evaluate(q.total_x()), end_value, value_epsilon);
-    } else {
-      EXPECT_NEAR(q.out_curve().Evaluate(q.total_x()), end_value,
-                  value_epsilon);
+
+    EXPECT_NEAR(q.out_curve().Evaluate(q.total_x()), end_value, value_epsilon);
+    if (q.out_curve() != q.in_curve()) {
       EXPECT_NEAR(q.out_curve().Derivative(q.total_x()), end_derivative,
                   derivative_epsilon);
     }
@@ -124,6 +118,39 @@ static void TestEaseInEaseOut(float start_value, float start_derivative,
         cur_x / delta_x >= kNumTestPoints)
       break;
   }
+}
+
+static void TestEaseInEaseOutWithTypicalValues(
+    float start_value, float start_derivative, float end_value,
+    float end_derivative, float typical_delta_value, float typical_total_x,
+    float bias) {
+  float start_second_derivative_abs = 0.0f;
+  float end_second_derivative_abs = 0.0f;
+  motive::CalculateSecondDerivativesFromTypicalCurve(
+      typical_delta_value, typical_total_x, bias, &start_second_derivative_abs,
+      &end_second_derivative_abs);
+  TestEaseInEaseOut(start_value, start_derivative, start_second_derivative_abs,
+                    end_value, end_derivative, end_second_derivative_abs,
+                    typical_total_x);
+}
+
+// Actual same as typical.
+void TestActualMatchesTypical(float typical_delta_value, float typical_total_x,
+                              float bias) {
+  // Given an *actual* case that's the same as the *typical* case,
+  // the *actual* total_x should match the *typical* total_x.
+  float start_second_derivative_abs = 0.0f;
+  float end_second_derivative_abs = 0.0f;
+  motive::CalculateSecondDerivativesFromTypicalCurve(
+      typical_delta_value, typical_total_x, bias, &start_second_derivative_abs,
+      &end_second_derivative_abs);
+  // Make the *actual* situation is the same as the *typical*
+  // situation here. That is, start and end derivatives are 0,
+  // and the difference between start and end value is typical_delta_value.
+  QuadraticEaseInEaseOut q = motive::CalculateQuadraticEaseInEaseOut(
+      0.0f, 0.0f, start_second_derivative_abs, typical_delta_value, 0.0f,
+      end_second_derivative_abs, typical_total_x);
+  EXPECT_EQ(q.total_x(), typical_total_x);
 }
 
 // Super-simple ease in ease out, start and end derivatives 0.
@@ -240,10 +267,119 @@ TEST_F(CurveUtilTests, CloseStartEndLargeEndNonzeroStartDerivative) {
 TEST_F(CurveUtilTests, LargeEndDerivative) {
   TestEaseInEaseOut(0.0f, 0.0f, 0.1f, 1.0f, 0.9f, 0.1f, 9.0f);
 }
-//
-//// Same start and end with time between.
+
+// Same start and end with time between.
 TEST_F(CurveUtilTests, SameStartEndTime) {
   TestEaseInEaseOut(1.0f, -0.1f, 0.1f, 1.0f, -0.1f, 0.1f, 4.0f);
+}
+
+// Super-simple ease in ease out, with typical values.
+TEST_F(CurveUtilTests, EaseInEaseOutTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 6.4f, 0.5f);
+}
+
+// Fly out with typical values.
+TEST_F(CurveUtilTests, FlyOutTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 6.4f, 1.0f);
+}
+
+// Fly in with typical values.
+TEST_F(CurveUtilTests, FlyInTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 6.4f, 0.0f);
+}
+
+// Ease-in, ease-out with left bias.
+TEST_F(CurveUtilTests, EaseInEaseOutLeftTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 6.4f, 0.3f);
+}
+
+// Ease-in, ease-out with right bias.
+TEST_F(CurveUtilTests, EaseInEaseOutRightTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 6.4f, 0.85f);
+}
+
+// Go from one to zero, with typical values.
+TEST_F(CurveUtilTests, OneToZeroTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 6.4f, 0.5f);
+}
+
+// Go from one to zero with left bias.
+TEST_F(CurveUtilTests, OneToZeroLeftBiasTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 6.4f, 0.2f);
+}
+
+// Go from one to zero with right bias.
+TEST_F(CurveUtilTests, OneToZeroRightBiasTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 6.4f, 0.8f);
+}
+
+// Go from one to zero, fly out.
+TEST_F(CurveUtilTests, OneToZeroFlyOutTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 6.4f, 1.0f);
+}
+
+// Go from one to zero, fly in.
+TEST_F(CurveUtilTests, OneToZeroFlyInTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 6.4f, 0.0f);
+}
+
+// Close start end, left bias.
+TEST_F(CurveUtilTests, CloseStartEndLeftTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(0.1f, 0.0f, 0.12f, 0.0f, 1.0f, 8.5f,
+                                     0.15f);
+}
+
+// Close start end, right bias.
+TEST_F(CurveUtilTests, CloseStartEndRightTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(0.3f, 0.0f, 0.36f, 0.0f, 0.4f, 6.2f,
+                                     0.92f);
+}
+
+// Close start end, 0.5 bias.
+TEST_F(CurveUtilTests, CloseStartEndTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(0.1f, 0.0f, 0.12f, 0.0f, 1.3f, 10.0f,
+                                     0.5f);
+}
+
+// Close start end, 0.5 bias, non-zero end derivative.
+TEST_F(CurveUtilTests, CloseStartEndEndNonzeroDerivativeTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(0.1f, 0.0f, 0.12f, 0.87f, 0.2f, 10.5f,
+                                     0.5f);
+}
+
+// Close start end, left bias with non-zero derivatives.
+TEST_F(CurveUtilTests, CloseStartEndLeftNonZeroDerivativesTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(0.1f, 0.4f, 0.12f, 0.8f, 3.5f, 8.5f,
+                                     0.15f);
+}
+
+// Close start end, with 0.5 bias with non-zero derivatives.
+TEST_F(CurveUtilTests, CloseStartEndNonZeroDerivativesTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(0.1f, 0.4f, 0.16f, 0.8f, 0.9f, 12.5f,
+                                     0.5f);
+}
+
+// Close start end, 0.5 bias, non-zero start derivative.
+TEST_F(CurveUtilTests, CloseStartEndStartNonzeroDerivativeTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(0.1f, -0.87f, 0.12f, 0.0f, 1.0f, 10.0f,
+                                     0.5f);
+}
+
+// In and out with non-zero derivatives, right bias.
+TEST_F(CurveUtilTests, InOuttRightNonZeroDerivativesTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(0.0f, 0.98f, 1.0f, 0.62f, 1.4f, 7.1f,
+                                     0.76f);
+}
+
+// In and out with non-zero derivatives, right bias, big value change.
+TEST_F(CurveUtilTests, FarStartEndRightNonZeroDerivativesTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(0.0f, 0.64f, 40.3f, 0.62f, 2.0f, 9.2f,
+                                     0.68f);
+}
+
+// Actual same as typical.
+TEST_F(CurveUtilTests, TestActualMatchesTypical) {
+  TestActualMatchesTypical(1.0f, 7.8f, 0.4f);
 }
 
 // NOTE: The tests below this comment are still failing.
@@ -251,7 +387,7 @@ TEST_F(CurveUtilTests, SameStartEndTime) {
 // NOTE: This test fails by a very small margin.
 // Long test, similar start and end with large start derivative.
 // TEST_F(CurveUtilTests, LongTimeCloseStartEndLargeStartDerivative) {
-//  TestEaseInEaseOut(0.3f, 0.9f, 0.001f, 0.32f, 0.0f, 0.001f);
+//  TestEaseInEaseOut(0.3f, 0.9f, 0.001f, 0.32f, 0.0f, 0.001f, 373.0f);
 //}
 
 // NOTE: This test fails by a very small margin.

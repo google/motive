@@ -116,6 +116,172 @@ QuadraticEaseInEaseOut CalculateQuadraticEaseInEaseOut(
     float start_second_derivative_abs, float end_value, float end_derivative,
     float end_second_derivative_abs, float typical_total_x);
 
+/// @brief Provides an intuitive way to calculate second derivatives for
+/// a QuadraticEaseInEaseOut curve.
+///
+/// People normally think about ease-in ease-out curves as starting and
+/// ending with derivative 0. So our `typical` curve takes this shape by
+/// traveling a typical total distance, d, in time, u, with start
+/// and end derivatives of 0 and a bias.
+/// The bias determines the transition between in curve and out curve.
+/// The following are examples of what curves would look like with different
+/// bias values when end value is greater than start value:
+///
+///  bias = 0.0 (fly out; i.e. no ease-out, just ease-in):
+///    |                                                          *
+///    |                                                        **
+///    |                                                      **
+///    |                                                     *
+///    |                                                   **
+///    |                                                 **
+///    |                                               **
+///    |                                             **
+///    |                                           **
+///    |                                         **
+///    |                                       **
+///    |                                     **
+///    |                                  ***
+///    |                               ***
+///    |                            ***
+///    |                         ***
+///    |                     ****
+///    |                *****
+///    |         *******
+///    **********
+///
+///
+///  bias = 0.15:
+///    |
+///    |                                                  *********
+///    |                                           *******
+///    |                                       ****
+///    |                                   ****
+///    |                                ***
+///    |                             ***
+///    |                           **
+///    |                        ***
+///    |                      **
+///    |                    **
+///    |                  **
+///    | bias 0.15      **
+///    |              **
+///    |             *
+///    |           **
+///    |         **
+///    |        *
+///    |      **
+///    |   ***
+///    ****
+///
+///
+///  bias = 0.5:
+///    |                                                    *******
+///    |                                               *****
+///    |                                           ****
+///    |                                         **
+///    |                                      ***
+///    |                                    **
+///    |                                  **
+///    |                                **
+///    |                               *
+///    |                             **
+///    |       bias 0.5            **
+///    |                          *
+///    |                        **
+///    |                      **
+///    |                    **
+///    |                 ***
+///    |               **
+///    |           ****
+///    |      *****
+///    *******
+///
+///
+///  bias = 0.85:
+///    |
+///    |                                                       ****
+///    |                                                    ***
+///    |                                                  **
+///    |                                                 *
+///    |                                               **
+///    |                                             **
+///    |                bias 0.85                   *
+///    |                                          **
+///    |                                        **
+///    |                                      **
+///    |                                    **
+///    |                                  **
+///    |                               ***
+///    |                             **
+///    |                          ***
+///    |                       ***
+///    |                   ****
+///    |               ****
+///    |        *******
+///    *********
+///
+///
+///  bias = 1.0 (fly in; i.e. no ease-in, just ease-out):
+///    |
+///    |                                                 **********
+///    |                                          *******
+///    |                                     *****
+///    |                                 ****
+///    |                              ***
+///    |                           ***
+///    |                        ***
+///    |                     ***
+///    |                   **
+///    |                 **
+///    |               **
+///    |             **
+///    |           **
+///    |         **
+///    |       **
+///    |     **
+///    |    *
+///    |  **
+///    |**
+///    *
+///
+/// @param typical_delta_value The typical difference between the
+///                            start and end values.
+/// @param typical_total_x The typical time it takes to go the typical distance.
+/// @param bias Determines how much the curve should ease-in and how much it
+///             should ease-out. Should be a value from 0.0 to 1.0.
+/// @param start_second_derivative Curve's start second derivative.
+/// @param end_second_derivative Curve's end second derivative.
+void CalculateSecondDerivativesFromTypicalCurve(
+    float typical_delta_value, float typical_total_x, float bias,
+    float* start_second_derivative_abs, float* end_second_derivative_abs);
+
+/// @brief Returns a curve that goes to the end value as quickly as possible,
+/// using just ease-in.
+///
+/// This is the curve when bias is 0.0f.
+///
+/// @param start_value Curve's initial value.
+/// @param end_value Curve's end value.
+/// @param start_derivative Curve's initial derivative.
+/// @param second_derivative Curve's second derivative.
+QuadraticEaseInEaseOut CalculateQuadraticFlyOut(float start_value,
+                                                float end_value,
+                                                float start_derivative,
+                                                float second_derivative_abs);
+
+/// @brief Returns a curve that goes to the end value as quickly as possible,
+/// using just ease-out.
+///
+/// This is the curve when bias is 1.0f.
+///
+/// @param start_value Curve's initial value.
+/// @param end_value Curve's end value.
+/// @param end_derivative Curve's end derivative.
+/// @param second_derivative Curve's second derivative.
+QuadraticEaseInEaseOut CalculateQuadraticFlyIn(float start_value,
+                                               float end_value,
+                                               float end_derivative,
+                                               float second_derivative_abs);
 }  // namespace motive
 
 #endif  // MOTIVE_MATH_CURVE_UTIL_H_

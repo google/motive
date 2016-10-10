@@ -92,8 +92,8 @@ static bool CalculateShiftForUniqueIntersection(const QuadraticCurve& f,
   // We take the larger root of (2) as our shift, since we want to shift g
   // to the right side of f.
   //
-  // Since the descriminant of (1) is zero, we can solve easily for u using
-  // the quadratic formula (with descriminant removed),
+  // Since the discriminant of (1) is zero, we can solve easily for u using
+  // the quadratic formula (with discriminant removed),
   //             u = -(q + 2as) / 2p
   //
   const QuadraticCurve h = f - g;
@@ -139,30 +139,142 @@ static bool CalculateShiftForUniqueIntersection(const QuadraticCurve& f,
   return true;
 }
 
+void CalculateSecondDerivativesFromTypicalCurve(
+    float typical_delta_value, float typical_total_x, float bias,
+    float* start_second_derivative_abs, float* end_second_derivative_abs) {
+  // Let f(x) represent a ease-in curve and g(x) represent an
+  // ease-out curve, with respective second_derivatives '2A' and '2a'.
+  // Since f(0) = 0 and f'(0) = 0, we get:
+  //   f(x) = Ax^2 since f(0) = 0, f'(0) = 0.
+  //
+  // For s = 0.5f, we have a balanced curve and by symmetry, travel half the
+  // distance in half the time:
+  //   f(u/2) = d/2
+  //   Au^2/4 = d/2
+  //   A = 2d / u^2 (1)
+  //
+  // For s = 1.0f, we travel the full distance in full time and disregard
+  // the end second derivative:
+  //   f(u) = d
+  //   Au^2 = d
+  //   A = d/u^2 (2)
+  //
+  // For 0.5 <= s <= 1, we can scale A linearly from (1) to (2) as s increases,
+  // giving:
+  //   A = d / (su^2) (3)
+  //
+  // To calculate a, we let the ease out curve be:
+  //   g(x) = ax^2 + bx + c
+  //   g'(x) = 2ax + b
+  //   g''(x) = 2a
+  // Since we know g(u) = d and g'(u) = 0, we get:
+  //   0 = 2au + b
+  //   b = -2au (4)
+  // With:
+  //   d = au^2 + bu + c
+  //   c = d - au^2 - bu
+  //   c = d - au^2 + 2au^2
+  //   c = d + au^2 (5)
+  //
+  // We write g in terms of a by substituting (4) and (5):
+  //   g(x) = ax^2 + bx + c
+  //   g(x) = ax^2 - 2aux + au^2 + d
+  //
+  // We solve for 'a' by adjusting the curves so g and f intersect once.
+  // They are tangential at the intersection:
+  //   f(x) = g(x)
+  //   0 = g(x) - f(x)
+  //   0 = ax^2 - 2aux + au^2 + d - Ax^2
+  //   0 = (a-A)x^2 - 2aux + au^2 + d (6)
+  //
+  // The discriminant of (6) must be zero for us to have only one solution:
+  //   0 = 4a^2u^2 - 4(a-A)(au^2 + d)
+  //   0 = 4a^2u^2 - 4a^2u^2 - 4ad + 4Aau^2 + 4Ad
+  //   0 = a(-d + Au^2) + Ad
+  //   a = Ad / (d - Au^2)   (7)
+  //
+  // We then substitute (3) to get (7) in terms of s.
+  //   a = (d / (su^2))d / (d - (d / (su^2))u^2)
+  //   a = (1/su^2) / (d - d/s)
+  //   a = 1 / d(s - 1)u^2 (8)
+  //
+  // Additionally, by symmetry, when s < 0.5f, we can
+  // use 1 - s with our calculations, and flip our end results and signs so
+  // that:
+  //   A = -1 / d(s - 1)u^2   (9)
+  //   a = -d / (su^2) (10)
+  //
+  // Thus, when s >= 0.5f, we get A and a from equations (3) and (8)
+  // respectively, and when s < 0.5f, we get A and a from equations
+  // (9) and (10) respectively.
+  // So, when s >= 0.5f, we get:
+  //   start_second_derivative = 2 * A
+  //   start_second_derivative = 2 * d / (su^2)  (11)
+  //   end_second_derivative = 2 * a
+  //   end_second_derivative = 2 / d(s - 1)u^2   (12)
+  //
+  // And when s < 0.5f, we get:
+  //   start_second_derivative = -2 / d(s - 1)u^2 (13)
+  //   end_second_derivative = -2 * d / (su^2)  (14)
+  //
+  // This function will return the absolute values of the second derivatives
+  // to provide a clearer interface.
+
+  assert(bias >= 0.0f && bias <= 1.0f && typical_total_x > 0.0f &&
+         typical_delta_value > 0.0f);
+  const bool ease_in_bias = bias >= 0.5f;
+  const float s = ease_in_bias ? bias : 1.0f - bias;
+  const float typical_total_x_squared = typical_total_x * typical_total_x;
+  const float bigger_second_derivative =
+      2.0f * typical_delta_value / (s * typical_total_x_squared);
+  const float smaller_second_derivative =
+      2.0f / (typical_delta_value * (1.0f - s) * typical_total_x_squared);
+  *start_second_derivative_abs =
+      ease_in_bias ? bigger_second_derivative : smaller_second_derivative;
+  *end_second_derivative_abs =
+      ease_in_bias ? smaller_second_derivative : bigger_second_derivative;
+}
+
 // Calculate a single quadratic curve that goes directly to end_value,
 // when the curve is overdetermined and the desired end derivative
 // cannot be achieved.
-QuadraticEaseInEaseOut CalculateExtremeQuadraticEaseInEaseOut(
-    float start_value, float end_value, float end_derivative,
-    float start_derivative, float start_second_derivative_abs,
-    float end_second_derivative_abs) {
-  float start_sign = end_derivative >= start_derivative ? 1.0f : -1.0f;
+QuadraticEaseInEaseOut CalculateQuadraticFlyOut(float start_value,
+                                                float end_value,
+                                                float start_derivative,
+                                                float second_derivative_abs) {
+  const float curvature = end_value >= start_value ? 1.0f : -1.0f;
+  const QuadraticCurve fly_out(QuadraticInitWithOrigin(
+      start_value, start_derivative, curvature * second_derivative_abs));
 
-  // Select the larger second derivative, which will produce
-  // more change in less time.
-  const float second_derivative =
-      start_sign *
-      std::max(start_second_derivative_abs, end_second_derivative_abs);
-
-  const QuadraticCurve curve(QuadraticInitWithOrigin(
-      start_value, start_derivative, second_derivative));
   QuadraticCurve::RootsArray end_xs;
-  curve.XsForValue(end_value, &end_xs);
+  fly_out.XsForValue(end_value, &end_xs);
   // Must be at least one positive end time.
   assert(end_xs.len > 0 &&
          (end_xs.arr[0] >= 0.0f || (end_xs.len == 2 && end_xs.arr[1] >= 0.0f)));
   const float end_x = end_xs.arr[0] >= 0.0f ? end_xs.arr[0] : end_xs.arr[1];
-  return QuadraticEaseInEaseOut(curve, end_x);
+  return QuadraticEaseInEaseOut(fly_out, end_x);
+}
+
+QuadraticEaseInEaseOut CalculateQuadraticFlyIn(float start_value,
+                                               float end_value,
+                                               float end_derivative,
+                                               float second_derivative_abs) {
+  // We want our fly in curves to have negative curvature.
+  const float curvature = start_value >= end_value ? 1.0f : -1.0f;
+  QuadraticCurve fly_in(QuadraticInitWithOrigin(
+      end_value, end_derivative, curvature * second_derivative_abs));
+
+  // Shift the curve over to the right
+  // so that the start value is at the origin.
+  QuadraticCurve::RootsArray begin_xs;
+  fly_in.XsForValue(start_value, &begin_xs);
+  assert(begin_xs.len > 0 && begin_xs.arr[0] <= 0.0f);
+  const float begin_x = begin_xs.arr[0];
+  fly_in.ShiftRight(-begin_x);
+
+  // Since we shifted our curve, end_x = -begin_x.
+  const float end_x = -begin_x;
+  return QuadraticEaseInEaseOut(fly_in, end_x);
 }
 
 // Returns a QuadraticEaseInEaseOut curve that best matches
@@ -176,14 +288,25 @@ QuadraticEaseInEaseOut CalculateQuadraticEaseInEaseOut(
   assert(start_second_derivative_abs > 0.0f &&
          end_second_derivative_abs > 0.0f);
 
-  float start_sign = end_value >= start_value ? 1.0f : -1.0f;
+  const float start_curvature = end_value >= start_value ? 1.0f : -1.0f;
+
+  // If either second derivative is infinity, calculate the curve
+  // using either just the in curve or just the out curve.
+  if (std::isinf(start_second_derivative_abs)) {
+    return CalculateQuadraticFlyIn(start_value, end_value, end_derivative,
+                                   end_second_derivative_abs);
+  } else if (std::isinf(end_second_derivative_abs)) {
+    return CalculateQuadraticFlyOut(start_value, end_value, start_derivative,
+                                    start_second_derivative_abs);
+  }
 
   // Create an in curve and out curve of opposite curvatures with
   // requested values.
-  const QuadraticCurve in_curve(QuadraticInitWithOrigin(
-      start_value, start_derivative, start_sign * start_second_derivative_abs));
+  const QuadraticCurve in_curve(
+      QuadraticInitWithOrigin(start_value, start_derivative,
+                              start_curvature * start_second_derivative_abs));
   QuadraticCurve out_curve(QuadraticInitWithOrigin(
-      end_value, end_derivative, -start_sign * end_second_derivative_abs));
+      end_value, end_derivative, -start_curvature * end_second_derivative_abs));
   // Determine the intersection and shift.
   float intersection_x = 0.0f;
   float total_x = 0.0f;
@@ -205,9 +328,10 @@ QuadraticEaseInEaseOut CalculateQuadraticEaseInEaseOut(
   // At the same time, attempt to get as close to the end derivative as
   // possible.
   if (intersection_x > total_x || intersection_x < 0.0f) {
-    return CalculateExtremeQuadraticEaseInEaseOut(
-        start_value, end_value, end_derivative, start_derivative,
-        start_second_derivative_abs, end_second_derivative_abs);
+    const float second_derivative =
+        std::max(start_second_derivative_abs, end_second_derivative_abs);
+    return CalculateQuadraticFlyOut(start_value, end_value, start_derivative,
+                                    second_derivative);
   }
 
   // Shift the out_curve to be on the right side of in_curve.
