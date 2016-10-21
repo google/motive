@@ -377,6 +377,24 @@ TEST_F(CurveUtilTests, FarStartEndRightNonZeroDerivativesTypicalValues) {
                                      0.68f);
 }
 
+// In and out with big delta value.
+TEST_F(CurveUtilTests, BigDeltaValueTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(0.0f, 0.0f, 2.3f, 0.0f, 5.0f, 4000.0f,
+                                     0.5f);
+}
+
+// In and out with right bias, big delta value.
+TEST_F(CurveUtilTests, BigDeltaValueRightTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(0.0f, 0.0f, 2.3f, 0.0f, 8.3f, 200.0f,
+                                     0.86f);
+}
+
+// In and out with left bias, big delta value.
+TEST_F(CurveUtilTests, BigDeltaValueLeftTypicalValues) {
+  TestEaseInEaseOutWithTypicalValues(0.0f, 0.0f, 2.3f, 0.0f, 2.0f, 4234.1f,
+                                     0.25f);
+}
+
 // Actual same as typical.
 TEST_F(CurveUtilTests, TestActualMatchesTypical) {
   TestActualMatchesTypical(1.0f, 7.8f, 0.4f);
