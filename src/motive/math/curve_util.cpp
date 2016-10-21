@@ -195,13 +195,13 @@ void CalculateSecondDerivativesFromTypicalCurve(
   //
   // We then substitute (3) to get (7) in terms of s.
   //   a = (d / (su^2))d / (d - (d / (su^2))u^2)
-  //   a = (1/su^2) / (d - d/s)
-  //   a = 1 / d(s - 1)u^2 (8)
+  //   a = (d^2/su^2) / (d - d/s)
+  //   a = d / (s - 1)u^2 (8)
   //
   // Additionally, by symmetry, when s < 0.5f, we can
   // use 1 - s with our calculations, and flip our end results and signs so
   // that:
-  //   A = -1 / d(s - 1)u^2   (9)
+  //   A = -d / (s - 1)u^2   (9)
   //   a = -d / (su^2) (10)
   //
   // Thus, when s >= 0.5f, we get A and a from equations (3) and (8)
@@ -211,10 +211,10 @@ void CalculateSecondDerivativesFromTypicalCurve(
   //   start_second_derivative = 2 * A
   //   start_second_derivative = 2 * d / (su^2)  (11)
   //   end_second_derivative = 2 * a
-  //   end_second_derivative = 2 / d(s - 1)u^2   (12)
+  //   end_second_derivative = 2 * d / (s - 1)u^2   (12)
   //
   // And when s < 0.5f, we get:
-  //   start_second_derivative = -2 / d(s - 1)u^2 (13)
+  //   start_second_derivative = -2 * d / (s - 1)u^2 (13)
   //   end_second_derivative = -2 * d / (su^2)  (14)
   //
   // This function will return the absolute values of the second derivatives
@@ -228,7 +228,7 @@ void CalculateSecondDerivativesFromTypicalCurve(
   const float bigger_second_derivative =
       2.0f * typical_delta_value / (s * typical_total_x_squared);
   const float smaller_second_derivative =
-      2.0f / (typical_delta_value * (1.0f - s) * typical_total_x_squared);
+      2.0f * typical_delta_value / ((1.0f - s) * typical_total_x_squared);
   *start_second_derivative_abs =
       ease_in_bias ? bigger_second_derivative : smaller_second_derivative;
   *end_second_derivative_abs =
