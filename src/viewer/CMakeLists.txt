@@ -38,6 +38,12 @@ if (NOT TARGET fplutil)
                    ${tmp_dir}/fplutil)
 endif()
 
+# We use the FlatBuffer formats defined by fplbase, so we need their includes.
+get_property(FPLBASE_FLATBUFFERS_GENERATED_INCLUDES_DIR
+  TARGET fplbase_generated_includes
+  PROPERTY GENERATED_INCLUDES_DIR)
+include_directories(${FPLBASE_FLATBUFFERS_GENERATED_INCLUDES_DIR})
+
 # Create executable.
 add_executable(fplviewer viewer.cpp)
 add_dependencies(fplviewer fplbase motive)
