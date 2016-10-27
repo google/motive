@@ -122,8 +122,7 @@ $(call flatbuffers_header_build_rules, \
   $(MOTIVE_GENERATED_OUTPUT_DIR), \
   $(MOTIVE_SCHEMA_INCLUDE_DIRS), \
   $(MOTIVE_SRC_FILES), \
-  motive_generated_includes, \
-  fplbase_generated_includes)
+  motive_generated_includes)
 endif
 
 
