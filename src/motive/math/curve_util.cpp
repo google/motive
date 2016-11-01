@@ -313,6 +313,7 @@ QuadraticEaseInEaseOut CalculateQuadraticEaseInEaseOut(
   const bool success = CalculateShiftForUniqueIntersection(
       in_curve, out_curve, typical_total_x, &intersection_x, &total_x);
   assert(success);
+  (void)success;
 
   // TODO(laijess): Fix to account for floating point errors.
   // If the end and start derivative are of the same sign and
