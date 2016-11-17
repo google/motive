@@ -48,7 +48,7 @@ class MatrixAnim {
     // TODO: Revisit this layout to eliminate the internal pointers, making it
     //       more robust.
     splines_.resize(num_splines);
-    return &splines_[0];
+    return splines_.data();
   }
 
   /// Return the op array. Non-const version is for construction.
@@ -148,7 +148,7 @@ class RigAnim {
   /// `bone_parents()[i]` is the bone index of the ith bone's parent.
   /// `bone_parents()[i]` < `bone_parents()[j]` for all i < j.
   /// For bones at the root (i.e. no parent) value is kInvalidBoneIdx.
-  const BoneIndex* bone_parents() const { return &bone_parents_[0]; }
+  const BoneIndex* bone_parents() const { return bone_parents_.data(); }
 
   /// Animation is repeatable. That is, when the end of the animation is
   /// reached, it can be started at the beginning again without glitching.

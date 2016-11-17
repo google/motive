@@ -310,13 +310,21 @@ class MotiveProcessorNf : public MotiveProcessor {
   virtual MotiveTime TargetTime(MotiveIndex index) const = 0;
   virtual MotiveTime SplineTime(MotiveIndex /*index*/) const { return 0; }
 
-  // At least one of SetTarget and SetSpline should be implemented by
-  // the derived class. Otherwise, there will be no way to drive the Motivator
-  // towards a target.
+  // At least one of SetTargets, SetTargetWithShape, or SetSplines should be
+  // implemented by the derived class. Otherwise, there will be no way to drive
+  // the Motivator towards a target.
   //
   // Set the current and future values that we want the Motivator to achieve.
-  virtual void SetTargets(MotiveIndex index, MotiveDimension dimensions,
-                          const MotiveTarget1f* ts) = 0;
+  virtual void SetTargets(MotiveIndex /*index*/, MotiveDimension /*dimensions*/,
+                          const MotiveTarget1f* /*ts*/) {}
+
+  // Set the target we want the Motivator to achieve and describe the curve
+  // shape it should use to get there.
+  virtual void SetTargetWithShape(MotiveIndex /*index*/,
+                                  MotiveDimension /*dimensions*/,
+                                  const float* /*target_values*/,
+                                  const float* /*target_velocities*/,
+                                  const MotiveCurveShape& /*shape*/) {}
 
   // Drive the Motivator by following splines specified in the playback.
   virtual void SetSplines(MotiveIndex /*index*/, MotiveDimension /*dimensions*/,

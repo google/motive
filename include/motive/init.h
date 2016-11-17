@@ -16,8 +16,9 @@
 #define MOTIVE_INIT_H_
 
 #include "mathfu/constants.h"
-#include "motive/util.h"
 #include "motive/math/range.h"
+#include "motive/math/vector_converter.h"
+#include "motive/util.h"
 
 namespace motive {
 
@@ -74,42 +75,69 @@ const char* MatrixOpName(const MatrixOperationType op);
 /// @brief Initialize a MotivatorNf move towards target using ease-in
 ///        ease-out math.
 ///
-/// Call @ref MotivatorNf::SetTargets to set the target the curve
-/// moves towards.
-class EaseInEaseOutInit : public MotivatorInit {
- public:
+/// Call @ref MotivatorNf::SetTargetWithShape to set the target the
+/// curve moves towards.
+struct EaseInEaseOutInit : public MotivatorInit {
   MOTIVE_INTERFACE();
 
   EaseInEaseOutInit()
       : MotivatorInit(kType),
-        typical_delta_value_(0.0f),
-        typical_total_time_(0.0f),
-        bias_(0.0f) {}
+        start_values(nullptr),
+        start_derivatives(nullptr) {}
 
   /// Please see @ref CalculateQuadraticEaseInEaseOut for a
   /// description of the parameters.
-  EaseInEaseOutInit(float typical_delta_value, float typical_total_time,
-                    float bias)
+  explicit EaseInEaseOutInit(const float* start_values_param,
+                             const float* start_derivatives_param = nullptr)
       : MotivatorInit(kType),
-        typical_delta_value_(typical_delta_value),
-        typical_total_time_(typical_total_time),
-        bias_(bias) {}
+        start_values(start_values_param),
+        start_derivatives(start_derivatives_param) {}
 
-  float typical_delta_value() const { return typical_delta_value_; }
-  float typical_total_time() const { return typical_total_time_; }
-  float bias() const { return bias_; }
+  /// The starting value of each curve for each dimension. Array of length equal
+  /// to the number of dimensions. This points at external values and the caller
+  /// is responsible for ensuring these external values live as long as this
+  /// struct.
+  const float* start_values;
 
- private:
-  /// Typical y-distance traveled in typical total time.
-  float typical_delta_value_;
-
-  /// Typical total time required to travel desired distance.
-  float typical_total_time_;
-
-  /// A value from 0.0 to 1.0 that determines how much of the
-  /// curve is ease-in and how much is ease-out.
-  float bias_;
+  /// The starting derivative of each curve for each dimension. Array of length
+  /// equal to the number of dimensions. This points at external values and the
+  /// caller is responsible for ensuring these external values live as long as
+  /// this struct.
+  const float* start_derivatives;
 };
+
+/// @class EaseInEaseOutInitTemplate
+/// @brief EaseInEaseOutInit structure for Motivators with kDimensions.
+/// Use this class to initialize a Motivator with vector types, instead of using
+/// the float arrays required by the base class EaseInEaseOutInit.
+/// For example, use EaseInEaseOutInit3f to initialize a Motivator3f.
+template <class VectorConverter, MotiveDimension kDimensionsParam>
+struct EaseInEaseOutInitTemplate : public EaseInEaseOutInit {
+  static const MotiveDimension kDimensions = kDimensionsParam;
+
+  typedef VectorConverter C;
+  typedef typename VectorT<C, kDimensions>::type Vec;
+
+  EaseInEaseOutInitTemplate()
+      : EaseInEaseOutInit(C::ToPtr(start_values), C::ToPtr(start_derivatives)),
+        start_values(0.0f),
+        start_derivatives(0.0f) {}
+
+  EaseInEaseOutInitTemplate(const Vec& start_values_param,
+                            const Vec& start_derivatives_param)
+      : EaseInEaseOutInit(C::ToPtr(start_values), C::ToPtr(start_derivatives)),
+        start_values(start_values_param),
+        start_derivatives(start_derivatives_param) {}
+  const Vec start_values;
+  const Vec start_derivatives;
+};
+
+/// Use these types to initialize their corresponding MotivatorXfs using vector
+/// types instead of float arrays.
+typedef EaseInEaseOutInitTemplate<MathFuVectorConverter, 1> EaseInEaseOutInit1f;
+typedef EaseInEaseOutInitTemplate<MathFuVectorConverter, 2> EaseInEaseOutInit2f;
+typedef EaseInEaseOutInitTemplate<MathFuVectorConverter, 3> EaseInEaseOutInit3f;
+typedef EaseInEaseOutInitTemplate<MathFuVectorConverter, 4> EaseInEaseOutInit4f;
 
 /// @class OvershootInit
 /// @brief Initialize a MotivatorNf move towards a target using spring physics.

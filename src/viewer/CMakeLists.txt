@@ -33,7 +33,7 @@ include_directories(${dependencies_fplbase_dir}/include)
 
 # We use file_util.h from fplutil.
 if (NOT TARGET fplutil)
-  set(fplutil_build_tests OFF)
+  set(fplutil_build_tests OFF CACHE BOOL "")
   add_subdirectory("${dependencies_fplutil_dir}/libfplutil"
                    ${tmp_dir}/fplutil)
 endif()

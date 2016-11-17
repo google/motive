@@ -24,19 +24,9 @@ get_filename_component(motive_dir "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${motive_dir}/bin/${CMAKE_SYSTEM_NAME})
 set(tmp_dir ${CMAKE_BINARY_DIR}/obj)
 
-# If the dependencies directory exists, assume this is the root directory for
-# all libraries required by this project.
-get_filename_component(fpl_root "${motive_dir}/.." ABSOLUTE)
-if(NOT DEFINED dependencies_root)
-  set(dependencies_root "${motive_dir}/dependencies" CACHE PATH
-      "Directory holding the dependencies pulled from github.")
-  if(EXISTS "${dependencies_root}")
-    set(fpl_root "${dependencies_root}")
-  endif()
-endif()
-
 # Include functions fbx_compile_options() and fbx_configure_target()
-include(${fpl_root}/fplutil/fbx_common/cmake_fbx.txt)
+include("../../cmake/find_fplutil.cmake")
+include("${fplutil_dir}/fbx_common/cmake_fbx.txt")
 
 # Set compile options for FBX programs.
 fbx_compile_options()

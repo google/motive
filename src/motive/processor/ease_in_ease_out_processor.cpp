@@ -22,38 +22,26 @@ static const float kDerivativeEpsilon = 0.000001f;
 
 struct EaseInEaseOutData {
   EaseInEaseOutData()
-      : start_second_derivative_abs(0.0f),
-        end_second_derivative_abs(0.0f),
-        typical_delta_value(0.0f),
-        typical_total_time(0.0f),
+      : q_start_time(0.0f), target_time(0.0f), elapsed_time(0.0f) {}
+
+  // Create a straight line with the start value and derivative for q.
+  EaseInEaseOutData(const EaseInEaseOutInit& init,
+                    MotiveIndex current_dimension)
+      : q(QuadraticEaseInEaseOut(
+            QuadraticCurve(QuadraticInitWithOrigin(
+                init.start_values[current_dimension],
+                init.start_derivatives[current_dimension], 0.0f)),
+            0.0f)),
         q_start_time(0.0f),
         target_time(0.0f),
         elapsed_time(0.0f) {}
 
-  explicit EaseInEaseOutData(const EaseInEaseOutInit& init)
-      : typical_delta_value(init.typical_delta_value()),
-        typical_total_time(init.typical_total_time()),
-        elapsed_time(0.0f) {
-    assert(init.typical_delta_value() > 0.0f &&
-           init.typical_total_time() > 0.0f);
-    CalculateSecondDerivativesFromTypicalCurve(
-        init.typical_delta_value(), init.typical_total_time(), init.bias(),
-        &start_second_derivative_abs, &end_second_derivative_abs);
-  }
-
   // Currently active curve.
   QuadraticEaseInEaseOut q;
 
-  // Calculated start and end second derivatives
-  // for the desired values.
-  float start_second_derivative_abs;
-  float end_second_derivative_abs;
-
-  // Typical y-distance that should be traveled.
-  float typical_delta_value;
-
-  // Typical time it takes to travel typical delta value.
-  float typical_total_time;
+  // Shape that holds the bias, typical y-distance that should be traveled, and
+  // typical time it takes to travel typical delta value.
+  MotiveCurveShape shape;
 
   // Time at which we started on current curve.
   float q_start_time;
@@ -81,11 +69,9 @@ class EaseInEaseOutMotiveProcessor : public MotiveProcessorNf {
 
       float q_time = d.elapsed_time - d.q_start_time;
 
-      // If we go past the end value,
-      // with a non-zero derivative and there's
-      // no instruction to go to another target,
-      // make it so that our curve is adjusted
-      // to hit target value with a zero derivative.
+      // If we go past the end value, with a non-zero derivative and there's
+      // no instruction to go to another target, make it so that our curve is
+      // adjusted to hit target value with a zero derivative.
       if (q_time >= d.q.total_x()) {
         float target_value = d.q.Evaluate(d.q.total_x());
         float target_velocity = d.q.Derivative(d.q.total_x());
@@ -95,10 +81,16 @@ class EaseInEaseOutMotiveProcessor : public MotiveProcessorNf {
             std::fabs(target_velocity) > kDerivativeEpsilon;
         if (ends_with_nonzero_derivative) {
           // Create curve to hit target value with zero derivative.
+          float start_second_derivative_abs = 0.0f;
+          float end_second_derivative_abs = 0.0f;
+          CalculateSecondDerivativesFromTypicalCurve(
+              d.shape.typical_delta_value, d.shape.typical_total_time,
+              d.shape.bias, &start_second_derivative_abs,
+              &end_second_derivative_abs);
           d.q = CalculateQuadraticEaseInEaseOut(
-              target_value, target_velocity, d.start_second_derivative_abs,
-              target_value, 0.0f, d.end_second_derivative_abs,
-              d.typical_delta_value, d.typical_total_time);
+              target_value, target_velocity, start_second_derivative_abs,
+              target_value, 0.0f, end_second_derivative_abs,
+              d.shape.typical_delta_value, d.shape.typical_total_time);
         } else {
           // Curve is a flat line at target_value.
           d.q = QuadraticEaseInEaseOut(QuadraticCurve(0.0f, 0.0f, target_value),
@@ -154,48 +146,29 @@ class EaseInEaseOutMotiveProcessor : public MotiveProcessorNf {
     return static_cast<MotiveTime>(d.target_time - d.elapsed_time);
   }
 
-  virtual void SetTargets(MotiveIndex index, MotiveDimension dimensions,
-                          const MotiveTarget1f* ts) {
-    const MotiveTarget1f* t = ts;
-    float current_value = 0.0f;
-    float current_velocity = 0.0f;
-    float target_value = 0.0f;
-    float target_velocity = 0.0f;
-    for (MotiveIndex i = index; i < index + dimensions; ++i, ++t) {
-      EaseInEaseOutData& d = Data(i);
-
-      // A 'time' of 0 means that we're setting the current values.
-      const MotiveNode1f& current = t->Node(0);
-      if (current.time == 0) {
-        current_value = current.value;
-        current_velocity = current.velocity;
-      } else {
-        current_value = d.q.Evaluate(d.elapsed_time);
-        current_velocity = d.q.Derivative(d.elapsed_time);
-      }
-
-      // A 'time' > 0 means that we're setting the target values.
-      // We can also use the second node to set target values, if it exists.
-      const MotiveNode1f* target =
-          current.time == 0 ? (t->num_nodes() > 1 ? &t->Node(1) : nullptr)
-                            : &t->Node(0);
-      if (target != nullptr) {
-        target_value = target->value;
-        target_velocity = target->velocity;
-      } else {
-        target_value = values_[i];
-        target_velocity = current_velocity;
-      }
+  virtual void SetTargetWithShape(MotiveIndex index, MotiveDimension dimensions,
+                                  const float* target_values,
+                                  const float* target_velocities,
+                                  const MotiveCurveShape& shape) {
+    for (MotiveDimension i = 0; i < dimensions; ++i) {
+      float processor_index = index + i;
+      EaseInEaseOutData& d = Data(processor_index);
 
       // Initialize curve to go from current to target.
       d.elapsed_time = 0.0f;
+      d.shape = shape;
+      float start_second_derivative_abs = 0.0f;
+      float end_second_derivative_abs = 0.0f;
+      CalculateSecondDerivativesFromTypicalCurve(
+          d.shape.typical_delta_value, d.shape.typical_total_time, d.shape.bias,
+          &start_second_derivative_abs, &end_second_derivative_abs);
       d.q = CalculateQuadraticEaseInEaseOut(
-          current_value, current_velocity, d.start_second_derivative_abs,
-          target_value, target_velocity, d.end_second_derivative_abs,
-          d.typical_delta_value, d.typical_total_time);
+          Value(processor_index), d.q.Derivative(0.0f),
+          start_second_derivative_abs, target_values[i], target_velocities[i],
+          end_second_derivative_abs, d.shape.typical_delta_value,
+          d.shape.typical_total_time);
       d.target_time = d.q.total_x();
       d.q_start_time = 0.0f;
-      values_[i] = current_value;
     }
   }
 
@@ -203,9 +176,12 @@ class EaseInEaseOutMotiveProcessor : public MotiveProcessorNf {
   virtual void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
                                  MotiveDimension dimensions,
                                  MotiveEngine* /*engine*/) {
-    for (MotiveIndex i = index; i < index + dimensions; ++i) {
-      Data(i) = EaseInEaseOutData(static_cast<const EaseInEaseOutInit&>(init));
-      values_[i] = 0.0f;
+    const EaseInEaseOutInit& ease_in_ease_out_init =
+        static_cast<const EaseInEaseOutInit&>(init);
+    for (MotiveDimension i = 0; i < dimensions; ++i) {
+      const MotiveIndex processor_index = i + index;
+      Data(processor_index) = EaseInEaseOutData(ease_in_ease_out_init, i);
+      values_[processor_index] = ease_in_ease_out_init.start_values[i];
     }
   }
 

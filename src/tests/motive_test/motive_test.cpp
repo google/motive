@@ -31,6 +31,8 @@ using mathfu::vec4;
 using motive::Angle;
 using motive::CompactSpline;
 using motive::EaseInEaseOutInit;
+using motive::EaseInEaseOutInit1f;
+using motive::EaseInEaseOutInitTemplate;
 using motive::kAngleRange;
 using motive::kHalfPi;
 using motive::kInvalidRange;
@@ -45,6 +47,7 @@ using motive::kScaleZ;
 using motive::kTranslateX;
 using motive::kTranslateY;
 using motive::kTranslateZ;
+using motive::MathFuVectorConverter;
 using motive::MatrixInit;
 using motive::MatrixMotivator4f;
 using motive::MatrixOpArray;
@@ -55,6 +58,7 @@ using motive::Motivator2f;
 using motive::Motivator3f;
 using motive::Motivator4f;
 using motive::MotivatorInit;
+using motive::MotiveCurveShape;
 using motive::MotiveDimension;
 using motive::MotiveEngine;
 using motive::MotiveTarget1f;
@@ -176,16 +180,14 @@ class MotiveTests : public ::testing::Test {
   }
 
   template <class MotivatorT>
-  void InitEaseInEaseOutMotivator(const MotivatorInit& init, float start_value,
-                                  float start_velocity, float target_value,
+  void InitEaseInEaseOutMotivator(const MotivatorInit& init, float target_value,
                                   float target_velocity,
+                                  const MotiveCurveShape& shape,
                                   MotivatorT* motivator) {
-    typedef typename MotivatorT::TargetBuilder Tar;
     typedef typename MotivatorT::Vec Vec;
-    motivator->InitializeWithTarget(
-        init, &engine_,
-        Tar::CurrentToTarget(Vec(start_value), Vec(start_velocity),
-                             Vec(target_value), Vec(target_velocity), 1));
+    motivator->InitializeWithTargetShape(
+        init, &engine_, motivator->Dimensions(), shape, Vec(target_value),
+        Vec(target_velocity));
   }
 
   template <class MotivatorT>
@@ -275,24 +277,28 @@ class MotiveTests : public ::testing::Test {
 template <class MotivatorT>
 static void TestEaseInEaseOutInternal(float start_value, float start_velocity,
                                       float target_value, float target_velocity,
-                                      float typical_delta_value,
-                                      float typical_total_time, float bias,
+                                      const MotiveCurveShape& shape,
                                       float delta_time,
                                       bool test_with_set_target_every_frame,
                                       MotiveTests* t) {
   typedef typename MotivatorT::TargetBuilder Tar;
   typedef typename MotivatorT::Vec Vec;
+  typedef typename MotivatorT::C C;
+  typedef EaseInEaseOutInitTemplate<C, MotivatorT::kDimensions> Init;
 
   const float value_epsilon = std::fabs(target_value) * kEpsilonScale;
   const float velocity_epsilon = std::fabs(target_velocity) * kEpsilonScale;
 
-  // Set up a motivator with the desired input values.
-  motive::EaseInEaseOutInit ease_in_ease_out_init(
-      EaseInEaseOutInit(typical_delta_value, typical_total_time, bias));
+  // Set up a motivator with the desired start values.
   MotivatorT motivator;
-  t->InitEaseInEaseOutMotivator(ease_in_ease_out_init, start_value,
-                                start_velocity, target_value, target_velocity,
-                                &motivator);
+
+  // Note, the parenthesis around the first Vec are required to keep
+  // the compiler from misinterpreting the line below. See
+  // "the most vexing parse" of C++ for more detail.
+  // https://en.wikipedia.org/wiki/Most_vexing_parse
+  const Init ease_in_ease_out_init((Vec(start_value)), Vec(start_velocity));
+  t->InitEaseInEaseOutMotivator(ease_in_ease_out_init, target_value,
+                                target_velocity, shape, &motivator);
 
   EXPECT_TRUE(
       VectorNear(Vec(start_value), motivator.Value(), Vec(value_epsilon)));
@@ -352,16 +358,44 @@ static void TestEaseInEaseOutInternal(float start_value, float start_velocity,
 template <class MotivatorT>
 static void TestEaseInEaseOut(float start_value, float start_velocity,
                               float target_value, float target_velocity,
-                              float typical_delta_value, float typical_time,
-                              float bias, float delta_x, MotiveTests* t) {
-  TestEaseInEaseOutInternal<MotivatorT>(
-      start_value, start_velocity, target_value, target_velocity,
-      typical_delta_value, typical_time, bias, delta_x, true, t);
-  TestEaseInEaseOutInternal<MotivatorT>(
-      start_value, start_velocity, target_value, target_velocity,
-      typical_delta_value, typical_time, bias, delta_x, false, t);
+                              float typical_delta_value,
+                              float typical_total_time, float bias,
+                              float delta_x, MotiveTests* t) {
+  const MotiveCurveShape shape(typical_delta_value, typical_total_time, bias);
+  TestEaseInEaseOutInternal<MotivatorT>(start_value, start_velocity,
+                                        target_value, target_velocity, shape,
+                                        delta_x, true, t);
+  TestEaseInEaseOutInternal<MotivatorT>(start_value, start_velocity,
+                                        target_value, target_velocity, shape,
+                                        delta_x, false, t);
 }
 
+template <class MotivatorT>
+static void TestMultiMotivators(float start_value, float start_velocity,
+                              float target_value, float target_velocity,
+                              float typical_delta_value,
+                              float typical_total_time, float bias,
+                              float delta_x, MotiveTests* t) {
+  typedef typename MotivatorT::Vec Vec;
+  typedef typename MotivatorT::C C;
+  typedef EaseInEaseOutInitTemplate<C, MotivatorT::kDimensions> Init;
+  const int kNumTestMotivators = 100;
+  const MotiveCurveShape shape(typical_delta_value, typical_total_time, bias);
+
+  // Create test motivators to exist while
+  // the tests are run.
+  MotivatorT test_motivators[kNumTestMotivators];
+  const Init ease_in_ease_out_init((Vec(start_value)), Vec(start_velocity));
+  for (int i = 0; i < kNumTestMotivators; ++i) {
+    test_motivators[i] = MotivatorT();
+    t->InitEaseInEaseOutMotivator(ease_in_ease_out_init, target_value,
+                               target_velocity, shape, &test_motivators[i]);
+  }
+
+  TestEaseInEaseOut<MotivatorT>(start_value, start_velocity, target_value,
+                                 target_velocity, typical_delta_value,
+                                 typical_total_time, bias, delta_x, t);
+}
 // Simple test to create a 1 dimensional motivator, initialize it from 0~50,
 // and advance it past the end.
 TEST_F(MotiveTests, EaseInEaseOut1Dimension) {
@@ -437,31 +471,14 @@ TEST_F(MotiveTests, EaseInEaseOut3Dimension) {
 
 // Test with extra active motivators.
 TEST_F(MotiveTests, EaseInEaseOutMultiMotivators) {
-  float start_value = 0.0f;
-  float start_velocity = 0.0f;
-  float target_value = 65.3f;
-  float target_velocity = 0.0f;
-  float typical_delta_value = 134.0f;
-  float typical_total_time = 89.3f;
-  float bias = 0.60f;
-  int delta_x = 1;
-  const int kNumTestMotivators = 100;
+  TestMultiMotivators<Motivator1f>(0.0f, 0.0f, 65.3f, 0.0f, 134.0f, 89.3f,
+                                   0.60f, 1, this);
+}
 
-  // Create test motivators to exist while
-  // the tests are run.
-  Motivator1f test_motivators[kNumTestMotivators];
-  motive::EaseInEaseOutInit ease_in_ease_out_init(
-      EaseInEaseOutInit(134.0f, typical_total_time, bias));
-  for (int i = 0; i < kNumTestMotivators; ++i) {
-    test_motivators[i] = motive::Motivator1f();
-    InitEaseInEaseOutMotivator(ease_in_ease_out_init, start_value,
-                               start_velocity, target_value, target_velocity,
-                               &test_motivators[i]);
-  }
-
-  TestEaseInEaseOut<Motivator1f>(start_value, start_velocity, target_value,
-                                 target_velocity, typical_delta_value,
-                                 typical_total_time, bias, delta_x, this);
+// Test with extra active, three dimensional motivators.
+TEST_F(MotiveTests, EaseInEaseOut3DMultiMotivators) {
+  TestMultiMotivators<Motivator3f>(0.0f, 0.0f, 65.3f, 0.0f, 134.0f, 89.3f,
+                                   0.60f, 1, this);
 }
 
 // Ensure we wrap around from pi to -pi.

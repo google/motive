@@ -191,6 +191,20 @@ class MotivatorNf : public Motivator {
   }
 
   /// Initialize to the motion algorithm specified by `init`.
+  /// Set target values and velocities as specified by 'target_values' and
+  /// 'target_velocities', arrays of length `dimensions`, with shape specified
+  /// by 'shape'.
+  void InitializeWithTargetShape(const MotivatorInit& init,
+                                 MotiveEngine* engine,
+                                 MotiveDimension dimensions,
+                                 const MotiveCurveShape& shape,
+                                 const float* target_values,
+                                 const float* target_velocities) {
+    InitializeWithDimension(init, engine, dimensions);
+    SetTargetWithShape(target_values, target_velocities, shape);
+  }
+
+  /// Initialize to the motion algorithm specified by `init`.
   /// Set movement to follow the curves specified in `splines`, an array of
   /// length `dimensions, and modified by `playback`.
   void InitializeWithSplines(const MotivatorInit& init, MotiveEngine* engine,
@@ -285,6 +299,24 @@ class MotivatorNf : public Motivator {
     Processor().SetTargets(index_, Dimensions(), targets);
   }
 
+  /// Set the target values, velocities, and curve shape for the motivator.
+  /// Procedurally drive the Motivator to 'target_values' and
+  /// 'target_velocities' following a curve defined by 'shape'.
+  /// Setting the target with the shape makes it so that a time does not need
+  /// to be specified, as it will be calculated. In contrast, if the time needed
+  /// to achieve a value is to be user-provided, @ref SetTarget should be used
+  /// instead.
+  /// @param target_value Array of target values with length Dimensions.
+  /// @param target_velocity Array of target velocities with length Dimensions.
+  /// @param shape The shape of the curve we'll create, as determined by the
+  ///              curve's typical delta value, typical total time, and bias.
+  void SetTargetWithShape(const float* target_values,
+                          const float* target_velocities,
+                          const MotiveCurveShape& shape) {
+    Processor().SetTargetWithShape(index_, Dimensions(), target_values,
+                                   target_velocities, shape);
+  }
+
   /// Drive some channels with splines and others with targets.
   /// For i between 0 and Dimensions()-1, if splines[i] != NULL drive
   /// channel i with splines[i]. Otherwise, drive channel i with targets[i].
@@ -322,9 +354,8 @@ class MotivatorNf : public Motivator {
 ///
 template <class VectorConverter, MotiveDimension kDimensionsParam>
 class MotivatorXfTemplate : public MotivatorNf {
-  typedef VectorConverter C;
-
  public:
+  typedef VectorConverter C;
   static const MotiveDimension kDimensions = kDimensionsParam;
   typedef typename VectorT<C, kDimensions>::type Vec;
   typedef typename MotiveTargetT<kDimensions>::type Target;
@@ -358,6 +389,20 @@ class MotivatorXfTemplate : public MotivatorNf {
                             const Target& t) {
     InitializeWithDimension(init, engine, kDimensions);
     SetTarget(t);
+  }
+
+  /// Initialize to the motion algorithm specified by `init`.
+  /// Set target values and velocities as specified by 'target_values' and
+  /// 'target_velocities', arrays of length `dimensions`, with shape specified
+  /// by 'shape'.
+  void InitializeWithTargetShape(const MotivatorInit& init,
+                                 MotiveEngine* engine,
+                                 MotiveDimension dimensions,
+                                 const MotiveCurveShape& shape,
+                                 const Vec& target_values,
+                                 const Vec& target_velocities) {
+    InitializeWithDimension(init, engine, dimensions);
+    SetTargetWithShape(target_values, target_velocities, shape);
   }
 
   /// Returns the current motivator value. The current value is updated when
@@ -419,11 +464,31 @@ class MotivatorXfTemplate : public MotivatorNf {
   /// movement qualities of the underlying MotiveProcessor.
   /// Note that the underlying MotiveProcessor is allowed to ignore
   /// parts of `t` that are irrelevent to its algorithm.
+  /// Note also that if the time needed to achieve a value is to be
+  /// user-provided, this function should be used. If the time should
+  /// be calculated instead of user-specified, @ref SetTargetWithShape
+  /// should be used instead.
   /// @param t A set of waypoints to hit, optionally including the current
   ///          value. If the current value is not included, maintain the
   ///          existing current value.
   void SetTarget(const Target& t) {
     Processor().SetTargets(index_, kDimensions, t.targets());
+  }
+
+  /// Set the target values, velocity, and curve shape for the motivator.
+  /// Use this call to procedurally drive the Motivator towards that target.
+  /// Setting the target with the shape makes it so that a time does not need
+  /// to be specified, as it will be calculated. In contrast, if the time needed
+  /// to achieve a value is to be user-provided, @ref SetTarget should be used
+  /// instead.
+  /// @param target_value The target value to hit.
+  /// @param target_velocity The velocity with which to hit the target value.
+  /// @param shape The shape of the curve we'll create, such as the curve's
+  ///              typical delta value, typical total time, and bias.
+  void SetTargetWithShape(const Vec& target_value, const Vec& target_velocity,
+                          const MotiveCurveShape& shape) {
+    Processor().SetTargetWithShape(index_, kDimensions, C::ToPtr(target_value),
+                                   C::ToPtr(target_velocity), shape);
   }
 
   MotiveDimension Dimensions() const { return kDimensions; }

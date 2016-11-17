@@ -31,16 +31,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MOTIVE_BINARY_DIR})
 # Temporary files (like object files) created while compiling projects.
 set(tmp_dir ${CMAKE_CURRENT_BINARY_DIR}/obj)
 
-# Configurable locations of dependencies of this project.
-if(NOT DEFINED fpl_root)
-  get_filename_component(fpl_root "${CMAKE_CURRENT_LIST_DIR}/../../libs"
-       REALPATH)
-  if(NOT EXISTS "${fpl_root}")
-    set(fpl_root "${CMAKE_CURRENT_SOURCE_DIR}/dependencies")
-  endif ()
-endif()
-
-include (${fpl_root}/fplutil/buildutil/cmake_common.txt)
+# Call fplutil to get locations of dependencies and set common build settings.
+include("cmake/find_fplutil.cmake")
+include("${fplutil_dir}/buildutil/cmake_common.txt")
 set_common_build_variables()
 
 # Option to enable / disable the test build.
@@ -181,3 +174,4 @@ endif()
 if(motive_build_viewer)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/viewer)
 endif()
+
