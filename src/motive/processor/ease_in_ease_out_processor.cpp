@@ -155,20 +155,20 @@ class EaseInEaseOutMotiveProcessor : public MotiveProcessorNf {
       EaseInEaseOutData& d = Data(processor_index);
 
       // Initialize curve to go from current to target.
-      d.elapsed_time = 0.0f;
-      d.shape = shape;
       float start_second_derivative_abs = 0.0f;
       float end_second_derivative_abs = 0.0f;
       CalculateSecondDerivativesFromTypicalCurve(
-          d.shape.typical_delta_value, d.shape.typical_total_time, d.shape.bias,
+          shape.typical_delta_value, shape.typical_total_time, shape.bias,
           &start_second_derivative_abs, &end_second_derivative_abs);
       d.q = CalculateQuadraticEaseInEaseOut(
-          Value(processor_index), d.q.Derivative(0.0f),
+          Value(processor_index),  Velocity(processor_index),
           start_second_derivative_abs, target_values[i], target_velocities[i],
-          end_second_derivative_abs, d.shape.typical_delta_value,
-          d.shape.typical_total_time);
+          end_second_derivative_abs, shape.typical_delta_value,
+          shape.typical_total_time);
       d.target_time = d.q.total_x();
       d.q_start_time = 0.0f;
+      d.elapsed_time = 0.0f;
+      d.shape = shape;
     }
   }
 
