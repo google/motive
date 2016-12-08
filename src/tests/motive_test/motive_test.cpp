@@ -667,7 +667,7 @@ void AssignmentOperatorValidToValid(MotiveTests& t) {
 
   MotivatorT new_motivator;
   new_motivator.InitializeWithTarget(t.overshoot_angle_init(), &t.engine(),
-                                     Tar::Current(Vec(orig_value + 1)));
+                                     Tar::Current(Vec(orig_value + 1.0f)));
   EXPECT_TRUE(new_motivator.Valid());
   const typename MotivatorT::Vec new_value = new_motivator.Value();
 

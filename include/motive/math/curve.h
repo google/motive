@@ -480,7 +480,7 @@ std::string GraphCurveOnXRange(const T& curve, const CurveValueType value_type,
                                const Range& x_range,
                                const mathfu::vec2i& size = kDefaultGraphSize) {
   // Gather a collection of (x,y) points to graph.
-  const int num_points = size.x();
+  const int num_points = size.x;
   std::vector<mathfu::vec2> points(num_points);
   const float inc_x = x_range.Length() / (num_points - 1);
   float x = x_range.start();

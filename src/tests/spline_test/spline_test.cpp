@@ -132,7 +132,7 @@ static void PrintGraphDataAsCsv(const GraphData& d) {
   (void)d;
 #if PRINT_SPLINES_AS_CSV
   for (size_t i = 0; i < d.points.size(); ++i) {
-    printf("%f, %f, %f, %f, %f\n", d.points[i].x(), d.points[i].y(),
+    printf("%f, %f, %f, %f, %f\n", d.points[i].x, d.points[i].y,
            d.derivatives[i].first, d.derivatives[i].second,
            d.derivatives[i].third);
   }
@@ -171,11 +171,11 @@ static void GatherGraphData(
   const float derivative_precision =
       fabs(playback.y_scale) * kDerivativePrecision;
   EXPECT_NEAR(c.Evaluate(0.0f) * playback.y_scale + playback.y_offset,
-              d->points[0].y(), y_precision);
+              d->points[0].y, y_precision);
   EXPECT_NEAR(c.Derivative(0.0f) * playback.y_scale, d->derivatives[0].first,
               derivative_precision);
   EXPECT_NEAR(c.Evaluate(init.width_x) * playback.y_scale + playback.y_offset,
-              d->points[kNumCheckPoints - 1].y(), y_precision);
+              d->points[kNumCheckPoints - 1].y, y_precision);
   EXPECT_NEAR(c.Derivative(init.width_x) * playback.y_scale,
               d->derivatives[kNumCheckPoints - 1].first, derivative_precision);
 
@@ -308,8 +308,8 @@ TEST_F(SplineTests, Overshoot) {
                         init.width_x * (1.0f + kXGranularityScale));
     const Range y_range = CubicInitYRange(init, 0.001f);
     for (size_t j = 0; j < d.points.size(); ++j) {
-      EXPECT_TRUE(x_range.Contains(d.points[j].x()));
-      EXPECT_TRUE(y_range.Contains(d.points[j].y()));
+      EXPECT_TRUE(x_range.Contains(d.points[j].x));
+      EXPECT_TRUE(y_range.Contains(d.points[j].y));
     }
   }
 }
@@ -329,8 +329,8 @@ TEST_F(SplineTests, MirrorY) {
     EXPECT_EQ(d.points.size(), mirrored_d.points.size());
     const int num_points = static_cast<int>(d.points.size());
     for (int j = 0; j < num_points; ++j) {
-      EXPECT_EQ(d.points[j].x(), mirrored_d.points[j].x());
-      EXPECT_NEAR(d.points[j].y(), -mirrored_d.points[j].y(), y_precision);
+      EXPECT_EQ(d.points[j].x, mirrored_d.points[j].x);
+      EXPECT_NEAR(d.points[j].y, -mirrored_d.points[j].y, y_precision);
       EXPECT_NEAR(d.derivatives[j].first, -mirrored_d.derivatives[j].first,
                   kDerivativePrecision);
       EXPECT_NEAR(d.derivatives[j].second, -mirrored_d.derivatives[j].second,
@@ -358,9 +358,8 @@ TEST_F(SplineTests, ScaleX) {
     EXPECT_EQ(d.points.size(), scaled_d.points.size());
     const int num_points = static_cast<int>(d.points.size());
     for (int j = 0; j < num_points; ++j) {
-      EXPECT_NEAR(d.points[j].x(), scaled_d.points[j].x() / kScale,
-                  x_precision);
-      EXPECT_NEAR(d.points[j].y(), scaled_d.points[j].y(), y_precision);
+      EXPECT_NEAR(d.points[j].x, scaled_d.points[j].x / kScale, x_precision);
+      EXPECT_NEAR(d.points[j].y, scaled_d.points[j].y, y_precision);
       EXPECT_NEAR(d.derivatives[j].first,
                   scaled_d.derivatives[j].first * kScale, kDerivativePrecision);
       EXPECT_NEAR(d.derivatives[j].second,
@@ -454,8 +453,8 @@ TEST_F(SplineTests, BulkYsVec3) {
   // Ensure all the values are being calculated.
   for (int j = 0; j < kNumYs; ++j) {
     const vec3 y(ys[j]);
-    EXPECT_EQ(y.x(), y.y());
-    EXPECT_EQ(y.y(), y.z());
+    EXPECT_EQ(y.x, y.y);
+    EXPECT_EQ(y.y, y.z);
   }
 }
 

@@ -365,19 +365,19 @@ std::string CubicCurve::Text() const {
 static inline int Round(float f) { return static_cast<int>(f + 0.5f); }
 
 static inline vec2i Round(const vec2& v) {
-  return vec2i(Round(v.x()), Round(v.y()));
+  return vec2i(Round(v.x), Round(v.y));
 }
 
 static inline vec2 Min(const vec2& a, const vec2& b) {
-  return vec2(std::min(a.x(), b.x()), std::min(a.y(), b.y()));
+  return vec2(std::min(a.x, b.x), std::min(a.y, b.y));
 }
 
 static inline vec2 Max(const vec2& a, const vec2& b) {
-  return vec2(std::max(a.x(), b.x()), std::max(a.y(), b.y()));
+  return vec2(std::max(a.x, b.x), std::max(a.y, b.y));
 }
 
 static inline bool CompareBigYSmallX(const vec2i& a, const vec2i& b) {
-  return a.y() == b.y() ? a.x() < b.x() : a.y() > b.y();
+  return a.y == b.y ? a.x < b.x : a.y > b.y;
 }
 
 std::string Graph2DPoints(const vec2* points, const int num_points,
@@ -395,7 +395,7 @@ std::string Graph2DPoints(const vec2* points, const int num_points,
   const vec2 p_size = max - min;
   const vec2 gaps = vec2(size) - vec2(1.0f, 1.0f);
   const vec2 inc = p_size / gaps;
-  const int zero_row = Round((0.0f - min.y()) * size.y() / p_size.y());
+  const int zero_row = Round((0.0f - min.y) * size.y / p_size.y);
 
   // Convert to graph space on the screen.
   std::vector<vec2i> p;
@@ -410,13 +410,13 @@ std::string Graph2DPoints(const vec2* points, const int num_points,
 
   // Avoid reallocating the string by setting to a reasonable max size.
   std::string r;
-  r.reserve(size.y() * size.x() + 100);
+  r.reserve(size.y * size.x + 100);
 
   // Iterate through each "pixel" of the graph.
-  r += "y = " + std::to_string(static_cast<long double>(max.y())) + "\n";
+  r += "y = " + std::to_string(static_cast<long double>(max.y)) + "\n";
   const vec2i* q = &p[0];
-  for (int row = size.y(); row >= 0; --row) {
-    for (int col = 0; col <= size.x(); ++col) {
+  for (int row = size.y; row >= 0; --row) {
+    for (int col = 0; col <= size.x; ++col) {
       if (q->x() == col && q->y() == row) {
         r += '*';
         for (q++; q->x() == col && q->y() == row; q++) {}
@@ -434,7 +434,7 @@ std::string Graph2DPoints(const vec2* points, const int num_points,
     r += '\n';
     if (q > &p.back()) break;
   }
-  r += "y = " + std::to_string(static_cast<long double>(min.y())) + "\n";
+  r += "y = " + std::to_string(static_cast<long double>(min.y)) + "\n";
   return r;
 #else
   (void)points;

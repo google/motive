@@ -181,7 +181,7 @@ class Angle {
   ///   3pi/2 ==> ( 0, -1 )
   mathfu::vec2 ToXYVector2f() const {
     mathfu::vec2 r;
-    ToVector(&r.x(), &r.y());
+    ToVector(&r.x, &r.y);
     return r;
   }
 
@@ -229,7 +229,7 @@ class Angle {
   ///   3pi/2 ==> (-1,  0 )
   mathfu::vec2 ToYXVector2f() const {
     mathfu::vec2 r;
-    ToVector(&r.y(), &r.x());
+    ToVector(&r.y, &r.x);
     return r;
   }
 
