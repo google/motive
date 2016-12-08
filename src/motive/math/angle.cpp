@@ -40,8 +40,8 @@ mathfu::vec3 LatitudeAndLongitudeToUnitSphere(const Angle& latitude,
   // Get the radius of the circle parallel to equator, at our latitude,
   // and the height above the equator.
   const mathfu::vec2 radius_and_up_dist = latitude.ToXYVector2f();
-  const float radius = fabs(radius_and_up_dist.x());
-  const float up_dist = radius_and_up_dist.y();
+  const float radius = fabs(radius_and_up_dist.x);
+  const float up_dist = radius_and_up_dist.y;
 
   // Get the location on the equator, for our longitude.
   const mathfu::vec3 unit_circle = longitude.ToVectorSystem(system);

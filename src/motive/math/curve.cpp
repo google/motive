@@ -417,15 +417,15 @@ std::string Graph2DPoints(const vec2* points, const int num_points,
   const vec2i* q = &p[0];
   for (int row = size.y; row >= 0; --row) {
     for (int col = 0; col <= size.x; ++col) {
-      if (q->x() == col && q->y() == row) {
+      if (q->x == col && q->y == row) {
         r += '*';
-        for (q++; q->x() == col && q->y() == row; q++) {}
+        for (q++; q->x == col && q->y == row; q++) {}
         if (q > &p.back()) break;
       } else if (col == 0) {
         r += '|';
       } else if (row == zero_row) {
         r += '-';
-      } else if (q->y() < row) {
+      } else if (q->y < row) {
         break;
       } else {
         r += ' ';
