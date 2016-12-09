@@ -307,7 +307,8 @@ class MotiveProcessorNf : public MotiveProcessor {
   virtual void Differences(MotiveIndex index, MotiveDimension dimensions,
                            float* out) const = 0;
 
-  virtual MotiveTime TargetTime(MotiveIndex index) const = 0;
+  virtual MotiveTime TargetTime(MotiveIndex index,
+                                MotiveDimension dimensions) const = 0;
   virtual MotiveTime SplineTime(MotiveIndex /*index*/) const { return 0; }
 
   // At least one of SetTargets, SetTargetWithShape, or SetSplines should be

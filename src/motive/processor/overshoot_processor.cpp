@@ -96,7 +96,8 @@ class OvershootMotiveProcessor : public MotiveProcessorNf {
   }
 
   // TODO: Implement this after converting Overshoot to use splines.
-  virtual MotiveTime TargetTime(MotiveIndex /*index*/) const {
+  virtual MotiveTime TargetTime(MotiveIndex /*index*/,
+                                MotiveDimension /*dimension*/) const {
     assert(false);
     return -1;
   }

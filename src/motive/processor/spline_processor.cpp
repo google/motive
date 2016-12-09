@@ -73,9 +73,16 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
                            float* out) const {
     return interpolator_.YDifferencesToEnd(index, dimensions, out);
   }
-  virtual MotiveTime TargetTime(MotiveIndex index) const {
-    return static_cast<MotiveTime>(interpolator_.EndX(index) -
-                                   interpolator_.X(index));
+  virtual MotiveTime TargetTime(MotiveIndex index,
+                                MotiveDimension dimensions) const {
+    MotiveTime greatest = std::numeric_limits<MotiveTime>::min();
+    for (MotiveDimension i = 0; i < dimensions; ++i) {
+      greatest =
+          std::max(greatest,
+                   static_cast<MotiveTime>(interpolator_.EndX(index + i)
+                                           - interpolator_.X(index + i)));
+    }
+    return greatest;
   }
   virtual MotiveTime SplineTime(MotiveIndex index) const {
     return static_cast<MotiveTime>(interpolator_.X(index));

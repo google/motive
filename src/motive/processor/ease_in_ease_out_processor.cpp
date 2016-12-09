@@ -141,9 +141,16 @@ class EaseInEaseOutMotiveProcessor : public MotiveProcessorNf {
     }
   }
 
-  virtual MotiveTime TargetTime(MotiveIndex index) const {
-    const EaseInEaseOutData& d = Data(index);
-    return static_cast<MotiveTime>(d.target_time - d.elapsed_time);
+  virtual MotiveTime TargetTime(MotiveIndex index,
+                                MotiveDimension dimensions) const {
+    MotiveTime greatest = std::numeric_limits<MotiveTime>::min();
+    for (MotiveDimension i = 0; i < dimensions; ++i) {
+      const EaseInEaseOutData& d = Data(index + i);
+      greatest =
+          std::max(greatest,
+                   static_cast<MotiveTime>(d.target_time - d.elapsed_time));
+    }
+    return greatest;
   }
 
   virtual void SetTargetWithShape(MotiveIndex index, MotiveDimension dimensions,

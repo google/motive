@@ -235,7 +235,9 @@ class MotivatorNf : public Motivator {
 
   /// Returns time remaining until target is reached.
   /// The unit of time is determined by the calling program.
-  MotiveTime TargetTime() const { return Processor().TargetTime(index_); }
+  MotiveTime TargetTime() const {
+    return Processor().TargetTime(index_, Dimensions());
+  }
 
   /// Returns the current time (i.e. the x-value) in the current spline.
   /// If Motivator is not being driven by a spline, returns 0.
