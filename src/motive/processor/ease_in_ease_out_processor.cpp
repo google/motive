@@ -158,7 +158,7 @@ class EaseInEaseOutMotiveProcessor : public MotiveProcessorNf {
                                   const float* target_velocities,
                                   const MotiveCurveShape& shape) {
     for (MotiveDimension i = 0; i < dimensions; ++i) {
-      float processor_index = index + i;
+      int processor_index = index + i;
       EaseInEaseOutData& d = Data(processor_index);
 
       // Initialize curve to go from current to target.

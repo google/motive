@@ -278,7 +278,7 @@ template <class MotivatorT>
 static void TestEaseInEaseOutInternal(float start_value, float start_velocity,
                                       float target_value, float target_velocity,
                                       const MotiveCurveShape& shape,
-                                      float delta_time,
+                                      MotiveTime delta_time,
                                       bool test_with_set_target_every_frame,
                                       MotiveTests* t) {
   typedef typename MotivatorT::TargetBuilder Tar;
@@ -307,6 +307,7 @@ static void TestEaseInEaseOutInternal(float start_value, float start_velocity,
   EXPECT_TRUE(VectorNear(Vec(target_value), motivator.TargetValue(),
                          Vec(value_epsilon)));
 
+  const float delta_time_float = static_cast<float>(delta_time);
   float current_velocity[MotivatorT::kDimensions];
   motivator.Velocities(current_velocity);
   float past_velocity = std::numeric_limits<float>::infinity();
@@ -328,13 +329,13 @@ static void TestEaseInEaseOutInternal(float start_value, float start_velocity,
 
     // Setting the target to the same target should have no affect.
     if (test_with_set_target_every_frame && motivator.TargetTime() > 0.0f) {
-      const float target_time = motivator.TargetTime();
+      const MotiveTime target_time = motivator.TargetTime();
       motivator.SetTarget(Tar::CurrentToTarget(
           Vec(motivator.Values()[0]), Vec(current_velocity[0]),
           Vec(target_value), Vec(target_velocity), 1));
       EXPECT_EQ(target_time, motivator.TargetTime());
     }
-    points.push_back(vec2(points.size() * delta_time, motivator.Values()[0]));
+    points.push_back(vec2(points.size() * delta_time_float, motivator.Values()[0]));
   }
 
   // Go another kPointsPastZeroVelocity ticks past reaching 0 velocity.
@@ -343,7 +344,7 @@ static void TestEaseInEaseOutInternal(float start_value, float start_velocity,
     t->engine().AdvanceFrame(delta_time);
     EXPECT_GE(0, motivator.TargetTime());
     EXPECT_TRUE(VectorEqual(motivator.Velocity(), Vec(0.0f)));
-    points.push_back(vec2(points.size() * delta_time, motivator.Values()[0]));
+    points.push_back(vec2(points.size() * delta_time_float, motivator.Values()[0]));
   }
   EXPECT_TRUE(
       VectorNear(Vec(target_value), motivator.Value(), Vec(value_epsilon)));
@@ -360,7 +361,7 @@ static void TestEaseInEaseOut(float start_value, float start_velocity,
                               float target_value, float target_velocity,
                               float typical_delta_value,
                               float typical_total_time, float bias,
-                              float delta_x, MotiveTests* t) {
+                              MotiveTime delta_x, MotiveTests* t) {
   const MotiveCurveShape shape(typical_delta_value, typical_total_time, bias);
   TestEaseInEaseOutInternal<MotivatorT>(start_value, start_velocity,
                                         target_value, target_velocity, shape,
@@ -375,7 +376,7 @@ static void TestMultiMotivators(float start_value, float start_velocity,
                               float target_value, float target_velocity,
                               float typical_delta_value,
                               float typical_total_time, float bias,
-                              float delta_x, MotiveTests* t) {
+                              MotiveTime delta_x, MotiveTests* t) {
   typedef typename MotivatorT::Vec Vec;
   typedef typename MotivatorT::C C;
   typedef EaseInEaseOutInitTemplate<C, MotivatorT::kDimensions> Init;

@@ -238,8 +238,8 @@ void CompactSpline::BulkEvaluate(const CompactSpline* const splines,
   // Note that we set `repeat` = false, so that we can accurately get the last
   // value in the spline.
   const SplinePlayback playback(start_x);
-  evaluator.SetNumIndices(num_splines);
-  evaluator.SetSplines(0, num_splines, splines, playback);
+  evaluator.SetNumIndices(static_cast<int>(num_splines));
+  evaluator.SetSplines(0, static_cast<int>(num_splines), splines, playback);
 
   // Grab y values, then advance spline evaluation by delta_x.
   // Repeat num_points times.

@@ -348,7 +348,7 @@ Camera::Camera(AngleToVectorSystem coordinate_system, float aspect_ratio,
                           -model_min_position),
                 -model_max_position);
   const float model_width =
-      std::max(std::max(model_width3.x(), model_width3.y()), model_width3.z());
+      std::max(std::max(model_width3.x, model_width3.y), model_width3.z);
   distance = model_width * kWidthToCameraDistance;
 
   // Set near and far planes based on the distance to the model.
@@ -390,9 +390,9 @@ static void UpdateCamera(fplbase::InputSystem* input, Camera* camera) {
   if (input->GetButton(fplbase::K_POINTER1).is_down() &&
       pointer.mousedelta != mathfu::kZeros2i) {
     const float lat = camera->latitude.ToRadians() +
-                      pointer.mousedelta.y() * kLatitudeSensitivity;
+                      pointer.mousedelta.y * kLatitudeSensitivity;
     camera->latitude = Angle(mathfu::Clamp(lat, -kMaxLatitude, kMaxLatitude));
-    camera->longitude += Angle(pointer.mousedelta.x() * kLongitudeSensitivity);
+    camera->longitude += Angle(pointer.mousedelta.x * kLongitudeSensitivity);
   }
 
   // Update distance: right mouse drag.
@@ -400,7 +400,7 @@ static void UpdateCamera(fplbase::InputSystem* input, Camera* camera) {
   if (input->GetButton(fplbase::K_POINTER3).is_down() &&
       pointer.mousedelta != mathfu::kZeros2i) {
     const float dist = camera->distance +
-                       (pointer.mousedelta.x() + pointer.mousedelta.y()) *
+                       (pointer.mousedelta.x + pointer.mousedelta.y) *
                            kDistanceSensitivity;
     camera->distance = std::max(dist, camera->z_near);
   }
@@ -456,8 +456,8 @@ static bool UpdatePlaybackRate(AnimationState animation_state,
 }
 
 static float AspectRatio(const fplbase::Renderer& renderer) {
-  return static_cast<float>(renderer.window_size().x()) /
-         renderer.window_size().y();
+  return static_cast<float>(renderer.window_size().x) /
+         renderer.window_size().y;
 }
 
 static const char* AnimLoadFn(const char* file_name, std::string* scratch_buf) {
@@ -571,7 +571,7 @@ extern "C" int FPL_main(int argc, char* argv[]) {
   printf(kControls);
   const vec3 mesh_size = mesh->max_position() - mesh->min_position();
   printf("Displaying mesh with width %.2f, height %.2f, and depth %.2f\n",
-         mesh_size.x(), mesh_size.y(), mesh_size.z());
+         mesh_size.x, mesh_size.y, mesh_size.z);
 
   // Open file that recieves debug info.
   FILE* out_file = nullptr;
