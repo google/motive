@@ -239,6 +239,11 @@ class MotivatorNf : public Motivator {
     return Processor().TargetTime(index_, Dimensions());
   }
 
+  /// Returns the shape of the current curve.
+  MotiveCurveShape MotiveShape() const {
+    return Processor().MotiveShape(index_);
+  }
+
   /// Returns the current time (i.e. the x-value) in the current spline.
   /// If Motivator is not being driven by a spline, returns 0.
   /// Whenever SetSpline() is called, this value will be reset to the

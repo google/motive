@@ -179,6 +179,11 @@ class EaseInEaseOutMotiveProcessor : public MotiveProcessorNf {
     }
   }
 
+  virtual MotiveCurveShape MotiveShape(MotiveIndex index) const {
+    const EaseInEaseOutData& d = Data(index);
+    return d.shape;
+  }
+
  protected:
   virtual void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
                                  MotiveDimension dimensions,

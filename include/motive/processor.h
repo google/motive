@@ -311,6 +311,10 @@ class MotiveProcessorNf : public MotiveProcessor {
                                 MotiveDimension dimensions) const = 0;
   virtual MotiveTime SplineTime(MotiveIndex /*index*/) const { return 0; }
 
+  virtual MotiveCurveShape MotiveShape(MotiveIndex /*index*/) const {
+    return MotiveCurveShape();
+  }
+
   // At least one of SetTargets, SetTargetWithShape, or SetSplines should be
   // implemented by the derived class. Otherwise, there will be no way to drive
   // the Motivator towards a target.
