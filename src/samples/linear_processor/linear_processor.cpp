@@ -111,8 +111,14 @@ class LinearMotiveProcessor : public MotiveProcessorNf {
       out[i] = d->target_value - *values;
     }
   }
-  virtual MotiveTime TargetTime(MotiveIndex index) const {
-    return static_cast<MotiveTime>(Data(index).target_time);
+  virtual MotiveTime TargetTime(MotiveIndex index,
+                                MotiveDimension dimensions) const {
+    MotiveTime greatest = std::numeric_limits<MotiveTime>::min();
+    for (MotiveDimension i = 0; i < dimensions; ++i) {
+      greatest = std::max(greatest,
+                          static_cast<MotiveTime>(Data(index).target_time));
+    }
+    return greatest;
   }
 
   // Target values are set in bulk. Please see MotiveTarget1f for a description
