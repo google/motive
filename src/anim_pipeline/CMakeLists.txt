@@ -17,11 +17,8 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(anim_pipeline)
 
-# This is the motive directory, which is a parent of the current directory.
-get_filename_component(motive_dir "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
-
 # This is the directory into which the executables are built.
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${motive_dir}/bin/${CMAKE_SYSTEM_NAME})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${CMAKE_SYSTEM_NAME})
 set(tmp_dir ${CMAKE_BINARY_DIR}/obj)
 
 # Include functions fbx_compile_options() and fbx_configure_target()
