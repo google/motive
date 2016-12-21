@@ -121,7 +121,18 @@ class EaseInEaseOutMotiveProcessor : public MotiveProcessorNf {
                             float* out) const {
     for (MotiveDimension i = 0; i < dimensions; ++i) {
       const EaseInEaseOutData& d = Data(index + i);
-      out[i] = d.q.Evaluate(d.q.total_x());
+      // Inside of AdvanceFrame, the curve can get recalculated so that it will
+      // hit the target value at a zero velocity if the target velocity is not
+      // already zero.
+      // If the target velocity is already zero at the target value, the curve
+      // gets set to a straight line at the target value.
+      // In these cases, it's possible that d.q_start_time will exceed
+      // d.target_time, which is the time it took to get to the original target,
+      // before AdvanceFrame did any new calculations.
+      // To account for this case, we evaluate at 0.0f if the d.q_start_time has
+      // exceeded d.target_time. Since we would be evaluating on a straight
+      // line, the evaluation would be correct.
+      out[i] = d.q.Evaluate(std::max(0.0f, d.target_time - d.q_start_time));
     }
   }
 
@@ -129,7 +140,8 @@ class EaseInEaseOutMotiveProcessor : public MotiveProcessorNf {
                                 float* out) const {
     for (MotiveDimension i = 0; i < dimensions; ++i) {
       const EaseInEaseOutData& d = Data(index + i);
-      out[i] = d.q.Derivative(d.q.total_x());
+      // Please see comment in TargetValues() for exaplanation of std::max().
+      out[i] = d.q.Derivative(std::max(0.0f, d.target_time - d.q_start_time));
     }
   }
 
@@ -137,7 +149,9 @@ class EaseInEaseOutMotiveProcessor : public MotiveProcessorNf {
                            float* out) const {
     for (MotiveDimension i = 0; i < dimensions; ++i) {
       const EaseInEaseOutData& d = Data(index + i);
-      out[i] = d.q.Evaluate(d.q.total_x()) - values_[i];
+      // Please see comment in TargetValues() for exaplanation of std::max().
+      out[i] = d.q.Evaluate(std::max(0.0f, d.target_time - d.q_start_time)
+                            - values_[i]);
     }
   }
 
