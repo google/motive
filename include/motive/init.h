@@ -71,27 +71,24 @@ inline Range RangeOfOp(MatrixOperationType op) {
 /// Return a string with the operation name. Used for debugging.
 const char* MatrixOpName(const MatrixOperationType op);
 
-/// @class EaseInEaseOutInit
-/// @brief Initialize a MotivatorNf move towards target using ease-in
-///        ease-out math.
+/// @class SimpleInit
+/// @brief Base class of Init classes for MotiveProcessors that derive from
+///        SimpleProcessorTemplate.
 ///
-/// Call @ref MotivatorNf::SetTargetWithShape to set the target the
-/// curve moves towards.
-struct EaseInEaseOutInit : public MotivatorInit {
-  MOTIVE_INTERFACE();
-
-  EaseInEaseOutInit()
-      : MotivatorInit(kType),
+/// You cannot initialize a Motivator with this class because it has no
+/// MotivatorType. Instead, use one of the Init classes below that derive from
+/// SimpleInit.
+struct SimpleInit : public MotivatorInit {
+  explicit SimpleInit(MotivatorType type)
+      : MotivatorInit(type),
         start_values(nullptr),
         start_derivatives(nullptr) {}
-
-  /// Please see @ref CalculateQuadraticEaseInEaseOut for a
-  /// description of the parameters.
-  explicit EaseInEaseOutInit(const float* start_values_param,
-                             const float* start_derivatives_param = nullptr)
-      : MotivatorInit(kType),
-        start_values(start_values_param),
-        start_derivatives(start_derivatives_param) {}
+  
+  SimpleInit(MotivatorType type, const float* start_values,
+             const float* start_derivatives = nullptr)
+      : MotivatorInit(type),
+        start_values(start_values),
+        start_derivatives(start_derivatives) {}
 
   /// The starting value of each curve for each dimension. Array of length equal
   /// to the number of dimensions. This points at external values and the caller
@@ -106,38 +103,57 @@ struct EaseInEaseOutInit : public MotivatorInit {
   const float* start_derivatives;
 };
 
-/// @class EaseInEaseOutInitTemplate
-/// @brief EaseInEaseOutInit structure for Motivators with kDimensions.
+/// @class SimpleInitTemplate
+/// @brief A version of SimpleInit for Motivators with kDimensions.
 /// Use this class to initialize a Motivator with vector types, instead of using
-/// the float arrays required by the base class EaseInEaseOutInit.
-/// For example, use EaseInEaseOutInit3f to initialize a Motivator3f.
-template <class VectorConverter, MotiveDimension kDimensionsParam>
-struct EaseInEaseOutInitTemplate : public EaseInEaseOutInit {
+/// the float arrays required by the base class SimpleInit.
+/// For example, use a derivation of SimpleInit3f to initialize a Motivator3f.
+template <class BaseT, class VectorConverter, MotiveDimension kDimensionsParam>
+struct SimpleInitTemplate : public BaseT {
   static const MotiveDimension kDimensions = kDimensionsParam;
 
   typedef VectorConverter C;
   typedef typename VectorT<C, kDimensions>::type Vec;
 
-  EaseInEaseOutInitTemplate()
-      : EaseInEaseOutInit(C::ToPtr(start_values), C::ToPtr(start_derivatives)),
+  SimpleInitTemplate()
+      : BaseT(C::ToPtr(start_values), C::ToPtr(start_derivatives)),
         start_values(0.0f),
         start_derivatives(0.0f) {}
 
-  EaseInEaseOutInitTemplate(const Vec& start_values_param,
-                            const Vec& start_derivatives_param)
-      : EaseInEaseOutInit(C::ToPtr(start_values), C::ToPtr(start_derivatives)),
+  SimpleInitTemplate(const Vec& start_values_param,
+                     const Vec& start_derivatives_param)
+      : BaseT(C::ToPtr(start_values), C::ToPtr(start_derivatives)),
         start_values(start_values_param),
         start_derivatives(start_derivatives_param) {}
+
   const Vec start_values;
   const Vec start_derivatives;
 };
 
+/// @class EaseInEaseOutInit
+/// @brief Initialize a MotivatorNf move towards target using ease-in
+///        ease-out math.
+///
+/// Call @ref MotivatorNf::SetTargetWithShape to set the target the
+/// curve moves towards.
+struct EaseInEaseOutInit : public SimpleInit {
+  MOTIVE_INTERFACE();
+  EaseInEaseOutInit() : SimpleInit(kType) {}
+  explicit EaseInEaseOutInit(const float* start_values,
+                             const float* start_derivatives = nullptr)
+      : SimpleInit(kType, start_values, start_derivatives) {}
+};
+
 /// Use these types to initialize their corresponding MotivatorXfs using vector
 /// types instead of float arrays.
-typedef EaseInEaseOutInitTemplate<MathFuVectorConverter, 1> EaseInEaseOutInit1f;
-typedef EaseInEaseOutInitTemplate<MathFuVectorConverter, 2> EaseInEaseOutInit2f;
-typedef EaseInEaseOutInitTemplate<MathFuVectorConverter, 3> EaseInEaseOutInit3f;
-typedef EaseInEaseOutInitTemplate<MathFuVectorConverter, 4> EaseInEaseOutInit4f;
+typedef SimpleInitTemplate<EaseInEaseOutInit, MathFuVectorConverter, 1>
+    EaseInEaseOutInit1f;
+typedef SimpleInitTemplate<EaseInEaseOutInit, MathFuVectorConverter, 2>
+    EaseInEaseOutInit2f;
+typedef SimpleInitTemplate<EaseInEaseOutInit, MathFuVectorConverter, 3>
+    EaseInEaseOutInit3f;
+typedef SimpleInitTemplate<EaseInEaseOutInit, MathFuVectorConverter, 4>
+    EaseInEaseOutInit4f;
 
 /// @class OvershootInit
 /// @brief Initialize a MotivatorNf move towards a target using spring physics.

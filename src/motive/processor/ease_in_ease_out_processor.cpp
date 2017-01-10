@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "motive/engine.h"
 #include "motive/init.h"
 #include "motive/math/curve_util.h"
+#include "motive/simple_processor_template.h"
 
 namespace motive {
 
@@ -25,8 +25,7 @@ struct EaseInEaseOutData {
       : q_start_time(0.0f), target_time(0.0f), elapsed_time(0.0f) {}
 
   // Create a straight line with the start value and derivative for q.
-  EaseInEaseOutData(const EaseInEaseOutInit& init,
-                    MotiveIndex current_dimension)
+  EaseInEaseOutData(const SimpleInit& init, MotiveIndex current_dimension)
       : q(QuadraticEaseInEaseOut(
             QuadraticCurve(QuadraticInitWithOrigin(
                 init.start_values[current_dimension],
@@ -53,7 +52,44 @@ struct EaseInEaseOutData {
   float elapsed_time;
 };
 
-class EaseInEaseOutMotiveProcessor : public MotiveProcessorNf {
+// The following "Simple" functions are called by SimpleProcessorTemplate.
+
+static inline float SimpleVelocity(const EaseInEaseOutData& d,
+                                   float /*value*/) {
+  return d.q.Derivative(d.elapsed_time);
+}
+
+static inline float SimpleTargetValue(const EaseInEaseOutData& d,
+                                      float /*value*/) {
+  // Inside of AdvanceFrame, the curve can get recalculated so that it will
+  // hit the target value at a zero velocity if the target velocity is not
+  // already zero.
+  // If the target velocity is already zero at the target value, the curve
+  // gets set to a straight line at the target value.
+  // In these cases, it's possible that d.q_start_time will exceed
+  // d.target_time, which is the time it took to get to the original target,
+  // before AdvanceFrame did any new calculations.
+  // To account for this case, we evaluate at 0.0f if the d.q_start_time has
+  // exceeded d.target_time. Since we would be evaluating on a straight
+  // line, the evaluation would be correct.
+  return d.q.Evaluate(std::max(0.0f, d.target_time - d.q_start_time));
+}
+
+static inline float SimpleTargetVelocity(const EaseInEaseOutData& d,
+                                         float /*value*/) {
+  return d.q.Derivative(std::max(0.0f, d.target_time - d.q_start_time));
+}
+
+static inline float SimpleDifference(const EaseInEaseOutData& d, float value) {
+  return SimpleTargetValue(d, value) - value;
+}
+
+static inline MotiveTime SimpleTargetTime(const EaseInEaseOutData& d) {
+  return static_cast<MotiveTime>(d.target_time - d.elapsed_time);
+}
+
+class EaseInEaseOutMotiveProcessor
+    : public SimpleProcessorTemplate<EaseInEaseOutData> {
  public:
   virtual ~EaseInEaseOutMotiveProcessor() {}
 
@@ -104,69 +140,6 @@ class EaseInEaseOutMotiveProcessor : public MotiveProcessorNf {
   virtual MotivatorType Type() const { return EaseInEaseOutInit::kType; }
   virtual int Priority() const { return 1; }
 
-  // Accessors to allow the user to get and set simluation values.
-  virtual const float* Values(MotiveIndex index) const {
-    return &values_[index];
-  }
-
-  virtual void Velocities(MotiveIndex index, MotiveDimension dimensions,
-                          float* out) const {
-    for (MotiveDimension i = 0; i < dimensions; ++i) {
-      const EaseInEaseOutData& d = Data(index + i);
-      out[i] = d.q.Derivative(d.elapsed_time);
-    }
-  }
-
-  virtual void TargetValues(MotiveIndex index, MotiveDimension dimensions,
-                            float* out) const {
-    for (MotiveDimension i = 0; i < dimensions; ++i) {
-      const EaseInEaseOutData& d = Data(index + i);
-      // Inside of AdvanceFrame, the curve can get recalculated so that it will
-      // hit the target value at a zero velocity if the target velocity is not
-      // already zero.
-      // If the target velocity is already zero at the target value, the curve
-      // gets set to a straight line at the target value.
-      // In these cases, it's possible that d.q_start_time will exceed
-      // d.target_time, which is the time it took to get to the original target,
-      // before AdvanceFrame did any new calculations.
-      // To account for this case, we evaluate at 0.0f if the d.q_start_time has
-      // exceeded d.target_time. Since we would be evaluating on a straight
-      // line, the evaluation would be correct.
-      out[i] = d.q.Evaluate(std::max(0.0f, d.target_time - d.q_start_time));
-    }
-  }
-
-  virtual void TargetVelocities(MotiveIndex index, MotiveDimension dimensions,
-                                float* out) const {
-    for (MotiveDimension i = 0; i < dimensions; ++i) {
-      const EaseInEaseOutData& d = Data(index + i);
-      // Please see comment in TargetValues() for exaplanation of std::max().
-      out[i] = d.q.Derivative(std::max(0.0f, d.target_time - d.q_start_time));
-    }
-  }
-
-  virtual void Differences(MotiveIndex index, MotiveDimension dimensions,
-                           float* out) const {
-    for (MotiveDimension i = 0; i < dimensions; ++i) {
-      const EaseInEaseOutData& d = Data(index + i);
-      // Please see comment in TargetValues() for exaplanation of std::max().
-      out[i] = d.q.Evaluate(std::max(0.0f, d.target_time - d.q_start_time)
-                            - values_[i]);
-    }
-  }
-
-  virtual MotiveTime TargetTime(MotiveIndex index,
-                                MotiveDimension dimensions) const {
-    MotiveTime greatest = std::numeric_limits<MotiveTime>::min();
-    for (MotiveDimension i = 0; i < dimensions; ++i) {
-      const EaseInEaseOutData& d = Data(index + i);
-      greatest =
-          std::max(greatest,
-                   static_cast<MotiveTime>(d.target_time - d.elapsed_time));
-    }
-    return greatest;
-  }
-
   virtual void SetTargetWithShape(MotiveIndex index, MotiveDimension dimensions,
                                   const float* target_values,
                                   const float* target_velocities,
@@ -197,54 +170,6 @@ class EaseInEaseOutMotiveProcessor : public MotiveProcessorNf {
     const EaseInEaseOutData& d = Data(index);
     return d.shape;
   }
-
- protected:
-  virtual void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
-                                 MotiveDimension dimensions,
-                                 MotiveEngine* /*engine*/) {
-    const EaseInEaseOutInit& ease_in_ease_out_init =
-        static_cast<const EaseInEaseOutInit&>(init);
-    for (MotiveDimension i = 0; i < dimensions; ++i) {
-      const MotiveIndex processor_index = i + index;
-      Data(processor_index) = EaseInEaseOutData(ease_in_ease_out_init, i);
-      values_[processor_index] = ease_in_ease_out_init.start_values[i];
-    }
-  }
-
-  virtual void RemoveIndices(MotiveIndex index, MotiveDimension dimensions) {
-    for (MotiveIndex i = index; i < index + dimensions; ++i) {
-      Data(i) = EaseInEaseOutData();
-      values_[i] = 0.0f;
-    }
-  }
-
-  virtual void MoveIndices(MotiveIndex old_index, MotiveIndex new_index,
-                           MotiveDimension dimensions) {
-    MotiveIndex old_i = old_index;
-    MotiveIndex new_i = new_index;
-    for (MotiveDimension i = 0; i < dimensions; ++i, ++new_i, ++old_i) {
-      data_[new_i] = data_[old_i];
-      values_[new_i] = values_[old_i];
-    }
-  }
-
-  virtual void SetNumIndices(MotiveIndex num_indices) {
-    data_.resize(num_indices);
-    values_.resize(num_indices);
-  }
-
-  const EaseInEaseOutData& Data(MotiveIndex index) const {
-    assert(ValidIndex(index));
-    return data_[index];
-  }
-
-  EaseInEaseOutData& Data(MotiveIndex index) {
-    assert(ValidIndex(index));
-    return data_[index];
-  }
-
-  std::vector<EaseInEaseOutData> data_;
-  std::vector<float> values_;
 };
 
 MOTIVE_INSTANCE(EaseInEaseOutInit, EaseInEaseOutMotiveProcessor);

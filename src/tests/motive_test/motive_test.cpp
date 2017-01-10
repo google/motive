@@ -32,7 +32,7 @@ using motive::Angle;
 using motive::CompactSpline;
 using motive::EaseInEaseOutInit;
 using motive::EaseInEaseOutInit1f;
-using motive::EaseInEaseOutInitTemplate;
+using motive::SimpleInitTemplate;
 using motive::kAngleRange;
 using motive::kHalfPi;
 using motive::kInvalidRange;
@@ -284,7 +284,8 @@ static void TestEaseInEaseOutInternal(float start_value, float start_velocity,
   typedef typename MotivatorT::TargetBuilder Tar;
   typedef typename MotivatorT::Vec Vec;
   typedef typename MotivatorT::C C;
-  typedef EaseInEaseOutInitTemplate<C, MotivatorT::kDimensions> Init;
+  typedef SimpleInitTemplate<EaseInEaseOutInit, MathFuVectorConverter,
+                             MotivatorT::kDimensions> Init;
 
   const float value_epsilon = std::fabs(target_value) * kEpsilonScale;
   const float velocity_epsilon = std::fabs(target_velocity) * kEpsilonScale;
@@ -379,7 +380,8 @@ static void TestMultiMotivators(float start_value, float start_velocity,
                               MotiveTime delta_x, MotiveTests* t) {
   typedef typename MotivatorT::Vec Vec;
   typedef typename MotivatorT::C C;
-  typedef EaseInEaseOutInitTemplate<C, MotivatorT::kDimensions> Init;
+  typedef SimpleInitTemplate<EaseInEaseOutInit, MathFuVectorConverter,
+                             MotivatorT::kDimensions> Init;
   const int kNumTestMotivators = 100;
   const MotiveCurveShape shape(typical_delta_value, typical_total_time, bias);
 

@@ -93,6 +93,7 @@ set(motive_SRCS
     include/motive/math/float.h
     include/motive/math/range.h
     include/motive/processor.h
+    include/motive/simple_processor_template.h
     include/motive/target.h
     include/motive/util.h
     include/motive/version.h
