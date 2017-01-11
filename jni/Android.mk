@@ -51,6 +51,7 @@ MOTIVE_SRC_FILES := \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/dual_cubic.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/float.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/motivator.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/processor/const_processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/processor/ease_in_ease_out_processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/processor/matrix_processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/processor/overshoot_processor.cpp \

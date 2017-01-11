@@ -83,7 +83,7 @@ struct SimpleInit : public MotivatorInit {
       : MotivatorInit(type),
         start_values(nullptr),
         start_derivatives(nullptr) {}
-  
+
   SimpleInit(MotivatorType type, const float* start_values,
              const float* start_derivatives = nullptr)
       : MotivatorInit(type),
@@ -129,6 +129,30 @@ struct SimpleInitTemplate : public BaseT {
   const Vec start_values;
   const Vec start_derivatives;
 };
+
+/// @class ConstInit
+/// @brief Initialize a MotivatorNf that holds values and velocities that
+///        never change.
+///
+/// All calls to SetTarget functions are ignored.
+struct ConstInit : public SimpleInit {
+  MOTIVE_INTERFACE();
+  ConstInit() : SimpleInit(kType) {}
+  explicit ConstInit(const float* start_values,
+                     const float* start_derivatives = nullptr)
+      : SimpleInit(kType, start_values, start_derivatives) {}
+};
+
+/// Use these types to initialize their corresponding MotivatorXfs using vector
+/// types instead of float arrays.
+typedef SimpleInitTemplate<ConstInit, MathFuVectorConverter, 1>
+    ConstInit1f;
+typedef SimpleInitTemplate<ConstInit, MathFuVectorConverter, 2>
+    ConstInit2f;
+typedef SimpleInitTemplate<ConstInit, MathFuVectorConverter, 3>
+    ConstInit3f;
+typedef SimpleInitTemplate<ConstInit, MathFuVectorConverter, 4>
+    ConstInit4f;
 
 /// @class EaseInEaseOutInit
 /// @brief Initialize a MotivatorNf move towards target using ease-in

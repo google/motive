@@ -111,6 +111,7 @@ set(motive_SRCS
     src/motive/math/float.cpp
     src/motive/math/dual_cubic.cpp
     src/motive/processor.cpp
+    src/motive/processor/const_processor.cpp
     src/motive/processor/ease_in_ease_out_processor.cpp
     src/motive/processor/matrix_processor.cpp
     src/motive/processor/overshoot_processor.cpp
