@@ -20,6 +20,7 @@ using motive::CubicCurve;
 using motive::CubicInit;
 using motive::QuadraticCurve;
 using motive::QuadraticEaseInEaseOut;
+using motive::QuadraticSpring;
 using motive::Range;
 
 // The scale to be used to estimate error in our tests.
@@ -28,10 +29,20 @@ static const float kEpsilonScale = 0.001f;
 // The number of points we want to test on our curve.
 static const float kNumTestPoints = 100.0f;
 
+// Number of times the springs should traverse from peak to peak.
+static const float kNumTestSpringIterations = 4.0f;
+
 static void PrintCurveAsAsciiGraph(const QuadraticEaseInEaseOut& q) {
 #ifdef MOTIVE_OUTPUT_DEBUG_CURVES_IN_TESTS
   printf("%s", GraphCurveOnXRange(q, motive::kCurveValue, Range(0, q.total_x()))
                    .c_str());
+#endif  // MOTIVE_OUTPUT_DEBUG_CURVES_IN_TESTS
+}
+
+static void PrintCurveAsAsciiGraph(const QuadraticSpring& q, float end_x) {
+#ifdef MOTIVE_OUTPUT_DEBUG_CURVES_IN_TESTS
+  printf("%s",
+         GraphCurveOnXRange(q, motive::kCurveValue, Range(0, end_x)).c_str());
 #endif  // MOTIVE_OUTPUT_DEBUG_CURVES_IN_TESTS
 }
 
@@ -434,6 +445,120 @@ TEST_F(CurveUtilTests, TestActualMatchesTypical) {
 // TEST_F(CurveUtilTests, ReallyNegativeEndDerivative) {
 //   TestEaseInEaseOut(0.0f, 0.1f, 0.1f, 1.0f, -0.9f, 0.1f);
 // }
+
+static void TestSpring(float start_value, float start_derivative,
+                       float end_value, float typical_delta_value,
+                       float typical_delta_x, float bias) {
+  // Create the spring and print it out, if print is enabled.
+  const QuadraticSpring spring(start_value, start_derivative, end_value,
+                               typical_delta_value, typical_delta_x, bias);
+  const float end_x = spring.IterationX(kNumTestSpringIterations);
+  PrintCurveAsAsciiGraph(spring, end_x);
+
+  // Verify start values.
+  const float tolerance = typical_delta_value * 0.01f;
+  EXPECT_NEAR(spring.Evaluate(0.0f), start_value, tolerance);
+  EXPECT_NEAR(spring.Derivative(0.0f), start_derivative, tolerance);
+
+  // Verify typical values are hit, if they're the same as the starting values.
+  if (std::abs(start_value - end_value) == typical_delta_value &&
+      start_derivative == 0.0f) {
+    EXPECT_NEAR(spring.Evaluate(typical_delta_x), end_value, tolerance);
+  }
+
+  // Verify that CalculateContext() and IncrementContext() match.
+  const float delta_x = end_x / kNumTestPoints;
+  QuadraticSpring::Context context = spring.CalculateContext(0.0f);
+  for (float x = 0.0f; x < end_x; x += delta_x) {
+    spring.IncrementContext(x, &context);
+    const float inc_value = spring.EvaluateWithContext(x, context);
+    const float inc_derivative = spring.DerivativeWithContext(x, context);
+    const float calc_value = spring.Evaluate(x);
+    const float calc_derivative = spring.Derivative(x);
+    EXPECT_NEAR(inc_value, calc_value, tolerance);
+    EXPECT_NEAR(inc_derivative, calc_derivative, tolerance);
+  }
+
+  // Verify that reinitializing part-way through generates the same curve.
+  for (float reinit_x = 0.0f; reinit_x < end_x; reinit_x += delta_x) {
+    const float reinit_value = spring.Evaluate(reinit_x);
+    const float reinit_derivative = spring.Derivative(reinit_x);
+
+    const QuadraticSpring reinit_spring(reinit_value, reinit_derivative,
+                                        end_value, typical_delta_value,
+                                        typical_delta_x, bias);
+
+    QuadraticSpring::Context reinit_context =
+        reinit_spring.CalculateContext(0.0f);
+    QuadraticSpring::Context orig_context = spring.CalculateContext(reinit_x);
+    for (float x = reinit_x; x <= end_x; x += delta_x) {
+      const float offset_x = x - reinit_x;
+
+      reinit_spring.IncrementContext(offset_x, &reinit_context);
+      spring.IncrementContext(x, &orig_context);
+
+      EXPECT_NEAR(reinit_spring.EvaluateWithContext(offset_x, reinit_context),
+                  spring.EvaluateWithContext(x, orig_context), tolerance);
+      EXPECT_NEAR(reinit_spring.DerivativeWithContext(offset_x, reinit_context),
+                  spring.DerivativeWithContext(x, orig_context), tolerance);
+    }
+  }
+}
+
+// Bias of 2 should grow in amplitude.
+TEST_F(CurveUtilTests, SpringBiasTwo) {
+  TestSpring(10.0f, 0.0f, 0.0f, 10.0f, 10.0f, 2.0f);
+}
+
+// Bias of 1 should never change amplitude.
+TEST_F(CurveUtilTests, SpringBiasOne) {
+  TestSpring(10.0f, 0.0f, 0.0f, 10.0f, 10.0f, 1.0f);
+}
+
+// Actual same as typical.
+TEST_F(CurveUtilTests, SpringBasic) {
+  TestSpring(10.0f, 0.0f, 0.0f, 10.0f, 10.0f, 0.5f);
+}
+
+// Actual same as typical, offset target.
+TEST_F(CurveUtilTests, SpringOffset) {
+  TestSpring(10.0f, 0.0f, 5.0f, 10.0f, 10.0f, 0.5f);
+}
+
+// Starts below.
+TEST_F(CurveUtilTests, SpringStartsBelow) {
+  TestSpring(-10.0f, 0.0f, 0.0f, 10.0f, 10.0f, 0.5f);
+}
+
+// Starts with non-zero derivative.
+TEST_F(CurveUtilTests, SpringNonZeroDerivativeTowards) {
+  TestSpring(7.5f, -1.0f, 0.0f, 10.0f, 10.0f, 0.5f);
+}
+
+// Starts with away derivative.
+TEST_F(CurveUtilTests, SpringNonZeroDerivativeAway) {
+  TestSpring(8.75f, 1.0f, 0.0f, 10.0f, 10.0f, 0.5f);
+}
+
+// Very small values. Tests numerical precision.
+TEST_F(CurveUtilTests, SpringVerySmall) {
+  TestSpring(0.000001f, 0.0f, 0.0f, 0.01f, 0.01f, 0.5f);
+}
+
+// Bias near 1, but not 1.
+TEST_F(CurveUtilTests, SpringBiasAlmostOne) {
+  TestSpring(10.0f, 0.0f, 0.0f, 10.0f, 10.0f, 0.99f);
+}
+
+// Bias slightly above 1.
+TEST_F(CurveUtilTests, SpringBiasJustAboveOne) {
+  TestSpring(10.0f, 0.0f, 0.0f, 10.0f, 10.0f, 1.01f);
+}
+
+// Bias very small.
+TEST_F(CurveUtilTests, SpringBiasSmall) {
+  TestSpring(10.0f, 0.0f, 0.0f, 10.0f, 10.0f, 0.01f);
+}
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);

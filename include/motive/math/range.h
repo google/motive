@@ -241,6 +241,13 @@ class RangeT {
   /// Return true if `x` is in (start_, end_), i.e. the **exclusive** range.
   bool StrictlyContains(const T x) const { return start_ < x && x < end_; }
 
+  /// Return true if `x` is in [start_ - tolerance, end_ + tolerance],
+  /// where tolerance = Length() * percent.
+  bool ContainsWithTolerance(const T x, const T percent) const {
+    const float tolerance = Length() * percent;
+    return start_ - tolerance <= x && x <= end_ + tolerance;
+  }
+
   /// Swap start and end. When 'a' and 'b' don't overlap, if you invert the
   /// return value of Range::Intersect(a, b), you'll get the gap between
   /// 'a' and 'b'.
@@ -481,6 +488,16 @@ class RangeT {
   static RangeT<T> Empty() {
     return RangeT<T>(std::numeric_limits<T>::infinity(),
                      -std::numeric_limits<T>::infinity());
+  }
+
+  /// Returns the range of positive numbers: [0, +infinity].
+  static RangeT<T> Positive() {
+    return RangeT<T>(0.0f, std::numeric_limits<T>::infinity());
+  }
+
+  /// Returns the range of negative numbers.: [-infinity, 0].
+  static RangeT<T> Negative() {
+    return RangeT<T>(-std::numeric_limits<T>::infinity(), 0.0f);
   }
 
  private:

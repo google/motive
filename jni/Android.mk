@@ -57,6 +57,7 @@ MOTIVE_SRC_FILES := \
   $(MOTIVE_RELATIVE_DIR)/src/motive/processor/overshoot_processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/processor/rig_processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/processor/spline_processor.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/processor/spring_processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/util/benchmark.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/util/optimizations.cpp \

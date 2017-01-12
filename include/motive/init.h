@@ -179,6 +179,30 @@ typedef SimpleInitTemplate<EaseInEaseOutInit, MathFuVectorConverter, 3>
 typedef SimpleInitTemplate<EaseInEaseOutInit, MathFuVectorConverter, 4>
     EaseInEaseOutInit4f;
 
+/// @class SpringInit
+/// @brief Initialize a MotivatorNf move oscillate over a target.
+///
+/// Call @ref MotivatorNf::SetTargetWithShape to set the target the
+/// curve moves towards.
+struct SpringInit : public SimpleInit {
+  MOTIVE_INTERFACE();
+  SpringInit() : SimpleInit(kType) {}
+  explicit SpringInit(const float* start_values,
+                      const float* start_derivatives = nullptr)
+      : SimpleInit(kType, start_values, start_derivatives) {}
+};
+
+/// Use these types to initialize their corresponding MotivatorXfs using vector
+/// types instead of float arrays.
+typedef SimpleInitTemplate<SpringInit, MathFuVectorConverter, 1>
+    SpringInit1f;
+typedef SimpleInitTemplate<SpringInit, MathFuVectorConverter, 2>
+    SpringInit2f;
+typedef SimpleInitTemplate<SpringInit, MathFuVectorConverter, 3>
+    SpringInit3f;
+typedef SimpleInitTemplate<SpringInit, MathFuVectorConverter, 4>
+    SpringInit4f;
+
 /// @class OvershootInit
 /// @brief Initialize a MotivatorNf move towards a target using spring physics.
 ///
