@@ -105,7 +105,9 @@ class Motivator {
   /// Return the type of Motivator we've been initilized to.
   /// A Motivator can take on any type that matches its dimension.
   /// The Motivator's type is determined by the `init` param in Initialize().
-  MotivatorType Type() const { return processor_->Type(); }
+  MotivatorType Type() const {
+    return Valid() ? processor_->Type() : kMotivatorTypeInvalid;
+  }
 
   /// The number of basic values that this Motivator is driving. For example,
   /// a 3D position would return 3, since it drives three floats. A single
