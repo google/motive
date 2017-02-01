@@ -170,11 +170,25 @@ class FlatAnim {
  public:
   explicit FlatAnim(const Tolerances& tolerances, bool root_bones_only,
                     Logger& log)
-      : tolerances_(tolerances), root_bones_only_(root_bones_only), log_(log) {}
+      : cur_bone_index_(-1),
+        tolerances_(tolerances),
+        root_bones_only_(root_bones_only),
+        log_(log) {}
 
-  void AllocBone(const char* bone_name, int depth) {
-    bones_.push_back(Bone(bone_name, depth));
+  unsigned int AllocBone(const char* bone_name, int parent_bone_index) {
+    const unsigned int bone_index = static_cast<unsigned int>(bones_.size());
+    bones_.push_back(Bone(bone_name, parent_bone_index));
+    return bone_index;
   }
+
+  // Set/Reset the current bone index, used to access the current channels via
+  // CurChannels.
+  void SetCurBoneIndex(unsigned int cur_bone_index) {
+    assert(cur_bone_index < bones_.size());
+    assert(cur_bone_index_ == -1);
+    cur_bone_index_ = cur_bone_index;
+  }
+  void ResetCurBoneIndex() { cur_bone_index_ = -1; }
 
   FlatChannelId AllocChannel(MatrixOperationType op, MatrixOpId id) {
     Channels& channels = CurChannels();
@@ -184,11 +198,10 @@ class FlatAnim {
 
   // Return true if we should keep decending down the mesh tree looking for
   // more animation.
-  bool ShouldRecurse() const {
+  bool ShouldRecurse(unsigned int cur_bone_index) const {
     // When searching for just the root bones, keep recursing until we find
     // a bone that has animation data.
-    return !root_bones_only_ || bones_.size() == 0 ||
-           bones_.back().channels.size() == 0;
+    return !root_bones_only_ || bones_[cur_bone_index].channels.empty();
   }
 
   void AddConstant(FlatChannelId channel_id, FlatVal const_val) {
@@ -564,12 +577,12 @@ class FlatAnim {
   typedef std::vector<Channel> Channels;
 
   Channels& CurChannels() {
-    assert(bones_.size() > 0);
-    return bones_.back().channels;
+    assert(static_cast<unsigned int>(cur_bone_index_) < bones_.size());
+    return bones_[cur_bone_index_].channels;
   }
   const Channels& CurChannels() const {
-    assert(bones_.size() > 0);
-    return bones_.back().channels;
+    assert(static_cast<unsigned int>(cur_bone_index_) < bones_.size());
+    return bones_[cur_bone_index_].channels;
   }
 
   float Tolerance(FlatChannelId channel_id) const {
@@ -919,18 +932,9 @@ class FlatAnim {
   }
 
   BoneIndex BoneParent(int bone_idx) const {
-    // If at top level, there is no parent, so return
-    const int bone_depth = bones_[bone_idx].depth;
-    if (bone_depth == 0) return kInvalidBoneIdx;
-
-    // `bones_` are in depth-first order, so the parent is the previous
-    // non-sibling.
-    for (int i = bone_idx - 1; i >= 0; --i) {
-      assert(bones_[i].depth >= bone_depth - 1);
-      if (bones_[i].depth < bone_depth) return static_cast<BoneIndex>(i);
-    }
-    assert(false);
-    return kInvalidBoneIdx;
+    const int parent_bone_index = bones_[bone_idx].parent_bone_index;
+    return parent_bone_index < 0 ? kInvalidBoneIdx
+                                 : static_cast<BoneIndex>(parent_bone_index);
   }
 
   /// @brief Returns true if all nodes between the first and last in `n`
@@ -1066,14 +1070,14 @@ class FlatAnim {
     // Unique name for this bone. Taken from mesh hierarchy.
     string name;
 
-    // Hierarchy depth. From this we can derive the tree, since bones are
-    // listed in depth-first order.
-    int depth;
+    // Parent bone index.  -1 for no parent.
+    int parent_bone_index;
 
     // Hold animation data. One curve per channel.
     Channels channels;
 
-    Bone(const char* name, int depth) : name(name), depth(depth) {
+    Bone(const char* name, int parent_bone_index)
+        : name(name), parent_bone_index(parent_bone_index) {
       // There probably won't be more than one of each op type.
       channels.reserve(kNumMatrixOperationTypes);
     }
@@ -1081,6 +1085,7 @@ class FlatAnim {
 
   // Hold animation data for each bone that's animated.
   std::vector<Bone> bones_;
+  int cur_bone_index_;
 
   // Amount output curves are allowed to deviate from input.
   Tolerances tolerances_;
@@ -1196,9 +1201,81 @@ class FbxAnimParser {
     return true;
   }
 
+  // Map FBX nodes to bone indices, used to create bone index references.
+  typedef std::unordered_map<const FbxNode*, unsigned int> NodeToBoneMap;
+
+  static int AddBoneForNode(NodeToBoneMap* node_to_bone_map,
+                            const FbxNode* node, int parent_bone_index,
+                            FlatAnim* out) {
+    // The node is a bone if it was marked as one by MarkBoneNodesRecursive.
+    const auto found_it = node_to_bone_map->find(node);
+    if (found_it == node_to_bone_map->end()) {
+      return -1;
+    }
+
+    // Add the bone entry.
+    const char* const name = node->GetName();
+    const unsigned int bone_index = out->AllocBone(name, parent_bone_index);
+    found_it->second = bone_index;
+    return bone_index;
+  }
+
+  bool MarkBoneNodesRecursive(NodeToBoneMap* node_to_bone_map,
+                              FbxNode* node) const {
+    // We need a bone for this node if it has a skeleton attribute or a mesh.
+    bool need_bone = (node->GetSkeleton() || node->GetMesh());
+
+    // We also need a bone for this node if it has any such child bones.
+    const int child_count = node->GetChildCount();
+    for (int child_index = 0; child_index != child_count; ++child_index) {
+      FbxNode* const child_node = node->GetChild(child_index);
+      if (MarkBoneNodesRecursive(node_to_bone_map, child_node)) {
+        need_bone = true;
+      }
+    }
+
+    // Flag the node as a bone.
+    if (need_bone) {
+      node_to_bone_map->insert(NodeToBoneMap::value_type(node, -1));
+    }
+    return need_bone;
+  }
+
+  void GatherBonesRecursive(NodeToBoneMap* node_to_bone_map,
+                            const FbxNode* node, int parent_bone_index,
+                            FlatAnim* out) const {
+    const int bone_index =
+        AddBoneForNode(node_to_bone_map, node, parent_bone_index, out);
+    if (bone_index >= 0) {
+      const int child_count = node->GetChildCount();
+      for (int child_index = 0; child_index != child_count; ++child_index) {
+        const FbxNode* const child_node = node->GetChild(child_index);
+        GatherBonesRecursive(node_to_bone_map, child_node, bone_index, out);
+      }
+    }
+  }
+
   void GatherFlatAnim(FlatAnim* out) const {
-    // Initial depth is -1 since root node is always ignored.
-    GatherFlatAnimRecursive(scene_->GetRootNode(), -1, out);
+    FbxNode* const root_node = scene_->GetRootNode();
+    const int child_count = root_node->GetChildCount();
+    NodeToBoneMap node_to_bone_map;
+
+    // First pass: determine which nodes are to be treated as bones.
+    // We skip the root node so it's not included in the bone hierarchy.
+    for (int child_index = 0; child_index != child_count; ++child_index) {
+      FbxNode* const child_node = root_node->GetChild(child_index);
+      MarkBoneNodesRecursive(&node_to_bone_map, child_node);
+    }
+
+    // Second pass: add bones.
+    // We skip the root node so it's not included in the bone hierarchy.
+    for (int child_index = 0; child_index != child_count; ++child_index) {
+      FbxNode* const child_node = root_node->GetChild(child_index);
+      GatherBonesRecursive(&node_to_bone_map, child_node, -1, out);
+    }
+
+    // Final pass: extract animation data for bones.
+    GatherFlatAnimRecursive(&node_to_bone_map, root_node, -1, out);
   }
 
   void LogAnimStateAtTime(int time_in_ms) const {
@@ -1243,24 +1320,33 @@ class FbxAnimParser {
     return FbxToFlatValue(d_time_scaled, op);
   }
 
-  void GatherFlatAnimRecursive(FbxNode* node, int depth, FlatAnim* out) const {
-    // We're only interested in mesh nodes. If a node and all nodes under it
-    // have no meshes, we early out.
-    if (node == nullptr || !NodeHasMesh(node)) return;
+  void GatherFlatAnimRecursive(const NodeToBoneMap* node_to_bone_map,
+                               FbxNode* node, int parent_bone_index,
+                               FlatAnim* out) const {
+    if (node == nullptr) return;
     log_.Log(kLogVerbose, "Node: %s\n", node->GetName());
 
     // The root node cannot have a transform applied to it, so we do not
     // export it as a bone.
+    int bone_index = -1;
     if (node != scene_->GetRootNode()) {
-      // Add a bone for this node, and gather the animation data that drives it.
-      out->AllocBone(node->GetName(), depth);
+      // We're only interested in nodes that contain meshes or are part of a
+      // skeleton. If a node and all nodes under it have neither, we early out.
+      const auto found_it = node_to_bone_map->find(node);
+      if (found_it == node_to_bone_map->end()) return;
+      bone_index = found_it->second;
+
+      // Gather the animation data that drives the bone.
+      out->SetCurBoneIndex(bone_index);
       GatherFlatAnimForNode(node, out);
+      out->ResetCurBoneIndex();
     }
 
     // Recursively traverse each node in the scene
-    if (out->ShouldRecurse()) {
+    if (bone_index < 0 || out->ShouldRecurse(bone_index)) {
       for (int i = 0; i < node->GetChildCount(); i++) {
-        GatherFlatAnimRecursive(node->GetChild(i), depth + 1, out);
+        GatherFlatAnimRecursive(node_to_bone_map, node->GetChild(i), bone_index,
+                                out);
       }
     }
   }
@@ -1467,17 +1553,6 @@ class FbxAnimParser {
 
     // Log the output key points.
     out->LogChannel(channel_id);
-  }
-
-  // Return true if `node` or any of its children has a mesh.
-  static bool NodeHasMesh(FbxNode* node) {
-    if (node->GetMesh() != nullptr) return true;
-
-    // Recursively traverse each child node.
-    for (int i = 0; i < node->GetChildCount(); i++) {
-      if (NodeHasMesh(node->GetChild(i))) return true;
-    }
-    return false;
   }
 
   // Entry point to the FBX SDK.
