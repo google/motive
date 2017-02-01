@@ -1348,7 +1348,7 @@ class FbxAnimParser {
         {&node->ScalingOffset, 12, {motive::kTranslateX, false}},
         {&node->ScalingPivot, 12, {motive::kTranslateX, false}},
         {&node->LclScaling, 15, {motive::kScaleX, false}},
-        {&node->ScalingPivot, 18, {motive::kTranslateX, true}}};
+        {&node->ScalingPivot, 19, {motive::kTranslateX, true}}};
 
     for (size_t i = 0; i < MOTIVE_ARRAY_SIZE(properties); ++i) {
       const AnimProperty& p = properties[i];
