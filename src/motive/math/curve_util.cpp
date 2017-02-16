@@ -19,10 +19,14 @@
 #define MOTIVE_CURVE_SANITY_CHECKS 1
 #endif  // !defined(NDEBUG)
 
+namespace motive {
+
 // The scale to be used to determine if number close enough to 0.
 static const float kEpsilonXPercent = 0.0001f;
 
-namespace motive {
+// Infinity can't be used as a second derivative, so choose a number lower
+// than that.
+static const float kMaxSecondDerivative = std::numeric_limits<float>::max();
 
 // Let f(x) and g(x) be quadratic functions with opposite curvature
 // (i.e. one curves up and one curves down), and overlapping range.
@@ -318,10 +322,10 @@ QuadraticEaseInEaseOut CalculateQuadraticEaseInEaseOut(
 
   // If either second derivative is infinity, calculate the curve
   // using either just the in curve or just the out curve.
-  if (std::isinf(start_second_derivative_abs)) {
+  if (start_second_derivative_abs > kMaxSecondDerivative) {
     return CalculateQuadraticFlyIn(start_value, end_value, end_derivative,
                                    end_second_derivative_abs);
-  } else if (std::isinf(end_second_derivative_abs)) {
+  } else if (end_second_derivative_abs > kMaxSecondDerivative) {
     return CalculateQuadraticFlyOut(start_value, end_value, start_derivative,
                                     start_second_derivative_abs);
   }
