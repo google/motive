@@ -1275,7 +1275,7 @@ class FbxAnimParser {
     }
 
     // Final pass: extract animation data for bones.
-    GatherFlatAnimRecursive(&node_to_bone_map, root_node, -1, out);
+    GatherFlatAnimRecursive(&node_to_bone_map, root_node, out);
   }
 
   void LogAnimStateAtTime(int time_in_ms) const {
@@ -1321,8 +1321,7 @@ class FbxAnimParser {
   }
 
   void GatherFlatAnimRecursive(const NodeToBoneMap* node_to_bone_map,
-                               FbxNode* node, int parent_bone_index,
-                               FlatAnim* out) const {
+                               FbxNode* node, FlatAnim* out) const {
     if (node == nullptr) return;
     log_.Log(kLogVerbose, "Node: %s\n", node->GetName());
 
@@ -1345,8 +1344,7 @@ class FbxAnimParser {
     // Recursively traverse each node in the scene
     if (bone_index < 0 || out->ShouldRecurse(bone_index)) {
       for (int i = 0; i < node->GetChildCount(); i++) {
-        GatherFlatAnimRecursive(node_to_bone_map, node->GetChild(i), bone_index,
-                                out);
+        GatherFlatAnimRecursive(node_to_bone_map, node->GetChild(i), out);
       }
     }
   }

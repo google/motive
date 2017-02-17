@@ -283,7 +283,6 @@ static void TestEaseInEaseOutInternal(float start_value, float start_velocity,
                                       MotiveTests* t) {
   typedef typename MotivatorT::TargetBuilder Tar;
   typedef typename MotivatorT::Vec Vec;
-  typedef typename MotivatorT::C C;
   typedef SimpleInitTemplate<EaseInEaseOutInit, MathFuVectorConverter,
                              MotivatorT::kDimensions> Init;
 
@@ -379,7 +378,6 @@ static void TestMultiMotivators(float start_value, float start_velocity,
                               float typical_total_time, float bias,
                               MotiveTime delta_x, MotiveTests* t) {
   typedef typename MotivatorT::Vec Vec;
-  typedef typename MotivatorT::C C;
   typedef SimpleInitTemplate<EaseInEaseOutInit, MathFuVectorConverter,
                              MotivatorT::kDimensions> Init;
   const int kNumTestMotivators = 100;
