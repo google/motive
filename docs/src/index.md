@@ -92,5 +92,5 @@ appreciate if you would leave it in.
   [OS X]: http://www.apple.com/osx/
   [SIMD]: http://en.wikipedia.org/wiki/SIMD
   [Windows]: http://windows.microsoft.com/
-  [stackoverflow.com]: http://www.stackoverflow.com
+  [stackoverflow.com]: http://stackoverflow.com/search?q=motive+animation
   [vector]: http://en.wikipedia.org/wiki/Euclidean_vector
