@@ -3,7 +3,7 @@
 	url = http://github.com/google/fplutil.git
 [submodule "dependencies/googletest"]
 	path = dependencies/googletest
-	url = http://github.com/google/fplutil.git
+	url = http://github.com/google/googletest.git
 [submodule "dependencies/mathfu"]
 	path = dependencies/mathfu
 	url = http://github.com/google/mathfu.git
