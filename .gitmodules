@@ -13,3 +13,18 @@
 [submodule "dependencies/flatbuffers"]
 	path = dependencies/flatbuffers
 	url = http://github.com/google/flatbuffers.git
+[submodule "dependencies/cardboard-java"]
+	path = dependencies/cardboard-java
+	url = https://github.com/googlesamples/cardboard-java
+[submodule "dependencies/stb"]
+	path = dependencies/stb
+	url = https://github.com/nothings/stb.git
+[submodule "dependencies/sdl"]
+	path = dependencies/sdl
+	url = http://github.com/google/fplbase.git
+[submodule "dependencies/fplbase"]
+	path = dependencies/fplbase
+	url = http://github.com/google/fplbase.git
+[submodule "dependencies/webp"]
+	path = dependencies/webp
+	url = https://chromium.googlesource.com/webm/libwebp
