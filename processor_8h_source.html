@@ -298,8 +298,8 @@ $(document).ready(function(){initNavTree('processor_8h_source.html','');});
 <div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="comment">  /// @param index Reference into the MotiveProcessor&#39;s internal arrays.</span></div>
 <div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_motive_processor.html#a45b83466165a7046fd558e1c1a8dbc2e">RemoveMotivator</a>(MotiveIndex index);</div>
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment">  /// Transfer ownership of the motivator at &#39;index&#39; to &#39;new_motivator&#39;.</span></div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="comment">  /// Resets the Motivator that currently owns &#39;index&#39; and initializes</span></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment">  /// Transfer ownership of the motivator at `index` to &#39;new_motivator&#39;.</span></div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="comment">  /// Resets the Motivator that currently owns `index` and initializes</span></div>
 <div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="comment">  /// &#39;new_motivator&#39;.</span></div>
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="comment">  ///</span></div>
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="comment">  /// This function should only be called by Motivator&#39;s copy operations.</span></div>
@@ -309,12 +309,12 @@ $(document).ready(function(){initNavTree('processor_8h_source.html','');});
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="comment">  ///                      `index`.</span></div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_motive_processor.html#a1ebc43fb42afb52077299e83697a2de7">TransferMotivator</a>(MotiveIndex index, <a class="code" href="classmotive_1_1_motivator.html">Motivator</a>* new_motivator);</div>
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="comment">  /// Returns true if &#39;index&#39; is currently driving a motivator. Does not do</span></div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="comment">  /// Returns true if `index` is currently driving a motivator. Does not do</span></div>
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="comment">  /// any validity checking, however, like ValidMotivatorIndex() does.</span></div>
 <div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="comment">  /// @param index Reference into the MotiveProcessor&#39;s internal arrays.</span></div>
 <div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classmotive_1_1_motive_processor.html#a4e2e72b84ae836012ee914db015e7a5b">IsMotivatorIndex</a>(MotiveIndex index) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;<span class="comment">  /// Returns true if &#39;index&#39; is currently in a block of indices driven by</span></div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;<span class="comment">  /// Returns true if `index` is currently in a block of indices driven by</span></div>
 <div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;<span class="comment">  /// a motivator.</span></div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="comment">  /// @param index Reference into the MotiveProcessor&#39;s internal arrays.</span></div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classmotive_1_1_motive_processor.html#a60e0309b59829453a06bdd98226a6be8">ValidIndex</a>(MotiveIndex index) <span class="keyword">const</span>;</div>
@@ -369,258 +369,291 @@ $(document).ready(function(){initNavTree('processor_8h_source.html','');});
 <div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;  <span class="keywordtype">int</span> benchmark_id_for_init()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> benchmark_id_for_init_; }</div>
 <div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;</div>
 <div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160; <span class="keyword">protected</span>:<span class="comment"></span></div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;<span class="comment">  /// Initialize data at &#39;index&#39;. The meaning of &#39;index&#39; is determined by the</span></div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;<span class="comment">  /// MotiveProcessor implementation (most likely it is the index into one or</span></div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;<span class="comment">  /// more data_ arrays though).</span></div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;<span class="comment">  /// MotiveProcessor tries to keep the &#39;index&#39; as low as possible, by</span></div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;<span class="comment">  /// Initialize data at [index, index + dimensions).</span></div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;<span class="comment">  /// The meaning of `index` is determined by the MotiveProcessor</span></div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;<span class="comment">  /// implementation (most likely it is the index into one or more data_ arrays</span></div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;<span class="comment">  /// though). MotiveProcessor tries to keep the `index` as low as possible, by</span></div>
 <div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;<span class="comment">  /// recycling ones that have been freed, and by providing a Defragment()</span></div>
 <div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;<span class="comment">  /// function to move later indices to indices that have been freed.</span></div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_motive_processor.html#adbde16c8e034a1d9dcd11ff0b58b12d2">InitializeIndex</a>(<span class="keyword">const</span> MotivatorInit&amp; init, MotiveIndex index,</div>
-<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;                               MotiveEngine* engine) = 0;</div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;<span class="comment">  /// Reset data at &#39;index&#39;. See comment above InitializeIndex for meaning of</span></div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;<span class="comment">  /// &#39;index&#39;. If your MotiveProcessor stores data in a plain array, you</span></div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;<span class="comment">  /// probably have nothing to do. But if you use dynamic memory per index,</span></div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;<span class="comment">  /// (which you really shouldn&#39;t - too slow!), you should deallocate it here.</span></div>
-<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;<span class="comment">  /// For debugging, it might be nice to invalidate the data.</span></div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_motive_processor.html#aefa1edd3411d921b3fcc28c675aa62dd">RemoveIndex</a>(MotiveIndex index) = 0;</div>
-<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="comment">  /// Move the data at &#39;old_index&#39; into &#39;new_index&#39;. Used by Defragment().</span></div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="comment">  /// Note that &#39;new_index&#39; is guaranteed to be inactive.</span></div>
-<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_motive_processor.html#afa4fedcd476ee5eeb4555df714b91fc4">MoveIndex</a>(MotiveIndex old_index, MotiveIndex new_index) = 0;</div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;<span class="comment">  /// Increase or decrease the total number of indices.</span></div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;<span class="comment">  /// If decreased, existing indices &gt;= num_indices should be uninitialized.</span></div>
-<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="comment">  /// If increased, internal arrays should be extended to new_indices, and</span></div>
-<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;<span class="comment">  /// new items in the arrays should be initialized as reset.</span></div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_motive_processor.html#aa281c90c6ccdfb28cbfd54aa69044706">SetNumIndices</a>(MotiveIndex num_indices) = 0;</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;<span class="comment">  /// When an index is moved, the Motivator that references that index is</span></div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;<span class="comment">  /// updated.</span></div>
-<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;<span class="comment">  /// Can be called at the discretion of your MotiveProcessor, but normally</span></div>
-<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;<span class="comment">  /// called</span></div>
-<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;<span class="comment">  /// at the beginning of your MotiveProcessor::AdvanceFrame.</span></div>
-<div class="line"><a name="l00200"></a><span class="lineno"><a class="line" href="classmotive_1_1_motive_processor.html#a4b9c5ed2a91be1f64bc2a34d2c32fb27">  200</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_motive_processor.html#a4b9c5ed2a91be1f64bc2a34d2c32fb27">Defragment</a>() { index_allocator_.Defragment(); }</div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160; <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;  <span class="keyword">typedef</span> fplutil::IndexAllocator&lt;MotiveIndex&gt; MotiveIndexAllocator;</div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;  <span class="keyword">typedef</span> MotiveIndexAllocator::IndexRange IndexRange;</div>
-<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160;<span class="comment">  /// Don&#39;t notify derived class.</span></div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> RemoveMotivatorWithoutNotifying(MotiveIndex index);</div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;<span class="comment">  /// Handle callbacks from IndexAllocator.</span></div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> MoveIndexRangeBase(<span class="keyword">const</span> IndexRange&amp; source, MotiveIndex target);</div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;  <span class="keywordtype">void</span> SetNumIndicesBase(MotiveIndex num_indices);</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_motive_processor.html#a102089f718232e3f89280a3db18d5212">InitializeIndices</a>(<span class="keyword">const</span> MotivatorInit&amp; init, MotiveIndex index,</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;                                 MotiveDimension dimensions,</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;                                 MotiveEngine* engine) = 0;</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;<span class="comment">  /// Reset data at [index, index + dimensions).</span></div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;<span class="comment">  /// See comment above InitializeIndex for meaning of `index`.</span></div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;<span class="comment">  /// If your MotiveProcessor stores data in a plain array, you probably have</span></div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;<span class="comment">  /// nothing to do. But if you use dynamic memory per index,</span></div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;<span class="comment">  /// (which you really shouldn&#39;t - too slow!), you should deallocate it here.</span></div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;<span class="comment">  /// For debugging, it might be nice to invalidate the data.</span></div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_motive_processor.html#a7a20d0f58b6c208640732e09c421b9c1">RemoveIndices</a>(MotiveIndex index, MotiveDimension dimensions) = 0;</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;<span class="comment">  /// Move the data chunk of length `dimensions` from `old_index` into</span></div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;<span class="comment">  /// `new_index`. Used by Defragment().</span></div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;<span class="comment">  /// Note that the index range starting at `new_index` is guaranteed to be</span></div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;<span class="comment">  /// inactive.</span></div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_motive_processor.html#a95ad979c24397b785d3acab6c091022a">MoveIndices</a>(MotiveIndex old_index, MotiveIndex new_index,</div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;                           MotiveDimension dimensions) = 0;</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;<span class="comment">  /// Increase or decrease the total number of indices.</span></div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;<span class="comment">  /// If decreased, existing indices &gt;= num_indices should be uninitialized.</span></div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;<span class="comment">  /// If increased, internal arrays should be extended to new_indices, and</span></div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;<span class="comment">  /// new items in the arrays should be initialized as reset.</span></div>
+<div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_motive_processor.html#aa281c90c6ccdfb28cbfd54aa69044706">SetNumIndices</a>(MotiveIndex num_indices) = 0;</div>
+<div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;<span class="comment">  /// When an index is moved, the Motivator that references that index is</span></div>
+<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;<span class="comment">  /// updated. Can be called at the discretion of your MotiveProcessor,</span></div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;<span class="comment">  /// but normally called at the beginning of your</span></div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;<span class="comment">  /// MotiveProcessor::AdvanceFrame.</span></div>
+<div class="line"><a name="l00204"></a><span class="lineno"><a class="line" href="classmotive_1_1_motive_processor.html#a4b9c5ed2a91be1f64bc2a34d2c32fb27">  204</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_motive_processor.html#a4b9c5ed2a91be1f64bc2a34d2c32fb27">Defragment</a>() { index_allocator_.Defragment(); }</div>
+<div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;</div>
+<div class="line"><a name="l00206"></a><span class="lineno">  206</span>&#160; <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;  <span class="keyword">typedef</span> fplutil::IndexAllocator&lt;MotiveIndex&gt; MotiveIndexAllocator;</div>
+<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;  <span class="keyword">typedef</span> MotiveIndexAllocator::IndexRange IndexRange;</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;<span class="comment">  /// Don&#39;t notify derived class.</span></div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> RemoveMotivatorWithoutNotifying(MotiveIndex index);</div>
 <div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;<span class="comment">  /// Proxy callbacks from IndexAllocator into MotiveProcessor.</span></div>
-<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;<span class="comment"></span>  <span class="keyword">class </span>AllocatorCallbacks : <span class="keyword">public</span> MotiveIndexAllocator::CallbackInterface {</div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;   <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    AllocatorCallbacks() : processor_(nullptr) {}</div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    <span class="keywordtype">void</span> set_processor(MotiveProcessor* processor) { processor_ = processor; }</div>
-<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_motive_processor.html#aa281c90c6ccdfb28cbfd54aa69044706">SetNumIndices</a>(MotiveIndex num_indices) {</div>
-<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;      processor_-&gt;SetNumIndicesBase(num_indices);</div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    }</div>
-<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> MoveIndexRange(<span class="keyword">const</span> IndexRange&amp; source, MotiveIndex target) {</div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;      processor_-&gt;MoveIndexRangeBase(source, target);</div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    }</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;</div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;   <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;    MotiveProcessor* processor_;</div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;  };</div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;<span class="comment">  /// Back-pointer to the Motivators for each index. The Motivators reference</span></div>
-<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;<span class="comment">  /// this MotiveProcessor and a specific index into the MotiveProcessor,</span></div>
-<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;<span class="comment">  /// so when the index is moved, or when the MotiveProcessor itself is</span></div>
-<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;<span class="comment">  /// destroyed, we need to update the Motivator.</span></div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;<span class="comment">  /// Note that we only keep a reference to a single Motivator per index.</span></div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;<span class="comment">  /// When a copy of an Motivator is made, the old Motivator is Reset and the</span></div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;<span class="comment">  /// reference here is updated.</span></div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;<span class="comment"></span>  std::vector&lt;Motivator*&gt; motivators_;</div>
-<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;<span class="comment">  /// Proxy calbacks into MotiveProcessor. The other option is to derive</span></div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;<span class="comment">  /// MotiveProcessor from IndexAllocator::CallbackInterface, but that would</span></div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;<span class="comment">  /// create a messier API, and not be great OOP.</span></div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;<span class="comment">  /// This member should be initialized before index_allocator_ is initialized.</span></div>
-<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;<span class="comment"></span>  AllocatorCallbacks allocator_callbacks_;</div>
-<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;<span class="comment">  /// When an index is freed, we keep track of it here. When an index is</span></div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;<span class="comment">  /// allocated, we use one off this array, if one exists.</span></div>
-<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;<span class="comment">  /// When Defragment() is called, we empty this array by filling all the</span></div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;<span class="comment">  /// unused indices with the highest allocated indices. This reduces the total</span></div>
-<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;<span class="comment">  /// size of the data arrays.</span></div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;<span class="comment"></span>  MotiveIndexAllocator index_allocator_;</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;  <span class="keywordtype">int</span> benchmark_id_for_advance_frame_;</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;  <span class="keywordtype">int</span> benchmark_id_for_init_;</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;};</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;<span class="comment">/// @class MotiveProcessorNf</span></div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;<span class="comment">/// @brief Interface for motivator types that drive a single float value.</span></div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;<span class="comment">///</span></div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;<span class="comment">/// That is, for MotiveProcessors that interface with MotivatorNf or</span></div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;<span class="comment">/// MotivatorXf.</span></div>
-<div class="line"><a name="l00260"></a><span class="lineno"><a class="line" href="classmotive_1_1_motive_processor_nf.html">  260</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classmotive_1_1_motive_processor_nf.html">MotiveProcessorNf</a> : <span class="keyword">public</span> <a class="code" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a> {</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160; <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;  <span class="comment">// Convenience functions for getting a single value. Prefer calling the</span></div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;  <span class="comment">// bulk values, especially when inside a loop. They avoid the virtual</span></div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;  <span class="comment">// function call overhead, and offer more opportunities for optimizations.</span></div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;  <span class="keywordtype">float</span> Value(MotiveIndex index)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> Values(index)[0]; }</div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;  <span class="keywordtype">float</span> Velocity(MotiveIndex index)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    <span class="keywordtype">float</span> v;</div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    Velocities(index, 1, &amp;v);</div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <span class="keywordflow">return</span> v;</div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;  }</div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;  <span class="keywordtype">float</span> Direction(MotiveIndex index)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    <span class="keywordtype">float</span> v;</div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    Directions(index, 1, &amp;v);</div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    <span class="keywordflow">return</span> v;</div>
-<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;  }</div>
-<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;  <span class="keywordtype">float</span> TargetValue(MotiveIndex index)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;    <span class="keywordtype">float</span> v;</div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    TargetValues(index, 1, &amp;v);</div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;    <span class="keywordflow">return</span> v;</div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;  }</div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;  <span class="keywordtype">float</span> TargetVelocity(MotiveIndex index)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    <span class="keywordtype">float</span> v;</div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    TargetVelocities(index, 1, &amp;v);</div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    <span class="keywordflow">return</span> v;</div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;  }</div>
-<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;  <span class="keywordtype">float</span> Difference(MotiveIndex index)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    <span class="keywordtype">float</span> v;</div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    Differences(index, 1, &amp;v);</div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;    <span class="keywordflow">return</span> v;</div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;  }</div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;  <span class="keyword">virtual</span> <span class="keyword">const</span> <span class="keywordtype">float</span>* Values(MotiveIndex index) <span class="keyword">const</span> = 0;</div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> Velocities(MotiveIndex index, MotiveIndex count,</div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;                          <span class="keywordtype">float</span>* out) <span class="keyword">const</span> = 0;</div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> Directions(MotiveIndex index, MotiveIndex count,</div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;                          <span class="keywordtype">float</span>* out)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;    Velocities(index, count, out);</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;  }</div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> TargetValues(MotiveIndex index, MotiveIndex count,</div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;                            <span class="keywordtype">float</span>* out) <span class="keyword">const</span> = 0;</div>
-<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> TargetVelocities(MotiveIndex index, MotiveIndex count,</div>
-<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;                                <span class="keywordtype">float</span>* out) <span class="keyword">const</span> = 0;</div>
-<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> Differences(MotiveIndex index, MotiveIndex count,</div>
-<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;                           <span class="keywordtype">float</span>* out) <span class="keyword">const</span> = 0;</div>
-<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;</div>
-<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;  <span class="keyword">virtual</span> MotiveTime TargetTime(MotiveIndex index) <span class="keyword">const</span> = 0;</div>
-<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;  <span class="keyword">virtual</span> MotiveTime SplineTime(MotiveIndex <span class="comment">/*index*/</span>)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> 0; }</div>
-<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;</div>
-<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;  <span class="comment">// At least one of SetTarget and SetSpline should be implemented by</span></div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;  <span class="comment">// the derived class. Otherwise, there will be no way to drive the Motivator</span></div>
-<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;  <span class="comment">// towards a target.</span></div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;  <span class="comment">//</span></div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;  <span class="comment">// Set the current and future values that we want the Motivator to achieve.</span></div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetTargets(MotiveIndex index, MotiveIndex count,</div>
-<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;                          <span class="keyword">const</span> <a class="code" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a>* ts) = 0;</div>
-<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;</div>
-<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;  <span class="comment">// Drive the Motivator by following splines specified in the playback.</span></div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetSplines(MotiveIndex <span class="comment">/*index*/</span>, MotiveIndex <span class="comment">/*count*/</span>,</div>
-<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;                          <span class="keyword">const</span> <a class="code" href="classmotive_1_1_compact_spline.html">motive::CompactSpline</a>* <span class="comment">/*splines*/</span>,</div>
-<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;                          <span class="keyword">const</span> <a class="code" href="structmotive_1_1_spline_playback.html">motive::SplinePlayback</a>&amp; <span class="comment">/*playback*/</span>) {}</div>
-<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;</div>
-<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetSplineTime(MotiveIndex <span class="comment">/*index*/</span>, MotiveIndex <span class="comment">/*count*/</span>,</div>
-<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;                             MotiveTime <span class="comment">/*time*/</span>) {}</div>
-<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetSplinePlaybackRate(MotiveIndex <span class="comment">/*index*/</span>,</div>
-<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;                                     MotiveIndex <span class="comment">/*count*/</span>,</div>
-<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;                                     <span class="keywordtype">float</span> <span class="comment">/*playback_rate*/</span>) {}</div>
-<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;};</div>
-<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;<span class="comment">/// @class MatrixProcessor4f</span></div>
-<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;<span class="comment">/// @brief Interface for motivator types that drive a 4x4 float matrix.</span></div>
-<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;<span class="comment">/// That is, for MotiveProcessors that interface with MatrixMotivator4f&#39;s.</span></div>
-<div class="line"><a name="l00332"></a><span class="lineno"><a class="line" href="classmotive_1_1_matrix_processor4f.html">  332</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classmotive_1_1_matrix_processor4f.html">MatrixProcessor4f</a> : <span class="keyword">public</span> <a class="code" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a> {</div>
-<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160; <span class="keyword">public</span>:<span class="comment"></span></div>
-<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;<span class="comment">  /// Get the current matrix value from the processor.</span></div>
-<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keyword">const</span> mathfu::mat4&amp; <a class="code" href="classmotive_1_1_matrix_processor4f.html#a8e0faf247f96d2b8ba05c0275b6a840c">Value</a>(MotiveIndex index) <span class="keyword">const</span> = 0;</div>
-<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;<span class="comment">  /// Get the number of matrix operations performed by this motivator.</span></div>
-<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classmotive_1_1_matrix_processor4f.html#af18ae655596875197205d0f885498e86">NumChildren</a>(MotiveIndex index) <span class="keyword">const</span> = 0;</div>
-<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;<span class="comment">  /// Get current values of the components that create the matrix.</span></div>
-<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_matrix_processor4f.html#ab0e7de5066885be213e4fe9adcc0e6cb">ChildValues</a>(MotiveIndex index, MotiveChildIndex child_index,</div>
-<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;                           MotiveChildIndex count, <span class="keywordtype">float</span>* values) <span class="keyword">const</span> = 0;</div>
-<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;<span class="comment">  /// Get the Motivator1f driving this child, if this child is driven by</span></div>
-<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;<span class="comment">  /// a Motivator1f, or nullptr otherwise.</span></div>
-<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="classmotive_1_1_motivator.html">Motivator</a>* <a class="code" href="classmotive_1_1_matrix_processor4f.html#a447c535c50415cd53f5db2b78c781900">ChildMotivator1f</a>(</div>
-<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;      MotiveIndex index, MotiveChildIndex child_index) <span class="keyword">const</span> = 0;</div>
-<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;<span class="comment">  /// Set child values. Matrices are composed from child components.</span></div>
-<div class="line"><a name="l00350"></a><span class="lineno"><a class="line" href="classmotive_1_1_matrix_processor4f.html#aee6a8bfa64e6630a5857e0d29f4ea85b">  350</a></span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_matrix_processor4f.html#aee6a8bfa64e6630a5857e0d29f4ea85b">SetChildTarget1f</a>(MotiveIndex <span class="comment">/*index*/</span>,</div>
-<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;                                MotiveChildIndex <span class="comment">/*child_index*/</span>,</div>
-<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;                                <span class="keyword">const</span> <a class="code" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a>&amp; <span class="comment">/*t*/</span>) {}</div>
-<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetChildValues(MotiveIndex index, MotiveChildIndex child_index,</div>
-<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;                              MotiveChildIndex count, <span class="keyword">const</span> <span class="keywordtype">float</span>* values) = 0;</div>
-<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;<span class="comment">  /// Smoothly transition to the operations specified in `ops`.</span></div>
-<div class="line"><a name="l00357"></a><span class="lineno"><a class="line" href="classmotive_1_1_matrix_processor4f.html#af941a45eb02d4a1d92cedd80e2236fd4">  357</a></span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_matrix_processor4f.html#af941a45eb02d4a1d92cedd80e2236fd4">BlendToOps</a>(MotiveIndex <span class="comment">/*index*/</span>, <span class="keyword">const</span> <a class="code" href="classmotive_1_1_matrix_op_array.html">MatrixOpArray</a>&amp; <span class="comment">/*ops*/</span>,</div>
-<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;                          <span class="keyword">const</span> <a class="code" href="structmotive_1_1_spline_playback.html">motive::SplinePlayback</a>&amp; <span class="comment">/*playback*/</span>){}</div>
-<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;<span class="comment">  /// Instantly change the playback speed of this animation.</span></div>
-<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_matrix_processor4f.html#a4c1a8e83e9712f62dd5949f8b59c8135">SetPlaybackRate</a>(MotiveIndex index, <span class="keywordtype">float</span> playback_rate) = 0;</div>
-<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;};</div>
-<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;</div>
-<div class="line"><a name="l00364"></a><span class="lineno"><a class="line" href="classmotive_1_1_rig_processor.html">  364</a></span>&#160;<span class="keyword">class </span><a class="code" href="classmotive_1_1_rig_processor.html">RigProcessor</a> : <span class="keyword">public</span> <a class="code" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a> {</div>
-<div class="line"><a name="l00365"></a><span class="lineno">  365</span>&#160; <span class="keyword">public</span>:<span class="comment"></span></div>
-<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160;<span class="comment">  /// Returns an array of length `DefiningAnim.NumBones()`.</span></div>
-<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;<span class="comment">  /// The i&#39;th element of the array represents the transform from the root</span></div>
-<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;<span class="comment">  /// bone to the bone-space on the i&#39;th bone.</span></div>
-<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keyword">const</span> mathfu::AffineTransform* <a class="code" href="classmotive_1_1_rig_processor.html#a6ecc5ba6458f37a417262c1638c434e5">GlobalTransforms</a>(MotiveIndex index)</div>
-<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;      <span class="keyword">const</span> = 0;</div>
-<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;<span class="comment">  /// Return the time remaining in the current matrix animation.</span></div>
-<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> MotiveTime <a class="code" href="classmotive_1_1_rig_processor.html#ae4aadbbb412d4a098df1e02e31256bc7">TimeRemaining</a>(MotiveIndex index) <span class="keyword">const</span> = 0;</div>
-<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;<span class="comment">  /// Return the animation that defines the rig.</span></div>
-<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="classmotive_1_1_rig_anim.html">RigAnim</a>* <a class="code" href="classmotive_1_1_rig_processor.html#aa6d38ab390154a3021b33b3b18c887ec">DefiningAnim</a>(MotiveIndex index) <span class="keyword">const</span> = 0;</div>
-<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;<span class="comment">  /// Smoothly transition to the animation in `anim`.</span></div>
-<div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_rig_processor.html#ab842d414a49a2a282e3c151b26889666">BlendToAnim</a>(MotiveIndex index, <span class="keyword">const</span> <a class="code" href="classmotive_1_1_rig_anim.html">RigAnim</a>&amp; anim,</div>
-<div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;                           <span class="keyword">const</span> <a class="code" href="structmotive_1_1_spline_playback.html">motive::SplinePlayback</a>&amp; playback) = 0;</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;<span class="comment">  /// Handle callbacks from IndexAllocator.</span></div>
+<div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160;<span class="comment"></span>  <span class="keywordtype">void</span> MoveIndexRangeBase(<span class="keyword">const</span> IndexRange&amp; source, MotiveIndex target);</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;  <span class="keywordtype">void</span> SetNumIndicesBase(MotiveIndex num_indices);</div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;<span class="comment">  /// Proxy callbacks from IndexAllocator into MotiveProcessor.</span></div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;<span class="comment"></span>  <span class="keyword">class </span>AllocatorCallbacks : <span class="keyword">public</span> MotiveIndexAllocator::CallbackInterface {</div>
+<div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;   <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    AllocatorCallbacks() : processor_(nullptr) {}</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <span class="keywordtype">void</span> set_processor(MotiveProcessor* processor) { processor_ = processor; }</div>
+<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_motive_processor.html#aa281c90c6ccdfb28cbfd54aa69044706">SetNumIndices</a>(MotiveIndex num_indices) {</div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;      processor_-&gt;SetNumIndicesBase(num_indices);</div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;    }</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> MoveIndexRange(<span class="keyword">const</span> IndexRange&amp; source, MotiveIndex target) {</div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;      processor_-&gt;MoveIndexRangeBase(source, target);</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    }</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;</div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;   <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160;    MotiveProcessor* processor_;</div>
+<div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160;  };</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;<span class="comment">  /// Back-pointer to the Motivators for each index. The Motivators reference</span></div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;<span class="comment">  /// this MotiveProcessor and a specific index into the MotiveProcessor,</span></div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;<span class="comment">  /// so when the index is moved, or when the MotiveProcessor itself is</span></div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;<span class="comment">  /// destroyed, we need to update the Motivator.</span></div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;<span class="comment">  /// Note that we only keep a reference to a single Motivator per index.</span></div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;<span class="comment">  /// When a copy of an Motivator is made, the old Motivator is Reset and the</span></div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;<span class="comment">  /// reference here is updated.</span></div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;<span class="comment"></span>  std::vector&lt;Motivator*&gt; motivators_;</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;<span class="comment">  /// Proxy calbacks into MotiveProcessor. The other option is to derive</span></div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;<span class="comment">  /// MotiveProcessor from IndexAllocator::CallbackInterface, but that would</span></div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;<span class="comment">  /// create a messier API, and not be great OOP.</span></div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;<span class="comment">  /// This member should be initialized before index_allocator_ is initialized.</span></div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;<span class="comment"></span>  AllocatorCallbacks allocator_callbacks_;</div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;<span class="comment">  /// When an index is freed, we keep track of it here. When an index is</span></div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;<span class="comment">  /// allocated, we use one off this array, if one exists.</span></div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;<span class="comment">  /// When Defragment() is called, we empty this array by filling all the</span></div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;<span class="comment">  /// unused indices with the highest allocated indices. This reduces the total</span></div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;<span class="comment">  /// size of the data arrays.</span></div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;<span class="comment"></span>  MotiveIndexAllocator index_allocator_;</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;  <span class="keywordtype">int</span> benchmark_id_for_advance_frame_;</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;  <span class="keywordtype">int</span> benchmark_id_for_init_;</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;};</div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;<span class="comment">/// @class MotiveProcessorNf</span></div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;<span class="comment">/// @brief Interface for motivator types that drive a single float value.</span></div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;<span class="comment">///</span></div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;<span class="comment">/// That is, for MotiveProcessors that interface with MotivatorNf or</span></div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;<span class="comment">/// MotivatorXf.</span></div>
+<div class="line"><a name="l00264"></a><span class="lineno"><a class="line" href="classmotive_1_1_motive_processor_nf.html">  264</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classmotive_1_1_motive_processor_nf.html">MotiveProcessorNf</a> : <span class="keyword">public</span> <a class="code" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a> {</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160; <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;  <span class="comment">// Convenience functions for getting a single value. Prefer calling the</span></div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;  <span class="comment">// bulk values, especially when inside a loop. They avoid the virtual</span></div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;  <span class="comment">// function call overhead, and offer more opportunities for optimizations.</span></div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;  <span class="keywordtype">float</span> Value(MotiveIndex index)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> Values(index)[0]; }</div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;  <span class="keywordtype">float</span> Velocity(MotiveIndex index)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;    <span class="keywordtype">float</span> v;</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    Velocities(index, 1, &amp;v);</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    <span class="keywordflow">return</span> v;</div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;  }</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;  <span class="keywordtype">float</span> Direction(MotiveIndex index)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    <span class="keywordtype">float</span> v;</div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;    Directions(index, 1, &amp;v);</div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    <span class="keywordflow">return</span> v;</div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;  }</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;  <span class="keywordtype">float</span> TargetValue(MotiveIndex index)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    <span class="keywordtype">float</span> v;</div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    TargetValues(index, 1, &amp;v);</div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    <span class="keywordflow">return</span> v;</div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;  }</div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;  <span class="keywordtype">float</span> TargetVelocity(MotiveIndex index)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;    <span class="keywordtype">float</span> v;</div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    TargetVelocities(index, 1, &amp;v);</div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    <span class="keywordflow">return</span> v;</div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;  }</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;  <span class="keywordtype">float</span> Difference(MotiveIndex index)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    <span class="keywordtype">float</span> v;</div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    Differences(index, 1, &amp;v);</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    <span class="keywordflow">return</span> v;</div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;  }</div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;</div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;  <span class="keyword">virtual</span> <span class="keyword">const</span> <span class="keywordtype">float</span>* Values(MotiveIndex index) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> Velocities(MotiveIndex index, MotiveDimension dimensions,</div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;                          <span class="keywordtype">float</span>* out) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> Directions(MotiveIndex index, MotiveDimension dimensions,</div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;                          <span class="keywordtype">float</span>* out)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;    Velocities(index, dimensions, out);</div>
+<div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;  }</div>
+<div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> TargetValues(MotiveIndex index, MotiveDimension dimensions,</div>
+<div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160;                            <span class="keywordtype">float</span>* out) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a name="l00305"></a><span class="lineno">  305</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> TargetVelocities(MotiveIndex index, MotiveDimension dimensions,</div>
+<div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;                                <span class="keywordtype">float</span>* out) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> Differences(MotiveIndex index, MotiveDimension dimensions,</div>
+<div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;                           <span class="keywordtype">float</span>* out) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;</div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;  <span class="keyword">virtual</span> MotiveTime TargetTime(MotiveIndex index,</div>
+<div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160;                                MotiveDimension dimensions) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;  <span class="keyword">virtual</span> MotiveTime SplineTime(MotiveIndex <span class="comment">/*index*/</span>)<span class="keyword"> const </span>{ <span class="keywordflow">return</span> 0; }</div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;</div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;  <span class="keyword">virtual</span> <a class="code" href="structmotive_1_1_motive_curve_shape.html">MotiveCurveShape</a> MotiveShape(MotiveIndex <span class="comment">/*index*/</span>)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="structmotive_1_1_motive_curve_shape.html">MotiveCurveShape</a>();</div>
+<div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;  }</div>
+<div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;</div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;  <span class="comment">// At least one of SetTargets, SetTargetWithShape, or SetSplines should be</span></div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;  <span class="comment">// implemented by the derived class. Otherwise, there will be no way to drive</span></div>
+<div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;  <span class="comment">// the Motivator towards a target.</span></div>
+<div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;  <span class="comment">//</span></div>
+<div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;  <span class="comment">// Set the current and future values that we want the Motivator to achieve.</span></div>
+<div class="line"><a name="l00323"></a><span class="lineno">  323</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetTargets(MotiveIndex <span class="comment">/*index*/</span>, MotiveDimension <span class="comment">/*dimensions*/</span>,</div>
+<div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;                          <span class="keyword">const</span> <a class="code" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a>* <span class="comment">/*ts*/</span>) {}</div>
+<div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160;</div>
+<div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160;  <span class="comment">// Set the target we want the Motivator to achieve and describe the curve</span></div>
+<div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;  <span class="comment">// shape it should use to get there.</span></div>
+<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetTargetWithShape(MotiveIndex <span class="comment">/*index*/</span>,</div>
+<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;                                  MotiveDimension <span class="comment">/*dimensions*/</span>,</div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;                                  <span class="keyword">const</span> <span class="keywordtype">float</span>* <span class="comment">/*target_values*/</span>,</div>
+<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;                                  <span class="keyword">const</span> <span class="keywordtype">float</span>* <span class="comment">/*target_velocities*/</span>,</div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;                                  <span class="keyword">const</span> <a class="code" href="structmotive_1_1_motive_curve_shape.html">MotiveCurveShape</a>&amp; <span class="comment">/*shape*/</span>) {}</div>
+<div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;</div>
+<div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160;  <span class="comment">// Drive the Motivator by following splines specified in the playback.</span></div>
+<div class="line"><a name="l00335"></a><span class="lineno">  335</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetSplines(MotiveIndex <span class="comment">/*index*/</span>, MotiveDimension <span class="comment">/*dimensions*/</span>,</div>
+<div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;                          <span class="keyword">const</span> <a class="code" href="classmotive_1_1_compact_spline.html">CompactSpline</a>* <span class="comment">/*splines*/</span>,</div>
+<div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;                          <span class="keyword">const</span> <a class="code" href="structmotive_1_1_spline_playback.html">SplinePlayback</a>&amp; <span class="comment">/*playback*/</span>) {}</div>
+<div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;</div>
+<div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;  <span class="comment">// Gather the splines currently being played back. If dimension is not being</span></div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;  <span class="comment">// driven by a spline, returns nullptr at that dimension.</span></div>
+<div class="line"><a name="l00341"></a><span class="lineno">  341</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> Splines(MotiveIndex <span class="comment">/*index*/</span>, MotiveIndex count,</div>
+<div class="line"><a name="l00342"></a><span class="lineno">  342</span>&#160;                       <span class="keyword">const</span> <a class="code" href="classmotive_1_1_compact_spline.html">CompactSpline</a>** splines)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00343"></a><span class="lineno">  343</span>&#160;    <span class="keywordflow">for</span> (MotiveIndex i = 0; i &lt; count; ++i) splines[i] = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;  }</div>
+<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;</div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;  <span class="comment">// For each i from 0..dimensions-1, drive the value with with splines[i]</span></div>
+<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;  <span class="comment">// when splines[i] != NULL, and with targets[i] otherwise.</span></div>
+<div class="line"><a name="l00348"></a><span class="lineno">  348</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetSplinesAndTargets(MotiveIndex <span class="comment">/*index*/</span>,</div>
+<div class="line"><a name="l00349"></a><span class="lineno">  349</span>&#160;                                    MotiveDimension <span class="comment">/*dimensions*/</span>,</div>
+<div class="line"><a name="l00350"></a><span class="lineno">  350</span>&#160;                                    <span class="keyword">const</span> <a class="code" href="classmotive_1_1_compact_spline.html">CompactSpline</a>* <span class="keyword">const</span>* <span class="comment">/*splines*/</span>,</div>
+<div class="line"><a name="l00351"></a><span class="lineno">  351</span>&#160;                                    <span class="keyword">const</span> <a class="code" href="structmotive_1_1_spline_playback.html">SplinePlayback</a>&amp; <span class="comment">/*playback*/</span>,</div>
+<div class="line"><a name="l00352"></a><span class="lineno">  352</span>&#160;                                    <span class="keyword">const</span> <a class="code" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a>* <span class="comment">/*targets*/</span>) {}</div>
+<div class="line"><a name="l00353"></a><span class="lineno">  353</span>&#160;</div>
+<div class="line"><a name="l00354"></a><span class="lineno">  354</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetSplineTime(MotiveIndex <span class="comment">/*index*/</span>,</div>
+<div class="line"><a name="l00355"></a><span class="lineno">  355</span>&#160;                             MotiveDimension <span class="comment">/*dimensions*/</span>,</div>
+<div class="line"><a name="l00356"></a><span class="lineno">  356</span>&#160;                             MotiveTime <span class="comment">/*time*/</span>) {}</div>
+<div class="line"><a name="l00357"></a><span class="lineno">  357</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetSplinePlaybackRate(MotiveIndex <span class="comment">/*index*/</span>,</div>
+<div class="line"><a name="l00358"></a><span class="lineno">  358</span>&#160;                                     MotiveDimension <span class="comment">/*dimensions*/</span>,</div>
+<div class="line"><a name="l00359"></a><span class="lineno">  359</span>&#160;                                     <span class="keywordtype">float</span> <span class="comment">/*playback_rate*/</span>) {}</div>
+<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;};</div>
+<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;<span class="comment">/// @class MatrixProcessor4f</span></div>
+<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;<span class="comment">/// @brief Interface for motivator types that drive a 4x4 float matrix.</span></div>
+<div class="line"><a name="l00364"></a><span class="lineno">  364</span>&#160;<span class="comment">/// That is, for MotiveProcessors that interface with MatrixMotivator4f&#39;s.</span></div>
+<div class="line"><a name="l00365"></a><span class="lineno"><a class="line" href="classmotive_1_1_matrix_processor4f.html">  365</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classmotive_1_1_matrix_processor4f.html">MatrixProcessor4f</a> : <span class="keyword">public</span> <a class="code" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a> {</div>
+<div class="line"><a name="l00366"></a><span class="lineno">  366</span>&#160; <span class="keyword">public</span>:<span class="comment"></span></div>
+<div class="line"><a name="l00367"></a><span class="lineno">  367</span>&#160;<span class="comment">  /// Get the current matrix value from the processor.</span></div>
+<div class="line"><a name="l00368"></a><span class="lineno">  368</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keyword">const</span> mathfu::mat4&amp; <a class="code" href="classmotive_1_1_matrix_processor4f.html#a8e0faf247f96d2b8ba05c0275b6a840c">Value</a>(MotiveIndex index) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a name="l00369"></a><span class="lineno">  369</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00370"></a><span class="lineno">  370</span>&#160;<span class="comment">  /// Get the number of matrix operations performed by this motivator.</span></div>
+<div class="line"><a name="l00371"></a><span class="lineno">  371</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">int</span> <a class="code" href="classmotive_1_1_matrix_processor4f.html#af18ae655596875197205d0f885498e86">NumChildren</a>(MotiveIndex index) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a name="l00372"></a><span class="lineno">  372</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00373"></a><span class="lineno">  373</span>&#160;<span class="comment">  /// Get current values of the components that create the matrix.</span></div>
+<div class="line"><a name="l00374"></a><span class="lineno">  374</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_matrix_processor4f.html#ab0e7de5066885be213e4fe9adcc0e6cb">ChildValues</a>(MotiveIndex index, MotiveChildIndex child_index,</div>
+<div class="line"><a name="l00375"></a><span class="lineno">  375</span>&#160;                           MotiveChildIndex count, <span class="keywordtype">float</span>* values) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;<span class="comment">  /// Get the Motivator1f driving this child, if this child is driven by</span></div>
+<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;<span class="comment">  /// a Motivator1f, or nullptr otherwise.</span></div>
+<div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="classmotive_1_1_motivator.html">Motivator</a>* <a class="code" href="classmotive_1_1_matrix_processor4f.html#a447c535c50415cd53f5db2b78c781900">ChildMotivator1f</a>(</div>
+<div class="line"><a name="l00380"></a><span class="lineno">  380</span>&#160;      MotiveIndex index, MotiveChildIndex child_index) <span class="keyword">const</span> = 0;</div>
 <div class="line"><a name="l00381"></a><span class="lineno">  381</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;<span class="comment">  /// Instantly change the playback speed of this animation.</span></div>
-<div class="line"><a name="l00383"></a><span class="lineno">  383</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_rig_processor.html#a0ccc88d8c1cbe50b59966f31983242dd">SetPlaybackRate</a>(MotiveIndex index, <span class="keywordtype">float</span> playback_rate) = 0;</div>
-<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;</div>
-<div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;  <span class="keyword">virtual</span> std::string CsvHeaderForDebugging(MotiveIndex <span class="comment">/*index*/</span>)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160;    <span class="keywordflow">return</span> std::string();</div>
-<div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;  }</div>
-<div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;  <span class="keyword">virtual</span> std::string CsvValuesForDebugging(MotiveIndex <span class="comment">/*index*/</span>)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;    <span class="keywordflow">return</span> std::string();</div>
-<div class="line"><a name="l00390"></a><span class="lineno">  390</span>&#160;  }</div>
-<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;  <span class="keyword">virtual</span> std::string LocalTransformsForDebugging(MotiveIndex <span class="comment">/*index*/</span>,</div>
-<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;                                                  BoneIndex <span class="comment">/*bone*/</span>)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;    <span class="keywordflow">return</span> std::string();</div>
-<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;  }</div>
+<div class="line"><a name="l00382"></a><span class="lineno">  382</span>&#160;<span class="comment">  /// Set child values. Matrices are composed from child components.</span></div>
+<div class="line"><a name="l00383"></a><span class="lineno"><a class="line" href="classmotive_1_1_matrix_processor4f.html#aee6a8bfa64e6630a5857e0d29f4ea85b">  383</a></span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_matrix_processor4f.html#aee6a8bfa64e6630a5857e0d29f4ea85b">SetChildTarget1f</a>(MotiveIndex <span class="comment">/*index*/</span>,</div>
+<div class="line"><a name="l00384"></a><span class="lineno">  384</span>&#160;                                MotiveChildIndex <span class="comment">/*child_index*/</span>,</div>
+<div class="line"><a name="l00385"></a><span class="lineno">  385</span>&#160;                                <span class="keyword">const</span> <a class="code" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a>&amp; <span class="comment">/*t*/</span>) {}</div>
+<div class="line"><a name="l00386"></a><span class="lineno">  386</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetChildValues(MotiveIndex index, MotiveChildIndex child_index,</div>
+<div class="line"><a name="l00387"></a><span class="lineno">  387</span>&#160;                              MotiveChildIndex count, <span class="keyword">const</span> <span class="keywordtype">float</span>* values) = 0;</div>
+<div class="line"><a name="l00388"></a><span class="lineno">  388</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00389"></a><span class="lineno">  389</span>&#160;<span class="comment">  /// Smoothly transition to the operations specified in `ops`.</span></div>
+<div class="line"><a name="l00390"></a><span class="lineno"><a class="line" href="classmotive_1_1_matrix_processor4f.html#af941a45eb02d4a1d92cedd80e2236fd4">  390</a></span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_matrix_processor4f.html#af941a45eb02d4a1d92cedd80e2236fd4">BlendToOps</a>(MotiveIndex <span class="comment">/*index*/</span>, <span class="keyword">const</span> <a class="code" href="classmotive_1_1_matrix_op_array.html">MatrixOpArray</a>&amp; <span class="comment">/*ops*/</span>,</div>
+<div class="line"><a name="l00391"></a><span class="lineno">  391</span>&#160;                          <span class="keyword">const</span> <a class="code" href="structmotive_1_1_spline_playback.html">motive::SplinePlayback</a>&amp; <span class="comment">/*playback*/</span>) {}</div>
+<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;<span class="comment">  /// Instantly change the playback speed of this animation.</span></div>
+<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_matrix_processor4f.html#a4c1a8e83e9712f62dd5949f8b59c8135">SetPlaybackRate</a>(MotiveIndex index, <span class="keywordtype">float</span> playback_rate) = 0;</div>
 <div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;};</div>
-<div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00397"></a><span class="lineno">  397</span>&#160;<span class="comment">/// Static functions in MotiveProcessor-derived classes.</span></div>
-<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160;<span class="comment"></span><span class="keyword">typedef</span> <a class="code" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a>* MotiveProcessorCreateFn();</div>
-<div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">void</span> MotiveProcessorDestroyFn(<a class="code" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a>* p);</div>
-<div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160;</div>
-<div class="line"><a name="l00401"></a><span class="lineno"><a class="line" href="structmotive_1_1_motive_processor_functions.html">  401</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structmotive_1_1_motive_processor_functions.html">MotiveProcessorFunctions</a> {</div>
-<div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;  MotiveProcessorCreateFn* create;</div>
-<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;  MotiveProcessorDestroyFn* destroy;</div>
-<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;</div>
-<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;  <a class="code" href="structmotive_1_1_motive_processor_functions.html">MotiveProcessorFunctions</a>(MotiveProcessorCreateFn* create,</div>
-<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;                           MotiveProcessorDestroyFn* destroy)</div>
-<div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;      : create(create), destroy(destroy) {}</div>
-<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;};</div>
-<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;</div>
-<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;}  <span class="comment">// namespace motive</span></div>
-<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;</div>
-<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;<span class="preprocessor">#endif  // MOTIVE_PROCESSOR_H_</span></div>
+<div class="line"><a name="l00396"></a><span class="lineno">  396</span>&#160;</div>
+<div class="line"><a name="l00397"></a><span class="lineno"><a class="line" href="classmotive_1_1_rig_processor.html">  397</a></span>&#160;<span class="keyword">class </span><a class="code" href="classmotive_1_1_rig_processor.html">RigProcessor</a> : <span class="keyword">public</span> <a class="code" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a> {</div>
+<div class="line"><a name="l00398"></a><span class="lineno">  398</span>&#160; <span class="keyword">public</span>:<span class="comment"></span></div>
+<div class="line"><a name="l00399"></a><span class="lineno">  399</span>&#160;<span class="comment">  /// Returns an array of length `DefiningAnim.NumBones()`.</span></div>
+<div class="line"><a name="l00400"></a><span class="lineno">  400</span>&#160;<span class="comment">  /// The i&#39;th element of the array represents the transform from the root</span></div>
+<div class="line"><a name="l00401"></a><span class="lineno">  401</span>&#160;<span class="comment">  /// bone to the bone-space on the i&#39;th bone.</span></div>
+<div class="line"><a name="l00402"></a><span class="lineno">  402</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keyword">const</span> mathfu::AffineTransform* <a class="code" href="classmotive_1_1_rig_processor.html#a6ecc5ba6458f37a417262c1638c434e5">GlobalTransforms</a>(</div>
+<div class="line"><a name="l00403"></a><span class="lineno">  403</span>&#160;      MotiveIndex index) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a name="l00404"></a><span class="lineno">  404</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00405"></a><span class="lineno">  405</span>&#160;<span class="comment">  /// Return the time remaining in the current matrix animation.</span></div>
+<div class="line"><a name="l00406"></a><span class="lineno">  406</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> MotiveTime <a class="code" href="classmotive_1_1_rig_processor.html#ae4aadbbb412d4a098df1e02e31256bc7">TimeRemaining</a>(MotiveIndex index) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a name="l00407"></a><span class="lineno">  407</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;<span class="comment">  /// Return the animation that defines the rig.</span></div>
+<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keyword">const</span> <a class="code" href="classmotive_1_1_rig_anim.html">RigAnim</a>* <a class="code" href="classmotive_1_1_rig_processor.html#aa6d38ab390154a3021b33b3b18c887ec">DefiningAnim</a>(MotiveIndex index) <span class="keyword">const</span> = 0;</div>
+<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;<span class="comment">  /// Smoothly transition to the animation in `anim`.</span></div>
+<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_rig_processor.html#ab842d414a49a2a282e3c151b26889666">BlendToAnim</a>(MotiveIndex index, <span class="keyword">const</span> <a class="code" href="classmotive_1_1_rig_anim.html">RigAnim</a>&amp; anim,</div>
+<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;                           <span class="keyword">const</span> <a class="code" href="structmotive_1_1_spline_playback.html">motive::SplinePlayback</a>&amp; playback) = 0;</div>
+<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;<span class="comment">  /// Instantly change the playback speed of this animation.</span></div>
+<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;<span class="comment"></span>  <span class="keyword">virtual</span> <span class="keywordtype">void</span> <a class="code" href="classmotive_1_1_rig_processor.html#a0ccc88d8c1cbe50b59966f31983242dd">SetPlaybackRate</a>(MotiveIndex index, <span class="keywordtype">float</span> playback_rate) = 0;</div>
+<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;</div>
+<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;  <span class="keyword">virtual</span> std::string CsvHeaderForDebugging(MotiveIndex <span class="comment">/*index*/</span>)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;    <span class="keywordflow">return</span> std::string();</div>
+<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;  }</div>
+<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;  <span class="keyword">virtual</span> std::string CsvValuesForDebugging(MotiveIndex <span class="comment">/*index*/</span>)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;    <span class="keywordflow">return</span> std::string();</div>
+<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;  }</div>
+<div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160;  <span class="keyword">virtual</span> std::string LocalTransformsForDebugging(MotiveIndex <span class="comment">/*index*/</span>,</div>
+<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;                                                  BoneIndex <span class="comment">/*bone*/</span>)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;    <span class="keywordflow">return</span> std::string();</div>
+<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;  }</div>
+<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;};</div>
+<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160;<span class="comment">/// Static functions in MotiveProcessor-derived classes.</span></div>
+<div class="line"><a name="l00431"></a><span class="lineno">  431</span>&#160;<span class="comment"></span><span class="keyword">typedef</span> <a class="code" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a>* MotiveProcessorCreateFn();</div>
+<div class="line"><a name="l00432"></a><span class="lineno">  432</span>&#160;<span class="keyword">typedef</span> <span class="keywordtype">void</span> MotiveProcessorDestroyFn(<a class="code" href="classmotive_1_1_motive_processor.html">MotiveProcessor</a>* p);</div>
+<div class="line"><a name="l00433"></a><span class="lineno">  433</span>&#160;</div>
+<div class="line"><a name="l00434"></a><span class="lineno"><a class="line" href="structmotive_1_1_motive_processor_functions.html">  434</a></span>&#160;<span class="keyword">struct </span><a class="code" href="structmotive_1_1_motive_processor_functions.html">MotiveProcessorFunctions</a> {</div>
+<div class="line"><a name="l00435"></a><span class="lineno">  435</span>&#160;  MotiveProcessorCreateFn* create;</div>
+<div class="line"><a name="l00436"></a><span class="lineno">  436</span>&#160;  MotiveProcessorDestroyFn* destroy;</div>
+<div class="line"><a name="l00437"></a><span class="lineno">  437</span>&#160;</div>
+<div class="line"><a name="l00438"></a><span class="lineno">  438</span>&#160;  <a class="code" href="structmotive_1_1_motive_processor_functions.html">MotiveProcessorFunctions</a>(MotiveProcessorCreateFn* create,</div>
+<div class="line"><a name="l00439"></a><span class="lineno">  439</span>&#160;                           MotiveProcessorDestroyFn* destroy)</div>
+<div class="line"><a name="l00440"></a><span class="lineno">  440</span>&#160;      : create(create), destroy(destroy) {}</div>
+<div class="line"><a name="l00441"></a><span class="lineno">  441</span>&#160;};</div>
+<div class="line"><a name="l00442"></a><span class="lineno">  442</span>&#160;</div>
+<div class="line"><a name="l00443"></a><span class="lineno">  443</span>&#160;}  <span class="comment">// namespace motive</span></div>
+<div class="line"><a name="l00444"></a><span class="lineno">  444</span>&#160;</div>
+<div class="line"><a name="l00445"></a><span class="lineno">  445</span>&#160;<span class="preprocessor">#endif  // MOTIVE_PROCESSOR_H_</span></div>
 <div class="ttc" id="classmotive_1_1_matrix_processor4f_html_a447c535c50415cd53f5db2b78c781900"><div class="ttname"><a href="classmotive_1_1_matrix_processor4f.html#a447c535c50415cd53f5db2b78c781900">motive::MatrixProcessor4f::ChildMotivator1f</a></div><div class="ttdeci">virtual const Motivator * ChildMotivator1f(MotiveIndex index, MotiveChildIndex child_index) const =0</div></div>
-<div class="ttc" id="classmotive_1_1_motive_processor_nf_html"><div class="ttname"><a href="classmotive_1_1_motive_processor_nf.html">motive::MotiveProcessorNf</a></div><div class="ttdoc">Interface for motivator types that drive a single float value. </div><div class="ttdef"><b>Definition:</b> processor.h:260</div></div>
+<div class="ttc" id="classmotive_1_1_motive_processor_nf_html"><div class="ttname"><a href="classmotive_1_1_motive_processor_nf.html">motive::MotiveProcessorNf</a></div><div class="ttdoc">Interface for motivator types that drive a single float value. </div><div class="ttdef"><b>Definition:</b> processor.h:264</div></div>
 <div class="ttc" id="classmotive_1_1_motive_processor_html_a4e2e72b84ae836012ee914db015e7a5b"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#a4e2e72b84ae836012ee914db015e7a5b">motive::MotiveProcessor::IsMotivatorIndex</a></div><div class="ttdeci">bool IsMotivatorIndex(MotiveIndex index) const </div></div>
-<div class="ttc" id="classmotive_1_1_motive_processor_html_a4b9c5ed2a91be1f64bc2a34d2c32fb27"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#a4b9c5ed2a91be1f64bc2a34d2c32fb27">motive::MotiveProcessor::Defragment</a></div><div class="ttdeci">void Defragment()</div><div class="ttdef"><b>Definition:</b> processor.h:200</div></div>
-<div class="ttc" id="classmotive_1_1_motive_processor_html_aefa1edd3411d921b3fcc28c675aa62dd"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#aefa1edd3411d921b3fcc28c675aa62dd">motive::MotiveProcessor::RemoveIndex</a></div><div class="ttdeci">virtual void RemoveIndex(MotiveIndex index)=0</div></div>
-<div class="ttc" id="classmotive_1_1_matrix_processor4f_html_aee6a8bfa64e6630a5857e0d29f4ea85b"><div class="ttname"><a href="classmotive_1_1_matrix_processor4f.html#aee6a8bfa64e6630a5857e0d29f4ea85b">motive::MatrixProcessor4f::SetChildTarget1f</a></div><div class="ttdeci">virtual void SetChildTarget1f(MotiveIndex, MotiveChildIndex, const MotiveTarget1f &amp;)</div><div class="ttdoc">Set child values. Matrices are composed from child components. </div><div class="ttdef"><b>Definition:</b> processor.h:350</div></div>
+<div class="ttc" id="classmotive_1_1_motive_processor_html_a4b9c5ed2a91be1f64bc2a34d2c32fb27"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#a4b9c5ed2a91be1f64bc2a34d2c32fb27">motive::MotiveProcessor::Defragment</a></div><div class="ttdeci">void Defragment()</div><div class="ttdef"><b>Definition:</b> processor.h:204</div></div>
+<div class="ttc" id="classmotive_1_1_matrix_processor4f_html_aee6a8bfa64e6630a5857e0d29f4ea85b"><div class="ttname"><a href="classmotive_1_1_matrix_processor4f.html#aee6a8bfa64e6630a5857e0d29f4ea85b">motive::MatrixProcessor4f::SetChildTarget1f</a></div><div class="ttdeci">virtual void SetChildTarget1f(MotiveIndex, MotiveChildIndex, const MotiveTarget1f &amp;)</div><div class="ttdoc">Set child values. Matrices are composed from child components. </div><div class="ttdef"><b>Definition:</b> processor.h:383</div></div>
 <div class="ttc" id="classmotive_1_1_matrix_processor4f_html_af18ae655596875197205d0f885498e86"><div class="ttname"><a href="classmotive_1_1_matrix_processor4f.html#af18ae655596875197205d0f885498e86">motive::MatrixProcessor4f::NumChildren</a></div><div class="ttdeci">virtual int NumChildren(MotiveIndex index) const =0</div><div class="ttdoc">Get the number of matrix operations performed by this motivator. </div></div>
 <div class="ttc" id="classmotive_1_1_motive_processor_html_a358fddcc69dbd98a7d8f10e3a0784370"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#a358fddcc69dbd98a7d8f10e3a0784370">motive::MotiveProcessor::Priority</a></div><div class="ttdeci">virtual int Priority() const =0</div></div>
+<div class="ttc" id="classmotive_1_1_motive_processor_html_a95ad979c24397b785d3acab6c091022a"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#a95ad979c24397b785d3acab6c091022a">motive::MotiveProcessor::MoveIndices</a></div><div class="ttdeci">virtual void MoveIndices(MotiveIndex old_index, MotiveIndex new_index, MotiveDimension dimensions)=0</div></div>
 <div class="ttc" id="classmotive_1_1_motive_processor_html_a60e0309b59829453a06bdd98226a6be8"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#a60e0309b59829453a06bdd98226a6be8">motive::MotiveProcessor::ValidIndex</a></div><div class="ttdeci">bool ValidIndex(MotiveIndex index) const </div></div>
 <div class="ttc" id="classmotive_1_1_rig_processor_html_ab842d414a49a2a282e3c151b26889666"><div class="ttname"><a href="classmotive_1_1_rig_processor.html#ab842d414a49a2a282e3c151b26889666">motive::RigProcessor::BlendToAnim</a></div><div class="ttdeci">virtual void BlendToAnim(MotiveIndex index, const RigAnim &amp;anim, const motive::SplinePlayback &amp;playback)=0</div><div class="ttdoc">Smoothly transition to the animation in anim. </div></div>
 <div class="ttc" id="classmotive_1_1_rig_processor_html_a0ccc88d8c1cbe50b59966f31983242dd"><div class="ttname"><a href="classmotive_1_1_rig_processor.html#a0ccc88d8c1cbe50b59966f31983242dd">motive::RigProcessor::SetPlaybackRate</a></div><div class="ttdeci">virtual void SetPlaybackRate(MotiveIndex index, float playback_rate)=0</div><div class="ttdoc">Instantly change the playback speed of this animation. </div></div>
@@ -628,32 +661,33 @@ $(document).ready(function(){initNavTree('processor_8h_source.html','');});
 <div class="ttc" id="classmotive_1_1_matrix_processor4f_html_a8e0faf247f96d2b8ba05c0275b6a840c"><div class="ttname"><a href="classmotive_1_1_matrix_processor4f.html#a8e0faf247f96d2b8ba05c0275b6a840c">motive::MatrixProcessor4f::Value</a></div><div class="ttdeci">virtual const mathfu::mat4 &amp; Value(MotiveIndex index) const =0</div><div class="ttdoc">Get the current matrix value from the processor. </div></div>
 <div class="ttc" id="classmotive_1_1_rig_processor_html_ae4aadbbb412d4a098df1e02e31256bc7"><div class="ttname"><a href="classmotive_1_1_rig_processor.html#ae4aadbbb412d4a098df1e02e31256bc7">motive::RigProcessor::TimeRemaining</a></div><div class="ttdeci">virtual MotiveTime TimeRemaining(MotiveIndex index) const =0</div><div class="ttdoc">Return the time remaining in the current matrix animation. </div></div>
 <div class="ttc" id="classmotive_1_1_motive_processor_html"><div class="ttname"><a href="classmotive_1_1_motive_processor.html">motive::MotiveProcessor</a></div><div class="ttdoc">A MotiveProcessor processes all instances of one type of Motivator. </div><div class="ttdef"><b>Definition:</b> processor.h:58</div></div>
-<div class="ttc" id="classmotive_1_1_rig_processor_html"><div class="ttname"><a href="classmotive_1_1_rig_processor.html">motive::RigProcessor</a></div><div class="ttdef"><b>Definition:</b> processor.h:364</div></div>
-<div class="ttc" id="classmotive_1_1_rig_anim_html"><div class="ttname"><a href="classmotive_1_1_rig_anim.html">motive::RigAnim</a></div><div class="ttdoc">Animation for a RigMotivator. Drives a fully rigged model. </div><div class="ttdef"><b>Definition:</b> anim.h:67</div></div>
+<div class="ttc" id="classmotive_1_1_rig_processor_html"><div class="ttname"><a href="classmotive_1_1_rig_processor.html">motive::RigProcessor</a></div><div class="ttdef"><b>Definition:</b> processor.h:397</div></div>
+<div class="ttc" id="classmotive_1_1_rig_anim_html"><div class="ttname"><a href="classmotive_1_1_rig_anim.html">motive::RigAnim</a></div><div class="ttdoc">Animation for a RigMotivator. Drives a fully rigged model. </div><div class="ttdef"><b>Definition:</b> anim.h:72</div></div>
 <div class="ttc" id="classmotive_1_1_motive_processor_html_af68018167e12d8546a00bfa7273a6e82"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#af68018167e12d8546a00bfa7273a6e82">motive::MotiveProcessor::ValidMotivator</a></div><div class="ttdeci">bool ValidMotivator(MotiveIndex index, const Motivator *motivator) const </div><div class="ttdef"><b>Definition:</b> processor.h:128</div></div>
 <div class="ttc" id="classmotive_1_1_motive_processor_html_aee36c02d33c7737a32196c3ac518da7f"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#aee36c02d33c7737a32196c3ac518da7f">motive::MotiveProcessor::Type</a></div><div class="ttdeci">virtual MotivatorType Type() const =0</div></div>
-<div class="ttc" id="structmotive_1_1_motive_processor_functions_html"><div class="ttname"><a href="structmotive_1_1_motive_processor_functions.html">motive::MotiveProcessorFunctions</a></div><div class="ttdef"><b>Definition:</b> processor.h:401</div></div>
+<div class="ttc" id="structmotive_1_1_motive_curve_shape_html"><div class="ttname"><a href="structmotive_1_1_motive_curve_shape.html">motive::MotiveCurveShape</a></div><div class="ttdoc">A target curve shape for the motivator. </div><div class="ttdef"><b>Definition:</b> target.h:29</div></div>
+<div class="ttc" id="structmotive_1_1_motive_processor_functions_html"><div class="ttname"><a href="structmotive_1_1_motive_processor_functions.html">motive::MotiveProcessorFunctions</a></div><div class="ttdef"><b>Definition:</b> processor.h:434</div></div>
 <div class="ttc" id="classmotive_1_1_motive_processor_html_a45b83466165a7046fd558e1c1a8dbc2e"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#a45b83466165a7046fd558e1c1a8dbc2e">motive::MotiveProcessor::RemoveMotivator</a></div><div class="ttdeci">void RemoveMotivator(MotiveIndex index)</div></div>
-<div class="ttc" id="classmotive_1_1_matrix_processor4f_html_af941a45eb02d4a1d92cedd80e2236fd4"><div class="ttname"><a href="classmotive_1_1_matrix_processor4f.html#af941a45eb02d4a1d92cedd80e2236fd4">motive::MatrixProcessor4f::BlendToOps</a></div><div class="ttdeci">virtual void BlendToOps(MotiveIndex, const MatrixOpArray &amp;, const motive::SplinePlayback &amp;)</div><div class="ttdoc">Smoothly transition to the operations specified in ops. </div><div class="ttdef"><b>Definition:</b> processor.h:357</div></div>
+<div class="ttc" id="classmotive_1_1_matrix_processor4f_html_af941a45eb02d4a1d92cedd80e2236fd4"><div class="ttname"><a href="classmotive_1_1_matrix_processor4f.html#af941a45eb02d4a1d92cedd80e2236fd4">motive::MatrixProcessor4f::BlendToOps</a></div><div class="ttdeci">virtual void BlendToOps(MotiveIndex, const MatrixOpArray &amp;, const motive::SplinePlayback &amp;)</div><div class="ttdoc">Smoothly transition to the operations specified in ops. </div><div class="ttdef"><b>Definition:</b> processor.h:390</div></div>
 <div class="ttc" id="classmotive_1_1_motive_engine_html"><div class="ttname"><a href="classmotive_1_1_motive_engine.html">motive::MotiveEngine</a></div><div class="ttdoc">Hold and update all animation data. </div><div class="ttdef"><b>Definition:</b> engine.h:36</div></div>
 <div class="ttc" id="classmotive_1_1_matrix_processor4f_html_ab0e7de5066885be213e4fe9adcc0e6cb"><div class="ttname"><a href="classmotive_1_1_matrix_processor4f.html#ab0e7de5066885be213e4fe9adcc0e6cb">motive::MatrixProcessor4f::ChildValues</a></div><div class="ttdeci">virtual void ChildValues(MotiveIndex index, MotiveChildIndex child_index, MotiveChildIndex count, float *values) const =0</div><div class="ttdoc">Get current values of the components that create the matrix. </div></div>
 <div class="ttc" id="classmotive_1_1_motive_processor_html_a117b40b073a24876e52325caa1ee1f52"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#a117b40b073a24876e52325caa1ee1f52">motive::MotiveProcessor::AdvanceFrame</a></div><div class="ttdeci">virtual void AdvanceFrame(MotiveTime delta_time)=0</div></div>
-<div class="ttc" id="structmotive_1_1_spline_playback_html"><div class="ttname"><a href="structmotive_1_1_spline_playback.html">motive::SplinePlayback</a></div><div class="ttdoc">Parameters to specify how a spline should be traversed. </div><div class="ttdef"><b>Definition:</b> compact_spline.h:265</div></div>
+<div class="ttc" id="structmotive_1_1_spline_playback_html"><div class="ttname"><a href="structmotive_1_1_spline_playback.html">motive::SplinePlayback</a></div><div class="ttdoc">Parameters to specify how a spline should be traversed. </div><div class="ttdef"><b>Definition:</b> compact_spline.h:590</div></div>
+<div class="ttc" id="classmotive_1_1_motive_processor_html_a7a20d0f58b6c208640732e09c421b9c1"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#a7a20d0f58b6c208640732e09c421b9c1">motive::MotiveProcessor::RemoveIndices</a></div><div class="ttdeci">virtual void RemoveIndices(MotiveIndex index, MotiveDimension dimensions)=0</div></div>
 <div class="ttc" id="classmotive_1_1_motive_processor_html_aa281c90c6ccdfb28cbfd54aa69044706"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#aa281c90c6ccdfb28cbfd54aa69044706">motive::MotiveProcessor::SetNumIndices</a></div><div class="ttdeci">virtual void SetNumIndices(MotiveIndex num_indices)=0</div></div>
 <div class="ttc" id="classmotive_1_1_motive_processor_html_ae094019d539a02fe2790331d00041dc6"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#ae094019d539a02fe2790331d00041dc6">motive::MotiveProcessor::Dimensions</a></div><div class="ttdeci">MotiveDimension Dimensions(MotiveIndex index) const </div><div class="ttdef"><b>Definition:</b> processor.h:153</div></div>
 <div class="ttc" id="classmotive_1_1_motive_processor_html_adcf9210a521a6892eea08f5d38f07e64"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#adcf9210a521a6892eea08f5d38f07e64">motive::MotiveProcessor::InitializeMotivator</a></div><div class="ttdeci">void InitializeMotivator(const MotivatorInit &amp;init, MotiveEngine *engine, Motivator *motivator, MotiveDimension dimensions)</div></div>
-<div class="ttc" id="classmotive_1_1_matrix_processor4f_html"><div class="ttname"><a href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a></div><div class="ttdoc">Interface for motivator types that drive a 4x4 float matrix. That is, for MotiveProcessors that inter...</div><div class="ttdef"><b>Definition:</b> processor.h:332</div></div>
+<div class="ttc" id="classmotive_1_1_matrix_processor4f_html"><div class="ttname"><a href="classmotive_1_1_matrix_processor4f.html">motive::MatrixProcessor4f</a></div><div class="ttdoc">Interface for motivator types that drive a 4x4 float matrix. That is, for MotiveProcessors that inter...</div><div class="ttdef"><b>Definition:</b> processor.h:365</div></div>
 <div class="ttc" id="classmotive_1_1_motivator_html"><div class="ttname"><a href="classmotive_1_1_motivator.html">motive::Motivator</a></div><div class="ttdoc">Drives a value towards a target value, or along a path. </div><div class="ttdef"><b>Definition:</b> motivator.h:47</div></div>
-<div class="ttc" id="classmotive_1_1_motive_processor_html_adbde16c8e034a1d9dcd11ff0b58b12d2"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#adbde16c8e034a1d9dcd11ff0b58b12d2">motive::MotiveProcessor::InitializeIndex</a></div><div class="ttdeci">virtual void InitializeIndex(const MotivatorInit &amp;init, MotiveIndex index, MotiveEngine *engine)=0</div></div>
-<div class="ttc" id="classmotive_1_1_motivator_init_html"><div class="ttname"><a href="classmotive_1_1_motivator_init.html">motive::MotivatorInit</a></div><div class="ttdef"><b>Definition:</b> common.h:79</div></div>
+<div class="ttc" id="classmotive_1_1_motivator_init_html"><div class="ttname"><a href="classmotive_1_1_motivator_init.html">motive::MotivatorInit</a></div><div class="ttdef"><b>Definition:</b> common.h:92</div></div>
 <div class="ttc" id="classmotive_1_1_motive_processor_html_a1ebc43fb42afb52077299e83697a2de7"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#a1ebc43fb42afb52077299e83697a2de7">motive::MotiveProcessor::TransferMotivator</a></div><div class="ttdeci">void TransferMotivator(MotiveIndex index, Motivator *new_motivator)</div></div>
-<div class="ttc" id="classmotive_1_1_motive_target1f_html"><div class="ttname"><a href="classmotive_1_1_motive_target1f.html">motive::MotiveTarget1f</a></div><div class="ttdoc">Set the current and/or target state for a one-dimensional Motivator. </div><div class="ttdef"><b>Definition:</b> target.h:60</div></div>
-<div class="ttc" id="classmotive_1_1_compact_spline_html"><div class="ttname"><a href="classmotive_1_1_compact_spline.html">motive::CompactSpline</a></div><div class="ttdoc">Represent a smooth curve in a small amount of memory. </div><div class="ttdef"><b>Definition:</b> compact_spline.h:74</div></div>
+<div class="ttc" id="classmotive_1_1_motive_target1f_html"><div class="ttname"><a href="classmotive_1_1_motive_target1f.html">motive::MotiveTarget1f</a></div><div class="ttdoc">Set the current and/or target state for a one-dimensional Motivator. </div><div class="ttdef"><b>Definition:</b> target.h:98</div></div>
+<div class="ttc" id="classmotive_1_1_compact_spline_html"><div class="ttname"><a href="classmotive_1_1_compact_spline.html">motive::CompactSpline</a></div><div class="ttdoc">Represent a smooth curve in a small amount of memory. </div><div class="ttdef"><b>Definition:</b> compact_spline.h:73</div></div>
 <div class="ttc" id="classmotive_1_1_motive_processor_html_ac0ba78dcde1444a1c5b4640156c1380f"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#ac0ba78dcde1444a1c5b4640156c1380f">motive::MotiveProcessor::VerifyInternalState</a></div><div class="ttdeci">void VerifyInternalState() const </div></div>
-<div class="ttc" id="classmotive_1_1_motive_processor_html_afa4fedcd476ee5eeb4555df714b91fc4"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#afa4fedcd476ee5eeb4555df714b91fc4">motive::MotiveProcessor::MoveIndex</a></div><div class="ttdeci">virtual void MoveIndex(MotiveIndex old_index, MotiveIndex new_index)=0</div></div>
 <div class="ttc" id="classmotive_1_1_motive_processor_html_ae9c2033a34742fa3a9d08d6ad096cbaf"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#ae9c2033a34742fa3a9d08d6ad096cbaf">motive::MotiveProcessor::ValidMotivatorIndex</a></div><div class="ttdeci">bool ValidMotivatorIndex(MotiveIndex index) const </div></div>
 <div class="ttc" id="classmotive_1_1_rig_processor_html_aa6d38ab390154a3021b33b3b18c887ec"><div class="ttname"><a href="classmotive_1_1_rig_processor.html#aa6d38ab390154a3021b33b3b18c887ec">motive::RigProcessor::DefiningAnim</a></div><div class="ttdeci">virtual const RigAnim * DefiningAnim(MotiveIndex index) const =0</div><div class="ttdoc">Return the animation that defines the rig. </div></div>
-<div class="ttc" id="classmotive_1_1_matrix_op_array_html"><div class="ttname"><a href="classmotive_1_1_matrix_op_array.html">motive::MatrixOpArray</a></div><div class="ttdef"><b>Definition:</b> init.h:291</div></div>
+<div class="ttc" id="classmotive_1_1_matrix_op_array_html"><div class="ttname"><a href="classmotive_1_1_matrix_op_array.html">motive::MatrixOpArray</a></div><div class="ttdef"><b>Definition:</b> init.h:424</div></div>
+<div class="ttc" id="classmotive_1_1_motive_processor_html_a102089f718232e3f89280a3db18d5212"><div class="ttname"><a href="classmotive_1_1_motive_processor.html#a102089f718232e3f89280a3db18d5212">motive::MotiveProcessor::InitializeIndices</a></div><div class="ttdeci">virtual void InitializeIndices(const MotivatorInit &amp;init, MotiveIndex index, MotiveDimension dimensions, MotiveEngine *engine)=0</div></div>
 <div class="ttc" id="classmotive_1_1_matrix_processor4f_html_a4c1a8e83e9712f62dd5949f8b59c8135"><div class="ttname"><a href="classmotive_1_1_matrix_processor4f.html#a4c1a8e83e9712f62dd5949f8b59c8135">motive::MatrixProcessor4f::SetPlaybackRate</a></div><div class="ttdeci">virtual void SetPlaybackRate(MotiveIndex index, float playback_rate)=0</div><div class="ttdoc">Instantly change the playback speed of this animation. </div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

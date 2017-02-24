@@ -220,9 +220,10 @@ Inheritance diagram for motive::MotiveProcessor:</div>
  <div class="center">
   <img src="classmotive_1_1_motive_processor.png" usemap="#motive::MotiveProcessor_map" alt=""/>
   <map id="motive::MotiveProcessor_map" name="motive::MotiveProcessor_map">
-<area href="classmotive_1_1_matrix_processor4f.html" title="Interface for motivator types that drive a 4x4 float matrix. That is, for MotiveProcessors that inter..." alt="motive::MatrixProcessor4f" shape="rect" coords="0,56,163,80"/>
-<area href="classmotive_1_1_motive_processor_nf.html" title="Interface for motivator types that drive a single float value. " alt="motive::MotiveProcessorNf" shape="rect" coords="173,56,336,80"/>
-<area href="classmotive_1_1_rig_processor.html" alt="motive::RigProcessor" shape="rect" coords="346,56,509,80"/>
+<area href="classmotive_1_1_matrix_processor4f.html" title="Interface for motivator types that drive a 4x4 float matrix. That is, for MotiveProcessors that inter..." alt="motive::MatrixProcessor4f" shape="rect" coords="0,56,230,80"/>
+<area href="classmotive_1_1_motive_processor_nf.html" title="Interface for motivator types that drive a single float value. " alt="motive::MotiveProcessorNf" shape="rect" coords="240,56,470,80"/>
+<area href="classmotive_1_1_rig_processor.html" alt="motive::RigProcessor" shape="rect" coords="480,56,710,80"/>
+<area href="classmotive_1_1_simple_processor_template.html" alt="motive::SimpleProcessorTemplate&lt; T &gt;" shape="rect" coords="240,112,470,136"/>
 </map>
  </div></div>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -271,12 +272,12 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>benchmark_id_for_init<
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr class="memitem:adbde16c8e034a1d9dcd11ff0b58b12d2"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#adbde16c8e034a1d9dcd11ff0b58b12d2">InitializeIndex</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, MotiveIndex index, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine)=0</td></tr>
-<tr class="separator:adbde16c8e034a1d9dcd11ff0b58b12d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aefa1edd3411d921b3fcc28c675aa62dd"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#aefa1edd3411d921b3fcc28c675aa62dd">RemoveIndex</a> (MotiveIndex index)=0</td></tr>
-<tr class="separator:aefa1edd3411d921b3fcc28c675aa62dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa4fedcd476ee5eeb4555df714b91fc4"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#afa4fedcd476ee5eeb4555df714b91fc4">MoveIndex</a> (MotiveIndex old_index, MotiveIndex new_index)=0</td></tr>
-<tr class="separator:afa4fedcd476ee5eeb4555df714b91fc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a102089f718232e3f89280a3db18d5212"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a102089f718232e3f89280a3db18d5212">InitializeIndices</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, MotiveIndex index, MotiveDimension dimensions, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine)=0</td></tr>
+<tr class="separator:a102089f718232e3f89280a3db18d5212"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a20d0f58b6c208640732e09c421b9c1"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a7a20d0f58b6c208640732e09c421b9c1">RemoveIndices</a> (MotiveIndex index, MotiveDimension dimensions)=0</td></tr>
+<tr class="separator:a7a20d0f58b6c208640732e09c421b9c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95ad979c24397b785d3acab6c091022a"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a95ad979c24397b785d3acab6c091022a">MoveIndices</a> (MotiveIndex old_index, MotiveIndex new_index, MotiveDimension dimensions)=0</td></tr>
+<tr class="separator:a95ad979c24397b785d3acab6c091022a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa281c90c6ccdfb28cbfd54aa69044706"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#aa281c90c6ccdfb28cbfd54aa69044706">SetNumIndices</a> (MotiveIndex num_indices)=0</td></tr>
 <tr class="separator:aa281c90c6ccdfb28cbfd54aa69044706"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4b9c5ed2a91be1f64bc2a34d2c32fb27"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motive_processor.html#a4b9c5ed2a91be1f64bc2a34d2c32fb27">Defragment</a> ()</td></tr>
@@ -364,7 +365,7 @@ Protected Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="adbde16c8e034a1d9dcd11ff0b58b12d2"></a>
+<a class="anchor" id="a102089f718232e3f89280a3db18d5212"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -372,7 +373,7 @@ Protected Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void motive::MotiveProcessor::InitializeIndex </td>
+          <td class="memname">virtual void motive::MotiveProcessor::InitializeIndices </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;&#160;</td>
           <td class="paramname"><em>init</em>, </td>
@@ -382,6 +383,12 @@ Protected Member Functions</h2></td></tr>
           <td></td>
           <td class="paramtype">MotiveIndex&#160;</td>
           <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">MotiveDimension&#160;</td>
+          <td class="paramname"><em>dimensions</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -401,7 +408,9 @@ Protected Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Initialize data at 'index'. The meaning of 'index' is determined by the <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a> implementation (most likely it is the index into one or more data_ arrays though). <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a> tries to keep the 'index' as low as possible, by recycling ones that have been freed, and by providing a <a class="el" href="classmotive_1_1_motive_processor.html#a4b9c5ed2a91be1f64bc2a34d2c32fb27">Defragment()</a> function to move later indices to indices that have been freed. </p>
+<p>Initialize data at [index, index + dimensions). The meaning of <code>index</code> is determined by the <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a> implementation (most likely it is the index into one or more data_ arrays though). <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a> tries to keep the <code>index</code> as low as possible, by recycling ones that have been freed, and by providing a <a class="el" href="classmotive_1_1_motive_processor.html#a4b9c5ed2a91be1f64bc2a34d2c32fb27">Defragment()</a> function to move later indices to indices that have been freed. </p>
+
+<p>Implemented in <a class="el" href="classmotive_1_1_simple_processor_template.html#a19dd23947907e913495ad6ccd4e8c9d4">motive::SimpleProcessorTemplate&lt; T &gt;</a>.</p>
 
 </div>
 </div>
@@ -467,7 +476,7 @@ Protected Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Returns true if 'index' is currently driving a motivator. Does not do any validity checking, however, like <a class="el" href="classmotive_1_1_motive_processor.html#ae9c2033a34742fa3a9d08d6ad096cbaf">ValidMotivatorIndex()</a> does. </p>
+<p>Returns true if <code>index</code> is currently driving a motivator. Does not do any validity checking, however, like <a class="el" href="classmotive_1_1_motive_processor.html#ae9c2033a34742fa3a9d08d6ad096cbaf">ValidMotivatorIndex()</a> does. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">index</td><td>Reference into the <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>'s internal arrays. </td></tr>
@@ -477,7 +486,7 @@ Protected Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="afa4fedcd476ee5eeb4555df714b91fc4"></a>
+<a class="anchor" id="a95ad979c24397b785d3acab6c091022a"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -485,7 +494,7 @@ Protected Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void motive::MotiveProcessor::MoveIndex </td>
+          <td class="memname">virtual void motive::MotiveProcessor::MoveIndices </td>
           <td>(</td>
           <td class="paramtype">MotiveIndex&#160;</td>
           <td class="paramname"><em>old_index</em>, </td>
@@ -494,7 +503,13 @@ Protected Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">MotiveIndex&#160;</td>
-          <td class="paramname"><em>new_index</em>&#160;</td>
+          <td class="paramname"><em>new_index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">MotiveDimension&#160;</td>
+          <td class="paramname"><em>dimensions</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -508,7 +523,9 @@ Protected Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Move the data at 'old_index' into 'new_index'. Used by <a class="el" href="classmotive_1_1_motive_processor.html#a4b9c5ed2a91be1f64bc2a34d2c32fb27">Defragment()</a>. Note that 'new_index' is guaranteed to be inactive. </p>
+<p>Move the data chunk of length <code>dimensions</code> from <code>old_index</code> into <code>new_index</code>. Used by <a class="el" href="classmotive_1_1_motive_processor.html#a4b9c5ed2a91be1f64bc2a34d2c32fb27">Defragment()</a>. Note that the index range starting at <code>new_index</code> is guaranteed to be inactive. </p>
+
+<p>Implemented in <a class="el" href="classmotive_1_1_simple_processor_template.html#a3dd0fa575dc1c8ca33942202b5ad092c">motive::SimpleProcessorTemplate&lt; T &gt;</a>.</p>
 
 </div>
 </div>
@@ -536,7 +553,7 @@ Protected Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aefa1edd3411d921b3fcc28c675aa62dd"></a>
+<a class="anchor" id="a7a20d0f58b6c208640732e09c421b9c1"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -544,11 +561,21 @@ Protected Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void motive::MotiveProcessor::RemoveIndex </td>
+          <td class="memname">virtual void motive::MotiveProcessor::RemoveIndices </td>
           <td>(</td>
           <td class="paramtype">MotiveIndex&#160;</td>
-          <td class="paramname"><em>index</em></td><td>)</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">MotiveDimension&#160;</td>
+          <td class="paramname"><em>dimensions</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -557,7 +584,9 @@ Protected Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Reset data at 'index'. See comment above InitializeIndex for meaning of 'index'. If your <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a> stores data in a plain array, you probably have nothing to do. But if you use dynamic memory per index, (which you really shouldn't - too slow!), you should deallocate it here. For debugging, it might be nice to invalidate the data. </p>
+<p>Reset data at [index, index + dimensions). See comment above InitializeIndex for meaning of <code>index</code>. If your <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a> stores data in a plain array, you probably have nothing to do. But if you use dynamic memory per index, (which you really shouldn't - too slow!), you should deallocate it here. For debugging, it might be nice to invalidate the data. </p>
+
+<p>Implemented in <a class="el" href="classmotive_1_1_simple_processor_template.html#a34c061a4b69ac48257a3465a4541f871">motive::SimpleProcessorTemplate&lt; T &gt;</a>.</p>
 
 </div>
 </div>
@@ -608,6 +637,8 @@ Protected Member Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Increase or decrease the total number of indices. If decreased, existing indices &gt;= num_indices should be uninitialized. If increased, internal arrays should be extended to new_indices, and new items in the arrays should be initialized as reset. </p>
 
+<p>Implemented in <a class="el" href="classmotive_1_1_simple_processor_template.html#ac74b13b9f4fccf13dd45f76542ca8763">motive::SimpleProcessorTemplate&lt; T &gt;</a>.</p>
+
 </div>
 </div>
 <a class="anchor" id="a1ebc43fb42afb52077299e83697a2de7"></a>
@@ -633,7 +664,7 @@ Protected Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Transfer ownership of the motivator at 'index' to 'new_motivator'. Resets the <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> that currently owns 'index' and initializes 'new_motivator'.</p>
+<p>Transfer ownership of the motivator at <code>index</code> to 'new_motivator'. Resets the <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> that currently owns <code>index</code> and initializes 'new_motivator'.</p>
 <p>This function should only be called by <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a>'s copy operations.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -682,7 +713,7 @@ Protected Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Returns true if 'index' is currently in a block of indices driven by a motivator. </p>
+<p>Returns true if <code>index</code> is currently in a block of indices driven by a motivator. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">index</td><td>Reference into the <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>'s internal arrays. </td></tr>

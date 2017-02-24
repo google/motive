@@ -202,17 +202,18 @@ Example</h1>
 <div class="fragment"><div class="line"><span class="comment">// The init structure is the only code that should be exposed externally.</span></div>
 <div class="line"><span class="comment">// When you call Motivator::Initialize() with initialization parameters of</span></div>
 <div class="line"><span class="comment">// type LinearInit, the initialization call will be routed to</span></div>
-<div class="line"><span class="comment">// LinearMotiveProcessor::InitializeIndex().</span></div>
+<div class="line"><span class="comment">// LinearMotiveProcessor::InitializeIndices().</span></div>
 <div class="line"><span class="comment">//</span></div>
 <div class="line"><span class="keyword">class </span>LinearInit : <span class="keyword">public</span> MotivatorInit {</div>
 <div class="line"> <span class="keyword">public</span>:</div>
+<div class="line">  LinearInit() : MotivatorInit(kType) {}</div>
+<div class="line"></div>
 <div class="line">  <span class="comment">// Defines &#39;kType&#39; and other functions necessary to register this type of</span></div>
 <div class="line">  <span class="comment">// motivator.</span></div>
 <div class="line">  MOTIVE_INTERFACE();</div>
 <div class="line"></div>
 <div class="line">  <span class="comment">// This motivator type is rather boring. It has no configuration parameters</span></div>
 <div class="line">  <span class="comment">// at all. We could add some extra parameters here, though, if we like.</span></div>
-<div class="line">  LinearInit() : MotivatorInit(kType) {}</div>
 <div class="line">};</div>
 </div><!-- fragment --><p> The remaining code can be in a .cpp file. There is no need to expose it, since it gets registered with the <code>MotiveEngine</code>, and all calls to it come through <code>MotiveEngine</code>.</p>
 <div class="fragment"><div class="line"><span class="keyword">class </span>LinearMotiveProcessor : <span class="keyword">public</span> MotiveProcessorNf {</div>
@@ -248,46 +249,52 @@ Example</h1>
 <div class="line">  <span class="keyword">virtual</span> <span class="keyword">const</span> <span class="keywordtype">float</span>* Values(MotiveIndex index)<span class="keyword"> const </span>{</div>
 <div class="line">    <span class="keywordflow">return</span> &amp;values_[index];</div>
 <div class="line">  }</div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> Velocities(MotiveIndex index, MotiveIndex count,</div>
+<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> Velocities(MotiveIndex index, MotiveDimension dimensions,</div>
 <div class="line">                          <span class="keywordtype">float</span>* out)<span class="keyword"> const </span>{</div>
 <div class="line">    <span class="keyword">const</span> LinearData* d = &amp;Data(index);</div>
 <div class="line">    <span class="keyword">const</span> <span class="keywordtype">float</span>* values = &amp;values_[index];</div>
-<div class="line">    <span class="keywordflow">for</span> (MotiveDimension i = 0; i &lt; count; ++i, ++d, ++values) {</div>
+<div class="line">    <span class="keywordflow">for</span> (MotiveDimension i = 0; i &lt; dimensions; ++i, ++d, ++values) {</div>
 <div class="line">      out[i] = d-&gt;target_time &lt;= 0.0f ? 0.0f : (d-&gt;target_value - *values) /</div>
 <div class="line">                                                   d-&gt;target_time;</div>
 <div class="line">    }</div>
 <div class="line">  }</div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> TargetValues(MotiveIndex index, MotiveIndex count,</div>
+<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> TargetValues(MotiveIndex index, MotiveDimension dimensions,</div>
 <div class="line">                            <span class="keywordtype">float</span>* out)<span class="keyword"> const </span>{</div>
 <div class="line">    <span class="keyword">const</span> LinearData* d = &amp;Data(index);</div>
-<div class="line">    <span class="keywordflow">for</span> (MotiveDimension i = 0; i &lt; count; ++i, ++d) {</div>
+<div class="line">    <span class="keywordflow">for</span> (MotiveDimension i = 0; i &lt; dimensions; ++i, ++d) {</div>
 <div class="line">      out[i] = d-&gt;target_value;</div>
 <div class="line">    }</div>
 <div class="line">  }</div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> TargetVelocities(MotiveIndex <span class="comment">/*index*/</span>, MotiveIndex count,</div>
+<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> TargetVelocities(MotiveIndex <span class="comment">/*index*/</span>, MotiveDimension dimensions,</div>
 <div class="line">                                <span class="keywordtype">float</span>* out)<span class="keyword"> const </span>{</div>
-<div class="line">    <span class="keywordflow">for</span> (MotiveDimension i = 0; i &lt; count; ++i) {</div>
+<div class="line">    <span class="keywordflow">for</span> (MotiveDimension i = 0; i &lt; dimensions; ++i) {</div>
 <div class="line">      out[i] = 0.0f;</div>
 <div class="line">    }</div>
 <div class="line">  }</div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> Differences(MotiveIndex index, MotiveIndex count,</div>
+<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> Differences(MotiveIndex index, MotiveDimension dimensions,</div>
 <div class="line">                           <span class="keywordtype">float</span>* out)<span class="keyword"> const </span>{</div>
 <div class="line">    <span class="keyword">const</span> LinearData* d = &amp;Data(index);</div>
 <div class="line">    <span class="keyword">const</span> <span class="keywordtype">float</span>* values = &amp;values_[index];</div>
-<div class="line">    <span class="keywordflow">for</span> (MotiveDimension i = 0; i &lt; count; ++i, ++d, ++values) {</div>
+<div class="line">    <span class="keywordflow">for</span> (MotiveDimension i = 0; i &lt; dimensions; ++i, ++d, ++values) {</div>
 <div class="line">      out[i] = d-&gt;target_value - *values;</div>
 <div class="line">    }</div>
 <div class="line">  }</div>
-<div class="line">  <span class="keyword">virtual</span> MotiveTime TargetTime(MotiveIndex index)<span class="keyword"> const </span>{</div>
-<div class="line">    <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span>MotiveTime<span class="keyword">&gt;</span>(Data(index).target_time);</div>
+<div class="line">  <span class="keyword">virtual</span> MotiveTime TargetTime(MotiveIndex index,</div>
+<div class="line">                                MotiveDimension dimensions)<span class="keyword"> const </span>{</div>
+<div class="line">    MotiveTime greatest = std::numeric_limits&lt;MotiveTime&gt;::min();</div>
+<div class="line">    <span class="keywordflow">for</span> (MotiveDimension i = 0; i &lt; dimensions; ++i) {</div>
+<div class="line">      greatest = std::max(greatest,</div>
+<div class="line">                          static_cast&lt;MotiveTime&gt;(Data(index).target_time));</div>
+<div class="line">    }</div>
+<div class="line">    <span class="keywordflow">return</span> greatest;</div>
 <div class="line">  }</div>
 <div class="line"></div>
 <div class="line">  <span class="comment">// Target values are set in bulk. Please see MotiveTarget1f for a description</span></div>
 <div class="line">  <span class="comment">// of the format. It&#39;s basically an array of way points. In our case, we&#39;re</span></div>
 <div class="line">  <span class="comment">// only interested in (at most) two way points: current and target.</span></div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetTargets(MotiveIndex index, MotiveIndex count,</div>
+<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> SetTargets(MotiveIndex index, MotiveDimension dimensions,</div>
 <div class="line">                          <span class="keyword">const</span> MotiveTarget1f* ts) {</div>
-<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; count; ++i) {</div>
+<div class="line">    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; dimensions; ++i) {</div>
 <div class="line">      LinearData&amp; d = Data(index + i);</div>
 <div class="line">      <span class="keyword">const</span> MotiveTarget1f&amp; t = ts[i];</div>
 <div class="line"></div>
@@ -326,27 +333,37 @@ Example</h1>
 <div class="line">  };</div>
 <div class="line"></div>
 <div class="line">  <span class="comment">// When an Motivator is initialized with LinearInit, this function will</span></div>
-<div class="line">  <span class="comment">// be called. We allocate data for the new Motivator.</span></div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> InitializeIndex(<span class="keyword">const</span> MotivatorInit&amp; init, MotiveIndex index,</div>
-<div class="line">                               MotiveEngine* <span class="comment">/*engine*/</span>) {</div>
+<div class="line">  <span class="comment">// be called. We initialize data for the new Motivator.</span></div>
+<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> InitializeIndices(<span class="keyword">const</span> MotivatorInit&amp; init, MotiveIndex index,</div>
+<div class="line">                                 MotiveDimension dimensions,</div>
+<div class="line">                                 MotiveEngine* <span class="comment">/*engine*/</span>) {</div>
 <div class="line">    (void)init;</div>
 <div class="line">    assert(init.type() == LinearInit::kType);</div>
-<div class="line">    Data(index).Reset();</div>
-<div class="line">    values_[index] = 0;</div>
+<div class="line">    <span class="keywordflow">for</span> (MotiveIndex i = index; i &lt; index + dimensions; ++i) {</div>
+<div class="line">      Data(i).Reset();</div>
+<div class="line">      values_[i] = 0;</div>
+<div class="line">    }</div>
 <div class="line">  }</div>
 <div class="line"></div>
 <div class="line">  <span class="comment">// This function is called when an index is removed. We don&#39;t have to do</span></div>
 <div class="line">  <span class="comment">// anything, but for ease of debugging, we call reset.</span></div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> RemoveIndex(MotiveIndex index) {</div>
-<div class="line">    Data(index).Reset();</div>
-<div class="line">    values_[index] = 0;</div>
+<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> RemoveIndices(MotiveIndex index, MotiveDimension dimensions) {</div>
+<div class="line">    <span class="keywordflow">for</span> (MotiveIndex i = index; i &lt; index + dimensions; ++i) {</div>
+<div class="line">      Data(i).Reset();</div>
+<div class="line">      values_[i] = 0;</div>
+<div class="line">    }</div>
 <div class="line">  }</div>
 <div class="line"></div>
 <div class="line">  <span class="comment">// The base class endeavors to keep our data contiguous in memory, so</span></div>
 <div class="line">  <span class="comment">// whenever Defragment() is called, we may shuffle some indices around.</span></div>
-<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> MoveIndex(MotiveIndex old_index, MotiveIndex new_index) {</div>
-<div class="line">    data_[new_index] = data_[old_index];</div>
-<div class="line">    values_[new_index] = values_[old_index];</div>
+<div class="line">  <span class="keyword">virtual</span> <span class="keywordtype">void</span> MoveIndices(MotiveIndex old_index, MotiveIndex new_index,</div>
+<div class="line">                           MotiveDimension dimensions) {</div>
+<div class="line">    MotiveIndex old_i = old_index;</div>
+<div class="line">    MotiveIndex new_i = new_index;</div>
+<div class="line">    <span class="keywordflow">for</span> (MotiveDimension i = 0; i &lt; dimensions; ++i, ++new_i, ++old_i) {</div>
+<div class="line">      data_[new_i] = data_[old_i];</div>
+<div class="line">      values_[new_i] = values_[old_i];</div>
+<div class="line">    }</div>
 <div class="line">  }</div>
 <div class="line"></div>
 <div class="line">  <span class="comment">// When new Motivators are being added or removed, this function may be</span></div>

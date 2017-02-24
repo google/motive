@@ -12,11 +12,14 @@ var classmotive_1_1_cubic_curve =
     [ "NumCoeff", "classmotive_1_1_cubic_curve.html#a35a18a78603739052c3894c124457e93", null ],
     [ "operator!=", "classmotive_1_1_cubic_curve.html#a813de9cd387bfdc0e037619088631335", null ],
     [ "operator==", "classmotive_1_1_cubic_curve.html#ab6a927aaba45a878ff32d7dec96a4799", null ],
+    [ "ScaleUp", "classmotive_1_1_cubic_curve.html#af17da5106a49cb0694db4dfc7cc5e201", null ],
     [ "SecondDerivative", "classmotive_1_1_cubic_curve.html#a91705641882d08ae2abfbc81fb340522", null ],
     [ "SetCoeff", "classmotive_1_1_cubic_curve.html#a68dc08b94265af96f4c8bccd4ce41e84", null ],
     [ "ShiftLeft", "classmotive_1_1_cubic_curve.html#aedeeec001935ac615f1086c910e81197", null ],
     [ "ShiftRight", "classmotive_1_1_cubic_curve.html#a9b5832462e10ea37cfd10b016d20329a", null ],
+    [ "ShiftUp", "classmotive_1_1_cubic_curve.html#aa7f2e068c3347ab906c4fe75f793792a", null ],
     [ "Text", "classmotive_1_1_cubic_curve.html#a6e6daaa81d501299394df14c32515b85", null ],
     [ "ThirdDerivative", "classmotive_1_1_cubic_curve.html#a1778bbb5ae6723f2819830dd733dd66b", null ],
-    [ "UniformCurvature", "classmotive_1_1_cubic_curve.html#a4336a6a90322cc303def49c4c9799640", null ]
+    [ "UniformCurvature", "classmotive_1_1_cubic_curve.html#a4336a6a90322cc303def49c4c9799640", null ],
+    [ "kNumCoeff", "classmotive_1_1_cubic_curve.html#a668613cc3886584914fe9c2c2f62fdcc", null ]
 ];

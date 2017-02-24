@@ -265,12 +265,16 @@ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="cla
 <tr class="separator:a61c0c8479f75cdd01bb9f46aac7339c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5d5b6d6610de85f151bc8f444112b3af"><td class="memItemLeft" align="right" valign="top">mathfu::vec3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_angle.html#a5d5b6d6610de85f151bc8f444112b3af">ToXYVector</a> () const </td></tr>
 <tr class="separator:a5d5b6d6610de85f151bc8f444112b3af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0dd2d4c1a4f7ddcf2cf35fbb61c3fefa"><td class="memItemLeft" align="right" valign="top">mathfu::vec2&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_angle.html#a0dd2d4c1a4f7ddcf2cf35fbb61c3fefa">ToXYVector2f</a> () const </td></tr>
+<tr class="separator:a0dd2d4c1a4f7ddcf2cf35fbb61c3fefa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac2eb6dc1a13429124f8c86cdaa7386c9"><td class="memItemLeft" align="right" valign="top">mathfu::vec3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_angle.html#ac2eb6dc1a13429124f8c86cdaa7386c9">ToXZVector</a> () const </td></tr>
 <tr class="separator:ac2eb6dc1a13429124f8c86cdaa7386c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acef39f3d88061163e46de8c6850abd5e"><td class="memItemLeft" align="right" valign="top">mathfu::vec3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_angle.html#acef39f3d88061163e46de8c6850abd5e">ToYZVector</a> () const </td></tr>
 <tr class="separator:acef39f3d88061163e46de8c6850abd5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa25468c6201a7176bea8444d04f17fba"><td class="memItemLeft" align="right" valign="top">mathfu::vec3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_angle.html#aa25468c6201a7176bea8444d04f17fba">ToYXVector</a> () const </td></tr>
 <tr class="separator:aa25468c6201a7176bea8444d04f17fba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a88975da1a7757ce3a776030972cf57"><td class="memItemLeft" align="right" valign="top">mathfu::vec2&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_angle.html#a4a88975da1a7757ce3a776030972cf57">ToYXVector2f</a> () const </td></tr>
+<tr class="separator:a4a88975da1a7757ce3a776030972cf57"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad631d8947f2a0d2e176e92f5e509393a"><td class="memItemLeft" align="right" valign="top">mathfu::vec3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_angle.html#ad631d8947f2a0d2e176e92f5e509393a">ToZXVector</a> () const </td></tr>
 <tr class="separator:ad631d8947f2a0d2e176e92f5e509393a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad9db73037a591073252f8a37847b10ba"><td class="memItemLeft" align="right" valign="top">mathfu::vec3&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_angle.html#ad9db73037a591073252f8a37847b10ba">ToZYVector</a> () const </td></tr>
@@ -750,6 +754,30 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;=</b> (co
 
 </div>
 </div>
+<a class="anchor" id="a0dd2d4c1a4f7ddcf2cf35fbb61c3fefa"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">mathfu::vec2 motive::Angle::ToXYVector2f </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns a point on unit circle corresponding to a sweep of <code>angle</code> degrees from the x-axis towards the y-axis. 0 ==&gt; ( 1, 0 ) pi/2 ==&gt; ( 0, 1 ) pi ==&gt; (-1, 0 ) 3pi/2 ==&gt; ( 0, -1 ) </p>
+
+</div>
+</div>
 <a class="anchor" id="ac2eb6dc1a13429124f8c86cdaa7386c9"></a>
 <div class="memitem">
 <div class="memproto">
@@ -795,6 +823,30 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;=</b> (co
 </table>
 </div><div class="memdoc">
 <p>Returns a point on unit circle corresponding to a sweep of <code>angle</code> degrees from the y-axis towards the x-axis. 0 ==&gt; ( 0, 1, 0) pi/2 ==&gt; ( 1, 0, 0) pi ==&gt; ( 0, -1, 0) 3pi/2 ==&gt; (-1, 0, 0) </p>
+
+</div>
+</div>
+<a class="anchor" id="a4a88975da1a7757ce3a776030972cf57"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">mathfu::vec2 motive::Angle::ToYXVector2f </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns a point on unit circle corresponding to a sweep of <code>angle</code> degrees from the y-axis towards the x-axis. 0 ==&gt; ( 0, 1 ) pi/2 ==&gt; ( 1, 0 ) pi ==&gt; ( 0, -1 ) 3pi/2 ==&gt; (-1, 0 ) </p>
 
 </div>
 </div>

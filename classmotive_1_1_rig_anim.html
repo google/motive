@@ -233,6 +233,8 @@ const <a class="el" href="classmotive_1_1_matrix_anim.html">MatrixAnim</a> &amp;
 int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_rig_anim.html#ac3ce8ac7afa9130b065c4598998158e0">NumOps</a> () const </td></tr>
 <tr class="memdesc:ac3ce8ac7afa9130b065c4598998158e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Total number of matrix operations across all MatrixAnims in this <a class="el" href="classmotive_1_1_rig_anim.html" title="Animation for a RigMotivator. Drives a fully rigged model. ">RigAnim</a>. <br/></td></tr>
 <tr class="separator:ac3ce8ac7afa9130b065c4598998158e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba2a21d12c3680de1ce01d07b354f6e2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_rig_anim.html#aba2a21d12c3680de1ce01d07b354f6e2">GetSplinesAndConstants</a> (BoneIndex bone, const MatrixOperationType *ops, int num_ops, const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> **splines, float *constants) const </td></tr>
+<tr class="separator:aba2a21d12c3680de1ce01d07b354f6e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a55cf7159175aefb411290c13c89eb206"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_rig_anim.html#a55cf7159175aefb411290c13c89eb206">NumCsvHeaderLines</a> () const </td></tr>
 <tr class="separator:a55cf7159175aefb411290c13c89eb206"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a26bfd5517aa1fe424d32d8f91ca40bc9"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_rig_anim.html#a26bfd5517aa1fe424d32d8f91ca40bc9">CsvHeaderForDebugging</a> (int line) const </td></tr>
@@ -364,6 +366,59 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 </table>
 </div><div class="memdoc">
 <p>Amount of time required by this animation. Time units are set by the caller. If animation repeats, returns infinity. TODO: Add function to return non-repeated end time, even when repeatable. </p>
+
+</div>
+</div>
+<a class="anchor" id="aba2a21d12c3680de1ce01d07b354f6e2"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void motive::RigAnim::GetSplinesAndConstants </td>
+          <td>(</td>
+          <td class="paramtype">BoneIndex&#160;</td>
+          <td class="paramname"><em>bone</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const MatrixOperationType *&#160;</td>
+          <td class="paramname"><em>ops</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num_ops</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> **&#160;</td>
+          <td class="paramname"><em>splines</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float *&#160;</td>
+          <td class="paramname"><em>constants</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Gets the splines and constants that drive the operations in <code>ops</code>, for the specified bone. If an operation is not driven by the bone, return the default value for that op in <code>constants</code>.</p>
+<p>If the bone has multiple operations that match <code>ops[i]</code>, return the first one.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bone</td><td>The bone whose operations you want to pull data for. </td></tr>
+    <tr><td class="paramname">ops</td><td>And array of length <code>num_ops</code> with the operations you're interested in.  num_ops Length of the <code>ops</code> array.  splines Output array, length <code>num_ops</code>. For each element of <code>ops</code>, receives the driving spline, or nullptr if that operation is not driven by a spline.  constants Output array, length <code>num_ops</code>. For each element of <code>ops</code>, receives the constant value of that operation, if no spline drives that operation. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>

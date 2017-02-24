@@ -218,8 +218,8 @@ $(document).ready(function(){initNavTree('structmotive_1_1_spline_playback.html'
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ac4e2a4cdfe07f5f9be9460dc343eb6f2"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmotive_1_1_spline_playback.html#ac4e2a4cdfe07f5f9be9460dc343eb6f2">SplinePlayback</a> (float <a class="el" href="structmotive_1_1_spline_playback.html#aa3a72abeeba6b89f73a1e6c722055735">start_x</a>=0.0f, bool repeat=false, float playback_rate=1.0f, float blend_x=0.0f)</td></tr>
-<tr class="separator:ac4e2a4cdfe07f5f9be9460dc343eb6f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b198b048534161137bc78010faf00fc"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmotive_1_1_spline_playback.html#a9b198b048534161137bc78010faf00fc">SplinePlayback</a> (float <a class="el" href="structmotive_1_1_spline_playback.html#aa3a72abeeba6b89f73a1e6c722055735">start_x</a>=0.0f, bool repeat=false, float playback_rate=1.0f, float blend_x=0.0f, float y_offset=0.0f, float y_scale=1.0f)</td></tr>
+<tr class="separator:a9b198b048534161137bc78010faf00fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -231,13 +231,17 @@ float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="str
 <tr class="separator:a5c0ae832db36eb57b1aa2af9454d7911"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f90c6ee09b669a6be352fb99f2df3da"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmotive_1_1_spline_playback.html#a9f90c6ee09b669a6be352fb99f2df3da">playback_rate</a></td></tr>
 <tr class="separator:a9f90c6ee09b669a6be352fb99f2df3da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af748887a7b38502a54b3237754d646e8"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmotive_1_1_spline_playback.html#af748887a7b38502a54b3237754d646e8">y_offset</a></td></tr>
+<tr class="separator:af748887a7b38502a54b3237754d646e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae44e8ee5320fc73d5810e767fb89a1fd"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmotive_1_1_spline_playback.html#ae44e8ee5320fc73d5810e767fb89a1fd">y_scale</a></td></tr>
+<tr class="separator:ae44e8ee5320fc73d5810e767fb89a1fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a305f1315a26e9d52464d1c586458a19d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a305f1315a26e9d52464d1c586458a19d"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmotive_1_1_spline_playback.html#a305f1315a26e9d52464d1c586458a19d">repeat</a></td></tr>
 <tr class="memdesc:a305f1315a26e9d52464d1c586458a19d"><td class="mdescLeft">&#160;</td><td class="mdescRight">If true, start back at the beginning after we reach the end. <br/></td></tr>
 <tr class="separator:a305f1315a26e9d52464d1c586458a19d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="ac4e2a4cdfe07f5f9be9460dc343eb6f2"></a>
+<a class="anchor" id="a9b198b048534161137bc78010faf00fc"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -266,7 +270,19 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stru
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>blend_x</em> = <code>0.0f</code>&#160;</td>
+          <td class="paramname"><em>blend_x</em> = <code>0.0f</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>y_offset</em> = <code>0.0f</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>y_scale</em> = <code>1.0f</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -308,6 +324,32 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stru
       </table>
 </div><div class="memdoc">
 <p>The playback rate of the spline. Scales <code>delta_time</code> of the update to to x-axis of <code>splines</code>. 0 ==&gt; paused 0.5 ==&gt; half speed (slow motion) 1 ==&gt; authored speed 2 ==&gt; double speed (fast forward) </p>
+
+</div>
+</div>
+<a class="anchor" id="af748887a7b38502a54b3237754d646e8"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float motive::SplinePlayback::y_offset</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Offset that we add to spline to shift it along the y-axis. The spline is scaled first by <code>y_scale</code>, and then shifted by <code>y_offset</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="ae44e8ee5320fc73d5810e767fb89a1fd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float motive::SplinePlayback::y_scale</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Factor by which we scale the spline along the y-axis. The spline is scaled first by <code>y_scale</code>, and then shifted by <code>y_offset</code>. </p>
 
 </div>
 </div>

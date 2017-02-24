@@ -1,6 +1,6 @@
 var classmotive_1_1_rig_init =
 [
-    [ "RigInit", "classmotive_1_1_rig_init.html#ac9cfdd8badea19d004a7a690d81234e2", null ],
+    [ "RigInit", "classmotive_1_1_rig_init.html#a20187bf2a84cd30e30914d350a15dd66", null ],
     [ "bone_transforms", "classmotive_1_1_rig_init.html#ab68bc8c2729d35b6dce068ff67a4be06", null ],
     [ "defining_anim", "classmotive_1_1_rig_init.html#a1199a8b63c57107efb974d58460f4ac7", null ],
     [ "MatchesHierarchy", "classmotive_1_1_rig_init.html#a9791025873130404c0b40baacbd741aa", null ],

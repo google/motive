@@ -227,125 +227,173 @@ $(document).ready(function(){initNavTree('anim__table_8h_source.html','');});
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">namespace </span>motive {</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="keyword">struct </span>AnimTableFb;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">struct </span>RigAnimFb;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="comment">/// @class AnimTable</span></div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="comment">/// @brief Hold animation lists for several object types.</span></div>
-<div class="line"><a name="l00031"></a><span class="lineno"><a class="line" href="classmotive_1_1_anim_table.html">   31</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classmotive_1_1_anim_table.html">AnimTable</a> {</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; <span class="keyword">public</span>:<span class="comment"></span></div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">  /// Callback that returns a pointer to the `RigAnimFb` FlatBuffer table for</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">  /// `anim_name`. Your implementation may vary, but one possibility is to</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">  /// load the file with `anim_name` into `scratch_buf`, and then return a</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment">  /// pointer to `scratch_buf`.</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment">  ///</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">  /// Note: Motive does not make assumptions on file io, so the caller must</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">  ///       provide this function.</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">  ///</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">  /// Example:</span></div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">  ///   const RigAnimFb* MyLoadRigAnimFn(const char* anim_name,</span></div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">  ///                                    std::string* scratch_buf) {</span></div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">  ///     const bool load_ok = MyLoadFile(anim_name, scratch_buf);</span></div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">  ///     assert(load_ok);</span></div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">  ///     return motive::GetRigAnimFb(scratch_buf-&gt;c_str());</span></div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">  ///   }</span></div>
-<div class="line"><a name="l00048"></a><span class="lineno"><a class="line" href="classmotive_1_1_anim_table.html#a96724083770453e12b8719f58ac35237">   48</a></span>&#160;<span class="comment"></span>  <span class="keyword">typedef</span> <span class="keyword">const</span> RigAnimFb* <a class="code" href="classmotive_1_1_anim_table.html#a96724083770453e12b8719f58ac35237">LoadRigAnimFn</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* anim_name,</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;                                         std::string* scratch_buf);</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment">  /// Load the AnimTable specified in the FlatBuffer `params`.</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment">  /// For each animation in the AnimTable, `load_fn` is called to get the</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="comment">  /// `RigAnimFb` associated with the animation.</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classmotive_1_1_anim_table.html#a3173a3844e6d1f6de6328250d045cd5a">InitFromFlatBuffers</a>(<span class="keyword">const</span> AnimTableFb&amp; params, <a class="code" href="classmotive_1_1_anim_table.html#a96724083770453e12b8719f58ac35237">LoadRigAnimFn</a>* load_fn);</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;<span class="comment">  /// Get an animation by index. This is fast and is the preferred way to</span></div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment">  /// look up an animation.</span></div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">  /// @param object An enum defined by the caller specifying the object type.</span></div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;<span class="comment">  ///               For example, if you want separate animations lists for</span></div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="comment">  ///               cats and dogs, then object=0 could be cats, and object=1</span></div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">  ///               could be dogs. The enum should run consecutively from</span></div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment">  ///               0 to number of object types -1.</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="comment">  /// @param anim_idx An enum defined by the caller specifying the index into</span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="comment">  ///                 the animation list for `object`. If your cat can run</span></div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="comment">  ///                 and sleep, then you might make run=0 and sleep=1. Enum</span></div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="comment">  ///                 should run consecutively from 0 to the number of</span></div>
-<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="comment">  ///                 animations - 1. No need for the number of animations to</span></div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment">  ///                 match between objects.</span></div>
-<div class="line"><a name="l00069"></a><span class="lineno"><a class="line" href="classmotive_1_1_anim_table.html#aaf384973e25b7c9caa4061725e529c1d">   69</a></span>&#160;<span class="comment"></span>  <span class="keyword">const</span> <a class="code" href="classmotive_1_1_rig_anim.html">RigAnim</a>* <a class="code" href="classmotive_1_1_anim_table.html#aaf384973e25b7c9caa4061725e529c1d">Query</a>(<span class="keywordtype">int</span> <span class="keywordtype">object</span>, <span class="keywordtype">int</span> anim_idx)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keyword">const</span> AnimIndex idx = CalculateIndex(<span class="keywordtype">object</span>, anim_idx);</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="keywordflow">return</span> idx == kInvalidAnimIndex ? <span class="keyword">nullptr</span> : &amp;anims_[idx];</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;  }</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment">  /// Get an animation by name. This is slow and should be avoided when</span></div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="comment">  /// possible.</span></div>
-<div class="line"><a name="l00076"></a><span class="lineno"><a class="line" href="classmotive_1_1_anim_table.html#a142590e16996c681f96675d31aff8e4d">   76</a></span>&#160;<span class="comment"></span>  <span class="keyword">const</span> <a class="code" href="classmotive_1_1_rig_anim.html">RigAnim</a>* <a class="code" href="classmotive_1_1_anim_table.html#a142590e16996c681f96675d31aff8e4d">QueryByName</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* anim_name)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">const_cast&lt;</span><a class="code" href="classmotive_1_1_anim_table.html">AnimTable</a>*<span class="keyword">&gt;</span>(<span class="keyword">this</span>)-&gt;<a class="code" href="classmotive_1_1_anim_table.html#a142590e16996c681f96675d31aff8e4d">QueryByName</a>(anim_name);</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;  }</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="keyword">struct </span>AnimListFb;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="keyword">struct </span>AnimTableEmbeddedFb;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="keyword">struct </span>AnimListEmbeddedFb;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="keyword">struct </span>RigAnimFb;</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="keyword">class </span>TableDescriberInterface;</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">/// @class AnimTable</span></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="comment">/// @brief Hold animation lists for several object types.</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="comment">///</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="comment">/// A list of lists of animations.</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="comment">///</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">/// The outer list is indexed by `object`, the meaning of which is set by</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">/// the user, but is most likely an enum for the character being animated</span></div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">/// (e.g. turtle, zombie, happy person, tall person, etc.).</span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">///</span></div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">/// The inner list is indexed by `anim_idx`, the meaning of which is also set</span></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="comment">/// by the user, but is most likely an enum for the action being animated</span></div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="comment">/// (e.g. idle, walk forward, jump, etc.).</span></div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="comment">///</span></div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="comment">/// Duplicate animations are only loaded once. This allows different objects</span></div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="comment">/// to use the same animations without any memory overhead.</span></div>
+<div class="line"><a name="l00048"></a><span class="lineno"><a class="line" href="classmotive_1_1_anim_table.html">   48</a></span>&#160;<span class="comment"></span><span class="keyword">class </span><a class="code" href="classmotive_1_1_anim_table.html">AnimTable</a> {</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  <span class="comment">// Array of animations corresponding to `anim_idx`.</span></div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;  <span class="comment">// The meaning of `anim_idx` is set by the user, but is most likely an enum</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <span class="comment">// for the action being animated (e.g. idle, walk forward, jump, etc.).</span></div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;  <span class="keyword">typedef</span> std::vector&lt;std::string&gt; ListFileNames;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;  <span class="comment">// Array of arrays of animations corresponding to `object`.</span></div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;  <span class="comment">// The meaning of `object` is set by the user, but is most likely an enum</span></div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;  <span class="comment">// for the character being animated (e.g. turtle, zombie, happy person,</span></div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;  <span class="comment">// tall person, etc.).</span></div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;  <span class="keyword">typedef</span> std::vector&lt;ListFileNames&gt; TableFileNames;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">  /// Callback that loads `file_name` and returns a pointer to the raw data.</span></div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment">  /// Optionally, the function can load the file into `scratch_buf`,</span></div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="comment">  /// and then return `scratch_buf.c_str()`.</span></div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="comment">  /// If the load fails, should return nullptr.</span></div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="comment">  ///</span></div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;<span class="comment">  /// Note: Motive does not make assumptions on file io, so the caller must</span></div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;<span class="comment">  ///       provide this function.</span></div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment">  ///</span></div>
+<div class="line"><a name="l00069"></a><span class="lineno"><a class="line" href="classmotive_1_1_anim_table.html#af3ac2e8a98e93eeed70552cea4871102">   69</a></span>&#160;<span class="comment"></span>  <span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keywordtype">char</span>* <a class="code" href="classmotive_1_1_anim_table.html#af3ac2e8a98e93eeed70552cea4871102">LoadFn</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* file_name, std::string* scratch_buf);</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;  ~<a class="code" href="classmotive_1_1_anim_table.html">AnimTable</a>();</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment">  /// Load the AnimTable specified in the FlatBuffer `params`.</span></div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment">  /// For each animation in the AnimTable, `load_fn` is called to get the</span></div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="comment">  /// to load the individual animation files, if they&#39;re not embedded in</span></div>
+<div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="comment">  /// table_fb. If they are embedded then `load_fn` can be nullptr.</span></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="comment">  /// `table_fb` can be discarded after this call.</span></div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classmotive_1_1_anim_table.html#a72d83b8558427fe2c36c25ce72dfc366">InitFromFlatBuffers</a>(<span class="keyword">const</span> AnimTableFb&amp; table_fb, <a class="code" href="classmotive_1_1_anim_table.html#af3ac2e8a98e93eeed70552cea4871102">LoadFn</a>* load_fn);</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment">  /// Return animation that defines the complete rig of this object.</span></div>
-<div class="line"><a name="l00081"></a><span class="lineno"><a class="line" href="classmotive_1_1_anim_table.html#a305a314e38340dd463aa279e4a054835">   81</a></span>&#160;<span class="comment"></span>  <span class="keyword">const</span> <a class="code" href="classmotive_1_1_rig_anim.html">RigAnim</a>&amp; <a class="code" href="classmotive_1_1_anim_table.html#a305a314e38340dd463aa279e4a054835">DefiningAnim</a>(<span class="keywordtype">int</span> <span class="keywordtype">object</span>)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <span class="keywordflow">return</span> defining_anims_[object];</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;  }</div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="comment">  /// Return size of the top-most vector. Recall that AnimTable is a vector</span></div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="comment">  /// of vectors.</span></div>
-<div class="line"><a name="l00087"></a><span class="lineno"><a class="line" href="classmotive_1_1_anim_table.html#a3bd4afaad6bcae3839af44bf31d52593">   87</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">int</span> <a class="code" href="classmotive_1_1_anim_table.html#a3bd4afaad6bcae3839af44bf31d52593">NumObjects</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(indices_.size()); }</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160; <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  <span class="keyword">typedef</span> uint16_t AnimIndex;</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  <span class="keyword">typedef</span> std::vector&lt;AnimIndex&gt; AnimList;</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;  <span class="keyword">typedef</span> std::pair&lt;std::string, AnimIndex&gt; NameToIndex;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> AnimIndex kInvalidAnimIndex = <span class="keyword">static_cast&lt;</span>AnimIndex<span class="keyword">&gt;</span>(-1);</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  AnimIndex AddAnimName(<span class="keyword">const</span> <span class="keywordtype">char</span>* anim_name);</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;  <span class="keywordtype">void</span> InitNameMapFromFlatBuffers(<span class="keyword">const</span> AnimTableFb&amp; params);</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;  <span class="keywordtype">bool</span> LoadAnimations(<a class="code" href="classmotive_1_1_anim_table.html#a96724083770453e12b8719f58ac35237">LoadRigAnimFn</a>* load_fn);</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;  <span class="keywordtype">void</span> AnimNames(std::vector&lt;const char*&gt;* anim_names) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;  <span class="keywordtype">size_t</span> MaxAnimIndex() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  <span class="keywordtype">size_t</span> GatherObjectAnims(<span class="keywordtype">int</span> <span class="keywordtype">object</span>, <span class="keyword">const</span> <a class="code" href="classmotive_1_1_rig_anim.html">RigAnim</a>** anims) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  <span class="keywordtype">void</span> CalculateDefinineAnims();</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;  <a class="code" href="classmotive_1_1_rig_anim.html">RigAnim</a>* <a class="code" href="classmotive_1_1_anim_table.html#a142590e16996c681f96675d31aff8e4d">QueryByName</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* anim_name) {</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;    <span class="keyword">auto</span> map_entry = name_map_.find(anim_name);</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="keywordflow">if</span> (map_entry == name_map_.end()) <span class="keywordflow">return</span> <span class="keyword">nullptr</span>;</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <span class="keywordflow">return</span> &amp;anims_[map_entry-&gt;second];</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;  }</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  AnimIndex CalculateIndex(<span class="keywordtype">int</span> <span class="keywordtype">object</span>, <span class="keywordtype">int</span> anim_idx)<span class="keyword"> const </span>{</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    assert(0 &lt;= <span class="keywordtype">object</span> &amp;&amp; <span class="keywordtype">object</span> &lt; static_cast&lt;int&gt;(indices_.size()));</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="keyword">const</span> AnimList&amp; list = indices_[object];</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    assert(0 &lt;= anim_idx &amp;&amp; anim_idx &lt; static_cast&lt;int&gt;(list.size()));</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keywordflow">return</span> list[anim_idx];</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="comment">  /// Load the animations specified in the FlatBuffer `list_fb`.</span></div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;<span class="comment">  /// All of the loaded animations are for object 0.</span></div>
+<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classmotive_1_1_anim_table.html#a72d83b8558427fe2c36c25ce72dfc366">InitFromFlatBuffers</a>(<span class="keyword">const</span> AnimListFb&amp; list_fb, <a class="code" href="classmotive_1_1_anim_table.html#af3ac2e8a98e93eeed70552cea4871102">LoadFn</a>* load_fn);</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;<span class="comment">  /// Load the AnimTable specified in the vector of vectors.</span></div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;<span class="comment">  /// The top level vector represents the `object` index.</span></div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;<span class="comment">  /// The bottom level vector represents the `anim_idx`.</span></div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classmotive_1_1_anim_table.html#a55a2873855d74a178faa30f9f7b5e5ec">InitFromAnimFileNames</a>(<span class="keyword">const</span> TableFileNames&amp; table_names,</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;                             <a class="code" href="classmotive_1_1_anim_table.html#af3ac2e8a98e93eeed70552cea4871102">LoadFn</a>* load_fn);</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="comment">  /// Load the AnimTable for only one `object`.</span></div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;<span class="comment"></span>  <span class="keywordtype">bool</span> <a class="code" href="classmotive_1_1_anim_table.html#a55a2873855d74a178faa30f9f7b5e5ec">InitFromAnimFileNames</a>(<span class="keyword">const</span> ListFileNames&amp; list_names, <a class="code" href="classmotive_1_1_anim_table.html#af3ac2e8a98e93eeed70552cea4871102">LoadFn</a>* load_fn);</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="comment">  /// Get an animation by index. This is fast and is the preferred way to</span></div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;<span class="comment">  /// look up an animation.</span></div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="comment">  /// @param object An enum defined by the caller specifying the object type.</span></div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;<span class="comment">  ///               For example, if you want separate animations lists for</span></div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="comment">  ///               cats and dogs, then object=0 could be cats, and object=1</span></div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="comment">  ///               could be dogs. The enum should run consecutively from</span></div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;<span class="comment">  ///               0 to number of object types -1.</span></div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;<span class="comment">  /// @param anim_idx An enum defined by the caller specifying the index into</span></div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="comment">  ///                 the animation list for `object`. If your cat can run</span></div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="comment">  ///                 and sleep, then you might make run=0 and sleep=1. Enum</span></div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="comment">  ///                 should run consecutively from 0 to the number of</span></div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="comment">  ///                 animations - 1. No need for the number of animations to</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;<span class="comment">  ///                 match between objects.</span></div>
+<div class="line"><a name="l00106"></a><span class="lineno"><a class="line" href="classmotive_1_1_anim_table.html#aaf384973e25b7c9caa4061725e529c1d">  106</a></span>&#160;<span class="comment"></span>  <span class="keyword">const</span> <a class="code" href="classmotive_1_1_rig_anim.html">RigAnim</a>* <a class="code" href="classmotive_1_1_anim_table.html#aaf384973e25b7c9caa4061725e529c1d">Query</a>(<span class="keywordtype">int</span> <span class="keywordtype">object</span>, <span class="keywordtype">int</span> anim_idx)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    <span class="keyword">const</span> AnimIndex idx = CalculateIndex(<span class="keywordtype">object</span>, anim_idx);</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    <span class="keywordflow">return</span> idx == kInvalidAnimIndex ? <span class="keyword">nullptr</span> : anims_[idx];</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;  }</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="comment">  /// Get an animation by name. This is slow and should be avoided when</span></div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;<span class="comment">  /// possible.</span></div>
+<div class="line"><a name="l00113"></a><span class="lineno"><a class="line" href="classmotive_1_1_anim_table.html#a142590e16996c681f96675d31aff8e4d">  113</a></span>&#160;<span class="comment"></span>  <span class="keyword">const</span> <a class="code" href="classmotive_1_1_rig_anim.html">RigAnim</a>* <a class="code" href="classmotive_1_1_anim_table.html#a142590e16996c681f96675d31aff8e4d">QueryByName</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* anim_name)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">const_cast&lt;</span><a class="code" href="classmotive_1_1_anim_table.html">AnimTable</a>*<span class="keyword">&gt;</span>(<span class="keyword">this</span>)-&gt;<a class="code" href="classmotive_1_1_anim_table.html#a142590e16996c681f96675d31aff8e4d">QueryByName</a>(anim_name);</div>
 <div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;  }</div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="comment">  /// Vector of vectors. Top vector is indexed by `object`. Bottom vector is</span></div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;<span class="comment">  /// indexed by `anim_idx`. Holds an index into the `anims_` array.</span></div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;<span class="comment"></span>  std::vector&lt;AnimList&gt; indices_;</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;<span class="comment">  /// For each `object` type, holds the index to the animation that defines</span></div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;<span class="comment">  /// the complete rig. Animations may animate only a sub-rig, but we need to</span></div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;<span class="comment">  /// have a complete rig for initialization.</span></div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="comment"></span>  std::vector&lt;RigAnim&gt; defining_anims_;</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="comment">  /// Return animation that defines the complete rig of this object.</span></div>
+<div class="line"><a name="l00118"></a><span class="lineno"><a class="line" href="classmotive_1_1_anim_table.html#a305a314e38340dd463aa279e4a054835">  118</a></span>&#160;<span class="comment"></span>  <span class="keyword">const</span> <a class="code" href="classmotive_1_1_rig_anim.html">RigAnim</a>&amp; <a class="code" href="classmotive_1_1_anim_table.html#a305a314e38340dd463aa279e4a054835">DefiningAnim</a>(<span class="keywordtype">int</span> <span class="keywordtype">object</span>)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    <span class="keywordflow">return</span> defining_anims_[object];</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;  }</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;<span class="comment">  /// Return size of the top-most vector. Recall that AnimTable is a vector</span></div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;<span class="comment">  /// of vectors.</span></div>
+<div class="line"><a name="l00124"></a><span class="lineno"><a class="line" href="classmotive_1_1_anim_table.html#a3bd4afaad6bcae3839af44bf31d52593">  124</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">int</span> <a class="code" href="classmotive_1_1_anim_table.html#a3bd4afaad6bcae3839af44bf31d52593">NumObjects</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(indices_.size()); }</div>
 <div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;<span class="comment">  /// Map animation name to an animation index.</span></div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="comment">  /// Used for by-name lookups, and to avoid duplicate copies of the same</span></div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="comment">  /// animation.</span></div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;<span class="comment"></span>  std::unordered_map&lt;std::string, AnimIndex&gt; name_map_;</div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;<span class="comment"></span></div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;<span class="comment">  /// Animation data. Contains no duplicate entries, thanks to name_map_.</span></div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;<span class="comment"></span>  std::vector&lt;RigAnim&gt; anims_;</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;};</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;</div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;}  <span class="comment">// namespace motive</span></div>
-<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;<span class="preprocessor">#endif  // MOTIVE_ANIM_TABLE_H_</span></div>
-<div class="ttc" id="classmotive_1_1_anim_table_html_a142590e16996c681f96675d31aff8e4d"><div class="ttname"><a href="classmotive_1_1_anim_table.html#a142590e16996c681f96675d31aff8e4d">motive::AnimTable::QueryByName</a></div><div class="ttdeci">const RigAnim * QueryByName(const char *anim_name) const </div><div class="ttdef"><b>Definition:</b> anim_table.h:76</div></div>
-<div class="ttc" id="classmotive_1_1_anim_table_html_a305a314e38340dd463aa279e4a054835"><div class="ttname"><a href="classmotive_1_1_anim_table.html#a305a314e38340dd463aa279e4a054835">motive::AnimTable::DefiningAnim</a></div><div class="ttdeci">const RigAnim &amp; DefiningAnim(int object) const </div><div class="ttdoc">Return animation that defines the complete rig of this object. </div><div class="ttdef"><b>Definition:</b> anim_table.h:81</div></div>
-<div class="ttc" id="classmotive_1_1_anim_table_html_a96724083770453e12b8719f58ac35237"><div class="ttname"><a href="classmotive_1_1_anim_table.html#a96724083770453e12b8719f58ac35237">motive::AnimTable::LoadRigAnimFn</a></div><div class="ttdeci">const RigAnimFb * LoadRigAnimFn(const char *anim_name, std::string *scratch_buf)</div><div class="ttdef"><b>Definition:</b> anim_table.h:48</div></div>
-<div class="ttc" id="classmotive_1_1_rig_anim_html"><div class="ttname"><a href="classmotive_1_1_rig_anim.html">motive::RigAnim</a></div><div class="ttdoc">Animation for a RigMotivator. Drives a fully rigged model. </div><div class="ttdef"><b>Definition:</b> anim.h:67</div></div>
-<div class="ttc" id="classmotive_1_1_anim_table_html_a3173a3844e6d1f6de6328250d045cd5a"><div class="ttname"><a href="classmotive_1_1_anim_table.html#a3173a3844e6d1f6de6328250d045cd5a">motive::AnimTable::InitFromFlatBuffers</a></div><div class="ttdeci">bool InitFromFlatBuffers(const AnimTableFb &amp;params, LoadRigAnimFn *load_fn)</div></div>
-<div class="ttc" id="classmotive_1_1_anim_table_html_aaf384973e25b7c9caa4061725e529c1d"><div class="ttname"><a href="classmotive_1_1_anim_table.html#aaf384973e25b7c9caa4061725e529c1d">motive::AnimTable::Query</a></div><div class="ttdeci">const RigAnim * Query(int object, int anim_idx) const </div><div class="ttdef"><b>Definition:</b> anim_table.h:69</div></div>
-<div class="ttc" id="classmotive_1_1_anim_table_html_a3bd4afaad6bcae3839af44bf31d52593"><div class="ttname"><a href="classmotive_1_1_anim_table.html#a3bd4afaad6bcae3839af44bf31d52593">motive::AnimTable::NumObjects</a></div><div class="ttdeci">int NumObjects() const </div><div class="ttdef"><b>Definition:</b> anim_table.h:87</div></div>
-<div class="ttc" id="classmotive_1_1_anim_table_html"><div class="ttname"><a href="classmotive_1_1_anim_table.html">motive::AnimTable</a></div><div class="ttdoc">Hold animation lists for several object types. </div><div class="ttdef"><b>Definition:</b> anim_table.h:31</div></div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;<span class="comment">  /// Return size of the bottom-most vector. Recall that AnimTable is a vector</span></div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="comment">  /// of vectors.</span></div>
+<div class="line"><a name="l00128"></a><span class="lineno"><a class="line" href="classmotive_1_1_anim_table.html#aa959fd1dba1c28202114c5dbdc089f9c">  128</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">int</span> <a class="code" href="classmotive_1_1_anim_table.html#aa959fd1dba1c28202114c5dbdc089f9c">NumAnims</a>(<span class="keywordtype">int</span> <span class="keywordtype">object</span>)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(indices_[object].size());</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;  }</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;<span class="comment">  /// Return the number of animations for which we&#39;ve allocated memory.</span></div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;<span class="comment">  /// Internally, we avoid duplicating animations.</span></div>
+<div class="line"><a name="l00134"></a><span class="lineno"><a class="line" href="classmotive_1_1_anim_table.html#a767fb089ef46cccfde466ab18bf3bca9">  134</a></span>&#160;<span class="comment"></span>  <span class="keywordtype">int</span> <a class="code" href="classmotive_1_1_anim_table.html#a767fb089ef46cccfde466ab18bf3bca9">NumUniqueAnims</a>()<span class="keyword"> const </span>{ <span class="keywordflow">return</span> <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(anims_.size()); }</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160; <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;  <span class="keyword">typedef</span> uint16_t AnimIndex;</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;  <span class="keyword">typedef</span> std::vector&lt;AnimIndex&gt; AnimList;</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;  <span class="keyword">typedef</span> std::pair&lt;std::string, AnimIndex&gt; NameToIndex;</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;  <span class="keyword">static</span> <span class="keyword">const</span> AnimIndex kInvalidAnimIndex = <span class="keyword">static_cast&lt;</span>AnimIndex<span class="keyword">&gt;</span>(-1);</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;</div>
+<div class="line"><a name="l00142"></a><span class="lineno">  142</span>&#160;  <span class="keywordtype">bool</span> Load(TableDescriberInterface* describer, <a class="code" href="classmotive_1_1_anim_table.html#af3ac2e8a98e93eeed70552cea4871102">LoadFn</a>* load_fn);</div>
+<div class="line"><a name="l00143"></a><span class="lineno">  143</span>&#160;  <span class="keywordtype">void</span> AnimNames(std::vector&lt;const char*&gt;* anim_names) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;  <span class="keywordtype">size_t</span> MaxAnimIndex() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;  <span class="keywordtype">size_t</span> GatherObjectAnims(<span class="keywordtype">int</span> <span class="keywordtype">object</span>, <span class="keyword">const</span> <a class="code" href="classmotive_1_1_rig_anim.html">RigAnim</a>** anims) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;  <span class="keywordtype">void</span> CalculateDefiningAnims();</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;  <a class="code" href="classmotive_1_1_rig_anim.html">RigAnim</a>* <a class="code" href="classmotive_1_1_anim_table.html#a142590e16996c681f96675d31aff8e4d">QueryByName</a>(<span class="keyword">const</span> <span class="keywordtype">char</span>* anim_name) {</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <span class="keyword">auto</span> map_entry = name_map_.find(anim_name);</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    <span class="keywordflow">if</span> (map_entry == name_map_.end()) <span class="keywordflow">return</span> <span class="keyword">nullptr</span>;</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    <span class="keywordflow">return</span> anims_[map_entry-&gt;second];</div>
+<div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;  }</div>
+<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;  AnimIndex CalculateIndex(<span class="keywordtype">int</span> <span class="keywordtype">object</span>, <span class="keywordtype">int</span> anim_idx)<span class="keyword"> const </span>{</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    assert(0 &lt;= <span class="keywordtype">object</span> &amp;&amp; <span class="keywordtype">object</span> &lt; static_cast&lt;int&gt;(indices_.size()));</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    <span class="keyword">const</span> AnimList&amp; list = indices_[object];</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    assert(0 &lt;= anim_idx &amp;&amp; anim_idx &lt; static_cast&lt;int&gt;(list.size()));</div>
+<div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <span class="keywordflow">return</span> list[anim_idx];</div>
+<div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;  }</div>
+<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;<span class="comment">  /// Vector of vectors. Top vector is indexed by `object`. Bottom vector is</span></div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;<span class="comment">  /// indexed by `anim_idx`. Holds an index into the `anims_` array.</span></div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;<span class="comment"></span>  std::vector&lt;AnimList&gt; indices_;</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;<span class="comment">  /// For each `object` type, holds the index to the animation that defines</span></div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;<span class="comment">  /// the complete rig. Animations may animate only a sub-rig, but we need to</span></div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;<span class="comment">  /// have a complete rig for initialization.</span></div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;<span class="comment"></span>  std::vector&lt;RigAnim&gt; defining_anims_;</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;<span class="comment">  /// Map animation name to an animation index.</span></div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;<span class="comment">  /// Used for by-name lookups, and to avoid duplicate copies of the same</span></div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;<span class="comment">  /// animation.</span></div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;<span class="comment"></span>  std::unordered_map&lt;std::string, AnimIndex&gt; name_map_;</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;<span class="comment"></span></div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;<span class="comment">  /// Animation data. Contains no duplicate entries, thanks to name_map_.</span></div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;<span class="comment"></span>  std::vector&lt;RigAnim*&gt; anims_;</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;};</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;}  <span class="comment">// namespace motive</span></div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;<span class="preprocessor">#endif  // MOTIVE_ANIM_TABLE_H_</span></div>
+<div class="ttc" id="classmotive_1_1_anim_table_html_a142590e16996c681f96675d31aff8e4d"><div class="ttname"><a href="classmotive_1_1_anim_table.html#a142590e16996c681f96675d31aff8e4d">motive::AnimTable::QueryByName</a></div><div class="ttdeci">const RigAnim * QueryByName(const char *anim_name) const </div><div class="ttdef"><b>Definition:</b> anim_table.h:113</div></div>
+<div class="ttc" id="classmotive_1_1_anim_table_html_a305a314e38340dd463aa279e4a054835"><div class="ttname"><a href="classmotive_1_1_anim_table.html#a305a314e38340dd463aa279e4a054835">motive::AnimTable::DefiningAnim</a></div><div class="ttdeci">const RigAnim &amp; DefiningAnim(int object) const </div><div class="ttdoc">Return animation that defines the complete rig of this object. </div><div class="ttdef"><b>Definition:</b> anim_table.h:118</div></div>
+<div class="ttc" id="classmotive_1_1_rig_anim_html"><div class="ttname"><a href="classmotive_1_1_rig_anim.html">motive::RigAnim</a></div><div class="ttdoc">Animation for a RigMotivator. Drives a fully rigged model. </div><div class="ttdef"><b>Definition:</b> anim.h:72</div></div>
+<div class="ttc" id="classmotive_1_1_anim_table_html_af3ac2e8a98e93eeed70552cea4871102"><div class="ttname"><a href="classmotive_1_1_anim_table.html#af3ac2e8a98e93eeed70552cea4871102">motive::AnimTable::LoadFn</a></div><div class="ttdeci">const char * LoadFn(const char *file_name, std::string *scratch_buf)</div><div class="ttdef"><b>Definition:</b> anim_table.h:69</div></div>
+<div class="ttc" id="classmotive_1_1_anim_table_html_aaf384973e25b7c9caa4061725e529c1d"><div class="ttname"><a href="classmotive_1_1_anim_table.html#aaf384973e25b7c9caa4061725e529c1d">motive::AnimTable::Query</a></div><div class="ttdeci">const RigAnim * Query(int object, int anim_idx) const </div><div class="ttdef"><b>Definition:</b> anim_table.h:106</div></div>
+<div class="ttc" id="classmotive_1_1_anim_table_html_a3bd4afaad6bcae3839af44bf31d52593"><div class="ttname"><a href="classmotive_1_1_anim_table.html#a3bd4afaad6bcae3839af44bf31d52593">motive::AnimTable::NumObjects</a></div><div class="ttdeci">int NumObjects() const </div><div class="ttdef"><b>Definition:</b> anim_table.h:124</div></div>
+<div class="ttc" id="classmotive_1_1_anim_table_html_a55a2873855d74a178faa30f9f7b5e5ec"><div class="ttname"><a href="classmotive_1_1_anim_table.html#a55a2873855d74a178faa30f9f7b5e5ec">motive::AnimTable::InitFromAnimFileNames</a></div><div class="ttdeci">bool InitFromAnimFileNames(const TableFileNames &amp;table_names, LoadFn *load_fn)</div></div>
+<div class="ttc" id="classmotive_1_1_anim_table_html_aa959fd1dba1c28202114c5dbdc089f9c"><div class="ttname"><a href="classmotive_1_1_anim_table.html#aa959fd1dba1c28202114c5dbdc089f9c">motive::AnimTable::NumAnims</a></div><div class="ttdeci">int NumAnims(int object) const </div><div class="ttdef"><b>Definition:</b> anim_table.h:128</div></div>
+<div class="ttc" id="classmotive_1_1_anim_table_html_a72d83b8558427fe2c36c25ce72dfc366"><div class="ttname"><a href="classmotive_1_1_anim_table.html#a72d83b8558427fe2c36c25ce72dfc366">motive::AnimTable::InitFromFlatBuffers</a></div><div class="ttdeci">bool InitFromFlatBuffers(const AnimTableFb &amp;table_fb, LoadFn *load_fn)</div></div>
+<div class="ttc" id="classmotive_1_1_anim_table_html"><div class="ttname"><a href="classmotive_1_1_anim_table.html">motive::AnimTable</a></div><div class="ttdoc">Hold animation lists for several object types. </div><div class="ttdef"><b>Definition:</b> anim_table.h:48</div></div>
+<div class="ttc" id="classmotive_1_1_anim_table_html_a767fb089ef46cccfde466ab18bf3bca9"><div class="ttname"><a href="classmotive_1_1_anim_table.html#a767fb089ef46cccfde466ab18bf3bca9">motive::AnimTable::NumUniqueAnims</a></div><div class="ttdeci">int NumUniqueAnims() const </div><div class="ttdef"><b>Definition:</b> anim_table.h:134</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- Google Analytics -->

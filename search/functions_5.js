@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['finalize',['Finalize',['../classmotive_1_1_compact_spline.html#a536218fee08f8e09cde7cd420407e03b',1,'motive::CompactSpline']]],
   ['fromdegrees',['FromDegrees',['../classmotive_1_1_angle.html#ae232073a3ca60b529f0bc4a39d5460aa',1,'motive::Angle']]],
   ['fromradians',['FromRadians',['../classmotive_1_1_angle.html#a6fc66b7c8ab089a6a5352887117d6d88',1,'motive::Angle']]],
   ['fromvectorsystem',['FromVectorSystem',['../classmotive_1_1_angle.html#ac0183cfb704edf48eeaadbccfb485dcb',1,'motive::Angle']]],

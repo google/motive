@@ -1,22 +1,12 @@
 var searchData=
 [
-  ['rangearray',['RangeArray',['../structmotive_1_1_range_t_1_1_range_array.html',1,'motive::RangeT']]],
-  ['rangesabovezero',['RangesAboveZero',['../classmotive_1_1_quadratic_curve.html#a8dfe527c810032e60da485e9be887b76',1,'motive::QuadraticCurve']]],
-  ['rangesbelowzero',['RangesBelowZero',['../classmotive_1_1_quadratic_curve.html#aa744122c48701ff1d2dda043e6545ab7',1,'motive::QuadraticCurve']]],
-  ['rangesmatchingsign',['RangesMatchingSign',['../classmotive_1_1_quadratic_curve.html#aa80c5ba70decb50cb76754548a7e45b7',1,'motive::QuadraticCurve']]],
-  ['ranget',['RangeT',['../classmotive_1_1_range_t.html',1,'motive']]],
-  ['rangex',['RangeX',['../classmotive_1_1_compact_spline.html#a1c0d492cdc5a171a3ab35f129a15e628',1,'motive::CompactSpline']]],
-  ['recommendxgranularity',['RecommendXGranularity',['../classmotive_1_1_compact_spline.html#a86eabaa270928ebfe4e046b3d7fbdcbf',1,'motive::CompactSpline']]],
-  ['reliablediscriminant',['ReliableDiscriminant',['../classmotive_1_1_quadratic_curve.html#a34c76de708f5bf39390886fe1f6d293c',1,'motive::QuadraticCurve']]],
-  ['removeindex',['RemoveIndex',['../classmotive_1_1_motive_processor.html#aefa1edd3411d921b3fcc28c675aa62dd',1,'motive::MotiveProcessor']]],
-  ['removemotivator',['RemoveMotivator',['../classmotive_1_1_motive_processor.html#a45b83466165a7046fd558e1c1a8dbc2e',1,'motive::MotiveProcessor']]],
-  ['repeat',['repeat',['../structmotive_1_1_spline_playback.html#a305f1315a26e9d52464d1c586458a19d',1,'motive::SplinePlayback::repeat()'],['../classmotive_1_1_rig_anim.html#a8b9477e5fbb480ae82667314c399007c',1,'motive::RigAnim::repeat()']]],
-  ['reset',['Reset',['../classmotive_1_1_motive_engine.html#a585ef9466764c0c6a176c27fa8d0ec1f',1,'motive::MotiveEngine::Reset()'],['../classmotive_1_1_motive_target1f.html#a44db9d6ae4dc487c1026f80c332292c8',1,'motive::MotiveTarget1f::Reset()']]],
-  ['revision',['revision',['../structmotive_1_1_motive_version.html#a31dfa758bf5490c8c8f0e79852fcf24e',1,'motive::MotiveVersion']]],
-  ['riganim',['RigAnim',['../classmotive_1_1_rig_anim.html',1,'motive']]],
-  ['riginit',['RigInit',['../classmotive_1_1_rig_init.html',1,'motive']]],
-  ['rigmotivator',['RigMotivator',['../classmotive_1_1_rig_motivator.html',1,'motive']]],
-  ['rigprocessor',['RigProcessor',['../classmotive_1_1_rig_processor.html',1,'motive']]],
-  ['roots',['Roots',['../classmotive_1_1_quadratic_curve.html#a211b4b34be9392c936df0adff90727f8',1,'motive::QuadraticCurve']]],
-  ['rootsinrange',['RootsInRange',['../classmotive_1_1_quadratic_curve.html#af1e4ef65d2d0ee0203c63a85864b4e50',1,'motive::QuadraticCurve']]]
+  ['quadraticcurve',['QuadraticCurve',['../classmotive_1_1_quadratic_curve.html',1,'motive']]],
+  ['quadraticeaseineaseout',['QuadraticEaseInEaseOut',['../classmotive_1_1_quadratic_ease_in_ease_out.html',1,'motive']]],
+  ['quadraticinitwithorigin',['QuadraticInitWithOrigin',['../structmotive_1_1_quadratic_init_with_origin.html',1,'motive']]],
+  ['quadraticinitwithpoint',['QuadraticInitWithPoint',['../structmotive_1_1_quadratic_init_with_point.html',1,'motive']]],
+  ['quadraticinitwithstartderivative',['QuadraticInitWithStartDerivative',['../structmotive_1_1_quadratic_init_with_start_derivative.html',1,'motive']]],
+  ['quadraticspring',['QuadraticSpring',['../classmotive_1_1_quadratic_spring.html#adb8c405232ba4a3faa4958da7ce7cfdd',1,'motive::QuadraticSpring::QuadraticSpring()'],['../classmotive_1_1_quadratic_spring.html#a9b26a3597b91503fc17197b16d3effc5',1,'motive::QuadraticSpring::QuadraticSpring(float current_value)'],['../classmotive_1_1_quadratic_spring.html#a9f2989293928d2a9e09916fbc56b2e01',1,'motive::QuadraticSpring::QuadraticSpring(float current_value, float current_derivative, float target_value, float typical_delta_value, float typical_delta_x, float bias)']]],
+  ['quadraticspring',['QuadraticSpring',['../classmotive_1_1_quadratic_spring.html',1,'motive']]],
+  ['query',['Query',['../classmotive_1_1_anim_table.html#aaf384973e25b7c9caa4061725e529c1d',1,'motive::AnimTable']]],
+  ['querybyname',['QueryByName',['../classmotive_1_1_anim_table.html#a142590e16996c681f96675d31aff8e4d',1,'motive::AnimTable']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['overshootinit',['OvershootInit',['../classmotive_1_1_overshoot_init.html',1,'motive']]]
+  ['intfloatunion',['IntFloatUnion',['../unionmotive_1_1_int_float_union.html',1,'motive']]]
 ];

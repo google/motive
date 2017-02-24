@@ -1,8 +1,13 @@
 var searchData=
 [
-  ['vectort',['VectorT',['../structmotive_1_1_vector_t.html',1,'motive']]],
-  ['vectort_3c_20vectorconverter_2c_201_20_3e',['VectorT&lt; VectorConverter, 1 &gt;',['../structmotive_1_1_vector_t_3_01_vector_converter_00_011_01_4.html',1,'motive']]],
-  ['vectort_3c_20vectorconverter_2c_202_20_3e',['VectorT&lt; VectorConverter, 2 &gt;',['../structmotive_1_1_vector_t_3_01_vector_converter_00_012_01_4.html',1,'motive']]],
-  ['vectort_3c_20vectorconverter_2c_203_20_3e',['VectorT&lt; VectorConverter, 3 &gt;',['../structmotive_1_1_vector_t_3_01_vector_converter_00_013_01_4.html',1,'motive']]],
-  ['vectort_3c_20vectorconverter_2c_204_20_3e',['VectorT&lt; VectorConverter, 4 &gt;',['../structmotive_1_1_vector_t_3_01_vector_converter_00_014_01_4.html',1,'motive']]]
+  ['settled1f',['Settled1f',['../structmotive_1_1_settled1f.html',1,'motive']]],
+  ['simpleinit',['SimpleInit',['../structmotive_1_1_simple_init.html',1,'motive']]],
+  ['simpleinittemplate',['SimpleInitTemplate',['../structmotive_1_1_simple_init_template.html',1,'motive']]],
+  ['simpleprocessortemplate',['SimpleProcessorTemplate',['../classmotive_1_1_simple_processor_template.html',1,'motive']]],
+  ['spline',['Spline',['../structmotive_1_1_matrix_anim_1_1_spline.html',1,'motive::MatrixAnim']]],
+  ['splineblend',['SplineBlend',['../structmotive_1_1_spline_blend.html',1,'motive']]],
+  ['splineinit',['SplineInit',['../classmotive_1_1_spline_init.html',1,'motive']]],
+  ['splineplayback',['SplinePlayback',['../structmotive_1_1_spline_playback.html',1,'motive']]],
+  ['splinestate',['SplineState',['../structmotive_1_1_spline_state.html',1,'motive']]],
+  ['springinit',['SpringInit',['../structmotive_1_1_spring_init.html',1,'motive']]]
 ];

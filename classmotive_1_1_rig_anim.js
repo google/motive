@@ -7,6 +7,7 @@ var classmotive_1_1_rig_anim =
     [ "BoneName", "classmotive_1_1_rig_anim.html#af441c17dc6b82b59b302616eb71a5794", null ],
     [ "CsvHeaderForDebugging", "classmotive_1_1_rig_anim.html#a26bfd5517aa1fe424d32d8f91ca40bc9", null ],
     [ "end_time", "classmotive_1_1_rig_anim.html#a20490b086d1c84c2a3f989e2b950cee9", null ],
+    [ "GetSplinesAndConstants", "classmotive_1_1_rig_anim.html#aba2a21d12c3680de1ce01d07b354f6e2", null ],
     [ "Init", "classmotive_1_1_rig_anim.html#a73e4d3343ced5096b683565b9db5aa2c", null ],
     [ "InitMatrixAnim", "classmotive_1_1_rig_anim.html#a2cf84a414461061b2176e91a7ca1db07", null ],
     [ "NumBones", "classmotive_1_1_rig_anim.html#a7fa97eb68a27775f4a1afd0b4fa81061", null ],

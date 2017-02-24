@@ -201,8 +201,10 @@ $(document).ready(function(){initNavTree('classmotive_1_1_compact_spline.html','
 
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="classmotive_1_1_compact_spline-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">motive::CompactSpline Class Reference</div>  </div>
@@ -219,26 +221,54 @@ $(document).ready(function(){initNavTree('classmotive_1_1_compact_spline.html','
 <p>This class holds a series of such nodes, and aids with the construction of that series by inserting extra nodes when extra smoothness is required.</p>
 <p>The data in this class is compacted as quantized values. It's not intended to be read directly. You should use the <a class="el" href="classmotive_1_1_bulk_spline_evaluator.html" title="Traverse through a set of splines in a performant way. ">BulkSplineEvaluator</a> to update and read values from the splines in a performant manner. </p>
 </div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline_1_1_bulk_output.html">BulkOutput</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a76cb939959650b06e16ce1ac45924c2f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a76cb939959650b06e16ce1ac45924c2f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>CompactSpline</b> (const <a class="el" href="classmotive_1_1_range_t.html">Range</a> &amp;y_range, const float x_granularity, const int num_nodes=0)</td></tr>
-<tr class="separator:a76cb939959650b06e16ce1ac45924c2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abc5920e063b8ac75281b67e0b2c879aa"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#abc5920e063b8ac75281b67e0b2c879aa">CompactSpline</a> (const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> &amp;rhs)</td></tr>
+<tr class="memitem:a80dec2cb53e2389906fed077b5ce798e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a80dec2cb53e2389906fed077b5ce798e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>CompactSpline</b> (const <a class="el" href="classmotive_1_1_range_t.html">Range</a> &amp;y_range, const float x_granularity)</td></tr>
+<tr class="separator:a80dec2cb53e2389906fed077b5ce798e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc5920e063b8ac75281b67e0b2c879aa"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abc5920e063b8ac75281b67e0b2c879aa"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>CompactSpline</b> (const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> &amp;rhs)</td></tr>
 <tr class="separator:abc5920e063b8ac75281b67e0b2c879aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae860024d7511c82eeba48c70836555e9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae860024d7511c82eeba48c70836555e9"></a>
 <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> &amp;rhs)</td></tr>
 <tr class="separator:ae860024d7511c82eeba48c70836555e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7d3d2da981d2cb097fe5ec354e6c4b3a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a7d3d2da981d2cb097fe5ec354e6c4b3a">Init</a> (const <a class="el" href="classmotive_1_1_range_t.html">Range</a> &amp;y_range, const float x_granularity, const int num_nodes=0)</td></tr>
-<tr class="separator:a7d3d2da981d2cb097fe5ec354e6c4b3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38d4a69f4218b11fcdb067b2c397205b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a38d4a69f4218b11fcdb067b2c397205b">Init</a> (const <a class="el" href="classmotive_1_1_range_t.html">Range</a> &amp;y_range, const float x_granularity)</td></tr>
+<tr class="separator:a38d4a69f4218b11fcdb067b2c397205b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af4ab3c14e665c3fbcc714829ccb7aada"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#af4ab3c14e665c3fbcc714829ccb7aada">InitFromNodes</a> (const <a class="el" href="structmotive_1_1_uncompressed_node.html">UncompressedNode</a> *<a class="el" href="classmotive_1_1_compact_spline.html#a8532ad46ff43b2dbdc6fe2c755430c3b">nodes</a>, size_t <a class="el" href="classmotive_1_1_compact_spline.html#abdf67f46070966cf8edc849c3fa263a8">num_nodes</a>)</td></tr>
+<tr class="separator:af4ab3c14e665c3fbcc714829ccb7aada"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acbc139cf380467f70fbc412761494238"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#acbc139cf380467f70fbc412761494238">InitFromSpline</a> (const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> &amp;spline)</td></tr>
+<tr class="separator:acbc139cf380467f70fbc412761494238"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:add6b65c9aa5be6a03ac2a6e914ee70d6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#add6b65c9aa5be6a03ac2a6e914ee70d6">AddNode</a> (const float x, const float y, const float derivative, const CompactSplineAddMethod method=kEnsureCubicWellBehaved)</td></tr>
 <tr class="separator:add6b65c9aa5be6a03ac2a6e914ee70d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a377ef469b252cd6ab73f652c9307412b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a377ef469b252cd6ab73f652c9307412b">AddNodeVerbatim</a> (const CompactSplineXGrain x, const CompactSplineYRung y, const CompactSplineAngle angle)</td></tr>
 <tr class="separator:a377ef469b252cd6ab73f652c9307412b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84ff82c931588a35824455b0f9555b02"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a84ff82c931588a35824455b0f9555b02">AddUncompressedNodes</a> (const <a class="el" href="structmotive_1_1_uncompressed_node.html">UncompressedNode</a> *<a class="el" href="classmotive_1_1_compact_spline.html#a8532ad46ff43b2dbdc6fe2c755430c3b">nodes</a>, size_t <a class="el" href="classmotive_1_1_compact_spline.html#abdf67f46070966cf8edc849c3fa263a8">num_nodes</a>)</td></tr>
+<tr class="separator:a84ff82c931588a35824455b0f9555b02"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a536218fee08f8e09cde7cd420407e03b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a536218fee08f8e09cde7cd420407e03b">Finalize</a> ()</td></tr>
+<tr class="separator:a536218fee08f8e09cde7cd420407e03b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a64fd27d961a8cf4975689521862f49ce"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a64fd27d961a8cf4975689521862f49ce"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a64fd27d961a8cf4975689521862f49ce">Clear</a> ()</td></tr>
 <tr class="memdesc:a64fd27d961a8cf4975689521862f49ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove all nodes from the spline. <br/></td></tr>
 <tr class="separator:a64fd27d961a8cf4975689521862f49ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c282d7852cee58ca842f45d02f268bf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6c282d7852cee58ca842f45d02f268bf"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a6c282d7852cee58ca842f45d02f268bf">Size</a> () const </td></tr>
+<tr class="memdesc:a6c282d7852cee58ca842f45d02f268bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the memory occupied by this spline. <br/></td></tr>
+<tr class="separator:a6c282d7852cee58ca842f45d02f268bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a904a2cc81c6fc7a2c86b6b671a66eab9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a904a2cc81c6fc7a2c86b6b671a66eab9">Next</a> ()</td></tr>
+<tr class="separator:a904a2cc81c6fc7a2c86b6b671a66eab9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a275cbe3ea55a52334ae5fe1fef5b8d8b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a275cbe3ea55a52334ae5fe1fef5b8d8b"></a>
+const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>Next</b> () const </td></tr>
+<tr class="separator:a275cbe3ea55a52334ae5fe1fef5b8d8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8df169ebb4100dd84d99cdf4148f0078"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a8df169ebb4100dd84d99cdf4148f0078">NextAtIdx</a> (int idx)</td></tr>
+<tr class="separator:a8df169ebb4100dd84d99cdf4148f0078"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2dd6c08ed917839b43641b1c24196b1b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2dd6c08ed917839b43641b1c24196b1b"></a>
+const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>NextAtIdx</b> (int idx) const </td></tr>
+<tr class="separator:a2dd6c08ed917839b43641b1c24196b1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1832ac9b92ea996676ea73c769b8ae1e"><td class="memItemLeft" align="right" valign="top">CompactSplineIndex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a1832ac9b92ea996676ea73c769b8ae1e">IndexForX</a> (const float x, const CompactSplineIndex guess_index) const </td></tr>
 <tr class="separator:a1832ac9b92ea996676ea73c769b8ae1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b2b68788056f5ced1e03102bef83cda"><td class="memItemLeft" align="right" valign="top">CompactSplineIndex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a7b2b68788056f5ced1e03102bef83cda">IndexForXAllowingRepeat</a> (const float x, const CompactSplineIndex guess_index, const bool repeat, float *final_x) const </td></tr>
@@ -283,22 +313,35 @@ const <a class="el" href="classmotive_1_1_range_t.html">Range</a> &amp;&#160;</t
 <tr class="separator:a220bab7a59be6f5610d72d6d7a2f4915"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae89b1dc71660cc9564de8c8298280955"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#ae89b1dc71660cc9564de8c8298280955">YCalculatedSlowly</a> (const float x) const </td></tr>
 <tr class="separator:ae89b1dc71660cc9564de8c8298280955"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9a7babce81e3bed518303c9e02128fa8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a9a7babce81e3bed518303c9e02128fa8">Ys</a> (const float start_x, const float delta_x, const int num_ys, float *ys) const </td></tr>
-<tr class="separator:a9a7babce81e3bed518303c9e02128fa8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f424fbf671f301a5c4f58dfe65545ca"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a3f424fbf671f301a5c4f58dfe65545ca">CalculatedSlowly</a> (const float x, const CurveValueType value_type) const </td></tr>
+<tr class="separator:a3f424fbf671f301a5c4f58dfe65545ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4cb9b79953465b4c56c56f487cf0b9a0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a4cb9b79953465b4c56c56f487cf0b9a0">Ys</a> (const float start_x, const float delta_x, const size_t num_points, float *ys, float *derivatives=nullptr) const </td></tr>
+<tr class="separator:a4cb9b79953465b4c56c56f487cf0b9a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c0d492cdc5a171a3ab35f129a15e628"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1c0d492cdc5a171a3ab35f129a15e628"></a>
 <a class="el" href="classmotive_1_1_range_t.html">Range</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a1c0d492cdc5a171a3ab35f129a15e628">RangeX</a> (const CompactSplineIndex index) const </td></tr>
 <tr class="memdesc:a1c0d492cdc5a171a3ab35f129a15e628"><td class="mdescLeft">&#160;</td><td class="mdescRight">The start and end x-values covered by the segment after <code>index</code>. <br/></td></tr>
 <tr class="separator:a1c0d492cdc5a171a3ab35f129a15e628"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac19e2782f1456f94a711a19eab520d19"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structmotive_1_1_cubic_init.html">CubicInit</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#ac19e2782f1456f94a711a19eab520d19">CreateCubicInit</a> (const CompactSplineIndex index) const </td></tr>
 <tr class="separator:ac19e2782f1456f94a711a19eab520d19"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5344b150276fca5a4504b62abdd0efd8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5344b150276fca5a4504b62abdd0efd8"></a>
-CompactSplineIndex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a5344b150276fca5a4504b62abdd0efd8">NumNodes</a> () const </td></tr>
-<tr class="memdesc:a5344b150276fca5a4504b62abdd0efd8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of nodes in this spline. <br/></td></tr>
-<tr class="separator:a5344b150276fca5a4504b62abdd0efd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1831d4065dab359a5e8f77476d36ffe9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1831d4065dab359a5e8f77476d36ffe9"></a>
-const CompactSplineNode *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a1831d4065dab359a5e8f77476d36ffe9">nodes</a> () const </td></tr>
-<tr class="memdesc:a1831d4065dab359a5e8f77476d36ffe9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return const versions of internal values. For serialization. <br/></td></tr>
-<tr class="separator:a1831d4065dab359a5e8f77476d36ffe9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ecfc97d5a2b28fcd3e5a8fcbc9ba2a9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3ecfc97d5a2b28fcd3e5a8fcbc9ba2a9"></a>
+CompactSplineIndex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a3ecfc97d5a2b28fcd3e5a8fcbc9ba2a9">LastNodeIndex</a> () const </td></tr>
+<tr class="memdesc:a3ecfc97d5a2b28fcd3e5a8fcbc9ba2a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the index of the last node in the spline. <br/></td></tr>
+<tr class="separator:a3ecfc97d5a2b28fcd3e5a8fcbc9ba2a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a813e94cc042ed94b5cb54903369fcd60"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a813e94cc042ed94b5cb54903369fcd60"></a>
+CompactSplineIndex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a813e94cc042ed94b5cb54903369fcd60">LastSegmentIndex</a> () const </td></tr>
+<tr class="memdesc:a813e94cc042ed94b5cb54903369fcd60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the start index of the last segment in the spline. <br/></td></tr>
+<tr class="separator:a813e94cc042ed94b5cb54903369fcd60"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abdf67f46070966cf8edc849c3fa263a8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abdf67f46070966cf8edc849c3fa263a8"></a>
+CompactSplineIndex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#abdf67f46070966cf8edc849c3fa263a8">num_nodes</a> () const </td></tr>
+<tr class="memdesc:abdf67f46070966cf8edc849c3fa263a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of nodes in this spline. <br/></td></tr>
+<tr class="separator:abdf67f46070966cf8edc849c3fa263a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1db6424663f362f374cedb9237edf2cd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1db6424663f362f374cedb9237edf2cd"></a>
+CompactSplineIndex&#160;</td><td class="memItemRight" valign="bottom"><b>max_nodes</b> () const </td></tr>
+<tr class="separator:a1db6424663f362f374cedb9237edf2cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8532ad46ff43b2dbdc6fe2c755430c3b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8532ad46ff43b2dbdc6fe2c755430c3b"></a>
+const <a class="el" href="classmotive_1_1detail_1_1_compact_spline_node.html">detail::CompactSplineNode</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a8532ad46ff43b2dbdc6fe2c755430c3b">nodes</a> () const </td></tr>
+<tr class="memdesc:a8532ad46ff43b2dbdc6fe2c755430c3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return const versions of internal values. For serialization. <br/></td></tr>
+<tr class="separator:a8532ad46ff43b2dbdc6fe2c755430c3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a205fadcfc8b56ec201530aaa2f7325c9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a205fadcfc8b56ec201530aaa2f7325c9"></a>
 const <a class="el" href="classmotive_1_1_range_t.html">Range</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>y_range</b> () const </td></tr>
 <tr class="separator:a205fadcfc8b56ec201530aaa2f7325c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -308,32 +351,47 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>x_granularity</b> ()
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
+<tr class="memitem:ad84c3bbd7dda10d2266845ab864a3ac5"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#ad84c3bbd7dda10d2266845ab864a3ac5">Create</a> (CompactSplineIndex max_nodes)</td></tr>
+<tr class="separator:ad84c3bbd7dda10d2266845ab864a3ac5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa74ece1a052f1645b84616d88a080be2"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#aa74ece1a052f1645b84616d88a080be2">CreateInPlace</a> (CompactSplineIndex max_nodes, void *buffer)</td></tr>
+<tr class="separator:aa74ece1a052f1645b84616d88a080be2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa08cd08b81535fd161e05b0cf92fadd3"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#aa08cd08b81535fd161e05b0cf92fadd3">CreateFromNodes</a> (const <a class="el" href="structmotive_1_1_uncompressed_node.html">UncompressedNode</a> *<a class="el" href="classmotive_1_1_compact_spline.html#a8532ad46ff43b2dbdc6fe2c755430c3b">nodes</a>, size_t <a class="el" href="classmotive_1_1_compact_spline.html#abdf67f46070966cf8edc849c3fa263a8">num_nodes</a>)</td></tr>
+<tr class="separator:aa08cd08b81535fd161e05b0cf92fadd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35f7688c0622ebf56b540c8b12b999ec"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a35f7688c0622ebf56b540c8b12b999ec">CreateFromNodesInPlace</a> (const <a class="el" href="structmotive_1_1_uncompressed_node.html">UncompressedNode</a> *<a class="el" href="classmotive_1_1_compact_spline.html#a8532ad46ff43b2dbdc6fe2c755430c3b">nodes</a>, size_t <a class="el" href="classmotive_1_1_compact_spline.html#abdf67f46070966cf8edc849c3fa263a8">num_nodes</a>, void *buffer)</td></tr>
+<tr class="separator:a35f7688c0622ebf56b540c8b12b999ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa29cc716e7f245c6a6040bd235691c1d"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#aa29cc716e7f245c6a6040bd235691c1d">CreateFromSpline</a> (const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> &amp;source_spline, size_t <a class="el" href="classmotive_1_1_compact_spline.html#abdf67f46070966cf8edc849c3fa263a8">num_nodes</a>)</td></tr>
+<tr class="separator:aa29cc716e7f245c6a6040bd235691c1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea5f2b4983eb93e316b5c92655977232"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#aea5f2b4983eb93e316b5c92655977232">CreateFromSplineInPlace</a> (const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> &amp;source_spline, size_t <a class="el" href="classmotive_1_1_compact_spline.html#abdf67f46070966cf8edc849c3fa263a8">num_nodes</a>, void *buffer)</td></tr>
+<tr class="separator:aea5f2b4983eb93e316b5c92655977232"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76e19598a0561cf628e642e9960743a8"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a76e19598a0561cf628e642e9960743a8">Destroy</a> (<a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *spline)</td></tr>
+<tr class="separator:a76e19598a0561cf628e642e9960743a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab81b6ef6a4d595e282dd594ee8e02718"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#ab81b6ef6a4d595e282dd594ee8e02718">CreateArray</a> (CompactSplineIndex max_nodes, int num_splines)</td></tr>
+<tr class="separator:ab81b6ef6a4d595e282dd594ee8e02718"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acea2755fc70b76810425ffdf933cb445"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#acea2755fc70b76810425ffdf933cb445">CreateArrayInPlace</a> (CompactSplineIndex max_nodes, int num_splines, void *buffer)</td></tr>
+<tr class="separator:acea2755fc70b76810425ffdf933cb445"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46fadbce77f841390b1e50c88d0f2c72"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a46fadbce77f841390b1e50c88d0f2c72"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a46fadbce77f841390b1e50c88d0f2c72">DestroyArray</a> (<a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *splines, int)</td></tr>
+<tr class="memdesc:a46fadbce77f841390b1e50c88d0f2c72"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees the memory allocated with <a class="el" href="classmotive_1_1_compact_spline.html#ab81b6ef6a4d595e282dd594ee8e02718">CreateArray()</a> using global <code>delete</code>. <br/></td></tr>
+<tr class="separator:a46fadbce77f841390b1e50c88d0f2c72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a31791b5378d6c3fcdf97638bb0e2412e"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a31791b5378d6c3fcdf97638bb0e2412e">Size</a> (CompactSplineIndex max_nodes)</td></tr>
+<tr class="separator:a31791b5378d6c3fcdf97638bb0e2412e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad878c365acd52b41983bae5cb8f526a3"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#ad878c365acd52b41983bae5cb8f526a3">ArraySize</a> (size_t num_splines, size_t <a class="el" href="classmotive_1_1_compact_spline.html#abdf67f46070966cf8edc849c3fa263a8">num_nodes</a>)</td></tr>
+<tr class="separator:ad878c365acd52b41983bae5cb8f526a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a86eabaa270928ebfe4e046b3d7fbdcbf"><td class="memItemLeft" align="right" valign="top">static float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a86eabaa270928ebfe4e046b3d7fbdcbf">RecommendXGranularity</a> (const float max_x)</td></tr>
 <tr class="separator:a86eabaa270928ebfe4e046b3d7fbdcbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4464e797275226eafceefd930ddfe129"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a4464e797275226eafceefd930ddfe129">BulkYs</a> (const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *const splines, const int num_splines, const float start_x, const float delta_x, const size_t num_ys, float *ys)</td></tr>
-<tr class="separator:a4464e797275226eafceefd930ddfe129"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a34d812ef9478df3a3b7d83682abf0c7c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a34d812ef9478df3a3b7d83682abf0c7c">BulkEvaluate</a> (const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *const splines, const size_t num_splines, const float start_x, const float delta_x, const size_t num_points, <a class="el" href="classmotive_1_1_compact_spline_1_1_bulk_output.html">BulkOutput</a> *out)</td></tr>
+<tr class="separator:a34d812ef9478df3a3b7d83682abf0c7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab72f6dcb7da7783c8f057aa44e810759"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#ab72f6dcb7da7783c8f057aa44e810759">BulkYs</a> (const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *const splines, const size_t num_splines, const float start_x, const float delta_x, const size_t num_points, float *ys, float *derivatives=nullptr)</td></tr>
+<tr class="separator:ab72f6dcb7da7783c8f057aa44e810759"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a830ce69c2d979703be803414fed510c9"><td class="memTemplParams" colspan="2">template&lt;int kDimensions&gt; </td></tr>
 <tr class="memitem:a830ce69c2d979703be803414fed510c9"><td class="memTemplItemLeft" align="right" valign="top">static void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#a830ce69c2d979703be803414fed510c9">BulkYs</a> (const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *const splines, const float start_x, const float delta_x, const size_t num_ys, mathfu::VectorPacked&lt; float, kDimensions &gt; *ys)</td></tr>
 <tr class="separator:a830ce69c2d979703be803414fed510c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:ae429018c45fa07def8537fa8a197b7c6"><td class="memItemLeft" align="right" valign="top">static const CompactSplineIndex&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_compact_spline.html#ae429018c45fa07def8537fa8a197b7c6">kDefaultMaxNodes</a> = 7</td></tr>
+<tr class="separator:ae429018c45fa07def8537fa8a197b7c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="abc5920e063b8ac75281b67e0b2c879aa"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">motive::CompactSpline::CompactSpline </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> &amp;&#160;</td>
-          <td class="paramname"><em>rhs</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>The copy constructors, copy operator, and destructor are all default implementations, but must be specified explicitly because CompactSplineNode is not specified in the header file. </p>
-
-</div>
-</div>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="add6b65c9aa5be6a03ac2a6e914ee70d6"></a>
 <div class="memitem">
@@ -374,7 +432,7 @@ Static Public Member Functions</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">x</td><td>Must be greater than the x-value of the last spline node. If not, this call is a nop. </td></tr>
-    <tr><td class="paramname">y</td><td>Must be within the <code>y_range</code> specified in <a class="el" href="classmotive_1_1_compact_spline.html#a7d3d2da981d2cb097fe5ec354e6c4b3a">Init()</a>. </td></tr>
+    <tr><td class="paramname">y</td><td>Must be within the <code>y_range</code> specified in <a class="el" href="classmotive_1_1_compact_spline.html#a38d4a69f4218b11fcdb067b2c397205b">Init()</a>. </td></tr>
     <tr><td class="paramname">derivative</td><td>No restrictions, but excessively large values may still result in overshoot, even with an intermediate node. </td></tr>
     <tr><td class="paramname">method</td><td>If kAddWithoutModification, adds the node and does nothing else. If kEnsureCubicWellBehaved, adds the node and (if required) inserts another node in the middle so that the individual cubics have uniform curvature. Uniform curvature means always curving upward or always curving downward. See docs/dual_cubics.pdf for details. </td></tr>
   </table>
@@ -386,6 +444,9 @@ Static Public Member Functions</h2></td></tr>
 <a class="anchor" id="a377ef469b252cd6ab73f652c9307412b"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">void motive::CompactSpline::AddNodeVerbatim </td>
@@ -411,12 +472,51 @@ Static Public Member Functions</h2></td></tr>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 <p>Add values without converting them. Useful when initializing from precalculated data. </p>
 
 </div>
 </div>
-<a class="anchor" id="a4464e797275226eafceefd930ddfe129"></a>
+<a class="anchor" id="a84ff82c931588a35824455b0f9555b02"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void motive::CompactSpline::AddUncompressedNodes </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structmotive_1_1_uncompressed_node.html">UncompressedNode</a> *&#160;</td>
+          <td class="paramname"><em>nodes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>num_nodes</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Compress <code>nodes</code> and append them to the spline.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">nodes</td><td>An array of uncompressed nodes. </td></tr>
+    <tr><td class="paramname">num_nodes</td><td>Length of the <code>nodes</code> array. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="ad878c365acd52b41983bae5cb8f526a3"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -424,7 +524,43 @@ Static Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static void motive::CompactSpline::BulkYs </td>
+          <td class="memname">static size_t motive::CompactSpline::ArraySize </td>
+          <td>(</td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>num_splines</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>num_nodes</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the size, in bytes, of an array of CompactSplines (as allocated with <a class="el" href="classmotive_1_1_compact_spline.html#ab81b6ef6a4d595e282dd594ee8e02718">CreateArray()</a>, say).</p>
+<p>This function is useful when allocating a buffer for splines on your own, from which you can then call <a class="el" href="classmotive_1_1_compact_spline.html#acea2755fc70b76810425ffdf933cb445">CreateArrayInPlace()</a>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a34d812ef9478df3a3b7d83682abf0c7c"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void motive::CompactSpline::BulkEvaluate </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *const&#160;</td>
           <td class="paramname"><em>splines</em>, </td>
@@ -432,7 +568,7 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const int&#160;</td>
+          <td class="paramtype">const size_t&#160;</td>
           <td class="paramname"><em>num_splines</em>, </td>
         </tr>
         <tr>
@@ -451,13 +587,78 @@ Static Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const size_t&#160;</td>
-          <td class="paramname"><em>num_ys</em>, </td>
+          <td class="paramname"><em>num_points</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classmotive_1_1_compact_spline_1_1_bulk_output.html">BulkOutput</a> *&#160;</td>
+          <td class="paramname"><em>out</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Called by BulkYs with the an additional BulkOutputInterface parameter. BulkOutputInterface specifies the type of evaluations on the splines. </p>
+
+</div>
+</div>
+<a class="anchor" id="ab72f6dcb7da7783c8f057aa44e810759"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void motive::CompactSpline::BulkYs </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *const&#160;</td>
+          <td class="paramname"><em>splines</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const size_t&#160;</td>
+          <td class="paramname"><em>num_splines</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>start_x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>delta_x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const size_t&#160;</td>
+          <td class="paramname"><em>num_points</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">float *&#160;</td>
-          <td class="paramname"><em>ys</em>&#160;</td>
+          <td class="paramname"><em>ys</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float *&#160;</td>
+          <td class="paramname"><em>derivatives</em> = <code>nullptr</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -478,8 +679,9 @@ Static Public Member Functions</h2></td></tr>
     <tr><td class="paramname">num_splines</td><td>number of splines to evaluate. </td></tr>
     <tr><td class="paramname">start_x</td><td>starting point for every spline. </td></tr>
     <tr><td class="paramname">delta_x</td><td>increment for each output y. </td></tr>
-    <tr><td class="paramname">num_ys</td><td>length of the <code>ys</code> array. </td></tr>
-    <tr><td class="paramname">ys</td><td>two dimensional output array, ys[num_ys][num_splines]. ys[0] are <code>splines</code> evaluated at start_x. ys[num_ys - 1] are <code>splines</code> evaluated at start_x + delta_x * num_ys. </td></tr>
+    <tr><td class="paramname">num_points</td><td>the upper dimension of the <code>ys</code> and <code>derivatives</code> arrays. </td></tr>
+    <tr><td class="paramname">ys</td><td>two dimensional output array, ys[num_points][num_splines]. ys[0] are <code>splines</code> evaluated at start_x. ys[num_points - 1] are <code>splines</code> evaluated at start_x + delta_x * num_points. </td></tr>
+    <tr><td class="paramname">derivatives</td><td>two dimensional output array, with the same indexing as <code>ys</code>. </td></tr>
   </table>
   </dd>
 </dl>
@@ -541,6 +743,33 @@ template&lt;int kDimensions&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a3f424fbf671f301a5c4f58dfe65545ca"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float motive::CompactSpline::CalculatedSlowly </td>
+          <td>(</td>
+          <td class="paramtype">const float&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const CurveValueType&#160;</td>
+          <td class="paramname"><em>value_type</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Evaluate spline at <code>x</code>. This function is somewhat slow because it must find the node for <code>x</code> and create the cubic before the returned value can be evaluated. </p>
+
+</div>
+</div>
 <a class="anchor" id="a7dd8b48744fbe4e9a78ee8b4e083d462"></a>
 <div class="memitem">
 <div class="memproto">
@@ -564,7 +793,122 @@ template&lt;int kDimensions&gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Returns closest index between 0 and <a class="el" href="classmotive_1_1_compact_spline.html#a5344b150276fca5a4504b62abdd0efd8" title="Returns the number of nodes in this spline. ">NumNodes()</a> - 1. Clamps <code>x</code> to a value in the range of index. <code>index</code> must be a valid value: i.e. kBeforeSplineIndex, kAfterSplineIndex, or between 0..<a class="el" href="classmotive_1_1_compact_spline.html#a5344b150276fca5a4504b62abdd0efd8" title="Returns the number of nodes in this spline. ">NumNodes()</a>-1. </p>
+<p>Returns closest index between 0 and NumNodes() - 1. Clamps <code>x</code> to a value in the range of index. <code>index</code> must be a valid value: i.e. kBeforeSplineIndex, kAfterSplineIndex, or between 0..NumNodes()-1. </p>
+
+</div>
+</div>
+<a class="anchor" id="ad84c3bbd7dda10d2266845ab864a3ac5"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a>* motive::CompactSpline::Create </td>
+          <td>(</td>
+          <td class="paramtype">CompactSplineIndex&#160;</td>
+          <td class="paramname"><em>max_nodes</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Allocate memory for a spline using global <code>new</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">max_nodes</td><td>The maximum number of nodes that this spline class can hold. Memory is allocated so that these nodes are held contiguously in memory with the rest of the class. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="ab81b6ef6a4d595e282dd594ee8e02718"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a>* motive::CompactSpline::CreateArray </td>
+          <td>(</td>
+          <td class="paramtype">CompactSplineIndex&#160;</td>
+          <td class="paramname"><em>max_nodes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num_splines</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Allocate an array of splines, contiguous in memory, each of which can hold up to <code>max_nodes</code>. Use the global <code>new</code> operator to allocate the memory buffer.</p>
+<p>This function is useful when passing several-dimensions-worth of splines to <a class="el" href="classmotive_1_1_motivator_nf.html#adfb8a3b0e1024b7c170dafde376b0507">MotivatorNf::SetSplines()</a>, for example <a class="el" href="classmotive_1_1_motivator_nf.html#adfb8a3b0e1024b7c170dafde376b0507">Motivator3f::SetSplines()</a> takes an array of three splines, like this function returns. </p>
+
+</div>
+</div>
+<a class="anchor" id="acea2755fc70b76810425ffdf933cb445"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a>* motive::CompactSpline::CreateArrayInPlace </td>
+          <td>(</td>
+          <td class="paramtype">CompactSplineIndex&#160;</td>
+          <td class="paramname"><em>max_nodes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num_splines</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>buffer</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Allocates <code>num_splines</code> CompactSplines contiguously in memory, and returns a pointer to the first spline. Each spline is the same size. Access the next Spline with <a class="el" href="classmotive_1_1_compact_spline.html#a904a2cc81c6fc7a2c86b6b671a66eab9">Next()</a>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>chuck of memory of size CompactSpline::Size(max_nodes) * num_splines</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>The returned <a class="el" href="classmotive_1_1_compact_spline.html" title="Represent a smooth curve in a small amount of memory. ">CompactSpline</a> array does not need to be destroyed, but once the backing memory <code>buffer</code> disappears (e.g. if <code>buffer</code> is an array on the stack), you must stop referencing the returned <a class="el" href="classmotive_1_1_compact_spline.html" title="Represent a smooth curve in a small amount of memory. ">CompactSpline</a> array. </p>
 
 </div>
 </div>
@@ -583,6 +927,307 @@ template&lt;int kDimensions&gt; </div>
 </div><div class="memdoc">
 <p>Initialization parameters for a cubic curve that starts at <code>index</code> and ends at <code>index</code> + 1. Or a constant curve if <code>index</code> is kBeforeSplineIndex or kAfterSplineIndex. </p>
 
+</div>
+</div>
+<a class="anchor" id="aa08cd08b81535fd161e05b0cf92fadd3"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a>* motive::CompactSpline::CreateFromNodes </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structmotive_1_1_uncompressed_node.html">UncompressedNode</a> *&#160;</td>
+          <td class="paramname"><em>nodes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>num_nodes</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Allocate memory using global <code>new</code>, and initialize it with <code>nodes</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">nodes</td><td>An array holding the curve, in uncompressed floats. </td></tr>
+    <tr><td class="paramname">num_nodes</td><td>The length of the <code>nodes</code> array, and max nodes in the returned spline. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a35f7688c0622ebf56b540c8b12b999ec"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a>* motive::CompactSpline::CreateFromNodesInPlace </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structmotive_1_1_uncompressed_node.html">UncompressedNode</a> *&#160;</td>
+          <td class="paramname"><em>nodes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>num_nodes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>buffer</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Create a <a class="el" href="classmotive_1_1_compact_spline.html" title="Represent a smooth curve in a small amount of memory. ">CompactSpline</a> from <code>nodes</code> in the memory provided by <code>buffer</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">nodes</td><td>array of node data, uncompressed as floats. </td></tr>
+    <tr><td class="paramname">num_nodes</td><td>length of the <code>nodes</code> array. </td></tr>
+    <tr><td class="paramname">buffer</td><td>chunk of memory of size CompactSpline::Size(num_nodes).</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>The returned <a class="el" href="classmotive_1_1_compact_spline.html" title="Represent a smooth curve in a small amount of memory. ">CompactSpline</a> does not need to be destroyed, but once the backing memory <code>buffer</code> disappears (e.g. if <code>buffer</code> is an array on the stack), you must stop referencing the returned <a class="el" href="classmotive_1_1_compact_spline.html" title="Represent a smooth curve in a small amount of memory. ">CompactSpline</a>. </p>
+
+</div>
+</div>
+<a class="anchor" id="aa29cc716e7f245c6a6040bd235691c1d"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a>* motive::CompactSpline::CreateFromSpline </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> &amp;&#160;</td>
+          <td class="paramname"><em>source_spline</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>num_nodes</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Allocate memory using global <code>new</code>, and initialize it by evaluating <code>source_spline</code> at a uniform x-interval. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">source_spline</td><td>Spline to evaluate. The curve in the returned spline matches <code>source_spline</code> with its x points spaced uniformly. </td></tr>
+    <tr><td class="paramname">num_nodes</td><td>The number of uniform x-intervals in the returned spline. Also the max_nodes of the returned spline. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="aea5f2b4983eb93e316b5c92655977232"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a>* motive::CompactSpline::CreateFromSplineInPlace </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> &amp;&#160;</td>
+          <td class="paramname"><em>source_spline</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>num_nodes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>buffer</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Create a <a class="el" href="classmotive_1_1_compact_spline.html" title="Represent a smooth curve in a small amount of memory. ">CompactSpline</a> from <code>source_spline</code> in the memory provided by <code>buffer</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">source_spline</td><td>Spline to evaluate. The curve in the returned spline matches <code>source_spline</code> with its x points spaced uniformly. </td></tr>
+    <tr><td class="paramname">num_nodes</td><td>The number of uniform x-intervals in the returned spline. Also the max_nodes of the returned spline. </td></tr>
+    <tr><td class="paramname">buffer</td><td>chunk of memory of size CompactSpline::Size(num_nodes). </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="aa74ece1a052f1645b84616d88a080be2"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a>* motive::CompactSpline::CreateInPlace </td>
+          <td>(</td>
+          <td class="paramtype">CompactSplineIndex&#160;</td>
+          <td class="paramname"><em>max_nodes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>buffer</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Create a <a class="el" href="classmotive_1_1_compact_spline.html" title="Represent a smooth curve in a small amount of memory. ">CompactSpline</a> in the memory provided by <code>buffer</code>. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>chunk of memory of size CompactSpline::Size(max_nodes)</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Useful for creating small splines on the stack. </p>
+
+</div>
+</div>
+<a class="anchor" id="a76e19598a0561cf628e642e9960743a8"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void motive::CompactSpline::Destroy </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *&#160;</td>
+          <td class="paramname"><em>spline</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Deallocate the splines memory using global <code>delete</code>. Be sure to call this for every spline returned from <a class="el" href="classmotive_1_1_compact_spline.html#ad84c3bbd7dda10d2266845ab864a3ac5">Create()</a>, <a class="el" href="classmotive_1_1_compact_spline.html#aa08cd08b81535fd161e05b0cf92fadd3">CreateFromNodes()</a>, <a class="el" href="classmotive_1_1_compact_spline.html#aa29cc716e7f245c6a6040bd235691c1d">CreateFromSpline()</a>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a536218fee08f8e09cde7cd420407e03b"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void motive::CompactSpline::Finalize </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Indicate that we have stopped adding nodes and want to release the remaining memory. Useful for when we have one giant buffer from which we want to add many splines of (potentially unknown) various sizes. We can do something like, </p>
+<div class="fragment"><div class="line"><span class="keywordtype">size_t</span> CreateSplines(<span class="keywordtype">char</span>* memory_buffer, <span class="keywordtype">size_t</span> memory_buffer_size) {</div>
+<div class="line">  <span class="keywordtype">char</span>* buf = memory_buffer;</div>
+<div class="line">  <span class="keyword">const</span> <span class="keywordtype">char</span>* end = memory_buffer + memory_buffer_size;</div>
+<div class="line"></div>
+<div class="line">  <span class="keywordflow">while</span> (MoreSplinesToCreate()) {</div>
+<div class="line">    <span class="comment">// Allocate a spline that can hold as many nodes as buf can hold.</span></div>
+<div class="line">    CompactSpline* spline =</div>
+<div class="line">        CompactSpline::CreateInPlaceMaxNodes(buf, end - buf);</div>
+<div class="line"></div>
+<div class="line">    <span class="keywordflow">while</span> (MoreNodesToAdd()) {</div>
+<div class="line">      <span class="comment">// Ensure we haven&#39;t reached the end of the buffer.</span></div>
+<div class="line">      <span class="keywordflow">if</span> (spline-&gt;num_splines() == spline-&gt;max_splines()) <span class="keywordflow">break</span>;</div>
+<div class="line"></div>
+<div class="line">      <span class="comment">// ... spline creation logic ...</span></div>
+<div class="line">      spline-&gt;AddNode(...);</div>
+<div class="line">    }</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// Shrink `spline` to be the size that it actually is.</span></div>
+<div class="line">    spline-&gt;Finalize();</div>
+<div class="line"></div>
+<div class="line">    <span class="comment">// Advance pointer so next spline starts where this one ends.</span></div>
+<div class="line">    buf += spline-&gt;Size();</div>
+<div class="line">  }</div>
+<div class="line"></div>
+<div class="line">  <span class="comment">// Return the total bytes consumed from `memory_buffer`.</span></div>
+<div class="line">  <span class="keywordflow">return</span> end - buf;</div>
+<div class="line">}</div>
+</div><!-- fragment --> 
 </div>
 </div>
 <a class="anchor" id="a1832ac9b92ea996676ea73c769b8ae1e"></a>
@@ -658,9 +1303,12 @@ template&lt;int kDimensions&gt; </div>
 
 </div>
 </div>
-<a class="anchor" id="a7d3d2da981d2cb097fe5ec354e6c4b3a"></a>
+<a class="anchor" id="a38d4a69f4218b11fcdb067b2c397205b"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">void motive::CompactSpline::Init </td>
@@ -672,13 +1320,46 @@ template&lt;int kDimensions&gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const float&#160;</td>
-          <td class="paramname"><em>x_granularity</em>, </td>
+          <td class="paramname"><em>x_granularity</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>The range of values for x and y must be specified at spline creation time and cannot be changed afterwards. Empties all nodes, if we have any.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">y_range</td><td>The upper and lower bounds for y-values in the nodes. The more narrow this is, the better the precision of the fixed point numbers. Note that you should add 10% padding here, since AddNode may insert a smoothing node that is slightly beyond the source y range. </td></tr>
+    <tr><td class="paramname">x_granularity</td><td>The minimum increment of x-values. If you're working with a spline changes at most 30 times per second, and your x is in units of 1/1000th of a second, then x_granularity = 33 is a good baseline. You'll probably want granularity around 1/50th of that baseline value, though, since AddNode may insert smoothing nodes at intermediate x's. In our example here, you could set x_granularity near 33 / 50. For ease of debugging, an x_granularity of 0.5 or 1 is probably best. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="af4ab3c14e665c3fbcc714829ccb7aada"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void motive::CompactSpline::InitFromNodes </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structmotive_1_1_uncompressed_node.html">UncompressedNode</a> *&#160;</td>
+          <td class="paramname"><em>nodes</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const int&#160;</td>
-          <td class="paramname"><em>num_nodes</em> = <code>0</code>&#160;</td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>num_nodes</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -687,15 +1368,86 @@ template&lt;int kDimensions&gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>The range of values for x and y must be specified at spline creation time and cannot be changed afterwards. Empties all nodes, if we have any.</p>
+<p>Initialize the <a class="el" href="classmotive_1_1_compact_spline.html" title="Represent a smooth curve in a small amount of memory. ">CompactSpline</a> and add curve in the <code>nodes</code> array.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">y_range</td><td>The upper and lower bounds for y-values in the nodes. The more narrow this is, the better the precision of the fixed point numbers. Note that you should add 10% padding here, since AddNode may insert a smoothing node that is slightly beyond the source y range. </td></tr>
-    <tr><td class="paramname">x_granularity</td><td>The minimum increment of x-values. If you're working with a spline changes at most 30 times per second, and your x is in units of 1/1000th of a second, then x_granularity = 33 is a good baseline. You'll probably want granularity around 1/50th of that baseline value, though, since AddNode may insert smoothing nodes at intermediate x's. In our example here, you could set x_granularity near 33 / 50. For ease of debugging, an x_granularity of 0.5 or 1 is probably best. </td></tr>
-    <tr><td class="paramname">num_nodes</td><td>A hint for how many nodes are expected to be added. Try to get this close or slightly too high, to avoid reallocation of internal memory. </td></tr>
+    <tr><td class="paramname">nodes</td><td>An array of uncompressed nodes. </td></tr>
+    <tr><td class="paramname">num_nodes</td><td>Length of the <code>nodes</code> array. </td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="acbc139cf380467f70fbc412761494238"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void motive::CompactSpline::InitFromSpline </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> &amp;&#160;</td>
+          <td class="paramname"><em>spline</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Evaluate <code>spline</code> at uniform x intervals, where the distance between consecutive x's is spline.LengthX() / (max_nodes() - 1). Initialize this spline with the results.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">spline</td><td>The source spline to evaluate at uniform x intervals. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a904a2cc81c6fc7a2c86b6b671a66eab9"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a>* motive::CompactSpline::Next </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Use on an array of splines created by <a class="el" href="classmotive_1_1_compact_spline.html#acea2755fc70b76810425ffdf933cb445">CreateArrayInPlace()</a>. Returns the next spline in the array. </p>
+
+</div>
+</div>
+<a class="anchor" id="a8df169ebb4100dd84d99cdf4148f0078"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a>* motive::CompactSpline::NextAtIdx </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>idx</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Use on an array of splines created by <a class="el" href="classmotive_1_1_compact_spline.html#acea2755fc70b76810425ffdf933cb445">CreateArrayInPlace()</a>. Returns the idx'th spline in the array. </p>
 
 </div>
 </div>
@@ -724,9 +1476,38 @@ template&lt;int kDimensions&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a31791b5378d6c3fcdf97638bb0e2412e"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static size_t motive::CompactSpline::Size </td>
+          <td>(</td>
+          <td class="paramtype">CompactSplineIndex&#160;</td>
+          <td class="paramname"><em>max_nodes</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the size, in bytes, of a <a class="el" href="classmotive_1_1_compact_spline.html" title="Represent a smooth curve in a small amount of memory. ">CompactSpline</a> class with <code>max_nodes</code> nodes.</p>
+<p>This function is useful when you want to provide your own memory buffer for splines, and then pass that buffer into <a class="el" href="classmotive_1_1_compact_spline.html#aa74ece1a052f1645b84616d88a080be2">CreateInPlace()</a>. Your memory buffer must be at least <a class="el" href="classmotive_1_1_compact_spline.html#a6c282d7852cee58ca842f45d02f268bf" title="Returns the memory occupied by this spline. ">Size()</a>. </p>
+
+</div>
+</div>
 <a class="anchor" id="ae89b1dc71660cc9564de8c8298280955"></a>
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">float motive::CompactSpline::YCalculatedSlowly </td>
@@ -736,12 +1517,17 @@ template&lt;int kDimensions&gt; </div>
           <td> const</td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
-<p>Evaluate spline at <code>x</code>. This function is somewhat slow because it must find the node for <code>x</code> and create the cubic before the returned y can be evaluated. If calling from inside a loop, replace the loop with one call to <a class="el" href="classmotive_1_1_compact_spline.html#a9a7babce81e3bed518303c9e02128fa8">Ys()</a>, which is significantly faster. </p>
+<p>Calls CalculatedSlowly at <code>x</code>, with <code>kCurveValue</code> to evaluate the y value. If calling from inside a loop, replace the loop with one call to <a class="el" href="classmotive_1_1_compact_spline.html#a4cb9b79953465b4c56c56f487cf0b9a0">Ys()</a>, which is significantly faster. </p>
 
 </div>
 </div>
-<a class="anchor" id="a9a7babce81e3bed518303c9e02128fa8"></a>
+<a class="anchor" id="a4cb9b79953465b4c56c56f487cf0b9a0"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -760,14 +1546,20 @@ template&lt;int kDimensions&gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const int&#160;</td>
-          <td class="paramname"><em>num_ys</em>, </td>
+          <td class="paramtype">const size_t&#160;</td>
+          <td class="paramname"><em>num_points</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">float *&#160;</td>
-          <td class="paramname"><em>ys</em>&#160;</td>
+          <td class="paramname"><em>ys</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float *&#160;</td>
+          <td class="paramname"><em>derivatives</em> = <code>nullptr</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -776,7 +1568,29 @@ template&lt;int kDimensions&gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Fast evaluation of a subset of the x-domain of the spline. Spline is evaluated from <code>start_x</code> and subsequent intervals of <code>delta_x</code>. Evaluated values are returned in <code>ys</code>. </p>
+<p>Fast evaluation of a subset of the x-domain of the spline. Spline is evaluated from <code>start_x</code> and subsequent intervals of <code>delta_x</code>. Evaluated values are returned in <code>ys</code> and, if not nullptr, <code>derivatives</code>. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a class="anchor" id="ae429018c45fa07def8537fa8a197b7c6"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const CompactSplineIndex motive::CompactSpline::kDefaultMaxNodes = 7</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>When a <code><a class="el" href="classmotive_1_1_compact_spline.html" title="Represent a smooth curve in a small amount of memory. ">CompactSpline</a></code> is created on the stack, it will have this many nodes. This amount is sufficient for the vast majority of cases where you are procedurally generating a spline. We used a fixed number instead of an <code>std::vector</code> to avoid dynamic memory allocation. </p>
 
 </div>
 </div>

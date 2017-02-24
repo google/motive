@@ -233,6 +233,9 @@ class motive::MotivatorXfTemplate&lt; VectorConverter, kDimensionsParam &gt;</h3
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
+<tr class="memitem:a6c5fc43bbf7394cfbffcb34c3e9b2d20"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6c5fc43bbf7394cfbffcb34c3e9b2d20"></a>
+typedef VectorConverter&#160;</td><td class="memItemRight" valign="bottom"><b>C</b></td></tr>
+<tr class="separator:a6c5fc43bbf7394cfbffcb34c3e9b2d20"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a04445efc73788ea304f08bd378a54bf5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a04445efc73788ea304f08bd378a54bf5"></a>
 typedef <a class="el" href="structmotive_1_1_vector_t.html">VectorT</a>&lt; C, <br class="typebreak"/>
 kDimensions &gt;::type&#160;</td><td class="memItemRight" valign="bottom"><b>Vec</b></td></tr>
@@ -261,6 +264,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="separator:ad135fb03591673ed272e4ccd1b104af0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adcd74ed53979b5acd6bfee6adabce691"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#adcd74ed53979b5acd6bfee6adabce691">InitializeWithTarget</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, const Target &amp;t)</td></tr>
 <tr class="separator:adcd74ed53979b5acd6bfee6adabce691"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66d186b172225e65392591cb0a789402"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#a66d186b172225e65392591cb0a789402">InitializeWithTargetShape</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, MotiveDimension dimensions, const <a class="el" href="structmotive_1_1_motive_curve_shape.html">MotiveCurveShape</a> &amp;shape, const Vec &amp;target_values, const Vec &amp;target_velocities)</td></tr>
+<tr class="separator:a66d186b172225e65392591cb0a789402"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac0622180386b3f923395ac9659c6ede4"><td class="memItemLeft" align="right" valign="top">Vec&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#ac0622180386b3f923395ac9659c6ede4">Value</a> () const </td></tr>
 <tr class="separator:ac0622180386b3f923395ac9659c6ede4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5ea2694969ff4a5b743c3c0ab4ed72d9"><td class="memItemLeft" align="right" valign="top">Vec&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#a5ea2694969ff4a5b743c3c0ab4ed72d9">Velocity</a> () const </td></tr>
@@ -275,6 +280,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="separator:acd222a89cae0d36e22137992cfff7bc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae6bb7144af03456876b8f3525b898555"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#ae6bb7144af03456876b8f3525b898555">SetTarget</a> (const Target &amp;t)</td></tr>
 <tr class="separator:ae6bb7144af03456876b8f3525b898555"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae45be1f58008c44d48a2c0ad1cd4f51b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_xf_template.html#ae45be1f58008c44d48a2c0ad1cd4f51b">SetTargetWithShape</a> (const Vec &amp;target_value, const Vec &amp;target_velocity, const <a class="el" href="structmotive_1_1_motive_curve_shape.html">MotiveCurveShape</a> &amp;shape)</td></tr>
+<tr class="separator:ae45be1f58008c44d48a2c0ad1cd4f51b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92499e78a0aada5a6de52f25f4078f7f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a92499e78a0aada5a6de52f25f4078f7f"></a>
 MotiveDimension&#160;</td><td class="memItemRight" valign="bottom"><b>Dimensions</b> () const </td></tr>
 <tr class="separator:a92499e78a0aada5a6de52f25f4078f7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -289,6 +296,8 @@ MotiveDimension&#160;</td><td class="memItemRight" valign="bottom"><b>Dimensions
 <tr class="separator:a1a0a78ba14aa203e90527aff0e273799 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ebd7b6022283cc263cf9358b2fb8608 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#a9ebd7b6022283cc263cf9358b2fb8608">InitializeWithTargets</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, MotiveDimension dimensions, const <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> *targets)</td></tr>
 <tr class="separator:a9ebd7b6022283cc263cf9358b2fb8608 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad4ad2a8e735d7ddbbbf04ff3fba59031 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#ad4ad2a8e735d7ddbbbf04ff3fba59031">InitializeWithTargetShape</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, MotiveDimension dimensions, const <a class="el" href="structmotive_1_1_motive_curve_shape.html">MotiveCurveShape</a> &amp;shape, const float *target_values, const float *target_velocities)</td></tr>
+<tr class="separator:ad4ad2a8e735d7ddbbbf04ff3fba59031 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9b9f6f87c962ba9f1872fe5c6c9a6df5 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#a9b9f6f87c962ba9f1872fe5c6c9a6df5">InitializeWithSplines</a> (const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;init, <a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *engine, MotiveDimension dimensions, const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *splines, const <a class="el" href="structmotive_1_1_spline_playback.html">SplinePlayback</a> &amp;playback)</td></tr>
 <tr class="separator:a9b9f6f87c962ba9f1872fe5c6c9a6df5 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af6f966bf3c40ba812d9eb075692fa0a7 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af6f966bf3c40ba812d9eb075692fa0a7"></a>
@@ -311,8 +320,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Differences</b> (floa
 <tr class="separator:aff592f71b668c21838bbcd7e81c9b8f3 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a200b192cee3fc600f4b10cc15a535382 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">MotiveTime&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#a200b192cee3fc600f4b10cc15a535382">TargetTime</a> () const </td></tr>
 <tr class="separator:a200b192cee3fc600f4b10cc15a535382 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc0a7cd7d74163cd14bf38f15a2dc859 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acc0a7cd7d74163cd14bf38f15a2dc859"></a>
+<a class="el" href="structmotive_1_1_motive_curve_shape.html">MotiveCurveShape</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#acc0a7cd7d74163cd14bf38f15a2dc859">MotiveShape</a> () const </td></tr>
+<tr class="memdesc:acc0a7cd7d74163cd14bf38f15a2dc859 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the shape of the current curve. <br/></td></tr>
+<tr class="separator:acc0a7cd7d74163cd14bf38f15a2dc859 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a50fd99084606a21fecb39c612a7410bc inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">MotiveTime&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#a50fd99084606a21fecb39c612a7410bc">SplineTime</a> () const </td></tr>
 <tr class="separator:a50fd99084606a21fecb39c612a7410bc inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93da0e039590ccfed66ecac0db4c83aa inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#a93da0e039590ccfed66ecac0db4c83aa">Splines</a> (const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> **splines) const </td></tr>
+<tr class="separator:a93da0e039590ccfed66ecac0db4c83aa inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf496458a4ace39e7c6ca63a3da590bd inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#abf496458a4ace39e7c6ca63a3da590bd">SetSpline</a> (const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> &amp;spline, const <a class="el" href="structmotive_1_1_spline_playback.html">SplinePlayback</a> &amp;playback)</td></tr>
 <tr class="separator:abf496458a4ace39e7c6ca63a3da590bd inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adfb8a3b0e1024b7c170dafde376b0507 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#adfb8a3b0e1024b7c170dafde376b0507">SetSplines</a> (const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *splines, const <a class="el" href="structmotive_1_1_spline_playback.html">SplinePlayback</a> &amp;playback)</td></tr>
@@ -321,9 +336,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Differences</b> (floa
 <tr class="separator:a61f786877a9cdffdbcfa0f9b3d302340 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa7e9cab9cb20b23c647e71cb28b9c5e6 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#aa7e9cab9cb20b23c647e71cb28b9c5e6">SetSplinePlaybackRate</a> (float playback_rate)</td></tr>
 <tr class="separator:aa7e9cab9cb20b23c647e71cb28b9c5e6 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c9a9003f7942aa2cd344f77245e22c0 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4c9a9003f7942aa2cd344f77245e22c0"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SetTargets</b> (const <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> *targets)</td></tr>
+<tr class="memitem:a4c9a9003f7942aa2cd344f77245e22c0 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#a4c9a9003f7942aa2cd344f77245e22c0">SetTargets</a> (const <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> *targets)</td></tr>
 <tr class="separator:a4c9a9003f7942aa2cd344f77245e22c0 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54516dbd1a390654e92a040123e58845 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#a54516dbd1a390654e92a040123e58845">SetTargetWithShape</a> (const float *target_values, const float *target_velocities, const <a class="el" href="structmotive_1_1_motive_curve_shape.html">MotiveCurveShape</a> &amp;shape)</td></tr>
+<tr class="separator:a54516dbd1a390654e92a040123e58845 inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a538ceaae0822c81270dffe591550785e inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator_nf.html#a538ceaae0822c81270dffe591550785e">SetSplinesAndTargets</a> (const <a class="el" href="classmotive_1_1_compact_spline.html">CompactSpline</a> *const *splines, const <a class="el" href="structmotive_1_1_spline_playback.html">SplinePlayback</a> &amp;playback, const <a class="el" href="classmotive_1_1_motive_target1f.html">MotiveTarget1f</a> *targets)</td></tr>
+<tr class="separator:a538ceaae0822c81270dffe591550785e inherit pub_methods_classmotive_1_1_motivator_nf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classmotive_1_1_motivator"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classmotive_1_1_motivator')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classmotive_1_1_motivator.html">motive::Motivator</a></td></tr>
 <tr class="memitem:afd3829bb095d1382a84e0f383be974ee inherit pub_methods_classmotive_1_1_motivator"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_motivator.html#afd3829bb095d1382a84e0f383be974ee">Motivator</a> (const <a class="el" href="classmotive_1_1_motivator.html">Motivator</a> &amp;original)</td></tr>
 <tr class="separator:afd3829bb095d1382a84e0f383be974ee inherit pub_methods_classmotive_1_1_motivator"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -585,6 +603,67 @@ template&lt;class VectorConverter , MotiveDimension kDimensionsParam&gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a66d186b172225e65392591cb0a789402"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorConverter , MotiveDimension kDimensionsParam&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classmotive_1_1_motivator_xf_template.html">motive::MotivatorXfTemplate</a>&lt; VectorConverter, kDimensionsParam &gt;::InitializeWithTargetShape </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classmotive_1_1_motivator_init.html">MotivatorInit</a> &amp;&#160;</td>
+          <td class="paramname"><em>init</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classmotive_1_1_motive_engine.html">MotiveEngine</a> *&#160;</td>
+          <td class="paramname"><em>engine</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">MotiveDimension&#160;</td>
+          <td class="paramname"><em>dimensions</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structmotive_1_1_motive_curve_shape.html">MotiveCurveShape</a> &amp;&#160;</td>
+          <td class="paramname"><em>shape</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Vec &amp;&#160;</td>
+          <td class="paramname"><em>target_values</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Vec &amp;&#160;</td>
+          <td class="paramname"><em>target_velocities</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Initialize to the motion algorithm specified by <code>init</code>. Set target values and velocities as specified by 'target_values' and 'target_velocities', arrays of length <code>dimensions</code>, with shape specified by 'shape'. </p>
+
+</div>
+</div>
 <a class="anchor" id="ae6bb7144af03456876b8f3525b898555"></a>
 <div class="memitem">
 <div class="memproto">
@@ -608,10 +687,61 @@ template&lt;class VectorConverter , MotiveDimension kDimensionsParam&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Set the target and (optionally the current) motivator values. Use this call to procedurally drive the <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> towards a specific target. The <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> will transition smoothly to the new target. You can change the target value every frame if you like, and the <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> value should behave calmly but responsively, with the movement qualities of the underlying <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>. Note that the underlying <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a> is allowed to ignore parts of <code>t</code> that are irrelevent to its algorithm. </p>
+<p>Set the target and (optionally the current) motivator values. Use this call to procedurally drive the <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> towards a specific target. The <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> will transition smoothly to the new target. You can change the target value every frame if you like, and the <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> value should behave calmly but responsively, with the movement qualities of the underlying <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a>. Note that the underlying <a class="el" href="classmotive_1_1_motive_processor.html" title="A MotiveProcessor processes all instances of one type of Motivator. ">MotiveProcessor</a> is allowed to ignore parts of <code>t</code> that are irrelevent to its algorithm. Note also that if the time needed to achieve a value is to be user-provided, this function should be used. If the time should be calculated instead of user-specified, <a class="el" href="classmotive_1_1_motivator_xf_template.html#ae45be1f58008c44d48a2c0ad1cd4f51b">SetTargetWithShape</a> should be used instead. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">t</td><td>A set of waypoints to hit, optionally including the current value. If the current value is not included, maintain the existing current value. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="ae45be1f58008c44d48a2c0ad1cd4f51b"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class VectorConverter , MotiveDimension kDimensionsParam&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classmotive_1_1_motivator_xf_template.html">motive::MotivatorXfTemplate</a>&lt; VectorConverter, kDimensionsParam &gt;::SetTargetWithShape </td>
+          <td>(</td>
+          <td class="paramtype">const Vec &amp;&#160;</td>
+          <td class="paramname"><em>target_value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const Vec &amp;&#160;</td>
+          <td class="paramname"><em>target_velocity</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structmotive_1_1_motive_curve_shape.html">MotiveCurveShape</a> &amp;&#160;</td>
+          <td class="paramname"><em>shape</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Set the target values, velocity, and curve shape for the motivator. Use this call to procedurally drive the <a class="el" href="classmotive_1_1_motivator.html" title="Drives a value towards a target value, or along a path. ">Motivator</a> towards that target. Setting the target with the shape makes it so that a time does not need to be specified, as it will be calculated. In contrast, if the time needed to achieve a value is to be user-provided, <a class="el" href="classmotive_1_1_motivator_xf_template.html#ae6bb7144af03456876b8f3525b898555">SetTarget</a> should be used instead. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">target_value</td><td>The target value to hit. </td></tr>
+    <tr><td class="paramname">target_velocity</td><td>The velocity with which to hit the target value. </td></tr>
+    <tr><td class="paramname">shape</td><td>The shape of the curve we'll create, such as the curve's typical delta value, typical total time, and bias. </td></tr>
   </table>
   </dd>
 </dl>

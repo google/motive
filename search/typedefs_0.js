@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['loadriganimfn',['LoadRigAnimFn',['../classmotive_1_1_anim_table.html#a96724083770453e12b8719f58ac35237',1,'motive::AnimTable']]]
+  ['loadfn',['LoadFn',['../classmotive_1_1_anim_table.html#af3ac2e8a98e93eeed70552cea4871102',1,'motive::AnimTable']]]
 ];

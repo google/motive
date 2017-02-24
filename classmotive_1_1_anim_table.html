@@ -215,16 +215,35 @@ $(document).ready(function(){initNavTree('classmotive_1_1_anim_table.html','');}
 <p><code>#include &lt;<a class="el" href="anim__table_8h_source.html">anim_table.h</a>&gt;</code></p>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Hold animation lists for several object types. </p>
+<p>A list of lists of animations.</p>
+<p>The outer list is indexed by <code>object</code>, the meaning of which is set by the user, but is most likely an enum for the character being animated (e.g. turtle, zombie, happy person, tall person, etc.).</p>
+<p>The inner list is indexed by <code>anim_idx</code>, the meaning of which is also set by the user, but is most likely an enum for the action being animated (e.g. idle, walk forward, jump, etc.).</p>
+<p>Duplicate animations are only loaded once. This allows different objects to use the same animations without any memory overhead. </p>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a96724083770453e12b8719f58ac35237"><td class="memItemLeft" align="right" valign="top">typedef const RigAnimFb *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_anim_table.html#a96724083770453e12b8719f58ac35237">LoadRigAnimFn</a> (const char *anim_name, std::string *scratch_buf)</td></tr>
-<tr class="separator:a96724083770453e12b8719f58ac35237"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac17aa035a73bbbd41ea17974df7ebb45"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac17aa035a73bbbd41ea17974df7ebb45"></a>
+typedef std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ListFileNames</b></td></tr>
+<tr class="separator:ac17aa035a73bbbd41ea17974df7ebb45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99c12acd6af5bf2d93bb8e41b7e1fc8d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a99c12acd6af5bf2d93bb8e41b7e1fc8d"></a>
+typedef std::vector<br class="typebreak"/>
+&lt; ListFileNames &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>TableFileNames</b></td></tr>
+<tr class="separator:a99c12acd6af5bf2d93bb8e41b7e1fc8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3ac2e8a98e93eeed70552cea4871102"><td class="memItemLeft" align="right" valign="top">typedef const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_anim_table.html#af3ac2e8a98e93eeed70552cea4871102">LoadFn</a> (const char *file_name, std::string *scratch_buf)</td></tr>
+<tr class="separator:af3ac2e8a98e93eeed70552cea4871102"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a3173a3844e6d1f6de6328250d045cd5a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_anim_table.html#a3173a3844e6d1f6de6328250d045cd5a">InitFromFlatBuffers</a> (const AnimTableFb &amp;params, <a class="el" href="classmotive_1_1_anim_table.html#a96724083770453e12b8719f58ac35237">LoadRigAnimFn</a> *load_fn)</td></tr>
-<tr class="separator:a3173a3844e6d1f6de6328250d045cd5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a72d83b8558427fe2c36c25ce72dfc366"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_anim_table.html#a72d83b8558427fe2c36c25ce72dfc366">InitFromFlatBuffers</a> (const AnimTableFb &amp;table_fb, <a class="el" href="classmotive_1_1_anim_table.html#af3ac2e8a98e93eeed70552cea4871102">LoadFn</a> *load_fn)</td></tr>
+<tr class="separator:a72d83b8558427fe2c36c25ce72dfc366"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4f979025186cc8e3709502919925299"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_anim_table.html#ac4f979025186cc8e3709502919925299">InitFromFlatBuffers</a> (const AnimListFb &amp;list_fb, <a class="el" href="classmotive_1_1_anim_table.html#af3ac2e8a98e93eeed70552cea4871102">LoadFn</a> *load_fn)</td></tr>
+<tr class="separator:ac4f979025186cc8e3709502919925299"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55a2873855d74a178faa30f9f7b5e5ec"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_anim_table.html#a55a2873855d74a178faa30f9f7b5e5ec">InitFromAnimFileNames</a> (const TableFileNames &amp;table_names, <a class="el" href="classmotive_1_1_anim_table.html#af3ac2e8a98e93eeed70552cea4871102">LoadFn</a> *load_fn)</td></tr>
+<tr class="separator:a55a2873855d74a178faa30f9f7b5e5ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20f7f39ecdc10438654160d0dc4ec5ef"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a20f7f39ecdc10438654160d0dc4ec5ef"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_anim_table.html#a20f7f39ecdc10438654160d0dc4ec5ef">InitFromAnimFileNames</a> (const ListFileNames &amp;list_names, <a class="el" href="classmotive_1_1_anim_table.html#af3ac2e8a98e93eeed70552cea4871102">LoadFn</a> *load_fn)</td></tr>
+<tr class="memdesc:a20f7f39ecdc10438654160d0dc4ec5ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load the <a class="el" href="classmotive_1_1_anim_table.html" title="Hold animation lists for several object types. ">AnimTable</a> for only one <code>object</code>. <br/></td></tr>
+<tr class="separator:a20f7f39ecdc10438654160d0dc4ec5ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaf384973e25b7c9caa4061725e529c1d"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classmotive_1_1_rig_anim.html">RigAnim</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_anim_table.html#aaf384973e25b7c9caa4061725e529c1d">Query</a> (int object, int anim_idx) const </td></tr>
 <tr class="separator:aaf384973e25b7c9caa4061725e529c1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a142590e16996c681f96675d31aff8e4d"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="classmotive_1_1_rig_anim.html">RigAnim</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_anim_table.html#a142590e16996c681f96675d31aff8e4d">QueryByName</a> (const char *anim_name) const </td></tr>
@@ -235,38 +254,41 @@ const <a class="el" href="classmotive_1_1_rig_anim.html">RigAnim</a> &amp;&#160;
 <tr class="separator:a305a314e38340dd463aa279e4a054835"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3bd4afaad6bcae3839af44bf31d52593"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_anim_table.html#a3bd4afaad6bcae3839af44bf31d52593">NumObjects</a> () const </td></tr>
 <tr class="separator:a3bd4afaad6bcae3839af44bf31d52593"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa959fd1dba1c28202114c5dbdc089f9c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_anim_table.html#aa959fd1dba1c28202114c5dbdc089f9c">NumAnims</a> (int object) const </td></tr>
+<tr class="separator:aa959fd1dba1c28202114c5dbdc089f9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a767fb089ef46cccfde466ab18bf3bca9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_anim_table.html#a767fb089ef46cccfde466ab18bf3bca9">NumUniqueAnims</a> () const </td></tr>
+<tr class="separator:a767fb089ef46cccfde466ab18bf3bca9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Typedef Documentation</h2>
-<a class="anchor" id="a96724083770453e12b8719f58ac35237"></a>
+<a class="anchor" id="af3ac2e8a98e93eeed70552cea4871102"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef const RigAnimFb* motive::AnimTable::LoadRigAnimFn(const char *anim_name, std::string *scratch_buf)</td>
+          <td class="memname">typedef const char* motive::AnimTable::LoadFn(const char *file_name, std::string *scratch_buf)</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Callback that returns a pointer to the <code>RigAnimFb</code> FlatBuffer table for <code>anim_name</code>. Your implementation may vary, but one possibility is to load the file with <code>anim_name</code> into <code>scratch_buf</code>, and then return a pointer to <code>scratch_buf</code>.</p>
-<p>Note: Motive does not make assumptions on file io, so the caller must provide this function.</p>
-<p>Example: const RigAnimFb* MyLoadRigAnimFn(const char* anim_name, std::string* scratch_buf) { const bool load_ok = MyLoadFile(anim_name, scratch_buf); assert(load_ok); return motive::GetRigAnimFb(scratch_buf-&gt;c_str()); } </p>
+<p>Callback that loads <code>file_name</code> and returns a pointer to the raw data. Optionally, the function can load the file into <code>scratch_buf</code>, and then return <code>scratch_buf.c_str()</code>. If the load fails, should return nullptr.</p>
+<p>Note: Motive does not make assumptions on file io, so the caller must provide this function. </p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a3173a3844e6d1f6de6328250d045cd5a"></a>
+<a class="anchor" id="a55a2873855d74a178faa30f9f7b5e5ec"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool motive::AnimTable::InitFromFlatBuffers </td>
+          <td class="memname">bool motive::AnimTable::InitFromAnimFileNames </td>
           <td>(</td>
-          <td class="paramtype">const AnimTableFb &amp;&#160;</td>
-          <td class="paramname"><em>params</em>, </td>
+          <td class="paramtype">const TableFileNames &amp;&#160;</td>
+          <td class="paramname"><em>table_names</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classmotive_1_1_anim_table.html#a96724083770453e12b8719f58ac35237">LoadRigAnimFn</a> *&#160;</td>
+          <td class="paramtype"><a class="el" href="classmotive_1_1_anim_table.html#af3ac2e8a98e93eeed70552cea4871102">LoadFn</a> *&#160;</td>
           <td class="paramname"><em>load_fn</em>&#160;</td>
         </tr>
         <tr>
@@ -276,7 +298,86 @@ const <a class="el" href="classmotive_1_1_rig_anim.html">RigAnim</a> &amp;&#160;
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Load the <a class="el" href="classmotive_1_1_anim_table.html" title="Hold animation lists for several object types. ">AnimTable</a> specified in the FlatBuffer <code>params</code>. For each animation in the <a class="el" href="classmotive_1_1_anim_table.html" title="Hold animation lists for several object types. ">AnimTable</a>, <code>load_fn</code> is called to get the <code>RigAnimFb</code> associated with the animation. </p>
+<p>Load the <a class="el" href="classmotive_1_1_anim_table.html" title="Hold animation lists for several object types. ">AnimTable</a> specified in the vector of vectors. The top level vector represents the <code>object</code> index. The bottom level vector represents the <code>anim_idx</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a72d83b8558427fe2c36c25ce72dfc366"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool motive::AnimTable::InitFromFlatBuffers </td>
+          <td>(</td>
+          <td class="paramtype">const AnimTableFb &amp;&#160;</td>
+          <td class="paramname"><em>table_fb</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classmotive_1_1_anim_table.html#af3ac2e8a98e93eeed70552cea4871102">LoadFn</a> *&#160;</td>
+          <td class="paramname"><em>load_fn</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Load the <a class="el" href="classmotive_1_1_anim_table.html" title="Hold animation lists for several object types. ">AnimTable</a> specified in the FlatBuffer <code>params</code>. For each animation in the <a class="el" href="classmotive_1_1_anim_table.html" title="Hold animation lists for several object types. ">AnimTable</a>, <code>load_fn</code> is called to get the to load the individual animation files, if they're not embedded in table_fb. If they are embedded then <code>load_fn</code> can be nullptr. <code>table_fb</code> can be discarded after this call. </p>
+
+</div>
+</div>
+<a class="anchor" id="ac4f979025186cc8e3709502919925299"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool motive::AnimTable::InitFromFlatBuffers </td>
+          <td>(</td>
+          <td class="paramtype">const AnimListFb &amp;&#160;</td>
+          <td class="paramname"><em>list_fb</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classmotive_1_1_anim_table.html#af3ac2e8a98e93eeed70552cea4871102">LoadFn</a> *&#160;</td>
+          <td class="paramname"><em>load_fn</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Load the animations specified in the FlatBuffer <code>list_fb</code>. All of the loaded animations are for object 0. </p>
+
+</div>
+</div>
+<a class="anchor" id="aa959fd1dba1c28202114c5dbdc089f9c"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int motive::AnimTable::NumAnims </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>object</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return size of the bottom-most vector. Recall that <a class="el" href="classmotive_1_1_anim_table.html" title="Hold animation lists for several object types. ">AnimTable</a> is a vector of vectors. </p>
 
 </div>
 </div>
@@ -301,6 +402,30 @@ const <a class="el" href="classmotive_1_1_rig_anim.html">RigAnim</a> &amp;&#160;
 </table>
 </div><div class="memdoc">
 <p>Return size of the top-most vector. Recall that <a class="el" href="classmotive_1_1_anim_table.html" title="Hold animation lists for several object types. ">AnimTable</a> is a vector of vectors. </p>
+
+</div>
+</div>
+<a class="anchor" id="a767fb089ef46cccfde466ab18bf3bca9"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int motive::AnimTable::NumUniqueAnims </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return the number of animations for which we've allocated memory. Internally, we avoid duplicating animations. </p>
 
 </div>
 </div>

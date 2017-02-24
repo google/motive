@@ -229,6 +229,9 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:aaaea5e8ecc43aa04eb4205ac1155e00c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaaea5e8ecc43aa04eb4205ac1155e00c"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>RangeT</b> (const T point)</td></tr>
+<tr class="separator:aaaea5e8ecc43aa04eb4205ac1155e00c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3a55ee4a8f19b21eb1014a91d83353c6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3a55ee4a8f19b21eb1014a91d83353c6"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>RangeT</b> (const T <a class="el" href="classmotive_1_1_range_t.html#a6bea0f2a960a439b576c8c5811d98b57">start</a>, const T end)</td></tr>
 <tr class="separator:a3a55ee4a8f19b21eb1014a91d83353c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -286,6 +289,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_range_t.html#a5ebae973cb6a6f44357d39ff84607184">StrictlyContains</a> (const T x) const </td></tr>
 <tr class="memdesc:a5ebae973cb6a6f44357d39ff84607184"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return true if <code>x</code> is in (start_, end_), i.e. the <b>exclusive</b> range. <br/></td></tr>
 <tr class="separator:a5ebae973cb6a6f44357d39ff84607184"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22a57220d2bcbe1018421db665a18f2d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_range_t.html#a22a57220d2bcbe1018421db665a18f2d">ContainsWithTolerance</a> (const T x, const T percent) const </td></tr>
+<tr class="separator:a22a57220d2bcbe1018421db665a18f2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13bfb6fc459b8f596f5b9370e88f90f3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmotive_1_1_range_t.html">RangeT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_range_t.html#a13bfb6fc459b8f596f5b9370e88f90f3">Invert</a> () const </td></tr>
 <tr class="separator:a13bfb6fc459b8f596f5b9370e88f90f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f136e8c8fafe7faca1a1ccc3ab3c89e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classmotive_1_1_range_t.html">RangeT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_range_t.html#a9f136e8c8fafe7faca1a1ccc3ab3c89e">Lengthen</a> (const float percent) const </td></tr>
@@ -361,19 +366,34 @@ static T&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="
 template&lt;size_t kMaxLen&gt; </td></tr>
 <tr class="memitem:af43995462051a895c745469545d347b7"><td class="memTemplItemLeft" align="right" valign="top">static T&#160;</td><td class="memTemplItemRight" valign="bottom"><b>ClampToClosest</b> (T x, const <a class="el" href="structmotive_1_1_range_t_1_1_range_array.html">RangeArray</a>&lt; kMaxLen &gt; &amp;ranges)</td></tr>
 <tr class="separator:af43995462051a895c745469545d347b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba8fcec3fd10a7950698c2006c705c1a"><td class="memTemplParams" colspan="2">template&lt;typename S , typename F &gt; </td></tr>
+<tr class="memitem:aba8fcec3fd10a7950698c2006c705c1a"><td class="memTemplItemLeft" align="right" valign="top">static <a class="el" href="classmotive_1_1_range_t.html">RangeT</a>&lt; T &gt;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classmotive_1_1_range_t.html#aba8fcec3fd10a7950698c2006c705c1a">CoversLambda</a> (const S *array, size_t len, const F &amp;f)</td></tr>
+<tr class="separator:aba8fcec3fd10a7950698c2006c705c1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8dac17430e75a1a7b2cf73642d4d8d2e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8dac17430e75a1a7b2cf73642d4d8d2e"></a>
+static <a class="el" href="classmotive_1_1_range_t.html">RangeT</a>&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_range_t.html#a8dac17430e75a1a7b2cf73642d4d8d2e">Covers</a> (const T *array, size_t len)</td></tr>
+<tr class="memdesc:a8dac17430e75a1a7b2cf73642d4d8d2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the range that covers all values in <code>array</code>. <br/></td></tr>
+<tr class="separator:a8dac17430e75a1a7b2cf73642d4d8d2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:add2cb882d5d4f939ee4f8e345289204c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="add2cb882d5d4f939ee4f8e345289204c"></a>
 static <a class="el" href="classmotive_1_1_range_t.html">RangeT</a>&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_range_t.html#add2cb882d5d4f939ee4f8e345289204c">Full</a> ()</td></tr>
 <tr class="memdesc:add2cb882d5d4f939ee4f8e345289204c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the complete range. Every T is contained in this range. <br/></td></tr>
 <tr class="separator:add2cb882d5d4f939ee4f8e345289204c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeb33d4f02534e39a49d4969940246b99"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classmotive_1_1_range_t.html">RangeT</a>&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_range_t.html#aeb33d4f02534e39a49d4969940246b99">Empty</a> ()</td></tr>
 <tr class="separator:aeb33d4f02534e39a49d4969940246b99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab6556c418e3ff235f5bcce8b68cfb84e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab6556c418e3ff235f5bcce8b68cfb84e"></a>
+static <a class="el" href="classmotive_1_1_range_t.html">RangeT</a>&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_range_t.html#ab6556c418e3ff235f5bcce8b68cfb84e">Positive</a> ()</td></tr>
+<tr class="memdesc:ab6556c418e3ff235f5bcce8b68cfb84e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the range of positive numbers: [0, +infinity]. <br/></td></tr>
+<tr class="separator:ab6556c418e3ff235f5bcce8b68cfb84e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e75473f46843cda44c6716f76ba952e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4e75473f46843cda44c6716f76ba952e"></a>
+static <a class="el" href="classmotive_1_1_range_t.html">RangeT</a>&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classmotive_1_1_range_t.html#a4e75473f46843cda44c6716f76ba952e">Negative</a> ()</td></tr>
+<tr class="memdesc:a4e75473f46843cda44c6716f76ba952e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the range of negative numbers.: [-infinity, 0]. <br/></td></tr>
+<tr class="separator:a4e75473f46843cda44c6716f76ba952e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="a5dc35956e960d733f40a81160778af9c"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -400,7 +420,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -427,7 +447,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -454,7 +474,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -481,7 +501,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -504,11 +524,93 @@ template&lt;class T &gt; </div>
 
 </div>
 </div>
+<a class="anchor" id="a22a57220d2bcbe1018421db665a18f2d"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class T&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classmotive_1_1_range_t.html">motive::RangeT</a>&lt; T &gt;::ContainsWithTolerance </td>
+          <td>(</td>
+          <td class="paramtype">const T&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const T&#160;</td>
+          <td class="paramname"><em>percent</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return true if <code>x</code> is in [start_ - tolerance, end_ + tolerance], where tolerance = <a class="el" href="classmotive_1_1_range_t.html#afa92310288b7f52713948cce217fa73b">Length()</a> * percent. </p>
+
+</div>
+</div>
+<a class="anchor" id="aba8fcec3fd10a7950698c2006c705c1a"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class T&gt; </div>
+<div class="memtemplate">
+template&lt;typename S , typename F &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="classmotive_1_1_range_t.html">RangeT</a>&lt;T&gt; <a class="el" href="classmotive_1_1_range_t.html">motive::RangeT</a>&lt; T &gt;::CoversLambda </td>
+          <td>(</td>
+          <td class="paramtype">const S *&#160;</td>
+          <td class="paramname"><em>array</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const F &amp;&#160;</td>
+          <td class="paramname"><em>f</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the range that covers all values in f(array). f is a lambda to calculate T from S. See <a class="el" href="classmotive_1_1_range_t.html#a8dac17430e75a1a7b2cf73642d4d8d2e" title="Return the range that covers all values in array. ">Covers()</a> for a simple example. In general, if your S has a function <code>T GetValue()</code>, then your lambda can look something like, const RangeT&lt;T&gt; range = <a class="el" href="classmotive_1_1_range_t.html#aba8fcec3fd10a7950698c2006c705c1a">RangeT&lt;T&gt;::CoversLambda</a>( s_array, len, [](const S&amp; s) { return s.GetValue(); }); </p>
+
+</div>
+</div>
 <a class="anchor" id="a19147d320516298553c578b9c8c4d2e8"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -535,7 +637,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -561,7 +663,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -588,7 +690,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -625,7 +727,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -692,7 +794,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -718,7 +820,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -744,7 +846,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -771,7 +873,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -798,7 +900,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -824,7 +926,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -867,7 +969,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -904,7 +1006,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -941,7 +1043,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -978,7 +1080,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1005,7 +1107,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1032,7 +1134,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1059,7 +1161,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1086,7 +1188,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1113,7 +1215,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -1140,7 +1242,7 @@ template&lt;class T &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T &gt; </div>
+template&lt;class T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">

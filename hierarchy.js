@@ -2,11 +2,18 @@ var hierarchy =
 [
     [ "motive::Angle", "classmotive_1_1_angle.html", null ],
     [ "motive::AnimTable", "classmotive_1_1_anim_table.html", null ],
+    [ "BaseT", null, [
+      [ "motive::SimpleInitTemplate< BaseT, VectorConverter, kDimensionsParam >", "structmotive_1_1_simple_init_template.html", null ]
+    ] ],
     [ "motive::Benchmark", "classmotive_1_1_benchmark.html", null ],
+    [ "motive::CompactSpline::BulkOutput", "classmotive_1_1_compact_spline_1_1_bulk_output.html", null ],
     [ "motive::BulkSplineEvaluator", "classmotive_1_1_bulk_spline_evaluator.html", null ],
     [ "motive::CompactSpline", "classmotive_1_1_compact_spline.html", null ],
+    [ "motive::detail::CompactSplineNode", "classmotive_1_1detail_1_1_compact_spline_node.html", null ],
+    [ "motive::QuadraticSpring::Context", "structmotive_1_1_quadratic_spring_1_1_context.html", null ],
     [ "motive::CubicCurve", "classmotive_1_1_cubic_curve.html", null ],
     [ "motive::CubicInit", "structmotive_1_1_cubic_init.html", null ],
+    [ "motive::IntFloatUnion", "unionmotive_1_1_int_float_union.html", null ],
     [ "motive::MathFuVectorConverter", "classmotive_1_1_math_fu_vector_converter.html", null ],
     [ "motive::MatrixAnim", "classmotive_1_1_matrix_anim.html", null ],
     [ "motive::MatrixOpArray", "classmotive_1_1_matrix_op_array.html", null ],
@@ -22,14 +29,22 @@ var hierarchy =
       [ "motive::MatrixInit", "classmotive_1_1_matrix_init.html", null ],
       [ "motive::OvershootInit", "classmotive_1_1_overshoot_init.html", null ],
       [ "motive::RigInit", "classmotive_1_1_rig_init.html", null ],
+      [ "motive::SimpleInit", "structmotive_1_1_simple_init.html", [
+        [ "motive::ConstInit", "structmotive_1_1_const_init.html", null ],
+        [ "motive::EaseInEaseOutInit", "structmotive_1_1_ease_in_ease_out_init.html", null ],
+        [ "motive::SpringInit", "structmotive_1_1_spring_init.html", null ]
+      ] ],
       [ "motive::SplineInit", "classmotive_1_1_spline_init.html", null ]
     ] ],
     [ "MotivatorNfBase", "class_motivator_nf_base.html", null ],
+    [ "motive::MotiveCurveShape", "structmotive_1_1_motive_curve_shape.html", null ],
     [ "motive::MotiveEngine", "classmotive_1_1_motive_engine.html", null ],
     [ "motive::MotiveNode1f", "structmotive_1_1_motive_node1f.html", null ],
     [ "motive::MotiveProcessor", "classmotive_1_1_motive_processor.html", [
       [ "motive::MatrixProcessor4f", "classmotive_1_1_matrix_processor4f.html", null ],
-      [ "motive::MotiveProcessorNf", "classmotive_1_1_motive_processor_nf.html", null ],
+      [ "motive::MotiveProcessorNf", "classmotive_1_1_motive_processor_nf.html", [
+        [ "motive::SimpleProcessorTemplate< T >", "classmotive_1_1_simple_processor_template.html", null ]
+      ] ],
       [ "motive::RigProcessor", "classmotive_1_1_rig_processor.html", null ]
     ] ],
     [ "motive::MotiveProcessorFunctions", "structmotive_1_1_motive_processor_functions.html", null ],
@@ -44,14 +59,21 @@ var hierarchy =
     [ "motive::MotiveTargetT< 4 >", "structmotive_1_1_motive_target_t_3_014_01_4.html", null ],
     [ "motive::MotiveVersion", "structmotive_1_1_motive_version.html", null ],
     [ "motive::QuadraticCurve", "classmotive_1_1_quadratic_curve.html", null ],
+    [ "motive::QuadraticEaseInEaseOut", "classmotive_1_1_quadratic_ease_in_ease_out.html", null ],
+    [ "motive::QuadraticInitWithOrigin", "structmotive_1_1_quadratic_init_with_origin.html", null ],
+    [ "motive::QuadraticInitWithPoint", "structmotive_1_1_quadratic_init_with_point.html", null ],
     [ "motive::QuadraticInitWithStartDerivative", "structmotive_1_1_quadratic_init_with_start_derivative.html", null ],
+    [ "motive::QuadraticSpring", "classmotive_1_1_quadratic_spring.html", null ],
     [ "motive::RangeT< T >::RangeArray< kMaxLen >", "structmotive_1_1_range_t_1_1_range_array.html", null ],
     [ "motive::RangeT< T >", "classmotive_1_1_range_t.html", null ],
     [ "motive::RigAnim", "classmotive_1_1_rig_anim.html", null ],
     [ "motive::Settled1f", "structmotive_1_1_settled1f.html", null ],
     [ "motive::MatrixAnim::Spline", "structmotive_1_1_matrix_anim_1_1_spline.html", null ],
+    [ "motive::SplineBlend", "structmotive_1_1_spline_blend.html", null ],
     [ "motive::SplinePlayback", "structmotive_1_1_spline_playback.html", null ],
+    [ "motive::SplineState", "structmotive_1_1_spline_state.html", null ],
     [ "motive::RangeT< T >::TArray< kMaxLen >", "structmotive_1_1_range_t_1_1_t_array.html", null ],
+    [ "motive::UncompressedNode", "structmotive_1_1_uncompressed_node.html", null ],
     [ "motive::VectorT< VectorConverter, int >", "structmotive_1_1_vector_t.html", null ],
     [ "motive::VectorT< VectorConverter, 1 >", "structmotive_1_1_vector_t_3_01_vector_converter_00_011_01_4.html", null ],
     [ "motive::VectorT< VectorConverter, 2 >", "structmotive_1_1_vector_t_3_01_vector_converter_00_012_01_4.html", null ],
