@@ -56,8 +56,9 @@ void OvershootInitFromFlatBuffers(const OvershootParameters& params,
 
 void SplineInitFromFlatBuffers(const SplineParameters& params,
                                SplineInit* init) {
-  init->set_modular(params.base()->modular() != 0);
-  init->set_range(Range(params.base()->min(), params.base()->max()));
+  init->set_range(
+      params.base()->modular() != 0 ?
+      Range(params.base()->min(), params.base()->max()) : Range());
 }
 
 void Settled1fFromFlatBuffers(const Settled1fParameters& params,
@@ -91,31 +92,37 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
             reinterpret_cast<const CompactSplineFb*>(op->value());
         MatrixAnim::Spline& s = splines[spline_idx++];
 
+        // Ensure the spline will fit into our memory buffer.
+        const CompactSplineIndex num_spline_nodes =
+            static_cast<CompactSplineIndex>(spline_fb->nodes()->size());
+
+        // Create the CompactSpline in the memory buffer.
+        s.spline = CompactSpline::Create(num_spline_nodes);
+
         // Copy the spline data into s.spline.
         // TODO: modify CompactSpline so we can just point at spline data
         //       instead of copying it.
         const Range y_range(spline_fb->y_range_start(),
                             spline_fb->y_range_end());
-        s.spline.Init(y_range, spline_fb->x_granularity(),
-                      spline_fb->nodes()->size());
+        s.spline->Init(y_range, spline_fb->x_granularity());
         for (auto n = spline_fb->nodes()->begin();
              n != spline_fb->nodes()->end(); ++n) {
-          s.spline.AddNodeVerbatim(n->x(), n->y(), n->angle());
+          s.spline->AddNodeVerbatim(n->x(), n->y(), n->angle());
         }
+        assert(s.spline->num_nodes() == s.spline->max_nodes());
 
         // Hold `init` and `playback` data in structures that won't disappear,
         // since these are referenced by pointer.
-        const bool modular = ModularOp(op_type);
-        const Range& op_range = RangeOfOp(op_type, y_range);
-        s.init = SplineInit(op_range, modular);
-        ops.AddOp(op_type, s.init, s.spline);
+        const Range& op_range = RangeOfOp(op_type);
+        s.init = SplineInit(op_range);
+        ops.AddOp(op->id(), op_type, s.init, *s.spline);
         break;
       }
 
       case MatrixOpValueFb_ConstantOpFb: {
         const ConstantOpFb* const_fb =
             reinterpret_cast<const ConstantOpFb*>(op->value());
-        ops.AddOp(op_type, const_fb->y_const());
+        ops.AddOp(op->id(), op_type, const_fb->y_const());
         break;
       }
 
@@ -125,14 +132,15 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
   }
 }
 
-void RigAnimFromFlatBuffers(const RigAnimFb& params, const char* anim_name,
-                            RigAnim* anim) {
-  const size_t num_bones = params.matrix_anims()->Length();
+void RigAnimFromFlatBuffers(const RigAnimFb& params, RigAnim* anim) {
+  const size_t num_bones = flatbuffers::VectorLength(params.matrix_anims());
   const auto names = params.bone_names();
   const auto parents = params.bone_parents();
   const bool record_names = names != nullptr && names->Length() == num_bones;
-  assert(parents != nullptr && parents->Length() == num_bones);
+  assert(flatbuffers::VectorLength(parents) == num_bones);
 
+  const char* anim_name =
+      params.name() == nullptr ? "Unknown" : params.name()->c_str();
   anim->Init(anim_name, static_cast<motive::BoneIndex>(num_bones),
              record_names);
 

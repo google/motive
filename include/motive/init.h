@@ -16,8 +16,9 @@
 #define MOTIVE_INIT_H_
 
 #include "mathfu/constants.h"
-#include "motive/util.h"
 #include "motive/math/range.h"
+#include "motive/math/vector_converter.h"
+#include "motive/util.h"
 
 namespace motive {
 
@@ -57,23 +58,150 @@ inline bool ScaleOp(MatrixOperationType op) {
 /// operation that does nothing to the transformation. Any operation that
 /// constantly returns the default value can be removed.
 inline float OperationDefaultValue(MatrixOperationType op) {
-  return RotateOp(op) || TranslateOp(op) ? 0.0f : 1.0f;
+  return ScaleOp(op) ? 1.0f : 0.0f;
 }
-
-/// Returns true if this operation uses modular arithmetic.
-/// Rotations are equivalence every 2pi, so they are modular.
-inline bool ModularOp(MatrixOperationType op) { return RotateOp(op); }
 
 /// Returns the range of the matrix operation's spline. Most ranges are just
 /// the extents of the splines, but rotations we want to normalize within
 /// +-pi before blending to another curve.
-inline Range RangeOfOp(MatrixOperationType op,
-                                const Range& extents) {
-  return ModularOp(op) ? kAngleRange : extents;
+inline Range RangeOfOp(MatrixOperationType op) {
+  return RotateOp(op) ? kAngleRange : kInvalidRange;
 }
 
 /// Return a string with the operation name. Used for debugging.
 const char* MatrixOpName(const MatrixOperationType op);
+
+/// @class SimpleInit
+/// @brief Base class of Init classes for MotiveProcessors that derive from
+///        SimpleProcessorTemplate.
+///
+/// You cannot initialize a Motivator with this class because it has no
+/// MotivatorType. Instead, use one of the Init classes below that derive from
+/// SimpleInit.
+struct SimpleInit : public MotivatorInit {
+  explicit SimpleInit(MotivatorType type)
+      : MotivatorInit(type),
+        start_values(nullptr),
+        start_derivatives(nullptr) {}
+
+  SimpleInit(MotivatorType type, const float* start_values,
+             const float* start_derivatives = nullptr)
+      : MotivatorInit(type),
+        start_values(start_values),
+        start_derivatives(start_derivatives) {}
+
+  /// The starting value of each curve for each dimension. Array of length equal
+  /// to the number of dimensions. This points at external values and the caller
+  /// is responsible for ensuring these external values live as long as this
+  /// struct.
+  const float* start_values;
+
+  /// The starting derivative of each curve for each dimension. Array of length
+  /// equal to the number of dimensions. This points at external values and the
+  /// caller is responsible for ensuring these external values live as long as
+  /// this struct.
+  const float* start_derivatives;
+};
+
+/// @class SimpleInitTemplate
+/// @brief A version of SimpleInit for Motivators with kDimensions.
+/// Use this class to initialize a Motivator with vector types, instead of using
+/// the float arrays required by the base class SimpleInit.
+/// For example, use a derivation of SimpleInit3f to initialize a Motivator3f.
+template <class BaseT, class VectorConverter, MotiveDimension kDimensionsParam>
+struct SimpleInitTemplate : public BaseT {
+  static const MotiveDimension kDimensions = kDimensionsParam;
+
+  typedef VectorConverter C;
+  typedef typename VectorT<C, kDimensions>::type Vec;
+
+  SimpleInitTemplate()
+      : BaseT(C::ToPtr(start_values), C::ToPtr(start_derivatives)),
+        start_values(0.0f),
+        start_derivatives(0.0f) {}
+
+  SimpleInitTemplate(const Vec& start_values_param,
+                     const Vec& start_derivatives_param)
+      : BaseT(C::ToPtr(start_values), C::ToPtr(start_derivatives)),
+        start_values(start_values_param),
+        start_derivatives(start_derivatives_param) {}
+
+  const Vec start_values;
+  const Vec start_derivatives;
+};
+
+/// @class ConstInit
+/// @brief Initialize a MotivatorNf that holds values and velocities that
+///        never change.
+///
+/// All calls to SetTarget functions are ignored.
+struct ConstInit : public SimpleInit {
+  MOTIVE_INTERFACE();
+  ConstInit() : SimpleInit(kType) {}
+  explicit ConstInit(const float* start_values,
+                     const float* start_derivatives = nullptr)
+      : SimpleInit(kType, start_values, start_derivatives) {}
+};
+
+/// Use these types to initialize their corresponding MotivatorXfs using vector
+/// types instead of float arrays.
+typedef SimpleInitTemplate<ConstInit, MathFuVectorConverter, 1>
+    ConstInit1f;
+typedef SimpleInitTemplate<ConstInit, MathFuVectorConverter, 2>
+    ConstInit2f;
+typedef SimpleInitTemplate<ConstInit, MathFuVectorConverter, 3>
+    ConstInit3f;
+typedef SimpleInitTemplate<ConstInit, MathFuVectorConverter, 4>
+    ConstInit4f;
+
+/// @class EaseInEaseOutInit
+/// @brief Initialize a MotivatorNf move towards target using ease-in
+///        ease-out math.
+///
+/// Call @ref MotivatorNf::SetTargetWithShape to set the target the
+/// curve moves towards.
+struct EaseInEaseOutInit : public SimpleInit {
+  MOTIVE_INTERFACE();
+  EaseInEaseOutInit() : SimpleInit(kType) {}
+  explicit EaseInEaseOutInit(const float* start_values,
+                             const float* start_derivatives = nullptr)
+      : SimpleInit(kType, start_values, start_derivatives) {}
+};
+
+/// Use these types to initialize their corresponding MotivatorXfs using vector
+/// types instead of float arrays.
+typedef SimpleInitTemplate<EaseInEaseOutInit, MathFuVectorConverter, 1>
+    EaseInEaseOutInit1f;
+typedef SimpleInitTemplate<EaseInEaseOutInit, MathFuVectorConverter, 2>
+    EaseInEaseOutInit2f;
+typedef SimpleInitTemplate<EaseInEaseOutInit, MathFuVectorConverter, 3>
+    EaseInEaseOutInit3f;
+typedef SimpleInitTemplate<EaseInEaseOutInit, MathFuVectorConverter, 4>
+    EaseInEaseOutInit4f;
+
+/// @class SpringInit
+/// @brief Initialize a MotivatorNf move oscillate over a target.
+///
+/// Call @ref MotivatorNf::SetTargetWithShape to set the target the
+/// curve moves towards.
+struct SpringInit : public SimpleInit {
+  MOTIVE_INTERFACE();
+  SpringInit() : SimpleInit(kType) {}
+  explicit SpringInit(const float* start_values,
+                      const float* start_derivatives = nullptr)
+      : SimpleInit(kType, start_values, start_derivatives) {}
+};
+
+/// Use these types to initialize their corresponding MotivatorXfs using vector
+/// types instead of float arrays.
+typedef SimpleInitTemplate<SpringInit, MathFuVectorConverter, 1>
+    SpringInit1f;
+typedef SimpleInitTemplate<SpringInit, MathFuVectorConverter, 2>
+    SpringInit2f;
+typedef SimpleInitTemplate<SpringInit, MathFuVectorConverter, 3>
+    SpringInit3f;
+typedef SimpleInitTemplate<SpringInit, MathFuVectorConverter, 4>
+    SpringInit4f;
 
 /// @class OvershootInit
 /// @brief Initialize a MotivatorNf move towards a target using spring physics.
@@ -190,36 +318,28 @@ class SplineInit : public MotivatorInit {
  public:
   MOTIVE_INTERFACE();
 
-  SplineInit() : MotivatorInit(kType), range_(Range::Full()), modular_(false) {}
+  SplineInit() : MotivatorInit(kType) {}
 
-  /// The derived type must call this constructor with it's MotivatorType
-  /// identifier.
-  /// @param range The valid range of a normalized value. Ignored when modular
-  ///              is false. Note: it's possible for MotivatorNf::Value() to
-  ///              return a value outside of this range, though all splines
-  ///              start inside the valid range.
-  /// @param modular Option to use modular arithmetic when initializing
-  ///                splines. If true, the initial spline value is always
-  ///                within `range`.
-  SplineInit(const Range& range, bool modular)
-      : MotivatorInit(kType), range_(range), modular_(modular) {}
+  /// @param range If using modular arithmetic, the normalized range.
+  ///              If not using modular arithmetic, pass in an invalid range
+  ///              such as Range().
+  explicit SplineInit(const Range& range) : MotivatorInit(kType), range_(range) {}
 
   const Range& range() const { return range_; }
   void set_range(const Range& r) { range_ = r; }
 
-  bool modular() const { return modular_; }
-  void set_modular(bool modular) { modular_ = modular; }
-
  private:
-  /// Minimum and maximum values for Motivator::Value().
-  /// Clamp (if modular_ is false) or wrap-around (if modular_ is true) when
-  /// we reach these boundaries.
+  /// If using modular arithmetic, the normalized range.
+  /// For example, for angles, the normalized range can be (pi, +pi].
+  /// Whenever a new spline segment is started, the internal logic resets
+  /// the value to the normalized range. Note, however, that it is possible
+  /// for the value to escape the normalized range. That is,
+  /// MotivatorNf::Value() may be outside of `range_`, though it will always
+  /// be close enough to normalize efficiently with
+  /// Range::NormalizeCloseValue().
+  ///
+  /// If not using modular arithmetic, set to an invalid range and ignored.
   Range range_;
-
-  /// A modular value wraps around from min to max. For example, an angle
-  /// is modular, where -pi is equivalent to +pi. Setting this to true ensures
-  /// that arithmetic wraps around instead of clamping to min/max.
-  bool modular_;
 };
 
 /// @class MatrixOperationInit
@@ -233,34 +353,47 @@ struct MatrixOperationInit {
   };
 
   /// Matrix operation never changes. Always use 'const_value'.
-  MatrixOperationInit(MatrixOperationType type, float const_value)
+  MatrixOperationInit(MatrixOpId id, MatrixOperationType type,
+                      float const_value)
       : init(nullptr),
+        id(id),
         type(type),
         union_type(kUnionInitialValue),
         initial_value(const_value) {}
 
   /// Matrix operation is driven by Motivator defined by 'init'.
-  MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init)
-      : init(&init), type(type), union_type(kUnionEmpty) {}
+  MatrixOperationInit(MatrixOpId id, MatrixOperationType type,
+                      const MotivatorInit& init)
+      : init(&init), id(id), type(type), union_type(kUnionEmpty) {}
 
   /// Matrix operation is driven by Motivator defined by 'init'. Specify initial
   /// value as well.
-  MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init,
-                      float initial_value)
+  MatrixOperationInit(MatrixOpId id, MatrixOperationType type,
+                      const MotivatorInit& init, float initial_value)
       : init(&init),
+        id(id),
         type(type),
         union_type(kUnionInitialValue),
         initial_value(initial_value) {}
 
-  MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init,
-                      const MotiveTarget1f& target)
-      : init(&init), type(type), union_type(kUnionTarget), target(&target) {}
+  MatrixOperationInit(MatrixOpId id, MatrixOperationType type,
+                      const MotivatorInit& init, const MotiveTarget1f& target)
+      : init(&init),
+        id(id),
+        type(type),
+        union_type(kUnionTarget),
+        target(&target) {}
 
-  MatrixOperationInit(MatrixOperationType type, const MotivatorInit& init,
-                      const CompactSpline& spline)
-      : init(&init), type(type), union_type(kUnionSpline), spline(&spline) {}
+  MatrixOperationInit(MatrixOpId id, MatrixOperationType type,
+                      const MotivatorInit& init, const CompactSpline& spline)
+      : init(&init),
+        id(id),
+        type(type),
+        union_type(kUnionSpline),
+        spline(&spline) {}
 
   const MotivatorInit* init;
+  MatrixOpId id;
   MatrixOperationType type;
   UnionType union_type;
   union {
@@ -311,36 +444,37 @@ class MatrixOpArray {
 
   /// Operation is constant. For example, use to put something flat on the
   /// ground, with 'type' = kRotateAboutX and 'const_value' = pi/2.
-  void AddOp(MatrixOperationType type, float const_value) {
-    ops_.push_back(MatrixOperationInit(type, const_value));
+  void AddOp(MatrixOpId id, MatrixOperationType type, float const_value) {
+    ops_.push_back(MatrixOperationInit(id, type, const_value));
   }
 
   /// Operation is driven by a one dimensional motivator. For example, you can
   /// control the face angle of a standing object with 'type' = kRotateAboutY
   /// and 'init' a curve specified by SplineInit.
-  void AddOp(MatrixOperationType type, const MotivatorInit& init) {
-    ops_.push_back(MatrixOperationInit(type, init));
+  void AddOp(MatrixOpId id, MatrixOperationType type,
+             const MotivatorInit& init) {
+    ops_.push_back(MatrixOperationInit(id, type, init));
   }
 
   /// Operation is driven by a one dimensional motivator, and initial value
   /// is specified.
-  void AddOp(MatrixOperationType type, const MotivatorInit& init,
+  void AddOp(MatrixOpId id, MatrixOperationType type, const MotivatorInit& init,
              float initial_value) {
-    ops_.push_back(MatrixOperationInit(type, init, initial_value));
+    ops_.push_back(MatrixOperationInit(id, type, init, initial_value));
   }
 
   /// Operation is driven by a one dimensional motivator, which is initialized
   /// to traverse the key points specified in `target`.
-  void AddOp(MatrixOperationType type, const MotivatorInit& init,
+  void AddOp(MatrixOpId id, MatrixOperationType type, const MotivatorInit& init,
              const MotiveTarget1f& target) {
-    ops_.push_back(MatrixOperationInit(type, init, target));
+    ops_.push_back(MatrixOperationInit(id, type, init, target));
   }
 
   /// Operation is driven by a one dimensional motivator, which is initialized
   /// to follow the predefined curve specified in `spline`.
-  void AddOp(MatrixOperationType type, const MotivatorInit& init,
+  void AddOp(MatrixOpId id, MatrixOperationType type, const MotivatorInit& init,
              const CompactSpline& spline) {
-    ops_.push_back(MatrixOperationInit(type, init, spline));
+    ops_.push_back(MatrixOperationInit(id, type, init, spline));
   }
 
   // Maximum duration of any of the splines.
@@ -368,17 +502,9 @@ class MatrixInit : public MotivatorInit {
   typedef std::vector<MatrixOperationInit> OpVector;
 
   explicit MatrixInit(const MatrixOpArray& ops)
-      : MotivatorInit(kType),
-        ops_(&ops),
-        start_transform_(&mathfu::kAffineIdentity) {}
-  MatrixInit(const MatrixOpArray& ops,
-             const mathfu::AffineTransform& start_transform)
-      : MotivatorInit(kType), ops_(&ops), start_transform_(&start_transform) {}
+      : MotivatorInit(kType), ops_(&ops) {}
 
   const OpVector& ops() const { return ops_->ops(); }
-  const mathfu::AffineTransform& start_transform() const {
-    return *start_transform_;
-  }
 
  private:
   /// Reference to the union of all operations that this matrix will be able
@@ -386,20 +512,14 @@ class MatrixInit : public MotivatorInit {
   /// operations that are a subset of those in `ops_`.
   /// In `RigAnim`, these represent operations in the defining anim.
   const MatrixOpArray* ops_;
-
-  /// Constant transform from which to start applying `ops_`.
-  /// For example, `RigAnim`s use it to represent the constant transformation
-  /// from a bone to its parent.
-  const mathfu::AffineTransform* start_transform_;
 };
 
 class RigInit : public MotivatorInit {
  public:
   MOTIVE_INTERFACE();
 
-  RigInit(const RigAnim& defining_anim,
-          const mathfu::AffineTransform* bone_transforms,
-          const BoneIndex* bone_parents, BoneIndex num_bones);
+  RigInit(const RigAnim& defining_anim, const BoneIndex* bone_parents,
+          BoneIndex num_bones);
   const RigAnim& defining_anim() const { return *defining_anim_; }
   const mathfu::AffineTransform* bone_transforms() const {
     return bone_transforms_;

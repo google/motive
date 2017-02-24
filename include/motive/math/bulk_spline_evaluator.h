@@ -38,6 +38,16 @@ class BulkSplineEvaluator {
  public:
   typedef int Index;
 
+  // TODO: Call BestProcessorOptimization() to initialize `optimizations_`.
+  BulkSplineEvaluator() : optimization_(kNoOptimizations) {
+    // Avoid "private member variable unused" warning on OSX.
+    (void)optimization_;
+  }
+
+  /// Return the number of indices currently allocated. Each index is one
+  /// spline that's being evaluated.
+  Index NumIndices() const { return static_cast<Index>(sources_.size()); }
+
   /// Increase or decrease the total number of indices processed.
   ///
   /// This class holds a set of splines, each is given an index
@@ -47,7 +57,7 @@ class BulkSplineEvaluator {
   ///   - splines are allocated or removed at the highest indices
   void SetNumIndices(const Index num_indices);
 
-  /// Move the data at `old_index` into `new_index`.
+  /// Move the data at `old_index` into `new_index`. Move `count` indices total.
   ///
   /// Unused indices are still processed every frame. You can fill these index
   /// holes with MoveIndex(), to move items from the last index into the hole.
@@ -55,26 +65,30 @@ class BulkSplineEvaluator {
   /// SetNumIndices() to stop processing these highest indices. Note that this
   /// is exactly what fplutil::IndexAllocator does. You should use that class to
   /// keep your indices contiguous.
-  void MoveIndex(const Index old_index, const Index new_index);
+  void MoveIndices(const Index old_index, const Index new_index,
+                   const Index count);
 
-  /// Initialize `index` to clamp or wrap-around the `valid_y` range.
-  /// If `modular_arithmetic` is true, values wrap-around when they exceed
-  /// the bounds of `valid_y`. If it is false, values are clamped to `valid_y`.
-  void SetYRange(const Index index, const Range& valid_y,
-                 const bool modular_arithmetic);
+  /// Initialize `index` to normalize into the `modular_range` range, whenever
+  /// the spline segment is initialized. While travelling along a segment,
+  /// note that the value may exit the `modular_range` range. For example, you
+  /// can ensure an angle stays near the [-pi, pi) range by passing that range
+  /// as the `modular_range` for this `index`.
+  /// If !modular_range.Valid(), then modular arithmetic is not used.
+  void SetYRanges(const Index index, const Index count,
+                  const Range& modular_range);
 
   /// Initialize `index` to process `s.spline` starting from `s.start_x`.
   /// The Y() and Derivative() values are immediately available.
-  void SetSpline(const Index index, const CompactSpline& spline,
-                 const SplinePlayback& playback);
+  void SetSplines(const Index index, const Index count,
+                  const CompactSpline* splines, const SplinePlayback& playback);
 
-  /// Mark spline as invalid.
-  void ClearSpline(const Index index) { sources_[index].spline = nullptr; }
+  /// Mark spline range as invalid.
+  void ClearSplines(const Index index, const Index count);
 
   /// Reposition the spline at `index` evaluate from `x`.
   /// Same as calling SetSpline() with the same spline and
   /// `playback.start_x = x`.
-  void SetX(const Index index, const float x);
+  void SetXs(const Index index, const Index count, const float x);
 
   /// Set conversion rate from AdvanceFrame's delta_x to the speed at which
   /// we traverse the spline.
@@ -82,9 +96,8 @@ class BulkSplineEvaluator {
   ///     0.5 ==> half speed (slow motion)
   ///     1   ==> authored speed
   ///     2   ==> double speed (fast forward)
-  void SetPlaybackRate(const Index index, float playback_rate) {
-    playback_rates_[index] = playback_rate;
-  }
+  void SetPlaybackRates(const Index index, const Index count,
+                        float playback_rate);
 
   /// Increment x and update the Y() and Derivative() values for all indices.
   /// Process all indices in bulk to efficiently traverse memory and allow SIMD
@@ -123,7 +136,7 @@ class BulkSplineEvaluator {
   /// Return the slopes for the `count` splines starting at `index`.
   /// `out` is an array of length `count`.
   /// TODO OPT: Write assembly versions of this function.
-  void Derivatives(const Index index, Index count, float* out) const {
+  void Derivatives(const Index index, const Index count, float* out) const {
     assert(Valid(index) && Valid(index + count - 1));
     for (Index i = 0; i < count; ++i) {
       out[i] = Derivative(index + i);
@@ -150,14 +163,17 @@ class BulkSplineEvaluator {
   }
 
   /// Return the current playback rate of the spline at `index`.
-  float PlaybackRate(const Index index) const {
-    return playback_rates_[index];
-  }
+  float PlaybackRate(const Index index) const { return sources_[index].rate; }
 
   /// Return the spline that is currently being traversed at `index`.
   const CompactSpline* SourceSpline(const Index index) const {
     return sources_[index].spline;
   }
+
+  /// Return the splines currently playing back from `index` to `index + count`.
+  /// `splines` is an output array of length `count`.
+  void Splines(const Index index, const Index count,
+               const CompactSpline** splines) const;
 
   /// Return the raw cubic curve for `index`. Useful if you need to calculate
   /// the second or third derivatives (which are not calculated in
@@ -221,7 +237,7 @@ class BulkSplineEvaluator {
   /// Apply modular arithmetic to ensure that `y` is within the valid y_range.
   float NormalizeY(const Index index, const float y) const {
     const YRange& r = y_ranges_[index];
-    return r.modular_arithmetic ? r.valid_y.NormalizeCloseValue(y) : y;
+    return r.modular_range.Valid() ? r.modular_range.NormalizeCloseValue(y) : y;
   }
 
   /// Helper function to calculate the next y-value in a series of y-values
@@ -231,10 +247,10 @@ class BulkSplineEvaluator {
   float NextY(const Index index, const float current_y, const float target_y,
               const ModularDirection direction) const {
     const YRange& r = y_ranges_[index];
-    if (!r.modular_arithmetic) return target_y;
+    if (!r.modular_range.Valid()) return target_y;
 
     /// Calculate the difference from the current-y value for `direction`.
-    const float diff = r.valid_y.ModDiff(current_y, target_y, direction);
+    const float diff = r.modular_range.ModDiff(current_y, target_y, direction);
     return current_y + diff;
   }
 
@@ -242,24 +258,24 @@ class BulkSplineEvaluator {
   /// used for types such as angles, which are equivalent modulo 2pi
   /// (e.g. -pi and +pi represent the same angle).
   bool ModularArithmetic(const Index index) const {
-    return y_ranges_[index].modular_arithmetic != 0;
+    return y_ranges_[index].modular_range.Valid() != 0;
   }
 
   /// The modular range for values that use ModularArithmetic(). Note that Y()
   /// can be outside of this range. However, we always normalize to this range
   /// before blending to a new spline.
   const Range& ModularRange(const Index index) const {
-    return y_ranges_[index].valid_y;
+    return y_ranges_[index].modular_range;
   }
 
  private:
   void InitCubic(const Index index, const float start_x);
-  Index NumIndices() const { return static_cast<Index>(sources_.size()); }
   float SplineStartX(const Index index) const {
     return sources_[index].spline->StartX();
   }
   float CubicStartX(const Index index) const {
     const Source& s = sources_[index];
+    assert(s.spline != nullptr);
     return s.spline->NodeX(s.x_index);
   }
   CubicInit CalculateBlendInit(const Index index, const CompactSpline& spline,
@@ -280,6 +296,36 @@ class BulkSplineEvaluator {
   void EvaluateCubics_C();
 
   struct Source {
+    Source()
+        : rate(1.0f),
+          y_offset(0.0f),
+          y_scale(1.0f),
+          spline(nullptr),
+          x_index(kInvalidSplineIndex),
+          repeat(false) {}
+
+    Source(float rate, float y_offset, float y_scale)
+        : rate(rate),
+          y_offset(y_offset),
+          y_scale(y_scale),
+          spline(nullptr),
+          x_index(kInvalidSplineIndex),
+          repeat(false) {}
+
+    /// Speed at which time flows, relative to the spline's authored rate.
+    ///     0   ==> paused
+    ///     0.5 ==> half speed (slow motion)
+    ///     1   ==> authored speed
+    ///     2   ==> double speed (fast forward)
+    float rate;
+
+    /// Offset that we add to spline to shift it along the y-axis.
+    float y_offset;
+
+    /// Factor by which we scale the spline along the y-axis. We first scale
+    /// the spline along the y-axis before shifting it.
+    float y_scale;
+
     /// Pointer to the source spline node. Spline data is owned externally.
     /// We neither allocate or free this pointer here.
     const CompactSpline* spline;
@@ -291,24 +337,14 @@ class BulkSplineEvaluator {
     /// If true, start again at the beginning of the spline when we reach
     /// the end.
     bool repeat;
-
-    Source()
-      : spline(nullptr), x_index(motive::kInvalidSplineIndex), repeat(false) {}
   };
 
   struct YRange {
-    YRange() : valid_y(Range::Full()), modular_arithmetic(0) {}
-
-    /// Hold the min and max extents of the modular range.
-    /// Modular ranges are used for things like angles, which wrap around from
-    /// -pi to +pi.
-    Range valid_y; // TODO: change name to modular_range.
-
-    /// True if y values wrap around when they exit the valid_y range.
-    /// False if y values clamp to the edges of the valid_y range.
-    /// Use a mask for `modular_arithmetic` so that it can be used in `select`
-    /// instructions, in SIMD code.
-    uint32_t modular_arithmetic;
+    /// If using modular arithmetic, hold the min and max extents of the
+    /// modular range. Modular ranges are used for things like angles,
+    /// which wrap around from -pi to +pi.
+    /// By default, invalid. If invalid, do not use modular arithmetic.
+    Range modular_range;
   };
 
   // Data is organized in struct-of-arrays format to match the algorithm`s
@@ -336,13 +372,6 @@ class BulkSplineEvaluator {
 
   /// The last valid x value in `cubics_`.
   std::vector<float> cubic_x_ends_;
-
-  /// Speed at which time flows, relative to the spline's authored rate.
-  ///     0   ==> paused
-  ///     0.5 ==> half speed (slow motion)
-  ///     1   ==> authored speed
-  ///     2   ==> double speed (fast forward)
-  std::vector<float> playback_rates_;
 
   /// Currently active segment of sources_.spline.
   /// Instantiated from

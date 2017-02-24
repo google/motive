@@ -52,8 +52,7 @@ class RigData {
     // Initialize the motivators that drive the local transforms.
     for (BoneIndex i = 0; i < num_bones; ++i) {
       const MatrixOpArray& ops = defining_anim_->Anim(i).ops();
-      const MatrixInit matrix_init(ops, init.bone_transforms()[i]);
-      motivators_[i].Initialize(matrix_init, engine);
+      motivators_[i].Initialize(MatrixInit(ops), engine);
     }
 
     // Initialize global transforms to default pose.
@@ -243,10 +242,7 @@ class MotiveRigProcessor : public RigProcessor {
   MotiveRigProcessor() : time_(0) {}
 
   virtual ~MotiveRigProcessor() {
-    const MotiveIndex num_indices = NumIndices();
-    for (MotiveIndex index = 0; index < num_indices; ++index) {
-      RemoveIndex(index);
-    }
+    RemoveIndices(0, NumIndices());
   }
 
   virtual void AdvanceFrame(MotiveTime delta_time) {
@@ -308,31 +304,39 @@ class MotiveRigProcessor : public RigProcessor {
     return static_cast<MotiveIndex>(data_.size());
   }
 
-  virtual void InitializeIndex(const MotivatorInit& init, MotiveIndex index,
-                               MotiveEngine* engine) {
-    RemoveIndex(index);
+  virtual void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
+                                 MotiveDimension dimensions,
+                                 MotiveEngine* engine) {
+    RemoveIndices(index, dimensions);
     auto rig_init = static_cast<const RigInit&>(init);
-    data_[index] = new RigData(rig_init, time_, engine);
-  }
-
-  virtual void RemoveIndex(MotiveIndex index) {
-    if (data_[index] != nullptr) {
-      delete data_[index];
-      data_[index] = nullptr;
+    for (MotiveIndex i = index; i < index + dimensions; ++i) {
+      data_[i] = new RigData(rig_init, time_, engine);
     }
   }
 
-  virtual void MoveIndex(MotiveIndex old_index, MotiveIndex new_index) {
-    data_[new_index] = data_[old_index];
-    data_[old_index] = nullptr;
+  virtual void RemoveIndices(MotiveIndex index, MotiveDimension dimensions) {
+    for (MotiveIndex i = index; i < index + dimensions; ++i) {
+      if (data_[i] == nullptr) continue;
+      delete data_[i];
+      data_[i] = nullptr;
+    }
+  }
+
+  virtual void MoveIndices(MotiveIndex old_index, MotiveIndex new_index,
+                           MotiveDimension dimensions) {
+    MotiveIndex old_i = old_index;
+    MotiveIndex new_i = new_index;
+    for (MotiveDimension i = 0; i < dimensions; ++i, ++new_i, ++old_i) {
+      data_[new_i] = data_[old_i];
+      data_[old_i] = nullptr;
+    }
   }
 
   virtual void SetNumIndices(MotiveIndex num_indices) {
-    const MotiveIndex old_num_indices = NumIndices();
-
     // Ensure old items are deleted.
-    for (MotiveIndex i = num_indices; i < old_num_indices; ++i) {
-      RemoveIndex(i);
+    const MotiveIndex old_num_indices = NumIndices();
+    if (old_num_indices > num_indices) {
+      RemoveIndices(num_indices, old_num_indices - num_indices);
     }
 
     // Initialize new items to nullptr.

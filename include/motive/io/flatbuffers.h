@@ -46,8 +46,7 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, bool repeat,
                                MatrixAnim* anim);
 
 /// Convert from FlatBuffer params to Motive MatrixAnim.
-void RigAnimFromFlatBuffers(const RigAnimFb& params, const char* anim_name,
-                            RigAnim* anim);
+void RigAnimFromFlatBuffers(const RigAnimFb& params, RigAnim* anim);
 
 }  // namespace motive
 

@@ -12,26 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Locations of 3rd party and FPL libraries.
-FPL_ROOT:=$(MOTIVE_DIR)/../../libs
-# If the dependencies directory exists either as a subdirectory or as the
-# container of this project directory, assume the dependencies directory is
-# the root directory for all libraries required by this project.
-$(foreach dep_dir,$(wildcard $(MOTIVE_DIR)/dependencies) \
-                  $(wildcard $(MOTIVE_DIR)/../../dependencies),\
-  $(eval DEPENDENCIES_ROOT?=$(dep_dir)))
-ifneq ($(DEPENDENCIES_ROOT),)
-  FPL_ROOT:=$(DEPENDENCIES_ROOT)
-endif
+include $(call my-dir)/find_fplutil.mk
+include $(FPLUTIL_DIR)/buildutil/android_common.mk
 
 MOTIVE_GENERATED_OUTPUT_DIR := $(MOTIVE_DIR)/gen/include
-
-# Location of the Flatbuffers library.
-DEPENDENCIES_FLATBUFFERS_DIR?=$(FPL_ROOT)/flatbuffers
-# Location of the fplutil library.
-DEPENDENCIES_FPLUTIL_DIR?=$(FPL_ROOT)/fplutil
-# Location of the googletest library.
-DEPENDENCIES_GTEST_DIR?=$(FPL_ROOT)/googletest
-# Location of the MathFu library.
-DEPENDENCIES_MATHFU_DIR?=$(FPL_ROOT)/mathfu
 

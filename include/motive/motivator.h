@@ -92,9 +92,7 @@ class Motivator {
 
   /// Return true if this Motivator is currently being driven by a
   /// MotiveProcessor. That is, if it has been successfully initialized.
-  bool Valid() const {
-    return processor_ != nullptr;
-  }
+  bool Valid() const { return processor_ != nullptr; }
 
   /// Check consistency of internal state. Useful for debugging.
   /// If this function ever returns false, there has been some sort of memory
@@ -107,7 +105,9 @@ class Motivator {
   /// Return the type of Motivator we've been initilized to.
   /// A Motivator can take on any type that matches its dimension.
   /// The Motivator's type is determined by the `init` param in Initialize().
-  MotivatorType Type() const { return processor_->Type(); }
+  MotivatorType Type() const {
+    return Valid() ? processor_->Type() : kMotivatorTypeInvalid;
+  }
 
   /// The number of basic values that this Motivator is driving. For example,
   /// a 3D position would return 3, since it drives three floats. A single
@@ -193,6 +193,20 @@ class MotivatorNf : public Motivator {
   }
 
   /// Initialize to the motion algorithm specified by `init`.
+  /// Set target values and velocities as specified by 'target_values' and
+  /// 'target_velocities', arrays of length `dimensions`, with shape specified
+  /// by 'shape'.
+  void InitializeWithTargetShape(const MotivatorInit& init,
+                                 MotiveEngine* engine,
+                                 MotiveDimension dimensions,
+                                 const MotiveCurveShape& shape,
+                                 const float* target_values,
+                                 const float* target_velocities) {
+    InitializeWithDimension(init, engine, dimensions);
+    SetTargetWithShape(target_values, target_velocities, shape);
+  }
+
+  /// Initialize to the motion algorithm specified by `init`.
   /// Set movement to follow the curves specified in `splines`, an array of
   /// length `dimensions, and modified by `playback`.
   void InitializeWithSplines(const MotivatorInit& init, MotiveEngine* engine,
@@ -223,7 +237,14 @@ class MotivatorNf : public Motivator {
 
   /// Returns time remaining until target is reached.
   /// The unit of time is determined by the calling program.
-  MotiveTime TargetTime() const { return Processor().TargetTime(index_); }
+  MotiveTime TargetTime() const {
+    return Processor().TargetTime(index_, Dimensions());
+  }
+
+  /// Returns the shape of the current curve.
+  MotiveCurveShape MotiveShape() const {
+    return Processor().MotiveShape(index_);
+  }
 
   /// Returns the current time (i.e. the x-value) in the current spline.
   /// If Motivator is not being driven by a spline, returns 0.
@@ -234,14 +255,19 @@ class MotivatorNf : public Motivator {
   /// then SplineTime() will periodically loop back to time 0.
   MotiveTime SplineTime() const { return Processor().SplineTime(index_); }
 
+  /// Gather pointers to the splines currently being played, on each dimension.
+  /// @param splines Output array of length Dimensions().
+  void Splines(const CompactSpline** splines) const {
+    Processor().Splines(index_, Dimensions(), splines);
+  }
+
   /// Follow the curve specified in `spline`. Overrides the existing current
   /// value.
   /// @param spline The spline to follow. Array of length Dimensions().
   /// @param playback The time into the splines to initiate playback,
   ///                 the blend time to the splines, and whether to repeat
   ///                 from the beginning after the end of the spline is reached.
-  void SetSpline(const CompactSpline& spline,
-                 const SplinePlayback& playback) {
+  void SetSpline(const CompactSpline& spline, const SplinePlayback& playback) {
     assert(Dimensions() == 1);
     Processor().SetSplines(index_, Dimensions(), &spline, playback);
   }
@@ -273,9 +299,46 @@ class MotivatorNf : public Motivator {
     Processor().SetSplinePlaybackRate(index_, Dimensions(), playback_rate);
   }
 
-  // target is of length `dimensions`.
+  /// Set the target and (optionally the current) motivator values.
+  /// Use this call to procedurally drive the Motivator towards a specific
+  /// target. The Motivator will transition smoothly to the new target.
+  /// @param targets The targets that each value should achieve.
+  ///                An array of length Dimensions().
   void SetTargets(const MotiveTarget1f* targets) {
     Processor().SetTargets(index_, Dimensions(), targets);
+  }
+
+  /// Set the target values, velocities, and curve shape for the motivator.
+  /// Procedurally drive the Motivator to 'target_values' and
+  /// 'target_velocities' following a curve defined by 'shape'.
+  /// Setting the target with the shape makes it so that a time does not need
+  /// to be specified, as it will be calculated. In contrast, if the time needed
+  /// to achieve a value is to be user-provided, @ref SetTarget should be used
+  /// instead.
+  /// @param target_value Array of target values with length Dimensions.
+  /// @param target_velocity Array of target velocities with length Dimensions.
+  /// @param shape The shape of the curve we'll create, as determined by the
+  ///              curve's typical delta value, typical total time, and bias.
+  void SetTargetWithShape(const float* target_values,
+                          const float* target_velocities,
+                          const MotiveCurveShape& shape) {
+    Processor().SetTargetWithShape(index_, Dimensions(), target_values,
+                                   target_velocities, shape);
+  }
+
+  /// Drive some channels with splines and others with targets.
+  /// For i between 0 and Dimensions()-1, if splines[i] != NULL drive
+  /// channel i with splines[i]. Otherwise, drive channel i with targets[i].
+  /// @param splines Array of pointers to splines, length Dimensions().
+  ///                Pointers can be NULL.
+  /// @param playback Various parameters for `splines`.
+  /// @param targets Array of targets that are used when splines are not
+  ///                specified. Length Dimensions().
+  void SetSplinesAndTargets(const CompactSpline* const* splines,
+                            const SplinePlayback& playback,
+                            const MotiveTarget1f* targets) {
+    Processor().SetSplinesAndTargets(index_, Dimensions(), splines, playback,
+                                     targets);
   }
 
  protected:
@@ -300,9 +363,8 @@ class MotivatorNf : public Motivator {
 ///
 template <class VectorConverter, MotiveDimension kDimensionsParam>
 class MotivatorXfTemplate : public MotivatorNf {
-  typedef VectorConverter C;
-
  public:
+  typedef VectorConverter C;
   static const MotiveDimension kDimensions = kDimensionsParam;
   typedef typename VectorT<C, kDimensions>::type Vec;
   typedef typename MotiveTargetT<kDimensions>::type Target;
@@ -336,6 +398,20 @@ class MotivatorXfTemplate : public MotivatorNf {
                             const Target& t) {
     InitializeWithDimension(init, engine, kDimensions);
     SetTarget(t);
+  }
+
+  /// Initialize to the motion algorithm specified by `init`.
+  /// Set target values and velocities as specified by 'target_values' and
+  /// 'target_velocities', arrays of length `dimensions`, with shape specified
+  /// by 'shape'.
+  void InitializeWithTargetShape(const MotivatorInit& init,
+                                 MotiveEngine* engine,
+                                 MotiveDimension dimensions,
+                                 const MotiveCurveShape& shape,
+                                 const Vec& target_values,
+                                 const Vec& target_velocities) {
+    InitializeWithDimension(init, engine, dimensions);
+    SetTargetWithShape(target_values, target_velocities, shape);
   }
 
   /// Returns the current motivator value. The current value is updated when
@@ -397,11 +473,31 @@ class MotivatorXfTemplate : public MotivatorNf {
   /// movement qualities of the underlying MotiveProcessor.
   /// Note that the underlying MotiveProcessor is allowed to ignore
   /// parts of `t` that are irrelevent to its algorithm.
+  /// Note also that if the time needed to achieve a value is to be
+  /// user-provided, this function should be used. If the time should
+  /// be calculated instead of user-specified, @ref SetTargetWithShape
+  /// should be used instead.
   /// @param t A set of waypoints to hit, optionally including the current
   ///          value. If the current value is not included, maintain the
   ///          existing current value.
   void SetTarget(const Target& t) {
     Processor().SetTargets(index_, kDimensions, t.targets());
+  }
+
+  /// Set the target values, velocity, and curve shape for the motivator.
+  /// Use this call to procedurally drive the Motivator towards that target.
+  /// Setting the target with the shape makes it so that a time does not need
+  /// to be specified, as it will be calculated. In contrast, if the time needed
+  /// to achieve a value is to be user-provided, @ref SetTarget should be used
+  /// instead.
+  /// @param target_value The target value to hit.
+  /// @param target_velocity The velocity with which to hit the target value.
+  /// @param shape The shape of the curve we'll create, such as the curve's
+  ///              typical delta value, typical total time, and bias.
+  void SetTargetWithShape(const Vec& target_value, const Vec& target_velocity,
+                          const MotiveCurveShape& shape) {
+    Processor().SetTargetWithShape(index_, kDimensions, C::ToPtr(target_value),
+                                   C::ToPtr(target_velocity), shape);
   }
 
   MotiveDimension Dimensions() const { return kDimensions; }
@@ -531,8 +627,7 @@ class MatrixMotivator4fTemplate : public Motivator {
 
   /// Match existing MatrixOps with those in `ops` and smoothly transition
   /// to the new parameters in `ops`.
-  void BlendToOps(const MatrixOpArray& ops,
-                  const SplinePlayback& playback) {
+  void BlendToOps(const MatrixOpArray& ops, const SplinePlayback& playback) {
     Processor().BlendToOps(index_, ops, playback);
   }
 
@@ -566,8 +661,7 @@ class RigMotivator : public Motivator {
   /// Blend time is specified in `anim` itself.
   /// If the current state is unspecified because no animation
   /// has yet been played, snap to `anim`.
-  void BlendToAnim(const RigAnim& anim,
-                   const SplinePlayback& playback) {
+  void BlendToAnim(const RigAnim& anim, const SplinePlayback& playback) {
     Processor().BlendToAnim(index_, anim, playback);
   }
 

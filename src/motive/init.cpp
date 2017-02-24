@@ -38,13 +38,9 @@ const char* MatrixOpName(const motive::MatrixOperationType op) {
   return kMatrixOpNames[op];
 }
 
-RigInit::RigInit(const RigAnim& defining_anim,
-                 const mathfu::AffineTransform* bone_transforms,
-                 const BoneIndex* bone_parents, BoneIndex num_bones)
-    : MotivatorInit(kType),
-      defining_anim_(&defining_anim),
-      bone_transforms_(num_bones == 0 ? &mathfu::kAffineIdentity
-                                      : bone_transforms) {
+RigInit::RigInit(const RigAnim& defining_anim, const BoneIndex* bone_parents,
+                 BoneIndex num_bones)
+    : MotivatorInit(kType), defining_anim_(&defining_anim) {
   // Ensure the animation and the mesh have the same hierarchy.
   // We allow the one exception where there are only popsicle stick animations
   // (i.e. animations that affect a single root bone, like popsicle-stick
@@ -52,6 +48,7 @@ RigInit::RigInit(const RigAnim& defining_anim,
   assert(defining_anim.NumBones() == 1 ||
          MatchesHierarchy(defining_anim, bone_parents, num_bones));
   (void)bone_parents;
+  (void)num_bones;
 }
 
 // static

@@ -60,6 +60,7 @@ static const float kFixedPointEpsilon = 0.02f;
 static const float kDerivativePrecision = 0.01f;
 static const float kSecondDerivativePrecision = 0.26f;
 static const float kThirdDerivativePrecision = 6.0f;
+static const float kNodeXPrecision = 0.0001f;
 static const float kNodeYPrecision = 0.0001f;
 static const float kXGranularityScale = 0.01f;
 static const Range kAngleRange(-kPi, kPi);
@@ -95,7 +96,7 @@ static Range CubicInitYRange(const CubicInit& init, float buffer_percent) {
 
 static void InitializeSpline(const CubicInit& init, CompactSpline* spline) {
   const Range y_range = CubicInitYRange(init, 0.1f);
-  spline->Init(y_range, init.width_x * kXGranularityScale, 3);
+  spline->Init(y_range, init.width_x * kXGranularityScale);
   spline->AddNode(0.0f, init.start_y, init.start_derivative);
   spline->AddNode(init.width_x, init.end_y, init.end_derivative);
 }
@@ -131,7 +132,7 @@ static void PrintGraphDataAsCsv(const GraphData& d) {
   (void)d;
 #if PRINT_SPLINES_AS_CSV
   for (size_t i = 0; i < d.points.size(); ++i) {
-    printf("%f, %f, %f, %f, %f\n", d.points[i].x(), d.points[i].y(),
+    printf("%f, %f, %f, %f, %f\n", d.points[i].x, d.points[i].y,
            d.derivatives[i].first, d.derivatives[i].second,
            d.derivatives[i].third);
   }
@@ -148,19 +149,35 @@ static void PrintSplineAsAsciiGraph(const GraphData& d) {
 #endif  // PRINT_SPLINES_AS_ASCII_GRAPHS
 }
 
-static void GatherGraphData(const CubicInit& init, GraphData* d,
-                            bool is_angle = false) {
+static void GatherGraphData(
+    const CubicInit& init, GraphData* d, bool is_angle = false,
+    const motive::SplinePlayback& playback = motive::SplinePlayback()) {
   CompactSpline spline;
   InitializeSpline(init, &spline);
 
   BulkSplineEvaluator interpolator;
   interpolator.SetNumIndices(1);
   if (is_angle) {
-    interpolator.SetYRange(0, kAngleRange, true);
+    interpolator.SetYRanges(0, 1, kAngleRange);
   }
-  interpolator.SetSpline(0, spline, motive::SplinePlayback());
+  interpolator.SetSplines(0, 1, &spline, playback);
 
   ExecuteInterpolator(interpolator, kNumCheckPoints, d);
+
+  // Double-check start and end y values and derivitives, taking y-scale and
+  // y-offset into account.
+  const CubicCurve c(init);
+  const float y_precision = spline.RangeY().Length() * kFixedPointEpsilon;
+  const float derivative_precision =
+      fabs(playback.y_scale) * kDerivativePrecision;
+  EXPECT_NEAR(c.Evaluate(0.0f) * playback.y_scale + playback.y_offset,
+              d->points[0].y, y_precision);
+  EXPECT_NEAR(c.Derivative(0.0f) * playback.y_scale, d->derivatives[0].first,
+              derivative_precision);
+  EXPECT_NEAR(c.Evaluate(init.width_x) * playback.y_scale + playback.y_offset,
+              d->points[kNumCheckPoints - 1].y, y_precision);
+  EXPECT_NEAR(c.Derivative(init.width_x) * playback.y_scale,
+              d->derivatives[kNumCheckPoints - 1].first, derivative_precision);
 
   PrintGraphDataAsCsv(*d);
   PrintSplineAsAsciiGraph(*d);
@@ -169,7 +186,7 @@ static void GatherGraphData(const CubicInit& init, GraphData* d,
 class SplineTests : public ::testing::Test {
  protected:
   virtual void SetUp() {
-    short_spline_.Init(Range(0.0f, 1.0f), 0.01f, 4);
+    short_spline_.Init(Range(0.0f, 1.0f), 0.01f);
     short_spline_.AddNode(0.0f, 0.1f, 0.0f, motive::kAddWithoutModification);
     short_spline_.AddNode(1.0f, 0.4f, 0.0f, motive::kAddWithoutModification);
     short_spline_.AddNode(4.0f, 0.2f, 0.0f, motive::kAddWithoutModification);
@@ -180,6 +197,39 @@ class SplineTests : public ::testing::Test {
 
   CompactSpline short_spline_;
 };
+
+// Test in-place creation and destruction.
+TEST_F(SplineTests, InPlaceCreation) {
+  // Create a buffer with a constant fill.
+  static const uint8_t kTestFill = 0xAB;
+  uint8_t buffer[1024];
+  memset(buffer, kTestFill, sizeof(buffer));
+
+  // Dynamically create a spline in the buffer.
+  static const int kTestMaxNodes = 3;
+  static const size_t kSplineSize = CompactSpline::Size(kTestMaxNodes);
+  assert(kSplineSize < sizeof(buffer));  // Strictly less to test for overflow.
+  CompactSpline* spline = CompactSpline::CreateInPlace(kTestMaxNodes, buffer);
+  EXPECT_EQ(kTestMaxNodes, spline->max_nodes());
+  EXPECT_EQ(0, spline->num_nodes());
+
+  // Create spline and ensure it now has the max size.
+  spline->Init(kAngleRange, 1.0f);
+  for (int i = 0; i < kTestMaxNodes; ++i) {
+    spline->AddNode(static_cast<float>(i), 0.0f, 0.0f,
+                    motive::kAddWithoutModification);
+  }
+  EXPECT_EQ(kTestMaxNodes, spline->max_nodes());
+  EXPECT_EQ(kTestMaxNodes, spline->num_nodes());
+
+  // Ensure the spline hasn't overflowed its buffer.
+  for (size_t j = kSplineSize; j < sizeof(buffer); ++j) {
+    EXPECT_EQ(buffer[j], kTestFill);
+  }
+
+  // Test node destruction.
+  spline->~CompactSpline();
+}
 
 // Ensure the index lookup is accurate for x's before the range.
 TEST_F(SplineTests, IndexForXBefore) {
@@ -205,7 +255,7 @@ TEST_F(SplineTests, IndexForXAfter) {
 
 // Ensure the index lookup is accurate for x's barely after the range.
 TEST_F(SplineTests, IndexForXJustAfter) {
-  EXPECT_EQ(motive::kAfterSplineIndex,
+  EXPECT_EQ(short_spline_.LastSegmentIndex(),
             short_spline_.IndexForX(100.0001f, kRidiculousSplineIndex));
 }
 
@@ -216,13 +266,13 @@ TEST_F(SplineTests, IndexForXStart) {
 
 // Ensure the index lookup is accurate for x right at end.
 TEST_F(SplineTests, IndexForXEnd) {
-  EXPECT_EQ(motive::kAfterSplineIndex,
+  EXPECT_EQ(short_spline_.LastSegmentIndex(),
             short_spline_.IndexForX(100.0f, kRidiculousSplineIndex));
 }
 
 // Ensure the index lookup is accurate for x just inside end.
 TEST_F(SplineTests, IndexForXAlmostEnd) {
-  EXPECT_EQ(motive::kAfterSplineIndex,
+  EXPECT_EQ(short_spline_.LastSegmentIndex(),
             short_spline_.IndexForX(99.9999f, kRidiculousSplineIndex));
 }
 
@@ -258,8 +308,8 @@ TEST_F(SplineTests, Overshoot) {
                         init.width_x * (1.0f + kXGranularityScale));
     const Range y_range = CubicInitYRange(init, 0.001f);
     for (size_t j = 0; j < d.points.size(); ++j) {
-      EXPECT_TRUE(x_range.Contains(d.points[j].x()));
-      EXPECT_TRUE(y_range.Contains(d.points[j].y()));
+      EXPECT_TRUE(x_range.Contains(d.points[j].x));
+      EXPECT_TRUE(y_range.Contains(d.points[j].y));
     }
   }
 }
@@ -279,8 +329,8 @@ TEST_F(SplineTests, MirrorY) {
     EXPECT_EQ(d.points.size(), mirrored_d.points.size());
     const int num_points = static_cast<int>(d.points.size());
     for (int j = 0; j < num_points; ++j) {
-      EXPECT_EQ(d.points[j].x(), mirrored_d.points[j].x());
-      EXPECT_NEAR(d.points[j].y(), -mirrored_d.points[j].y(), y_precision);
+      EXPECT_EQ(d.points[j].x, mirrored_d.points[j].x);
+      EXPECT_NEAR(d.points[j].y, -mirrored_d.points[j].y, y_precision);
       EXPECT_NEAR(d.derivatives[j].first, -mirrored_d.derivatives[j].first,
                   kDerivativePrecision);
       EXPECT_NEAR(d.derivatives[j].second, -mirrored_d.derivatives[j].second,
@@ -308,9 +358,8 @@ TEST_F(SplineTests, ScaleX) {
     EXPECT_EQ(d.points.size(), scaled_d.points.size());
     const int num_points = static_cast<int>(d.points.size());
     for (int j = 0; j < num_points; ++j) {
-      EXPECT_NEAR(d.points[j].x(), scaled_d.points[j].x() / kScale,
-                  x_precision);
-      EXPECT_NEAR(d.points[j].y(), scaled_d.points[j].y(), y_precision);
+      EXPECT_NEAR(d.points[j].x, scaled_d.points[j].x / kScale, x_precision);
+      EXPECT_NEAR(d.points[j].y, scaled_d.points[j].y, y_precision);
       EXPECT_NEAR(d.derivatives[j].first,
                   scaled_d.derivatives[j].first * kScale, kDerivativePrecision);
       EXPECT_NEAR(d.derivatives[j].second,
@@ -325,7 +374,7 @@ TEST_F(SplineTests, ScaleX) {
 
 // YCalculatedSlowly should return the key-point Y values at key-point X values.
 TEST_F(SplineTests, YSlowAtNodes) {
-  for (CompactSplineIndex i = 0; i < short_spline_.NumNodes(); ++i) {
+  for (CompactSplineIndex i = 0; i < short_spline_.num_nodes(); ++i) {
     EXPECT_NEAR(short_spline_.NodeY(i),
                 short_spline_.YCalculatedSlowly(short_spline_.NodeX(i)),
                 kNodeYPrecision);
@@ -341,31 +390,44 @@ TEST_F(SplineTests, BulkYsStartAndEnd) {
   // Then compare returned `ys` with start end end values of spline.
   for (size_t num_ys = 2; num_ys < kMaxBulkYs; ++num_ys) {
     float ys[kMaxBulkYs];
+    float derivatives[kMaxBulkYs];
     CompactSpline::BulkYs(&short_spline_, 1, 0.0f,
-                          short_spline_.EndX() / (num_ys - 1), num_ys, ys);
+                          short_spline_.EndX() / (num_ys - 1), num_ys, ys,
+                          derivatives);
 
     EXPECT_NEAR(short_spline_.StartY(), ys[0], kNodeYPrecision);
     EXPECT_NEAR(short_spline_.EndY(), ys[num_ys - 1], kNodeYPrecision);
+    EXPECT_NEAR(short_spline_.StartDerivative(), derivatives[0],
+                kNodeYPrecision);
+    EXPECT_NEAR(short_spline_.EndDerivative(), derivatives[num_ys - 1],
+                kDerivativePrecision);
   }
 }
 
 // BulkYs should return the proper start and end values.
 TEST_F(SplineTests, BulkYsVsSlowYs) {
-  static const int kMaxBulkYs = 15;
+  static const int kMaxBulkYs = 21;
 
-  // Get bulk data at several delta_xs, but always starting at the start of the
-  // spline and ending at the end of the spline.
+  // Get bulk data at several delta_xs, but always starting at 3 delta_x
+  // prior to start of the spline and ending at 3 delta_x after the end
+  // of the spline.
   // Then compare returned `ys` with start end end values of spline.
-  for (size_t num_ys = 2; num_ys < kMaxBulkYs; ++num_ys) {
+  for (size_t num_ys = 2; num_ys < kMaxBulkYs - 6; ++num_ys) {
     // Collect `num_ys` evenly-spaced samples from short_spline_.
     float ys[kMaxBulkYs];
+    float derivatives[kMaxBulkYs];
     const float delta_x = short_spline_.EndX() / (num_ys - 1);
-    CompactSpline::BulkYs(&short_spline_, 1, 0.0f, delta_x, num_ys, ys);
+    const float start_x = 0.0f - 3 * delta_x;
+    const size_t num_points = num_ys + 6;
+    CompactSpline::BulkYs(&short_spline_, 1, start_x, delta_x, num_points, ys,
+                          derivatives);
 
     // Compare bulk samples to slowly calcuated samples.
-    float x = 0.0f;
-    for (size_t j = 0; j < num_ys; ++j) {
+    float x = start_x;
+    for (size_t j = 0; j < num_points; ++j) {
       EXPECT_NEAR(short_spline_.YCalculatedSlowly(x), ys[j], kNodeYPrecision);
+      EXPECT_NEAR(short_spline_.CalculatedSlowly(x, motive::kCurveDerivative),
+                  derivatives[j], kDerivativePrecision);
       x += delta_x;
     }
   }
@@ -391,8 +453,107 @@ TEST_F(SplineTests, BulkYsVec3) {
   // Ensure all the values are being calculated.
   for (int j = 0; j < kNumYs; ++j) {
     const vec3 y(ys[j]);
-    EXPECT_EQ(y.x(), y.y());
-    EXPECT_EQ(y.y(), y.z());
+    EXPECT_EQ(y.x, y.y);
+    EXPECT_EQ(y.y, y.z);
+  }
+}
+
+static const motive::UncompressedNode kUncompressed[] = {
+    {0.0f, 0.0f, 0.0f},
+    {1.0f, 0.5f, 0.03f},
+    {1.5f, 0.6f, 0.02f},
+    {3.0f, 0.0f, -0.04f},
+};
+
+static void CheckUncompressedNodes(const CompactSpline& spline,
+                                   const motive::UncompressedNode* nodes,
+                                   size_t num_nodes) {
+  for (size_t i = 0; i < num_nodes; ++i) {
+    const motive::UncompressedNode& n = nodes[i];
+    EXPECT_NEAR(n.x, spline.NodeX(static_cast<CompactSplineIndex>(i)),
+                kNodeXPrecision);
+    EXPECT_NEAR(n.y, spline.NodeY(static_cast<CompactSplineIndex>(i)),
+                kNodeYPrecision);
+    EXPECT_NEAR(n.derivative,
+                spline.NodeDerivative(static_cast<CompactSplineIndex>(i)),
+                kDerivativePrecision);
+  }
+}
+
+// Uncompressed nodes should be evaluated pretty much unchanged.
+TEST_F(SplineTests, InitFromUncompressedNodes) {
+  CompactSpline* spline = CompactSpline::CreateFromNodes(
+      kUncompressed, MOTIVE_ARRAY_SIZE(kUncompressed));
+  CheckUncompressedNodes(*spline, kUncompressed,
+                         MOTIVE_ARRAY_SIZE(kUncompressed));
+  CompactSpline::Destroy(spline);
+}
+
+// In-place construction from uncompressed nodes should be evaluated pretty
+// much unchanged.
+TEST_F(SplineTests, InitFromUncompressedNodesInPlace) {
+  uint8_t spline_buf[1024];
+  assert(sizeof(spline_buf) >=
+         CompactSpline::Size(MOTIVE_ARRAY_SIZE(kUncompressed)));
+  CompactSpline* spline = CompactSpline::CreateFromNodesInPlace(
+      kUncompressed, MOTIVE_ARRAY_SIZE(kUncompressed), spline_buf);
+  CheckUncompressedNodes(*spline, kUncompressed,
+                         MOTIVE_ARRAY_SIZE(kUncompressed));
+}
+
+static const motive::UncompressedNode kUniformSpline[] = {
+    {0.0f, 0.0f, 0.0f},   {1.0f, 0.5f, 0.03f},   {2.0f, 0.6f, 0.02f},
+    {3.0f, 0.0f, -0.04f}, {4.0f, 0.03f, -0.02f}, {5.0f, 0.9f, -0.1f},
+};
+
+// CreateFromSpline of an already uniform spline should evaluate to the same
+// spline.
+TEST_F(SplineTests, InitFromSpline) {
+  CompactSpline* uniform_spline = CompactSpline::CreateFromNodes(
+      kUniformSpline, MOTIVE_ARRAY_SIZE(kUniformSpline));
+  CompactSpline* spline = CompactSpline::CreateFromSpline(
+      *uniform_spline, MOTIVE_ARRAY_SIZE(kUniformSpline));
+  CheckUncompressedNodes(*spline, kUniformSpline,
+                         MOTIVE_ARRAY_SIZE(kUniformSpline));
+  CompactSpline::Destroy(spline);
+  CompactSpline::Destroy(uniform_spline);
+}
+
+// CreateFromSpline of an already uniform spline should evaluate to the same
+// spline. Test in-place construction.
+TEST_F(SplineTests, InitFromSplineInPlace) {
+  uint8_t uniform_spline_buf[1024];
+  uint8_t spline_buf[1024];
+  assert(sizeof(spline_buf) >=
+             CompactSpline::Size(MOTIVE_ARRAY_SIZE(kUniformSpline)) &&
+         sizeof(uniform_spline_buf) >=
+             CompactSpline::Size(MOTIVE_ARRAY_SIZE(kUniformSpline)));
+  CompactSpline* uniform_spline = CompactSpline::CreateFromNodesInPlace(
+      kUniformSpline, MOTIVE_ARRAY_SIZE(kUniformSpline), uniform_spline_buf);
+  CompactSpline* spline = CompactSpline::CreateFromSplineInPlace(
+      *uniform_spline, MOTIVE_ARRAY_SIZE(kUniformSpline), spline_buf);
+  CheckUncompressedNodes(*spline, kUniformSpline,
+                         MOTIVE_ARRAY_SIZE(kUniformSpline));
+}
+
+TEST_F(SplineTests, YScaleAndOffset) {
+  static const float kOffsets[] = {0.0f, 2.0f, 0.111f, 10.0f, -1.5f, -1.0f};
+  static const float kScales[] = {1.0f, 2.0f, 0.1f, 1.1f, 0.0f, -1.0f, -1.3f};
+
+  motive::SplinePlayback playback;
+  for (size_t k = 0; k < MOTIVE_ARRAY_SIZE(kScales); ++k) {
+    playback.y_offset = kOffsets[k];
+
+    for (size_t j = 0; j < MOTIVE_ARRAY_SIZE(kScales); ++j) {
+      playback.y_scale = kScales[j];
+
+      for (int i = 0; i < kNumSimpleSplines; ++i) {
+        const CubicInit& init = kSimpleSplines[i];
+
+        GraphData d;
+        GatherGraphData(init, &d, false, playback);
+      }
+    }
   }
 }
 

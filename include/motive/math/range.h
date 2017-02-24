@@ -50,6 +50,7 @@ class RangeT {
 
   // By default, initialize to an invalid range.
   RangeT() : start_(static_cast<T>(1)), end_(static_cast<T>(0)) {}
+  explicit RangeT(const T point) : start_(point), end_(point) {}
   RangeT(const T start, const T end) : start_(start), end_(end) {}
 
   /// A range is valid if it contains at least one number.
@@ -239,6 +240,13 @@ class RangeT {
 
   /// Return true if `x` is in (start_, end_), i.e. the **exclusive** range.
   bool StrictlyContains(const T x) const { return start_ < x && x < end_; }
+
+  /// Return true if `x` is in [start_ - tolerance, end_ + tolerance],
+  /// where tolerance = Length() * percent.
+  bool ContainsWithTolerance(const T x, const T percent) const {
+    const float tolerance = Length() * percent;
+    return start_ - tolerance <= x && x <= end_ + tolerance;
+  }
 
   /// Swap start and end. When 'a' and 'b' don't overlap, if you invert the
   /// return value of Range::Intersect(a, b), you'll get the gap between
@@ -447,6 +455,26 @@ class RangeT {
     return ClampToClosest(x, ranges.arr, ranges.len);
   }
 
+  /// Returns the range that covers all values in f(array).
+  /// f is a lambda to calculate T from S. See Covers() for a simple example.
+  /// In general, if your S has a function `T GetValue()`, then your lambda
+  /// can look something like,
+  ///     const RangeT<T> range = RangeT<T>::CoversLambda(
+  ///         s_array, len, [](const S& s) { return s.GetValue(); });
+  template <typename S, typename F>
+  static RangeT<T> CoversLambda(const S* array, size_t len, const F& f) {
+    RangeT<T> r = Empty();
+    for (size_t i = 0; i < len; ++i) {
+      r = r.Include(f(array[i]));
+    }
+    return r;
+  }
+
+  /// Return the range that covers all values in `array`.
+  static RangeT<T> Covers(const T* array, size_t len) {
+    return CoversLambda(array, len, [](const T& t) { return t; });
+  }
+
   /// Returns the complete range. Every T is contained in this range.
   static RangeT<T> Full() {
     return RangeT<T>(-std::numeric_limits<T>::infinity(),
@@ -460,6 +488,16 @@ class RangeT {
   static RangeT<T> Empty() {
     return RangeT<T>(std::numeric_limits<T>::infinity(),
                      -std::numeric_limits<T>::infinity());
+  }
+
+  /// Returns the range of positive numbers: [0, +infinity].
+  static RangeT<T> Positive() {
+    return RangeT<T>(0.0f, std::numeric_limits<T>::infinity());
+  }
+
+  /// Returns the range of negative numbers.: [-infinity, 0].
+  static RangeT<T> Negative() {
+    return RangeT<T>(-std::numeric_limits<T>::infinity(), 0.0f);
   }
 
  private:
@@ -486,6 +524,7 @@ typedef RangeFloat Range;
 // Useful constants.
 static const Range kAngleRange(-static_cast<float>(M_PI),
                                static_cast<float>(M_PI));
+static const Range kInvalidRange;
 
 }  // namespace motive
 

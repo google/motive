@@ -31,42 +31,15 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MOTIVE_BINARY_DIR})
 # Temporary files (like object files) created while compiling projects.
 set(tmp_dir ${CMAKE_CURRENT_BINARY_DIR}/obj)
 
-# Directory which contains the source for 3rd party libraries.
-if(NOT DEFINED third_party_root)
-  get_filename_component(
-    third_party_root "${CMAKE_CURRENT_SOURCE_DIR}/../../../../external"
-    ABSOLUTE)
-endif()
-
-# Directory which contains source for FPL libraries.
-if(NOT DEFINED fpl_root)
-  get_filename_component(
-      fpl_root "${CMAKE_CURRENT_SOURCE_DIR}/../../libs" ABSOLUTE)
-endif()
-
-# If the dependencies directory exists, assume this is the root directory for
-# all libraries required by this project.
-if(NOT DEFINED dependencies_root)
-  set(dependencies_root "${CMAKE_CURRENT_SOURCE_DIR}/dependencies")
-  if(EXISTS "${dependencies_root}")
-    set(third_party_root "${dependencies_root}")
-    set(fpl_root "${dependencies_root}")
-  endif()
-endif()
-
-# Configurable locations of dependencies of this project.
-set(dependencies_gtest_dir "${fpl_root}/googletest"
-    CACHE PATH "Directory containing the GoogleTest library.")
-set(dependencies_flatbuffers_dir "${fpl_root}/flatbuffers"
-    CACHE PATH "Directory containing the Flatbuffers library.")
-set(dependencies_fplutil_dir "${fpl_root}/fplutil"
-    CACHE PATH "Directory containing the fplutil library.")
-set(dependencies_mathfu_dir "${fpl_root}/mathfu"
-    CACHE PATH "Directory containing the MathFu library.")
+# Call fplutil to get locations of dependencies and set common build settings.
+include("cmake/find_fplutil.cmake")
+include("${fplutil_dir}/buildutil/cmake_common.txt")
+set_common_build_variables()
 
 # Option to enable / disable the test build.
 option(motive_build_tests "Build tests for this project." ON)
 option(motive_build_samples "Build samples for this project." ON)
+option(motive_build_viewer "Build fplmesh and motiveanim file viewer." ON)
 
 # Option to only build flatc
 option(motive_only_flatc "Only build FlatBuffers compiler." OFF)
@@ -91,7 +64,7 @@ endif()
 # Generate source files for all FlatBuffers schema files under the src
 # directory.
 set(MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}${CMAKE_FILES_DIRECTORY}/include)
+    ${CMAKE_CURRENT_BINARY_DIR}/include)
 file(GLOB_RECURSE FLATBUFFERS_SCHEMAS ${CMAKE_CURRENT_SOURCE_DIR}/schemas/*.fbs)
 
 # Generate rules to build the set of output files from the set of input
@@ -115,9 +88,12 @@ set(motive_SRCS
     include/motive/math/bulk_spline_evaluator.h
     include/motive/math/compact_spline.h
     include/motive/math/curve.h
+    include/motive/math/curve_util.h
     include/motive/math/dual_cubic.h
+    include/motive/math/float.h
     include/motive/math/range.h
     include/motive/processor.h
+    include/motive/simple_processor_template.h
     include/motive/target.h
     include/motive/util.h
     include/motive/version.h
@@ -127,15 +103,21 @@ set(motive_SRCS
     src/motive/motivator.cpp
     src/motive/init.cpp
     src/motive/io/flatbuffers.cpp
+    src/motive/math/angle.cpp
     src/motive/math/bulk_spline_evaluator.cpp
     src/motive/math/compact_spline.cpp
     src/motive/math/curve.cpp
+    src/motive/math/curve_util.cpp
+    src/motive/math/float.cpp
     src/motive/math/dual_cubic.cpp
     src/motive/processor.cpp
+    src/motive/processor/const_processor.cpp
+    src/motive/processor/ease_in_ease_out_processor.cpp
     src/motive/processor/matrix_processor.cpp
     src/motive/processor/overshoot_processor.cpp
     src/motive/processor/rig_processor.cpp
     src/motive/processor/spline_processor.cpp
+    src/motive/processor/spring_processor.cpp
     src/motive/util/benchmark.cpp
     src/motive/util/optimizations.cpp
     src/motive/version.cpp)
@@ -149,27 +131,6 @@ include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${dependencies_fplutil_dir}/libfplutil/include)
 include_directories(${dependencies_mathfu_dir}/benchmarks)
 include_directories(${dependencies_mathfu_dir}/include)
-
-# Detect clang
-if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" OR
-   CMAKE_CXX_COMPILER_ID MATCHES ".*clang")
-  set(CMAKE_COMPILER_IS_CLANGXX 1)
-endif()
-
-# Compiler flags.
-set(C_FLAGS_WARNINGS "")
-if(MSVC)
-  set(C_FLAGS_WARNINGS "/W4 /WX /wd4065 /wd4355")
-  add_definitions(-DNOMINMAX)
-elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR
-       CMAKE_COMPILER_IS_CLANGXX)
-  add_definitions(-g)
-  set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -std=c++0x -Wall -pedantic -Werror -Wextra -Wno-unused-function")
-  # -Wno-unused-function is because of webp encode.h
-endif()
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_FLAGS_WARNINGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${C_FLAGS_WARNINGS}")
 
 if(motive_DEBUG)
   # if we want to define this, it needs to be only in debug builds
@@ -211,3 +172,9 @@ endif()
 if(motive_build_samples)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/samples)
 endif()
+
+# Viewer.
+if(motive_build_viewer)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/viewer)
+endif()
+

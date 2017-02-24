@@ -17,78 +17,21 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(anim_pipeline)
 
-# This is the motive directory, which is a parent of the current directory.
-get_filename_component(motive_dir "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
-
 # This is the directory into which the executables are built.
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${motive_dir}/bin/${CMAKE_SYSTEM_NAME})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${CMAKE_SYSTEM_NAME})
 set(tmp_dir ${CMAKE_BINARY_DIR}/obj)
 
-# If the dependencies directory exists, assume this is the root directory for
-# all libraries required by this project.
-get_filename_component(fpl_root "${motive_dir}/.." ABSOLUTE)
-if(NOT DEFINED dependencies_root)
-  set(dependencies_root "${motive_dir}/dependencies" CACHE PATH
-      "Directory holding the dependencies pulled from github.")
-  if(EXISTS "${dependencies_root}")
-    set(fpl_root "${dependencies_root}")
-  endif()
-endif()
+# Include functions fbx_compile_options() and fbx_configure_target()
+include("../../cmake/find_fplutil.cmake")
+include("${fplutil_dir}/fbx_common/cmake_fbx.txt")
 
-set(dependencies_flatbuffers_dir "${fpl_root}/flatbuffers"
-    CACHE PATH "Directory containing the Flatbuffers library.")
-set(dependencies_fplutil_dir "${fpl_root}/fplutil"
-    CACHE PATH "Directory containing the FplUtil library.")
-set(dependencies_mathfu_dir "${fpl_root}/mathfu"
-    CACHE PATH "Directory containing the MathFu library.")
-set(dependencies_motive_dir "${motive_dir}"
-    CACHE PATH "Directory containing the motive animation library.")
-
-# Autodesk's FBX SDK must be installed to build the pipeline.
-set(fbx_sdk_dir $ENV{FBX_SDK})
-if("${fbx_sdk_dir}" STREQUAL "")
-  message(FATAL_ERROR "Please install the FBX SDK, and then set the FBX_SDK"
-                      " environment variable to the install directory")
-endif()
-
-# Search for the FBX library.
-# Visual Studio 64 bit option can be specified with
-# `cmake -G "Visual Studio 11 Win64"`
-if(CMAKE_CL_64)
-  set(fbs_sdk_subdir "x64")
-else()
-  set(fbs_sdk_subdir "x86")
-endif()
-
-# Prefer the static library '.a' over the sharedlibrary '.so'.
-find_library(fbx_sdk_lib_release
-  NAMES libfbxsdk.a fbxsdk libfbxsdk-md.lib
-  PATHS ${fbx_sdk_dir}/lib/gcc4/x64/release
-        ${fbx_sdk_dir}/lib/clang/release
-        ${fbx_sdk_dir}/lib/vs2008/${fbs_sdk_subdir}/release
-        ${fbx_sdk_dir}/lib/vs2010/${fbs_sdk_subdir}/release
-        ${fbx_sdk_dir}/lib/vs2012/${fbs_sdk_subdir}/release
-        ${fbx_sdk_dir}/lib/vs2013/${fbs_sdk_subdir}/release)
-
-find_library(fbx_sdk_lib_debug
-  NAMES libfbxsdk.a fbxsdk libfbxsdk-md.lib
-  PATHS ${fbx_sdk_dir}/lib/gcc4/x64/debug
-        ${fbx_sdk_dir}/lib/clang/debug
-        ${fbx_sdk_dir}/lib/vs2008/${fbs_sdk_subdir}/debug
-        ${fbx_sdk_dir}/lib/vs2010/${fbs_sdk_subdir}/debug
-        ${fbx_sdk_dir}/lib/vs2012/${fbs_sdk_subdir}/debug
-        ${fbx_sdk_dir}/lib/vs2013/${fbs_sdk_subdir}/debug)
-
-set(fbx_sdk_lib debug ${fbx_sdk_lib_debug} optimized ${fbx_sdk_lib_release})
-
-# Linux and Mac require these libs too.
-if(NOT MSVC)
-  set(fbx_sdk_extra_libs pthread dl)
-endif()
+# Set compile options for FBX programs.
+fbx_compile_options()
 
 # Include motive.
 set(motive_build_samples OFF CACHE BOOL "")
 set(motive_build_tests OFF CACHE BOOL "")
+set(motive_build_viewer OFF CACHE BOOL "")
 add_subdirectory("${dependencies_motive_dir}" ${tmp_dir}/motive)
 get_property(MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR
              TARGET motive_generated_includes PROPERTY GENERATED_INCLUDES_DIR)
@@ -102,52 +45,21 @@ add_subdirectory(${dependencies_mathfu_dir} ${tmp_dir}/mathfu)
 set(fplutil_build_tests OFF CACHE BOOL "")
 add_subdirectory("${dependencies_fplutil_dir}/libfplutil" ${tmp_dir}/fplutil)
 
+# Add the common FBX library.
+add_subdirectory(${dependencies_fplutil_dir}/fbx_common ${tmp_dir}/fbx_common)
+
 # Setup include directories.
 include_directories(${MOTIVE_FLATBUFFERS_GENERATED_INCLUDES_DIR})
 include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${dependencies_fplutil_dir}/libfplutil/include)
 include_directories(${dependencies_motive_dir}/include)
-include_directories(${fbx_sdk_dir}/include)
-
-# Detect clang
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(CMAKE_COMPILER_IS_CLANGXX 1)
-endif()
-
-# Compiler flags.
-set(C_FLAGS_WARNINGS "")
-if(MSVC)
-  set(C_FLAGS_WARNINGS "/W4 /WX")
-  # Suppress deprecation of fopen.
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR
-       CMAKE_COMPILER_IS_CLANGXX)
-  add_definitions(-g)
-  set(CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} -std=c++0x")
-  # Disable warnings in fbxsdk.h that can't be disabled with pragmas.
-  set(C_FLAGS_WARNINGS
-      "${C_FLAGS_WARNINGS} -Wno-literal-suffix -Wno-comment")
-endif()
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${C_FLAGS_WARNINGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${C_FLAGS_WARNINGS}")
-
-# Needed by the FBX SDK when we call some file manipulation functions.
-if(APPLE)
-  set(CMAKE_CXX_LINK_FLAGS "-framework Carbon")
-endif()
 
 # Executable target.
 add_executable(anim_pipeline ${CMAKE_CURRENT_SOURCE_DIR}/anim_pipeline.cpp)
 
+# Set further options for FBX programs.
+fbx_configure_target(anim_pipeline)
+target_link_libraries(anim_pipeline fplutil motive)
+
 # Additional flags for the target.
 mathfu_configure_flags(anim_pipeline)
-
-# Dependencies for the executable target.
-add_dependencies(anim_pipeline motive fplutil)
-target_link_libraries(anim_pipeline
-    ${fbx_sdk_lib}
-    ${fbx_sdk_extra_libs}
-    motive
-    fplutil)

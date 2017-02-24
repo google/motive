@@ -17,12 +17,14 @@
 #include "motive/math/angle.h"
 #include "motive/math/curve.h"
 
-using motive::Angle;
-using motive::Range;
-using motive::kPi;
-using motive::Graph2DPoints;
 using mathfu::vec2;
+using motive::Angle;
+using motive::Graph2DPoints;
+using motive::kAngleRange;
+using motive::kInvalidRange;
+using motive::kPi;
 using motive::MatrixMotivator4fTemplate;
+using motive::Range;
 
 
 //! [Own Vector Types]
@@ -87,8 +89,8 @@ int main() {
   // The engine is the central place where animation data is stored and processed.
   motive::MotiveEngine engine;
 
-  const motive::SplineInit angle_init(Range(-kPi, kPi), true);
-  const motive::SplineInit position_init(Range(-10.0f, 10.0f), false);
+  const motive::SplineInit angle_init(kAngleRange);
+  const motive::SplineInit position_init(kInvalidRange);
   const motive::MotiveTime target_time = 1000;
   const motive::MotiveTarget1f angle_target =
       motive::CurrentToTarget1f(0, 0, kPi, 0, target_time);
@@ -96,8 +98,8 @@ int main() {
       motive::CurrentToTarget1f(0, 0.2f, 10, 0, target_time);
 
   motive::MatrixOpArray ops(2);
-  ops.AddOp(motive::kRotateAboutY, angle_init, angle_target);
-  ops.AddOp(motive::kTranslateZ, position_init, position_target);
+  ops.AddOp(0, motive::kRotateAboutY, angle_init, angle_target);
+  ops.AddOp(1, motive::kTranslateZ, position_init, position_target);
   const motive::MatrixInit matrix_init(ops);
 
   MyMatrixMotivator4f matrix(matrix_init, &engine);

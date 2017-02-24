@@ -17,7 +17,7 @@
 namespace motive {
 
 #define MOTIVE_VERSION_MAJOR 1
-#define MOTIVE_VERSION_MINOR 1
+#define MOTIVE_VERSION_MINOR 2
 #define MOTIVE_VERSION_REVISION 0
 
 // Turn X into a string literal.

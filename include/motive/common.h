@@ -70,6 +70,19 @@ typedef uint8_t BoneIndex;
 static const BoneIndex kMaxNumBones = 254;
 static const BoneIndex kInvalidBoneIdx = 255;
 
+/// @typedef MatrixOpId
+/// Identify an operation in an animation so that it can be blended with the
+/// same operation in another animation. For example, an animation may have
+/// three kTranslateX operations for a single matrix: one for translating to
+/// the scale pivot, one for translating from the scale pivot, and one for the
+/// final SQT translation. If another animation has no scale operations,
+/// however, that other animation may have only the one SQT translation.
+/// We need the MatrixOpId id so that we know how to match the SQT translations
+/// when blending from one animation to the other.
+typedef uint8_t MatrixOpId;
+static const MatrixOpId kMaxMatrixOpId = 254;
+static const MatrixOpId kInvalidMatrixOpId = 255;
+
 /// @class MotivatorInit
 /// Base class for Motivator parameterization. Every motivator type has a
 /// its own init class that derives from MotivatorInit. In the derivation,
@@ -125,6 +138,9 @@ class MotivatorInit {
 #define MOTIVE_DISALLOW_COPY_AND_ASSIGN(TypeName) \
   TypeName(const TypeName&);                      \
   void operator=(const TypeName&)
+
+/// Print ASCII curves in motive tests.
+#define MOTIVE_OUTPUT_DEBUG_CURVES_IN_TESTS
 
 }  // namespace motive
 

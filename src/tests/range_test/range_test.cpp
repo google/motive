@@ -362,6 +362,34 @@ TEST_F(RangeTests, NormalizeClose_Distant) {
   TestNormalize_Distant(NormalizeClose);
 }
 
+TEST_F(RangeTests, Covers) {
+  const float a[] = {1.0f, -3.0f, 2.0f, 5.0f, 0.0f, 6.0f};
+  const Range covers = Range::Covers(a, MOTIVE_ARRAY_SIZE(a));
+  EXPECT_EQ(covers.start(), -3.0f);
+  EXPECT_EQ(covers.end(), 6.0f);
+}
+
+TEST_F(RangeTests, CoversLambda) {
+  struct CompoundStruct {
+    float x, y;
+  };
+  const CompoundStruct s[] = {
+      {1.0f, 0.0f}, {0.4f, -1.1f}, {4.2f, -4.1f}, {0.1f, 5.1f},
+  };
+
+  // Pull out the coverage of the x component.
+  const Range covers_x = Range::CoversLambda(
+      s, MOTIVE_ARRAY_SIZE(s), [](const CompoundStruct& c) { return c.x; });
+  EXPECT_EQ(covers_x.start(), 0.1f);
+  EXPECT_EQ(covers_x.end(), 4.2f);
+
+  // Pull out the coverage of the y component.
+  const Range covers_y = Range::CoversLambda(
+      s, MOTIVE_ARRAY_SIZE(s), [](const CompoundStruct& c) { return c.y; });
+  EXPECT_EQ(covers_y.start(), -4.1f);
+  EXPECT_EQ(covers_y.end(), 5.1f);
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

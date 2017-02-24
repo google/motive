@@ -81,9 +81,7 @@ void MotiveProcessor::InitializeMotivator(const MotivatorInit& init,
   motivator->Init(this, index);
 
   // Call the MotiveProcessor-specific initialization routine.
-  for (MotiveDimension i = 0; i < dimensions; ++i) {
-    InitializeIndex(init, index + i, engine);
-  }
+  InitializeIndices(init, index, dimensions, engine);
 
   VerifyInternalState();
 }
@@ -109,10 +107,7 @@ void MotiveProcessor::RemoveMotivator(MotiveIndex index) {
   assert(ValidMotivatorIndex(index));
 
   // Call the MotiveProcessor-specific remove routine.
-  const MotiveDimension dimensions = Dimensions(index);
-  for (MotiveDimension i = 0; i < dimensions; ++i) {
-    RemoveIndex(index + i);
-  }
+  RemoveIndices(index, Dimensions(index));
 
   // Need this version since the destructor can't call the pure virtual
   // RemoveIndex() above.
@@ -179,15 +174,13 @@ void MotiveProcessor::MoveIndexRangeBase(const IndexRange& source,
     motivators_[i]->Init(this, i + index_diff);
   }
 
+  // Tell derivated class about the move.
+  MoveIndices(source.start(), target, source.Length());
+
   // Reinitialize the motivator pointers.
   for (MotiveIndex i = source.start(); i < source.end(); ++i) {
     // Assert we're moving something valid onto something invalid.
     assert(motivators_[i] != nullptr && motivators_[i + index_diff] == nullptr);
-
-    // Tell derivated class about the move.
-    // TODO OPT: Change MoveIndex() to have the same signature as
-    //           MoveIndexRange() to avoid the function call overhead.
-    MoveIndex(i, i + index_diff);
 
     // Move our internal data too.
     motivators_[i + index_diff] = motivators_[i];

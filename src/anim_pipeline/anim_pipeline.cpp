@@ -12,22 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Suppress warnings in external header.
-#pragma warning(push)            // for Visual Studio
-#pragma warning(disable : 4068)  // "unknown pragma" -- for Visual Studio
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wignored-qualifiers"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wpedantic"
-#pragma GCC diagnostic ignored "-Wunused-value"
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#include <fbxsdk.h>
-#pragma GCC diagnostic pop
-#pragma warning(pop)
-
 #include <assert.h>
 #include <fstream>
 #include <functional>
+#include <sstream>
 #include <stdarg.h>
 #include <stdio.h>
 #include <unordered_map>
@@ -35,6 +23,8 @@
 #include <vector>
 
 #include "anim_generated.h"
+#include "anim_list_generated.h"
+#include "fbx_common/fbx_common.h"
 #include "fplutil/file_utils.h"
 #include "mathfu/glsl_mappings.h"
 #include "motive/anim.h"
@@ -44,6 +34,16 @@
 
 namespace motive {
 
+using fplutil::AxisSystem;
+using fplutil::IndexOfName;
+using fplutil::Logger;
+using fplutil::LogLevel;
+using fplutil::LogOptions;
+using fplutil::kLogVerbose;
+using fplutil::kLogInfo;
+using fplutil::kLogImportant;
+using fplutil::kLogWarning;
+using fplutil::kLogError;
 using motive::MatrixOperationType;
 using motive::kInvalidMatrixOperation;
 using motive::kNumMatrixOperationTypes;
@@ -57,7 +57,17 @@ enum RepeatPreference {
   kNeverRepeat
 };
 
-static const int kTimeGranularityMiliseconds = 10;
+enum TransformationType {
+  kTransformationTranslate,    // kTranslateX, kTranslateY, kTranslateZ
+  kTransformationPreRotate,    // kRotateAboutX, kRotateAboutY, kRotateAboutZ
+  kTransformationRotate,       // kRotateAboutX, kRotateAboutY, kRotateAboutZ
+  kTransformationPostRotate,   // kRotateAboutX, kRotateAboutY, kRotateAboutZ
+  kTransformationRotatePivot,  // kTranslateX, kTranslateY, kTranslateZ
+  kTransformationScale,        // kScaleX, kScaleY, kScaleZ, kScaleUniformly
+  kTransformationScalePivot,   // kTranslateX, kTranslateY, kTranslateZ
+  kNumTransflormationTypes
+};
+
 static const int kDefaultChannelOrder[] = {0, 1, 2};
 static const int kRotationOrderToChannelOrder[][3] = {
     {2, 1, 0},  // eOrderXYZ,
@@ -68,57 +78,14 @@ static const int kRotationOrderToChannelOrder[][3] = {
     {0, 1, 2},  // eOrderZYX,
     {2, 1, 0},  // eOrderSphericXYZ
 };
-
-// Each log message is given a level of importance.
-// We only output messages that have level >= our current logging level.
-enum LogLevel {
-  kLogVerbose,
-  kLogInfo,
-  kLogImportant,
-  kLogWarning,
-  kLogError,
-  kNumLogLevels
-};
-
-// Prefix log messages at this level with this message.
-static const char* kLogPrefix[] = {"",           // kLogVerbose
-                                   "",           // kLogInfo
-                                   "",           // kLogImportant
-                                   "Warning: ",  // kLogWarning
-                                   "Error: "     // kLogError
-};
-static_assert(MOTIVE_ARRAY_SIZE(kLogPrefix) == kNumLogLevels,
-              "kLogPrefix length is incorrect");
-
-/// @class Logger
-/// @brief Output log messages if they are above an adjustable threshold.
-class Logger {
- public:
-  Logger() : level_(kLogImportant) {}
-
-  void set_level(LogLevel level) { level_ = level; }
-  LogLevel level() const { return level_; }
-
-  /// Output a printf-style message if our current logging level is
-  /// >= `level`.
-  void Log(LogLevel level, const char* format, ...) const {
-    if (level < level_) return;
-
-    // Prefix message with log level, if required.
-    const char* prefix = kLogPrefix[level];
-    if (prefix[0] != '\0') {
-      printf("%s", prefix);
-    }
-
-    // Redirect output to stdout.
-    va_list args;
-    va_start(args, format);
-    vprintf(format, args);
-    va_end(args);
-  }
-
- private:
-  LogLevel level_;
+static const int kRotationOrderToChannelOrderInverted[][3] = {
+    {0, 1, 2},  // eOrderXYZ,
+    {0, 2, 1},  // eOrderXZY,
+    {1, 2, 0},  // eOrderYZX,
+    {1, 0, 2},  // eOrderYXZ,
+    {2, 0, 1},  // eOrderZXY,
+    {2, 1, 0},  // eOrderZYX,
+    {0, 1, 2},  // eOrderSphericXYZ
 };
 
 // Half a percent.
@@ -194,21 +161,47 @@ typedef float FlatVal;
 // Slope of animation curves.
 typedef float FlatDerivative;
 
+// Start and end range of bone indices.
+typedef RangeT<BoneIndex> BoneRange;
+
 /// @class FlatAnim
 /// @brief Hold animation data to be written to FlatBuffer animation format.
 class FlatAnim {
  public:
-  explicit FlatAnim(const Tolerances& tolerances, Logger& log)
-      : tolerances_(tolerances), log_(log) {}
+  explicit FlatAnim(const Tolerances& tolerances, bool root_bones_only,
+                    Logger& log)
+      : cur_bone_index_(-1),
+        tolerances_(tolerances),
+        root_bones_only_(root_bones_only),
+        log_(log) {}
 
-  void AllocBone(const char* bone_name, int depth) {
-    bones_.push_back(Bone(bone_name, depth));
+  unsigned int AllocBone(const char* bone_name, int parent_bone_index) {
+    const unsigned int bone_index = static_cast<unsigned int>(bones_.size());
+    bones_.push_back(Bone(bone_name, parent_bone_index));
+    return bone_index;
   }
 
-  FlatChannelId AllocChannel(MatrixOperationType op) {
+  // Set/Reset the current bone index, used to access the current channels via
+  // CurChannels.
+  void SetCurBoneIndex(unsigned int cur_bone_index) {
+    assert(cur_bone_index < bones_.size());
+    assert(cur_bone_index_ == -1);
+    cur_bone_index_ = cur_bone_index;
+  }
+  void ResetCurBoneIndex() { cur_bone_index_ = -1; }
+
+  FlatChannelId AllocChannel(MatrixOperationType op, MatrixOpId id) {
     Channels& channels = CurChannels();
-    channels.push_back(Channel(op));
+    channels.push_back(Channel(op, id));
     return static_cast<FlatChannelId>(channels.size() - 1);
+  }
+
+  // Return true if we should keep decending down the mesh tree looking for
+  // more animation.
+  bool ShouldRecurse(unsigned int cur_bone_index) const {
+    // When searching for just the root bones, keep recursing until we find
+    // a bone that has animation data.
+    return !root_bones_only_ || bones_[cur_bone_index].channels.empty();
   }
 
   void AddConstant(FlatChannelId channel_id, FlatVal const_val) {
@@ -216,6 +209,12 @@ class FlatAnim {
     Nodes& n = channels[channel_id].nodes;
     n.resize(0);
     n.push_back(SplineNode(0, const_val, 0.0f));
+  }
+
+  size_t NumNodes(FlatChannelId channel_id) const {
+    const Channels& channels = CurChannels();
+    const Nodes& n = channels[channel_id].nodes;
+    return n.size();
   }
 
   void AddCurve(FlatChannelId channel_id, FlatTime time_start,
@@ -337,10 +336,87 @@ class FlatAnim {
                    " one scale-uniformly channel\n",
                    ch, ch + 2);
 
+          // Ids values are in consecutive order
+          //   scale-X id, scale-Y id, scale-Z id, scale-uniformly id
+          // the same as op values are in consecutive order
+          //   kScaleX, kScaleY, kScaleZ, kScaleUniformly
+          // but with a different initial value.
+          //
+          // So to convert from scale-? id to scale-uniformly id, we add on
+          // the difference kScaleUniformly - kScale?.
+          channels[ch].id += motive::kScaleUniformly -
+                             static_cast<MatrixOpId>(channels[ch].op);
           channels[ch].op = motive::kScaleUniformly;
           channels.erase(channels.begin() + (ch + 1),
                          channels.begin() + (ch + 3));
         }
+
+        // Sum together channels that are adjacent, or separated only by
+        // independent ops.
+        const FlatChannelId summable_ch = SummableChannel(channels, ch);
+        if (summable_ch >= 0) {
+          log_.Log(kLogVerbose, "  Summing %s channels %d and %d\n",
+                   MatrixOpName(channels[ch].op), ch, summable_ch);
+
+          SumChannels(channels, ch, summable_ch);
+          channels.erase(channels.begin() + summable_ch);
+        }
+
+        // Remove constant channels that have the default value.
+        // Most of the time these won't be created, but it's possible that
+        // of the collapse operations above (especially summing) will create
+        // this situation.
+        if (channels[ch].nodes.size() == 1 &&
+            IsDefaultValue(channels[ch].op, channels[ch].nodes[0].val)) {
+          log_.Log(kLogVerbose, "  Omitting constant %s channel %d\n",
+                   MatrixOpName(channels[ch].op), ch);
+          channels.erase(channels.begin() + ch);
+        }
+      }
+
+      // Ensure that the channels remain in accending order of id.
+      std::sort(channels.begin(), channels.end());
+    }
+  }
+
+  /// @brief Shift all times in all channels by `time_offset`.
+  void ShiftTime(FlatTime time_offset) {
+    if (time_offset == 0) return;
+    log_.Log(kLogImportant, "Shifting animation by %d ticks.\n", time_offset);
+
+    for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
+      for (auto ch = bone->channels.begin(); ch != bone->channels.end(); ++ch) {
+        for (auto n = ch->nodes.begin(); n != ch->nodes.end(); ++n) {
+          n->time += time_offset;
+        }
+      }
+    }
+  }
+
+  /// @brief For each channel that ends before `end_time`, extend it at its
+  ///        current value to `end_time`. If already longer, or has no nodes
+  ///        to begin with, do nothing.
+  void ExtendChannelsToTime(FlatTime end_time) {
+    for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
+      Channels& channels = bone->channels;
+      for (auto ch = channels.begin(); ch != channels.end(); ++ch) {
+        Nodes& n = ch->nodes;
+
+        // Ignore empty or constant channels.
+        if (n.size() <= 1) continue;
+
+        // Ignore channels that are already long enough.
+        const SplineNode back = n.back();
+        if (back.time >= end_time) continue;
+
+        // Append a point with 0 derivative at the back, if required.
+        // This ensures that the extra segment is a flat line.
+        if (back.derivative != 0) {
+          n.push_back(SplineNode(back.time, back.val, 0.0f));
+        }
+
+        // Append a point at the end time, also with 0 derivative.
+        n.push_back(SplineNode(end_time, back.val, 0.0f));
       }
     }
   }
@@ -388,8 +464,22 @@ class FlatAnim {
     }
   }
 
-  bool OutputFlatBuffer(const string& output_file,
+  bool OutputFlatBuffer(const string& suggested_output_file,
                         RepeatPreference repeat_preference) const {
+    const string anim_name =
+        fplutil::RemoveDirectoryFromName(
+            fplutil::RemoveExtensionFromName(suggested_output_file));
+
+    // Build the flatbuffer into `fbb`.
+    flatbuffers::FlatBufferBuilder fbb;
+    const int num_rig_anims = CreateFlatBuffer(fbb, repeat_preference, anim_name);
+    if (num_rig_anims == 0) return false;
+
+    // Set the extension appropriately.
+    const string output_file =
+        fplutil::RemoveExtensionFromName(suggested_output_file) + "." +
+        (num_rig_anims == 1 ? motive::RigAnimFbExtension() : motive::AnimListFbExtension());
+
     // Ensure output directory exists.
     const string output_dir = fplutil::DirectoryName(output_file);
     if (!fplutil::CreateDirectory(output_dir.c_str())) {
@@ -397,65 +487,6 @@ class FlatAnim {
                output_dir.c_str());
       return false;
     }
-
-    // All the channels should end at the same time.
-    const FlatTime end_time = MaxAnimatedTime();
-
-    flatbuffers::FlatBufferBuilder fbb;
-    std::vector<flatbuffers::Offset<motive::MatrixAnimFb>> matrix_anims;
-    std::vector<flatbuffers::Offset<flatbuffers::String>> bone_names;
-    std::vector<BoneIndex> bone_parents;
-    const size_t num_bones = bones_.size();
-    matrix_anims.reserve(num_bones);
-    bone_names.reserve(num_bones);
-    bone_parents.reserve(num_bones);
-    for (BoneIndex bone_idx = 0; bone_idx < num_bones; ++bone_idx) {
-      const Bone& bone = bones_[bone_idx];
-      const Channels& channels = bone.channels;
-
-      // Output each channel as a MatrixOp, and gather in the `ops` vector.
-      std::vector<flatbuffers::Offset<motive::MatrixOpFb>> ops;
-      for (auto c = channels.begin(); c != channels.end(); ++c) {
-        const Nodes& n = c->nodes;
-        assert(n.size() > 0);
-
-        flatbuffers::Offset<void> value;
-        motive::MatrixOpValueFb value_type;
-        if (n.size() <= 1) {
-          // Output constant value MatrixOp.
-          value = motive::CreateConstantOpFb(fbb, n[0].val).Union();
-          value_type = motive::MatrixOpValueFb_ConstantOpFb;
-
-        } else {
-          // Output spline MatrixOp.
-          CompactSpline s;
-          CreateCompactSpline(*c, end_time, &s);
-          value = CreateSplineFlatBuffer(fbb, s).Union();
-          value_type = motive::MatrixOpValueFb_CompactSplineFb;
-        }
-
-        ops.push_back(motive::CreateMatrixOpFb(
-            fbb, static_cast<motive::MatrixOperationTypeFb>(c->op), value_type,
-            value));
-      }
-
-      // Convert vector into a FlatBuffers vector, and create the
-      // MatrixAnimation.
-      auto ops_fb = fbb.CreateVector(ops);
-      auto matrix_anim_fb = CreateMatrixAnimFb(fbb, ops_fb);
-      matrix_anims.push_back(matrix_anim_fb);
-      bone_names.push_back(fbb.CreateString(bone.name));
-      bone_parents.push_back(BoneParent(bone_idx));
-    }
-
-    // Finish off the FlatBuffer by creating the root RigAnimFb table.
-    auto bone_names_fb = fbb.CreateVector(bone_names);
-    auto bone_parents_fb = fbb.CreateVector(bone_parents);
-    auto matrix_anims_fb = fbb.CreateVector(matrix_anims);
-    const bool repeat = Repeat(repeat_preference);
-    auto rig_anim_fb = CreateRigAnimFb(fbb, matrix_anims_fb, bone_parents_fb,
-                                       bone_names_fb, repeat);
-    motive::FinishRigAnimFbBuffer(fbb, rig_anim_fb);
 
     // Create the output file.
     FILE* file = fopen(output_file.c_str(), "wb");
@@ -509,6 +540,34 @@ class FlatAnim {
     return static_cast<int>(num_bytes);
   }
 
+  /// @brief Return the time of the channel that requires the most time.
+  FlatTime MaxAnimatedTime() const {
+    FlatTime max_time = std::numeric_limits<FlatTime>::min();
+    for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
+      for (auto ch = bone->channels.begin(); ch != bone->channels.end(); ++ch) {
+        if (ch->nodes.size() > 0) {
+          max_time = std::max(max_time, ch->nodes.back().time);
+        }
+      }
+    }
+    return max_time == std::numeric_limits<FlatTime>::min() ? 0 : max_time;
+  }
+
+  /// @brief Return the time of the channel that starts the earliest.
+  ///
+  /// Could be a negative time.
+  FlatTime MinAnimatedTime() const {
+    FlatTime min_time = std::numeric_limits<FlatTime>::max();
+    for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
+      for (auto ch = bone->channels.begin(); ch != bone->channels.end(); ++ch) {
+        if (ch->nodes.size() > 0) {
+          min_time = std::min(min_time, ch->nodes[0].time);
+        }
+      }
+    }
+    return min_time == std::numeric_limits<FlatTime>::max() ? 0 : min_time;
+  }
+
  private:
   MOTIVE_DISALLOW_COPY_AND_ASSIGN(FlatAnim);
 
@@ -518,12 +577,12 @@ class FlatAnim {
   typedef std::vector<Channel> Channels;
 
   Channels& CurChannels() {
-    assert(bones_.size() > 0);
-    return bones_.back().channels;
+    assert(static_cast<unsigned int>(cur_bone_index_) < bones_.size());
+    return bones_[cur_bone_index_].channels;
   }
   const Channels& CurChannels() const {
-    assert(bones_.size() > 0);
-    return bones_.back().channels;
+    assert(static_cast<unsigned int>(cur_bone_index_) < bones_.size());
+    return bones_[cur_bone_index_].channels;
   }
 
   float Tolerance(FlatChannelId channel_id) const {
@@ -531,18 +590,133 @@ class FlatAnim {
     return ToleranceForOp(channels[channel_id].op);
   }
 
-  /// Return the time of the channel that requires the most time.
-  FlatTime MaxAnimatedTime() const {
-    FlatTime max_time = 0;
-    for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
-      const Channels& channels = bone->channels;
-      for (auto ch = channels.begin(); ch != channels.end(); ++ch) {
-        if (ch->nodes.size() > 0) {
-          max_time = std::max(max_time, ch->nodes.back().time);
-        }
-      }
+  // Build the FlatBuffer to be output into `fbb` and return the number of
+  // `RigAnimFb` tables output to `fbb`. If the number is >1, then aggregate
+  // them all into one `AnimListFb`.
+  int CreateFlatBuffer(flatbuffers::FlatBufferBuilder& fbb,
+                       RepeatPreference repeat_preference,
+                       const string& anim_name) const {
+    const BoneIndex num_bones = static_cast<BoneIndex>(bones_.size());
+
+    // Output entire bone range into one RigAnim.
+    if (!root_bones_only_) {
+      const flatbuffers::Offset<RigAnimFb> rig_anim_offset =
+          CreateRigAnimFbFromBoneRange(fbb, repeat_preference,
+                                       BoneRange(0, num_bones), anim_name);
+      motive::FinishRigAnimFbBuffer(fbb, rig_anim_offset);
+      return 1;
     }
-    return max_time;
+
+    // Output each bone into a separate RigAnim.
+    std::vector<flatbuffers::Offset<RigAnimFb>> rig_anim_offsets;
+    rig_anim_offsets.reserve(num_bones);
+    for (BoneIndex bone_idx = 0; bone_idx < num_bones; ++bone_idx) {
+      // Skip bones that have no animation data.
+      const Bone& bone = bones_[bone_idx];
+      if (bone.channels.size() == 0) continue;
+
+      // Use the bone index to ensure that the anim name is unique in the
+      // AnimTable. Note that the bone name may be the same for multiple bones.
+      std::stringstream bone_anim_name;
+      bone_anim_name << anim_name << "_" << static_cast<int>(bone_idx);
+
+      // Create a RigAnim with only `bone_idx`.
+      rig_anim_offsets.push_back(CreateRigAnimFbFromBoneRange(
+          fbb, repeat_preference, BoneRange(bone_idx, bone_idx + 1),
+          bone_anim_name.str()));
+    }
+
+    // No bones had any animation data, so do nothing.
+    if (rig_anim_offsets.size() == 0) {
+      log_.Log(kLogWarning, "No animation found.\n");
+      return 0;
+    }
+
+    // If only one bone with animation data exists, just output a RigAnim.
+    if (rig_anim_offsets.size() == 1) {
+      motive::FinishRigAnimFbBuffer(fbb, rig_anim_offsets[0]);
+      return 1;
+    }
+
+    // Multiple animations, so output an AnimList of RigAnims.
+    std::vector<flatbuffers::Offset<AnimSource>> anims;
+    anims.reserve(rig_anim_offsets.size());
+    for (auto it = rig_anim_offsets.begin(); it != rig_anim_offsets.end(); ++it) {
+      anims.push_back(
+          motive::CreateAnimSource(
+              fbb, motive::AnimSourceUnion_AnimSourceEmbedded,
+              motive::CreateAnimSourceEmbedded(fbb, *it).Union()));
+    }
+    auto list_offset = motive::CreateAnimListFb(fbb, 0, fbb.CreateVector(anims));
+    motive::FinishAnimListFbBuffer(fbb, list_offset);
+    return static_cast<int>(rig_anim_offsets.size());
+  }
+
+  flatbuffers::Offset<RigAnimFb> CreateRigAnimFbFromBoneRange(
+      flatbuffers::FlatBufferBuilder& fbb, RepeatPreference repeat_preference,
+      const BoneRange& bone_range, const string& anim_name) const {
+    std::vector<flatbuffers::Offset<motive::MatrixAnimFb>> matrix_anims;
+    std::vector<flatbuffers::Offset<flatbuffers::String>> bone_names;
+    std::vector<BoneIndex> bone_parents;
+    const size_t num_bones = bone_range.Length();
+    matrix_anims.reserve(num_bones);
+    bone_names.reserve(num_bones);
+    bone_parents.reserve(num_bones);
+    for (BoneIndex bone_idx = bone_range.start(); bone_idx < bone_range.end();
+         ++bone_idx) {
+      const Bone& bone = bones_[bone_idx];
+      const Channels& channels = bone.channels;
+
+      // Output each channel as a MatrixOp, and gather in the `ops` vector.
+      std::vector<flatbuffers::Offset<motive::MatrixOpFb>> ops;
+      for (auto c = channels.begin(); c != channels.end(); ++c) {
+        const Nodes& n = c->nodes;
+        assert(n.size() > 0);
+
+        flatbuffers::Offset<void> value;
+        motive::MatrixOpValueFb value_type;
+        if (n.size() <= 1) {
+          // Output constant value MatrixOp.
+          value = motive::CreateConstantOpFb(fbb, n[0].val).Union();
+          value_type = motive::MatrixOpValueFb_ConstantOpFb;
+
+        } else {
+          // We clamp negative times to 0, but it's going to look strange.
+          if (n[0].time < 0) {
+            log_.Log(kLogWarning, "%s (%s) starts at negative time %d\n",
+                     BoneBaseName(bone.name), MatrixOpName(c->op), n[0].time);
+          }
+
+          // Output spline MatrixOp.
+          CompactSpline* s = CreateCompactSpline(*c);
+          value = CreateSplineFlatBuffer(fbb, *s).Union();
+          value_type = motive::MatrixOpValueFb_CompactSplineFb;
+          CompactSpline::Destroy(s);
+        }
+
+        ops.push_back(motive::CreateMatrixOpFb(
+            fbb, c->id, static_cast<motive::MatrixOperationTypeFb>(c->op),
+            value_type, value));
+      }
+
+      // Convert vector into a FlatBuffers vector, and create the
+      // MatrixAnimation.
+      auto ops_fb = fbb.CreateVector(ops);
+      auto matrix_anim_fb = CreateMatrixAnimFb(fbb, ops_fb);
+      matrix_anims.push_back(matrix_anim_fb);
+      bone_names.push_back(fbb.CreateString(BoneBaseName(bone.name)));
+      bone_parents.push_back(BoneParent(bone_idx));
+    }
+
+    // Finish off the FlatBuffer by creating the root RigAnimFb table.
+    auto bone_names_fb = fbb.CreateVector(bone_names);
+    auto bone_parents_fb = fbb.CreateVector(bone_parents);
+    auto matrix_anims_fb = fbb.CreateVector(matrix_anims);
+    const bool repeat = Repeat(repeat_preference);
+    auto anim_name_fb = fbb.CreateString(anim_name);
+    auto rig_anim_fb = CreateRigAnimFb(fbb, matrix_anims_fb, bone_parents_fb,
+                                       bone_names_fb, repeat, anim_name_fb);
+    return rig_anim_fb;
   }
 
   /// Return the first channel of the first bone that isn't repeatable.
@@ -601,7 +775,7 @@ class FlatAnim {
                  "Animation marked as repeating (as requested),"
                  " but it does not repeat on bone %s's"
                  " `%s` channel\n",
-                 bone.name.c_str(), MatrixOpName(channel.op));
+                 BoneBaseName(bone.name), MatrixOpName(channel.op));
       }
     } else if (repeat_preference == kRepeatIfRepeatable) {
       log_.Log(kLogVerbose, repeat ? "Animation repeats.\n"
@@ -651,19 +825,116 @@ class FlatAnim {
     return true;
   }
 
-  BoneIndex BoneParent(int bone_idx) const {
-    // If at top level, there is no parent, so return
-    const int bone_depth = bones_[bone_idx].depth;
-    if (bone_depth == 0) return kInvalidBoneIdx;
+  FlatChannelId SummableChannel(const Channels& channels,
+                                FlatChannelId ch) const {
+    const MatrixOperationType ch_op = channels[ch].op;
+    for (FlatChannelId id = ch + 1;
+         id < static_cast<FlatChannelId>(channels.size()); ++id) {
+      const MatrixOperationType id_op = channels[id].op;
 
-    // `bones_` are in depth-first order, so the parent is the previous
-    // non-sibling.
-    for (int i = bone_idx - 1; i >= 0; --i) {
-      assert(bones_[i].depth >= bone_depth - 1);
-      if (bones_[i].depth < bone_depth) return static_cast<BoneIndex>(i);
+      // If we're adjacent to a similar op, we can combine by summing.
+      if (id_op == ch_op) return id;
+
+      // Rotate ops cannot have other ops inbetween them and still be combined.
+      if (RotateOp(ch_op)) return -1;
+
+      // Translate and scale ops can only have, respectively, other translate
+      // and scale ops in between them.
+      if (TranslateOp(ch_op) && !TranslateOp(id_op)) return -1;
+      if (ScaleOp(ch_op) && !ScaleOp(id_op)) return -1;
     }
-    assert(false);
-    return kInvalidBoneIdx;
+    return -1;
+  }
+
+  static FlatVal EvaluateNodes(const Nodes& nodes, FlatTime time,
+                               FlatDerivative* derivative) {
+    assert(nodes.size() > 0);
+
+    // Handle before and after curve cases.
+    *derivative = 0.0f;
+    if (time < nodes.front().time) return nodes.front().val;
+    if (time >= nodes.back().time) return nodes.back().val;
+
+    // Find first node after `time`.
+    size_t i = 1;
+    for (;; ++i) {
+      assert(i < nodes.size());
+      if (nodes[i].time >= time) break;
+    }
+    const SplineNode& pre = nodes[i - 1];
+    const SplineNode& post = nodes[i];
+    assert(pre.time <= time && time <= post.time);
+
+    // Create a cubic from before time to after time, and interpolate values
+    // with it.
+    const float cubic_total_time = static_cast<float>(post.time - pre.time);
+    const float cubic_time = static_cast<float>(time - pre.time);
+    const CubicCurve cubic(CubicInit(pre.val, pre.derivative, post.val,
+                                     post.derivative, cubic_total_time));
+    *derivative = cubic.Derivative(cubic_time);
+    return cubic.Evaluate(cubic_time);
+  }
+
+  // Sum curves in ch_a and ch_b and put the result in ch_a.
+  void SumChannels(Channels& channels, FlatChannelId ch_a,
+                   FlatChannelId ch_b) const {
+    const Nodes& nodes_a = channels[ch_a].nodes;
+    const Nodes& nodes_b = channels[ch_b].nodes;
+    const SplineNode* node_a = nodes_a.data();
+    const SplineNode* node_b = nodes_b.data();
+    const SplineNode* last_a = node_a + channels[ch_a].nodes.size() - 1;
+    const SplineNode* last_b = node_b + channels[ch_b].nodes.size() - 1;
+    assert(node_a <= last_a && node_b <= last_b);
+    Nodes sum;
+
+    for (;;) {
+      // When we reach the end of one of the splines, append other spline
+      // plus the last value of the spline that's ended.
+      if (node_a > last_a || node_b > last_b) {
+        const FlatVal const_val = node_a > last_a ? last_a->val : last_b->val;
+        const SplineNode* node = node_a > last_a ? node_b : node_a;
+        const SplineNode* last = node_a > last_a ? last_b : last_a;
+        for (; node <= last; ++node) {
+          sum.push_back(
+              SplineNode(node->time, node->val + const_val, node->derivative));
+        }
+        break;
+      }
+
+      // If the times are the same, output thir sum and go to the next node.
+      if (node_a->time == node_b->time) {
+        sum.push_back(SplineNode(node_a->time, node_a->val + node_b->val,
+                                 node_a->derivative + node_b->derivative));
+        ++node_a;
+        ++node_b;
+        continue;
+      }
+
+      // Output a node with the other nodes value interpolated.
+      const bool output_a = node_a->time < node_b->time;
+      const SplineNode* node_to_output = output_a ? node_a : node_b;
+      const Nodes& nodes_to_interpolate = output_a ? nodes_b : nodes_a;
+      FlatDerivative interpolated_derivative;
+      const FlatVal interpolated_value = EvaluateNodes(
+          nodes_to_interpolate, node_to_output->time, &interpolated_derivative);
+      sum.push_back(SplineNode(
+          node_to_output->time, node_to_output->val + interpolated_value,
+          node_to_output->derivative + interpolated_derivative));
+
+      // Increment the node pointer that we output.
+      if (output_a) {
+        ++node_a;
+      } else {
+        ++node_b;
+      }
+    }
+    channels[ch_a].nodes = sum;
+  }
+
+  BoneIndex BoneParent(int bone_idx) const {
+    const int parent_bone_index = bones_[bone_idx].parent_bone_index;
+    return parent_bone_index < 0 ? kInvalidBoneIdx
+                                 : static_cast<BoneIndex>(parent_bone_index);
   }
 
   /// @brief Returns true if all nodes between the first and last in `n`
@@ -731,7 +1002,7 @@ class FlatAnim {
       flatbuffers::FlatBufferBuilder& fbb, const CompactSpline& s) {
     auto nodes_fb = fbb.CreateVectorOfStructs(
         reinterpret_cast<const motive::CompactSplineNodeFb*>(s.nodes()),
-        s.NumNodes());
+        s.num_nodes());
 
     auto spline_fb = motive::CreateCompactSplineFb(fbb, s.y_range().start(),
                                                    s.y_range().end(),
@@ -749,30 +1020,26 @@ class FlatAnim {
     return y_range;
   }
 
-  static void CreateCompactSpline(const Channel& ch, FlatTime end_time,
-                                  CompactSpline* s) {
+  static CompactSpline* CreateCompactSpline(const Channel& ch) {
     const Nodes& nodes = ch.nodes;
     assert(nodes.size() > 1);
 
     // Maximize the bits we get for x by making the last time the maximum
     // x-value.
-    const float x_granularity =
-        CompactSpline::RecommendXGranularity(static_cast<float>(end_time));
+    const float x_granularity = CompactSpline::RecommendXGranularity(
+        static_cast<float>(nodes.back().time));
     const Range y_range = SplineYRange(ch);
 
     // Construct the Spline from the node data directly.
-    s->Init(y_range, x_granularity, static_cast<int>(nodes.size()));
+    CompactSpline* s =
+        CompactSpline::Create(static_cast<CompactSplineIndex>(nodes.size()));
+    s->Init(y_range, x_granularity);
     for (auto n = nodes.begin(); n != nodes.end(); ++n) {
-      s->AddNode(static_cast<float>(n->time), n->val, n->derivative,
-                 kAddWithoutModification);
+      const float n_time = static_cast<float>(std::max(0, n->time));
+      s->AddNode(n_time, n->val, n->derivative, kAddWithoutModification);
     }
 
-    // Append one more node so that all channels end at the same time.
-    const SplineNode& back_node = nodes.back();
-    if (back_node.time < end_time) {
-      s->AddNode(static_cast<float>(end_time), back_node.val, 0.0f,
-                 kAddWithoutModification);
-    }
+    return s;
   }
 
   struct SplineNode {
@@ -790,24 +1057,27 @@ class FlatAnim {
 
   struct Channel {
     MatrixOperationType op;
+    MatrixOpId id;
     Nodes nodes;
 
-    Channel() : op(kInvalidMatrixOperation) {}
-    explicit Channel(MatrixOperationType op) : op(op) {}
+    Channel() : op(kInvalidMatrixOperation), id(kInvalidMatrixOpId) {}
+    Channel(MatrixOperationType op, MatrixOpId id) : op(op), id(id) {}
+    bool operator<(const Channel& rhs) const { return id < rhs.id; }
+    bool operator>=(const Channel& rhs) const { return !operator<(rhs); }
   };
 
   struct Bone {
     // Unique name for this bone. Taken from mesh hierarchy.
     string name;
 
-    // Hierarchy depth. From this we can derive the tree, since bones are
-    // listed in depth-first order.
-    int depth;
+    // Parent bone index.  -1 for no parent.
+    int parent_bone_index;
 
     // Hold animation data. One curve per channel.
     Channels channels;
 
-    Bone(const char* name, int depth) : name(name), depth(depth) {
+    Bone(const char* name, int parent_bone_index)
+        : name(name), parent_bone_index(parent_bone_index) {
       // There probably won't be more than one of each op type.
       channels.reserve(kNumMatrixOperationTypes);
     }
@@ -815,9 +1085,14 @@ class FlatAnim {
 
   // Hold animation data for each bone that's animated.
   std::vector<Bone> bones_;
+  int cur_bone_index_;
 
   // Amount output curves are allowed to deviate from input.
   Tolerances tolerances_;
+
+  // Only record animations for first bones in the skeleton to have animation.
+  // Each such bone gets its own animation file.
+  bool root_bones_only_;
 
   // Information and warnings.
   Logger& log_;
@@ -862,7 +1137,8 @@ class FbxAnimParser {
 
   bool Valid() const { return manager_ != nullptr && scene_ != nullptr; }
 
-  bool Load(const char* file_name) {
+  bool Load(const char* file_name, AxisSystem axis_system,
+            float distance_unit_scale) {
     if (!Valid()) return false;
 
     log_.Log(
@@ -881,24 +1157,30 @@ class FbxAnimParser {
     FbxManager::GetFileFormatVersion(sdk_major, sdk_minor, sdk_revision);
     importer->GetFileVersion(file_major, file_minor, file_revision);
 
-    // Report version information.
-    log_.Log(kLogVerbose, "File version %d.%d.%d, SDK version %d.%d.%d\n",
-             file_major, file_minor, file_revision, sdk_major, sdk_minor,
-             sdk_revision);
-
     // Exit on load error.
     if (!init_status) {
       FbxString error = importer->GetStatus().GetErrorString();
       log_.Log(kLogError, "%s\n\n", error.Buffer());
-      return false;
-    }
-    if (!importer->IsFBX()) {
-      log_.Log(kLogError, "Not an FBX file\n\n");
+      importer->Destroy();
       return false;
     }
 
     // Import the scene.
     const bool import_status = importer->Import(scene_);
+
+    // Report version information.
+    const LogLevel version_log_level = import_status ? kLogVerbose : kLogError;
+    log_.Log(version_log_level, "File version %d.%d.%d, SDK version %d.%d.%d\n",
+             file_major, file_minor, file_revision, sdk_major, sdk_minor,
+             sdk_revision);
+
+    // Exit on import error.
+    if (!import_status) {
+      FbxString error = importer->GetStatus().GetErrorString();
+      log_.Log(kLogError, "%s\n\n", error.Buffer());
+      importer->Destroy();
+      return false;
+    }
 
     // Clean-up temporaries.
     importer->Destroy();
@@ -906,92 +1188,113 @@ class FbxAnimParser {
     // Exit if the import failed.
     if (!import_status) return false;
 
-    // Get global scale from the internal units.
-    global_scale_ =
-        1.0 / scene_->GetGlobalSettings().GetSystemUnit().GetScaleFactor();
-    log_.Log(kLogVerbose, "Scene scale factor is %f\n", global_scale_);
+    // Ensure the correct distance unit and axis system are being used.
+    fplutil::ConvertFbxScale(distance_unit_scale, scene_, &log_);
+    fplutil::ConvertFbxAxes(axis_system, scene_, &log_);
+
+    // Log nodes after we've processed them.
+    log_.Log(kLogVerbose, "Converted scene nodes\n");
+    fplutil::LogFbxScene(scene_, 0, kLogVerbose, &log_);
 
     // Remember the source file name so we can search for textures nearby.
     anim_file_name_ = string(file_name);
     return true;
   }
 
-  void GatherFlatAnim(FlatAnim* out) const {
-    // Initial depth is -1 since root node is always ignored.
-    GatherFlatAnimRecursive(scene_->GetRootNode(), -1, out);
+  // Map FBX nodes to bone indices, used to create bone index references.
+  typedef std::unordered_map<const FbxNode*, unsigned int> NodeToBoneMap;
+
+  static int AddBoneForNode(NodeToBoneMap* node_to_bone_map,
+                            const FbxNode* node, int parent_bone_index,
+                            FlatAnim* out) {
+    // The node is a bone if it was marked as one by MarkBoneNodesRecursive.
+    const auto found_it = node_to_bone_map->find(node);
+    if (found_it == node_to_bone_map->end()) {
+      return -1;
+    }
+
+    // Add the bone entry.
+    const char* const name = node->GetName();
+    const unsigned int bone_index = out->AllocBone(name, parent_bone_index);
+    found_it->second = bone_index;
+    return bone_index;
   }
 
-  // For debugging. Very useful to output the local transform matrices (and
-  // component values) at a given time of the animation. We can compare these
-  // to the runtime values, if something doesn't match up.
+  bool MarkBoneNodesRecursive(NodeToBoneMap* node_to_bone_map,
+                              FbxNode* node) const {
+    // We need a bone for this node if it has a skeleton attribute or a mesh.
+    bool need_bone = (node->GetSkeleton() || node->GetMesh());
+
+    // We also need a bone for this node if it has any such child bones.
+    const int child_count = node->GetChildCount();
+    for (int child_index = 0; child_index != child_count; ++child_index) {
+      FbxNode* const child_node = node->GetChild(child_index);
+      if (MarkBoneNodesRecursive(node_to_bone_map, child_node)) {
+        need_bone = true;
+      }
+    }
+
+    // Flag the node as a bone.
+    if (need_bone) {
+      node_to_bone_map->insert(NodeToBoneMap::value_type(node, -1));
+    }
+    return need_bone;
+  }
+
+  void GatherBonesRecursive(NodeToBoneMap* node_to_bone_map,
+                            const FbxNode* node, int parent_bone_index,
+                            FlatAnim* out) const {
+    const int bone_index =
+        AddBoneForNode(node_to_bone_map, node, parent_bone_index, out);
+    if (bone_index >= 0) {
+      const int child_count = node->GetChildCount();
+      for (int child_index = 0; child_index != child_count; ++child_index) {
+        const FbxNode* const child_node = node->GetChild(child_index);
+        GatherBonesRecursive(node_to_bone_map, child_node, bone_index, out);
+      }
+    }
+  }
+
+  void GatherFlatAnim(FlatAnim* out) const {
+    FbxNode* const root_node = scene_->GetRootNode();
+    const int child_count = root_node->GetChildCount();
+    NodeToBoneMap node_to_bone_map;
+
+    // First pass: determine which nodes are to be treated as bones.
+    // We skip the root node so it's not included in the bone hierarchy.
+    for (int child_index = 0; child_index != child_count; ++child_index) {
+      FbxNode* const child_node = root_node->GetChild(child_index);
+      MarkBoneNodesRecursive(&node_to_bone_map, child_node);
+    }
+
+    // Second pass: add bones.
+    // We skip the root node so it's not included in the bone hierarchy.
+    for (int child_index = 0; child_index != child_count; ++child_index) {
+      FbxNode* const child_node = root_node->GetChild(child_index);
+      GatherBonesRecursive(&node_to_bone_map, child_node, -1, out);
+    }
+
+    // Final pass: extract animation data for bones.
+    GatherFlatAnimRecursive(&node_to_bone_map, root_node, out);
+  }
+
   void LogAnimStateAtTime(int time_in_ms) const {
-    FbxTime time;
-    time.SetMilliSeconds(time_in_ms);
-    LogAnimStateAtTimeRecursive(scene_->GetRootNode(), time);
+    fplutil::LogFbxScene(scene_, time_in_ms, kLogInfo, &log_);
   }
 
  private:
   MOTIVE_DISALLOW_COPY_AND_ASSIGN(FbxAnimParser);
 
-  struct AnimProperty {
-    FbxPropertyT<FbxDouble3>* property;
-    motive::MatrixOperationType x_op;
+  struct AnimOp {
+    MatrixOperationType op;
+    bool invert;
   };
 
-  void LogIfNotEqual(const FbxVector4& v, const FbxVector4& compare,
-                     const char* name) const {
-    if (v == compare) return;
-    log_.Log(kLogInfo, "%s: (%6.2f %6.2f %6.2f %6.2f)\n", name, v[0], v[1],
-             v[2], v[3]);
-  }
-
-  // For each mesh in the tree of nodes under `node`, add a surface to `out`.
-  void LogAnimStateAtTimeRecursive(FbxNode* node, const FbxTime& time) const {
-    // We're only interested in mesh nodes. If a node and all nodes under it
-    // have no meshes, we early out.
-    if (node == nullptr || !NodeHasMesh(node)) return;
-    log_.Log(kLogInfo, "Node: %s\n", node->GetName());
-
-    // Log local transform. It's an affine transform so is 4x3.
-    const FbxAMatrix& local = node->EvaluateLocalTransform(time);
-    for (int i = 0; i < 3; ++i) {
-      const FbxVector4 r = local.GetColumn(i);
-      log_.Log(kLogInfo, "  (%6.2f %6.2f %6.2f %6.2f)\n", r[0], r[1], r[2],
-               r[3]);
-    }
-
-    // Log the components of the local transform, but only if they don't
-    // match their default values.
-    const FbxVector4 zero(0.0, 0.0, 0.0, 0.0);
-    const FbxVector4 one(1.0, 1.0, 1.0, 1.0);
-    LogIfNotEqual(node->EvaluateLocalTranslation(time), zero, "translate");
-    LogIfNotEqual(node->GetRotationOffset(FbxNode::eSourcePivot), zero,
-                  "rotation_offset");
-    LogIfNotEqual(node->GetRotationPivot(FbxNode::eSourcePivot), zero,
-                  "rotation_pivot");
-    LogIfNotEqual(node->GetPreRotation(FbxNode::eSourcePivot), zero,
-                  "pre_rotation");
-    LogIfNotEqual(node->EvaluateLocalRotation(time), zero, "rotate");
-    LogIfNotEqual(node->GetPostRotation(FbxNode::eSourcePivot), zero,
-                  "post_rotation");
-    LogIfNotEqual(node->GetScalingOffset(FbxNode::eSourcePivot), zero,
-                  "scaling_offset");
-    LogIfNotEqual(node->GetScalingPivot(FbxNode::eSourcePivot), zero,
-                  "scaling_pivot");
-    LogIfNotEqual(node->EvaluateLocalScaling(time), one, "scaling");
-    LogIfNotEqual(node->GetGeometricTranslation(FbxNode::eSourcePivot), zero,
-                  "geometric_translation");
-    LogIfNotEqual(node->GetGeometricRotation(FbxNode::eSourcePivot), zero,
-                  "geometric_rotation");
-    LogIfNotEqual(node->GetGeometricScaling(FbxNode::eSourcePivot), one,
-                  "geometric_scaling");
-    log_.Log(kLogInfo, "\n");
-
-    // Recursively traverse each node in the scene
-    for (int i = 0; i < node->GetChildCount(); i++) {
-      LogAnimStateAtTimeRecursive(node->GetChild(i), time);
-    }
-  }
+  struct AnimProperty {
+    FbxPropertyT<FbxDouble3>* property;
+    MatrixOpId id;
+    AnimOp op;
+  };
 
   static FlatTime FbxToFlatTime(const FbxTime& t) {
     const FbxLongLong milliseconds = t.GetMilliSeconds();
@@ -999,38 +1302,50 @@ class FbxAnimParser {
     return static_cast<FlatTime>(milliseconds);
   }
 
-  FlatVal FbxToFlatValue(const double x, const MatrixOperationType op) const {
-    return motive::RotateOp(op) ? static_cast<float>(FBXSDK_DEG_TO_RAD * x)
-                                : motive::TranslateOp(op)
-                                      ? static_cast<FlatVal>(global_scale_ * x)
-                                      : static_cast<float>(x);
+  static FlatVal InvertValue(FlatVal val, const AnimOp& op) {
+    return !op.invert ? val : motive::ScaleOp(op.op) ? 1.0f / val : -val;
   }
 
-  FlatDerivative FbxToFlatDerivative(const float d,
-                                     const MatrixOperationType op) const {
+  static FlatVal FbxToFlatValue(const double x, const AnimOp& op) {
+    const FlatVal val = motive::RotateOp(op.op)
+                            ? static_cast<FlatVal>(FBXSDK_DEG_TO_RAD * x)
+                            : static_cast<FlatVal>(x);
+    return InvertValue(val, op);
+  }
+
+  static FlatDerivative FbxToFlatDerivative(const float d, const AnimOp& op) {
     // The FBX derivative appears to be in units of seconds.
     // The FlatBuffer file format is in units of milliseconds.
     const float d_time_scaled = d / 1000.0f;
     return FbxToFlatValue(d_time_scaled, op);
   }
 
-  void GatherFlatAnimRecursive(FbxNode* node, int depth, FlatAnim* out) const {
-    // We're only interested in mesh nodes. If a node and all nodes under it
-    // have no meshes, we early out.
-    if (node == nullptr || !NodeHasMesh(node)) return;
+  void GatherFlatAnimRecursive(const NodeToBoneMap* node_to_bone_map,
+                               FbxNode* node, FlatAnim* out) const {
+    if (node == nullptr) return;
     log_.Log(kLogVerbose, "Node: %s\n", node->GetName());
 
     // The root node cannot have a transform applied to it, so we do not
     // export it as a bone.
+    int bone_index = -1;
     if (node != scene_->GetRootNode()) {
-      // Add a bone for this node, and gather the animation data that drives it.
-      out->AllocBone(node->GetName(), depth);
+      // We're only interested in nodes that contain meshes or are part of a
+      // skeleton. If a node and all nodes under it have neither, we early out.
+      const auto found_it = node_to_bone_map->find(node);
+      if (found_it == node_to_bone_map->end()) return;
+      bone_index = found_it->second;
+
+      // Gather the animation data that drives the bone.
+      out->SetCurBoneIndex(bone_index);
       GatherFlatAnimForNode(node, out);
+      out->ResetCurBoneIndex();
     }
 
     // Recursively traverse each node in the scene
-    for (int i = 0; i < node->GetChildCount(); i++) {
-      GatherFlatAnimRecursive(node->GetChild(i), depth + 1, out);
+    if (bone_index < 0 || out->ShouldRecurse(bone_index)) {
+      for (int i = 0; i < node->GetChildCount(); i++) {
+        GatherFlatAnimRecursive(node_to_bone_map, node->GetChild(i), out);
+      }
     }
   }
 
@@ -1050,14 +1365,14 @@ class FbxAnimParser {
     // If anim_node can provide no data, return the value from the property.
     if (anim_node == nullptr ||
         channel >= static_cast<int>(anim_node->GetChannelsCount())) {
-      *const_value = FbxToFlatValue(p.property->Get()[channel], p.x_op);
+      *const_value = FbxToFlatValue(p.property->Get()[channel], p.op);
       return true;
     }
 
     // Grab the start value from the anim_node. If const, this will be the
     // constant value.
     *const_value =
-        FbxToFlatValue(anim_node->GetChannelValue(channel, 0.0f), p.x_op);
+        FbxToFlatValue(anim_node->GetChannelValue(channel, 0.0f), p.op);
 
     // If there is no animation curve, or the curve has no keys, then must be
     // const.
@@ -1067,16 +1382,16 @@ class FbxAnimParser {
     // The first value may be different from the value at time 0.
     // The value at time 0 may actually be the end value, if the first key
     // doesn't start at time 0 and the channel cycles.
-    const float first_value = FbxToFlatValue(curve->KeyGetValue(0), p.x_op);
+    const float first_value = FbxToFlatValue(curve->KeyGetValue(0), p.op);
 
-    // If any keys has a different value, or non-zero slope, then not const.
+    // If any keys has a different value, or non-0 slope, then not const.
     const int num_keys = curve->KeyGetCount();
     for (int i = 0; i < num_keys - 1; ++i) {
       const float left_derivative =
-          FbxToFlatDerivative(curve->KeyGetLeftDerivative(i), p.x_op);
+          FbxToFlatDerivative(curve->KeyGetLeftDerivative(i), p.op);
       const float right_derivative =
-          FbxToFlatDerivative(curve->KeyGetRightDerivative(i), p.x_op);
-      const float value = FbxToFlatValue(curve->KeyGetValue(i + 1), p.x_op);
+          FbxToFlatDerivative(curve->KeyGetRightDerivative(i), p.op);
+      const float value = FbxToFlatValue(curve->KeyGetValue(i + 1), p.op);
       if (fabs(DerivativeAngle(left_derivative)) > derivative_tolerance ||
           fabs(DerivativeAngle(right_derivative)) > derivative_tolerance ||
           fabs(value - first_value) > tolerance)
@@ -1085,10 +1400,9 @@ class FbxAnimParser {
     return true;
   }
 
-  static const int* ChannelOrder(const FbxNode* node,
-                                 const MatrixOperationType op) {
+  static const int* ChannelOrder(const FbxNode* node, const AnimOp& op) {
     // X,y,z order is significant only for rotations.
-    if (!motive::RotateOp(op)) return kDefaultChannelOrder;
+    if (!motive::RotateOp(op.op)) return kDefaultChannelOrder;
 
     // We output the last channel first, since they're applied in reverse
     // order.
@@ -1096,7 +1410,8 @@ class FbxAnimParser {
     node->GetRotationOrder(FbxNode::eSourcePivot, rotation_order);
     assert(0 <= rotation_order &&
            rotation_order < MOTIVE_ARRAY_SIZE(kRotationOrderToChannelOrder));
-    return kRotationOrderToChannelOrder[rotation_order];
+    return op.invert ? kRotationOrderToChannelOrderInverted[rotation_order]
+                     : kRotationOrderToChannelOrder[rotation_order];
   }
 
   void GatherFlatAnimForNode(FbxNode* node, FlatAnim* out) const {
@@ -1106,45 +1421,40 @@ class FbxAnimParser {
     // WorldTransform = ParentWorldTransform * T * Roff * Rp * Rpre * R *
     //                  Rpost_inv * Rp_inv * Soff * Sp * S * Sp_inv
     //
-    // But for now, we simplify as (see mesh_pipeline.cpp for details),
-    //
-    // WorldTransform = ParentWorldTransform * Roff * T * R * S
-    //
-    // TODO: Add in support for animating other properties. Not a big deal,
-    //       just a few more lines of code in this function.
     const AnimProperty properties[] = {
-        {&node->LclTranslation, motive::kTranslateX},
-        {&node->LclRotation, motive::kRotateAboutX},
-        {&node->LclScaling, motive::kScaleX}, };
+        {&node->LclTranslation, 0, {motive::kTranslateX, false}},
+        {&node->RotationOffset, 0, {motive::kTranslateX, false}},
+        {&node->RotationPivot, 0, {motive::kTranslateX, false}},
+        {&node->PreRotation, 3, {motive::kRotateAboutX, false}},
+        {&node->LclRotation, 6, {motive::kRotateAboutX, false}},
+        {&node->PostRotation, 9, {motive::kRotateAboutX, true}},
+        {&node->RotationPivot, 12, {motive::kTranslateX, true}},
+        {&node->ScalingOffset, 12, {motive::kTranslateX, false}},
+        {&node->ScalingPivot, 12, {motive::kTranslateX, false}},
+        {&node->LclScaling, 15, {motive::kScaleX, false}},
+        {&node->ScalingPivot, 19, {motive::kTranslateX, true}}};
 
     for (size_t i = 0; i < MOTIVE_ARRAY_SIZE(properties); ++i) {
       const AnimProperty& p = properties[i];
 
-      // Skeletons have a fixed translate that cannot be animated.
-      // Skeletal translates are applied in mesh_pipeline and output in the
-      // constant bone transform.
-      if (motive::TranslateOp(p.x_op) && node->GetSkeleton() != nullptr)
-        continue;
-
       // Get the curve attached to the property that's animated.
       FbxAnimCurveNode* anim_node = AnimCurveNodeDrivingProperty(*p.property);
-      if (anim_node == nullptr) continue;
 
       // Ensure we have three channels (x, y, z).
-      const int num_channels = anim_node->GetChannelsCount();
-      if (num_channels != 3) {
-        log_.Log(kLogError, "Animation property has %d channels instead of 3\n",
-                 num_channels);
+      if (anim_node != nullptr && anim_node->GetChannelsCount() != 3) {
+        log_.Log(kLogError,
+                 "Animation property %s has %d channels instead of 3\n",
+                 p.property->GetNameAsCStr(), anim_node->GetChannelsCount());
         continue;
       }
 
       // Rotations must be applied in the correct order.
-      const int* channel_order = ChannelOrder(node, p.x_op);
+      const int* channel_order = ChannelOrder(node, p.op);
       for (int channel_idx = 0; channel_idx < 3; ++channel_idx) {
         // Proceed through each channel: x, y, z.
         const int channel = channel_order[channel_idx];
         const motive::MatrixOperationType op =
-            static_cast<motive::MatrixOperationType>(p.x_op + channel);
+            static_cast<motive::MatrixOperationType>(p.op.op + channel);
 
         // If the channel is const, only output if it's not the default value.
         float const_value = 0.0f;
@@ -1154,29 +1464,36 @@ class FbxAnimParser {
         if (anim_const && out->IsDefaultValue(op, const_value)) continue;
 
         // Allocate a channel_id for the output data.
-        const FlatChannelId channel_id = out->AllocChannel(op);
+        const FlatChannelId channel_id =
+            out->AllocChannel(op, static_cast<MatrixOpId>(p.id + channel_idx));
 
         // Record constant value for this channel.
         if (anim_const) {
           out->AddConstant(channel_id, const_value);
-          log_.Log(kLogVerbose, "  %s: constant %f\n", MatrixOpName(op),
+          log_.Log(kLogVerbose, "  [channel %d] %s, %s: constant %f\n",
+                   channel_id, p.property->GetNameAsCStr(), MatrixOpName(op),
                    const_value);
+          assert(out->NumNodes(channel_id) > 0);
           continue;
         }
+        assert(anim_node != nullptr);
 
         // We process only the first curve, for simplicity.
         // If we run into animations with multiple curves, we should add
         // extra logic here.
         const int num_curves = anim_node->GetCurveCount(channel);
         if (num_curves > 1) {
-          log_.Log(kLogWarning, "%s has %d curves. Only using the first one.\n",
-                   MatrixOpName(op), num_curves);
+          log_.Log(kLogWarning,
+                   "%s, %s has %d curves. Only using the first one.\n",
+                   p.property->GetNameAsCStr(), MatrixOpName(op), num_curves);
         }
 
         // For every key in the curve, log data to `out`.
-        log_.Log(kLogVerbose, "  %s: curve\n", MatrixOpName(op));
+        log_.Log(kLogVerbose, "  [channel %d] %s, %s: curve\n", channel_id,
+                 p.property->GetNameAsCStr(), MatrixOpName(op));
         FbxAnimCurve* curve = anim_node->GetCurve(channel);
-        GatherFlatAnimCurve(channel_id, curve, op, out);
+        GatherFlatAnimCurve(channel_id, curve, p.op, out);
+        assert(out->NumNodes(channel_id) > 0);
       }
     }
 
@@ -1185,7 +1502,7 @@ class FbxAnimParser {
   }
 
   void GatherFlatAnimCurve(const FlatChannelId channel_id, FbxAnimCurve* curve,
-                           const MatrixOperationType op, FlatAnim* out) const {
+                           const AnimOp& op, FlatAnim* out) const {
     log_.Log(kLogVerbose, "    source, key, x, y, slope\n");
     const int num_keys = curve->KeyGetCount();
     assert(num_keys > 1);  // Since we checked for constant values earlier.
@@ -1236,27 +1553,11 @@ class FbxAnimParser {
     out->LogChannel(channel_id);
   }
 
-  // Return true if `node` or any of its children has a mesh.
-  static bool NodeHasMesh(FbxNode* node) {
-    if (node->GetMesh() != nullptr) return true;
-
-    // Recursively traverse each child node.
-    for (int i = 0; i < node->GetChildCount(); i++) {
-      if (NodeHasMesh(node->GetChild(i))) return true;
-    }
-    return false;
-  }
-
   // Entry point to the FBX SDK.
   FbxManager* manager_;
 
   // Hold the FBX file data.
   FbxScene* scene_;
-
-  // Distance scale for the entire scene. We need to multiply by this in order
-  // to return to the authored units. Some programs like Maya store everything
-  // in cm, even if you author it as m.
-  double global_scale_;
 
   // Name of source mesh file. Used to search for textures, when the textures
   // are not found in their referenced location.
@@ -1272,6 +1573,11 @@ struct AnimPipelineArgs {
         output_file(""),
         log_level(kLogWarning),
         repeat_preference(kRepeatIfRepeatable),
+        stagger_end_times(false),
+        preserve_start_time(false),
+        root_bones_only(false),
+        axis_system(fplutil::kUnspecifiedAxisSystem),
+        distance_unit_scale(-1.0f),
         debug_time(-1) {}
 
   string fbx_file;        /// FBX input file to convert.
@@ -1279,8 +1585,109 @@ struct AnimPipelineArgs {
   LogLevel log_level;     /// Amount of logging to dump during conversion.
   Tolerances tolerances;  /// Amount output curves can deviate from input.
   RepeatPreference repeat_preference;  /// Loop back to start when reaches end.
-  int debug_time;  /// If >0 output animation state at this time.
+  bool stagger_end_times; /// Allow each channel to end at its authored time.
+  bool preserve_start_time;  /// Don't shift channels to start at time 0.
+  bool root_bones_only;   /// Output bone that has path of animation only.
+  AxisSystem axis_system; /// Which axes are up, front, left.
+  float distance_unit_scale; /// This number of cm is set to one unit.
+  int debug_time;         /// If >0 output animation state at this time.
 };
+
+static void LogUsage(Logger* log) {
+  static const char kOptionIndent[] = "                           ";
+  log->Log(
+      kLogImportant,
+      "Usage: anim_pipeline [-v|-d|-i] [-o OUTPUT_FILE]\n"
+      "                     [-st SCALE_TOLERANCE] [-rt ROTATE_TOLERANCE]\n"
+      "                     [-tt TRANSLATE_TOLERANCE]\n"
+      "                     [-at DERIVATIVE_TOLERANCE] [--repeat|--norepeat]\n"
+      "                     [--stagger] [--start] [-a AXES]\n"
+      "                     [-u (unit)|(scale)] [--roots] [--debug_time TIME]\n"
+      "                     FBX_FILE\n"
+      "\n"
+      "Pipeline to convert FBX animations into FlatBuffer animations.\n"
+      "Outputs a .motiveanim file with the same base name as FBX_FILE.\n\n"
+      "Options:\n"
+      "  -v, --verbose output all informative messages\n"
+      "  -d, --details output important informative messages\n"
+      "  -i, --info    output more than details, less than verbose.\n"
+      "  -o, --out OUTPUT_FILE\n"
+      "                file to write .motiveanim file to.\n"
+      "                Can be an absolute or relative path.\n"
+      "                when unspecified, uses base FBX name + .motiveanim.\n"
+      "  -st, --scale SCALE_TOLERANCE\n"
+      "                max deviation of output scale curves from input\n"
+      "                scale curves; unitless\n"
+      "  -rt, --rotate ROTATE_TOLERANCE\n"
+      "                max deviation of output rotate curves from intput\n"
+      "                rotate curves; in degrees\n"
+      "  -tt, --translate TRANSLATE_TOLERANCE\n"
+      "                max deviation of output translate curves from input\n"
+      "                translate curves; in scene's distance unit\n"
+      "  -at, --angle DERIVATIVE_TOLERANCE\n"
+      "                max deviation of curve derivatives,\n"
+      "                considered as an angle in the x/y plane\n"
+      "                (e.g. derivative 1 ==> 45 degrees); in degrees.\n"
+      "  --repeat, --norepeat\n"
+      "                mark the animation as repeating or not repeating.\n"
+      "                A repeating animation cycles over and over.\n"
+      "                If neither option is specified, the animation\n"
+      "                is marked as repeating when it starts and ends\n"
+      "                with the same pose and derivatives.\n"
+      "  --stagger, --stagger_end_times\n"
+      "                allow every channel to end at its authored time,\n"
+      "                instead of adding extra spline nodes to plum-up\n"
+      "                every channel.\n"
+      "                This may cause strage behavior with animations that\n"
+      "                repeat, since the shorter channels will start\n"
+      "                to repeat before the longer ones.\n"
+      "  --start, --preserve_start_time\n"
+      "                start the animation at the same time as in the source.\n"
+      "                By default, the animation is shifted such that its\n"
+      "                start time is zero.\n"
+      "  -a, --axes AXES\n"
+      "                coordinate system of exported file, in format\n"
+      "                    (up-axis)(front-axis)(left-axis) \n"
+      "                where,\n"
+      "                    'up' = [x|y|z]\n"
+      "                    'front' = [+x|-x|+y|-y|+z|-z], is the axis\n"
+      "                      pointing out of the front of the mesh.\n"
+      "                      For example, the vector pointing out of a\n"
+      "                      character's belly button.\n"
+      "                    'left' = [+x|-x|+y|-y|+z|-z], is the axis\n"
+      "                      pointing out the left of the mesh.\n"
+      "                      For example, the vector from the character's\n"
+      "                      neck to his left shoulder.\n"
+      "                For example, 'z+y+x' is z-axis up, positive y-axis\n"
+      "                out of a character's belly button, positive x-axis\n"
+      "                out of a character's left side.\n"
+      "                If unspecified, use file's coordinate system.\n"
+      "  -u, --unit (unit)|(scale)\n"
+      "                output animation in target units. You can override the\n"
+      "                FBX file's distance unit with this option.\n"
+      "                For example, if your game runs in meters,\n"
+      "                specify '-u m' to ensure the output .fplmesh file\n"
+      "                is in meters, no matter the distance unit of the\n"
+      "                FBX file.\n"
+      "                (unit) can be one of the following:\n");
+  LogOptions(kOptionIndent, fplutil::DistanceUnitNames(), log);
+  log->Log(
+      kLogImportant,
+      "                (scale) is the number of centimeters in your\n"
+      "                distance unit. For example, instead of '-u inches',\n"
+      "                you could also use '-u 2.54'.\n"
+      "                If unspecified, use FBX file's unit.\n"
+      "  --roots, --root_bones_only\n"
+      "                output only the root bones of each mesh.\n"
+      "                Each mesh gets its animation file.\n"
+      "                Useful for pulling just the path data from an\n"
+      "                animation.\n"
+      "  --debug_time TIME\n"
+      "                output the local transforms for each bone in\n"
+      "                the animation at TIME, in ms, and then exit.\n"
+      "                Useful for debugging situations where the\n"
+      "                runtime doesn't match source data.\n");
+}
 
 static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
                                   AnimPipelineArgs* args) {
@@ -1321,7 +1728,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         valid_args = false;
       }
 
-    } else if (arg == "-s" || arg == "--scale") {
+    } else if (arg == "-st" || arg == "--scale") {
       if (i + 1 < argc - 1) {
         args->tolerances.scale = static_cast<float>(atof(argv[i + 1]));
         if (args->tolerances.scale <= 0.0f) {
@@ -1333,7 +1740,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         valid_args = false;
       }
 
-    } else if (arg == "-r" || arg == "--rotate") {
+    } else if (arg == "-rt" || arg == "--rotate") {
       if (i + 1 < argc - 1) {
         const float degrees = static_cast<float>(atof(argv[i + 1]));
         if (degrees <= 0.0f || degrees > 180.0f) {
@@ -1348,7 +1755,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         valid_args = false;
       }
 
-    } else if (arg == "-t" || arg == "--translate") {
+    } else if (arg == "-tt" || arg == "--translate") {
       if (i + 1 < argc - 1) {
         args->tolerances.translate = static_cast<float>(atof(argv[i + 1]));
         if (args->tolerances.translate <= 0.0f) {
@@ -1360,7 +1767,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         valid_args = false;
       }
 
-    } else if (arg == "-a" || arg == "--angle") {
+    } else if (arg == "-at" || arg == "--angle") {
       if (i + 1 < argc - 1) {
         const float degrees = static_cast<float>(atof(argv[i + 1]));
         if (degrees <= 0.0f || degrees > 90.0f) {
@@ -1387,6 +1794,39 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
         args->repeat_preference = repeat_preference;
       }
 
+    } else if (arg == "--stagger" || arg == "--stagger_end_times") {
+      args->stagger_end_times = true;
+
+    } else if (arg == "--start" || arg == "--preserve_start_time") {
+      args->preserve_start_time = true;
+
+    } else if (arg == "-a" || arg == "--axes") {
+      if (i + 1 < argc - 1) {
+        args->axis_system = fplutil::AxisSystemFromName(argv[i + 1]);
+        valid_args = args->axis_system >= 0;
+        if (!valid_args) {
+          log.Log(kLogError, "Unknown coordinate system: %s\n\n", argv[i + 1]);
+        }
+        i++;
+      } else {
+        valid_args = false;
+      }
+
+    } else if (arg == "-u" || arg == "--unit") {
+      if (i + 1 < argc - 1) {
+        args->distance_unit_scale = fplutil::DistanceUnitFromName(argv[i + 1]);
+        valid_args = args->distance_unit_scale > 0.0f;
+        if (!valid_args) {
+          log.Log(kLogError, "Unknown distance unit: %s\n\n", argv[i + 1]);
+        }
+        i++;
+      } else {
+        valid_args = false;
+      }
+
+    } else if (arg == "--roots" || arg == "--root_bones_only") {
+      args->root_bones_only = true;
+
     } else if (arg == "--debug_time") {
       if (i + 1 < argc - 1) {
         args->debug_time = atoi(argv[i + 1]);
@@ -1407,58 +1847,14 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, Logger& log,
   }
 
   // Print usage.
-  if (!valid_args) {
-    log.Log(
-        kLogImportant,
-        "Usage: anim_pipeline [-v|-d|-i] [-o OUTPUT_FILE]\n"
-        "           [-s SCALE_TOLERANCE] [-r ROTATE_TOLERANCE]\n"
-        "           [-t TRANSLATE_TOLERANCE] [-a DERIVATIVE_TOLERANCE]\n"
-        "           [--repeat|--norepeat] [--debug_time TIME] FBX_FILE\n"
-        "\n"
-        "Pipeline to convert FBX animations into FlatBuffer animations.\n"
-        "Outputs a .motiveanim file with the same base name as FBX_FILE.\n\n"
-        "Options:\n"
-        "  -v, --verbose         output all informative messages\n"
-        "  -d, --details         output important informative messages\n"
-        "  -i, --info            output more than details, less than verbose.\n"
-        "  -o, --out OUTPUT_FILE file to write .motiveanim file to;\n"
-        "                        can be an absolute or relative path;\n"
-        "                        when unspecified, uses base FBX name\n"
-        "                        + .motiveanim\n"
-        "  -s, --scale SCALE_TOLERANCE\n"
-        "                        max deviation of output scale curves\n"
-        "                        from input scale curves, unitless\n"
-        "  -r, --rotate ROTATE_TOLERANCE\n"
-        "                        max deviation of output rotate curves\n"
-        "                        from intput rotate curves, in degrees\n"
-        "  -t, --translate TRANSLATE_TOLERANCE\n"
-        "                        max deviation of output translate curves\n"
-        "                        from input translate curves, in scene's\n"
-        "                        units of distance\n"
-        "  -a, --angle DERIVATIVE_TOLERANCE\n"
-        "                        max deviation of curve derivatives,\n"
-        "                        considered as an angle in the x/y plane\n"
-        "                        (e.g. derivative 1 ==> 45 degrees),\n"
-        "                        in degrees.\n"
-        "  --repeat, --norepeat  mark the animation as repeating or not\n"
-        "                        repeating. A repeating animation cycles\n"
-        "                        over and over. If neither option is\n"
-        "                        specified, the animation is marked as\n"
-        "                        repeating when it starts and ends\n"
-        "                        with the same pose and derivatives.\n"
-        "  --debug_time TIME     output the local transforms for each bone in\n"
-        "                        the animation at TIME, in ms, and then exit.\n"
-        "                        Useful for debugging situations where the\n"
-        "                        runtime doesn't match source data.\n");
-  }
-
+  if (!valid_args) { LogUsage(&log); }
   return valid_args;
 }
 
 }  // namespace motive
 
 int main(int argc, char** argv) {
-  motive::Logger log;
+  fplutil::Logger log;
 
   // Parse the command line arguments.
   motive::AnimPipelineArgs args;
@@ -1469,7 +1865,8 @@ int main(int argc, char** argv) {
 
   // Load the FBX file.
   motive::FbxAnimParser pipe(log);
-  const bool load_status = pipe.Load(args.fbx_file.c_str());
+  const bool load_status = pipe.Load(args.fbx_file.c_str(), args.axis_system,
+                                     args.distance_unit_scale);
   if (!load_status) return 1;
 
   // Output debug information for the specific time of the animation.
@@ -1479,8 +1876,18 @@ int main(int argc, char** argv) {
   }
 
   // Gather data into a format conducive to our FlatBuffer format.
-  motive::FlatAnim anim(args.tolerances, log);
+  motive::FlatAnim anim(args.tolerances, args.root_bones_only, log);
   pipe.GatherFlatAnim(&anim);
+
+  // We want the animation to start from tick 0.
+  if (!args.preserve_start_time) {
+    anim.ShiftTime(-anim.MinAnimatedTime());
+  }
+
+  // We want all of our animation channels to end at the same time.
+  if (!args.stagger_end_times) {
+    anim.ExtendChannelsToTime(anim.MaxAnimatedTime());
+  }
 
   // Output gathered data to a binary FlatBuffer.
   anim.LogAllChannels();

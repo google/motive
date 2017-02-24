@@ -43,15 +43,21 @@ MOTIVE_SRC_FILES := \
   $(MOTIVE_RELATIVE_DIR)/src/motive/engine.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/init.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/io/flatbuffers.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/math/angle.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/bulk_spline_evaluator.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/compact_spline.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/curve.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/math/curve_util.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/math/dual_cubic.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/math/float.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/motivator.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/processor/const_processor.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/processor/ease_in_ease_out_processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/processor/matrix_processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/processor/overshoot_processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/processor/rig_processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/processor/spline_processor.cpp \
+  $(MOTIVE_RELATIVE_DIR)/src/motive/processor/spring_processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/processor.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/util/benchmark.cpp \
   $(MOTIVE_RELATIVE_DIR)/src/motive/util/optimizations.cpp \
@@ -104,9 +110,12 @@ MOTIVE_SCHEMA_DIR := $(MOTIVE_DIR)/schemas
 MOTIVE_SCHEMA_INCLUDE_DIRS :=
 
 MOTIVE_SCHEMA_FILES := \
-  $(MOTIVE_SCHEMA_DIR)/anim_table.fbs \
   $(MOTIVE_SCHEMA_DIR)/anim.fbs \
-  $(MOTIVE_SCHEMA_DIR)/motive.fbs
+  $(MOTIVE_SCHEMA_DIR)/anim_table.fbs \
+  $(MOTIVE_SCHEMA_DIR)/anim_list.fbs \
+  $(MOTIVE_SCHEMA_DIR)/compact_spline.fbs \
+  $(MOTIVE_SCHEMA_DIR)/motive.fbs \
+  $(MOTIVE_SCHEMA_DIR)/spline_anim.fbs
 
 ifeq (,$(MOTIVE_RUN_ONCE))
 MOTIVE_RUN_ONCE := 1

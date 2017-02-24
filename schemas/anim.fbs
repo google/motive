@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+include "compact_spline.fbs";
+
 namespace motive;
 
 // Same as MatrixOperationType in motive/init.h.
@@ -30,21 +32,6 @@ enum MatrixOperationTypeFb : byte {
   kNumMatrixOperationTypes
 }
 
-// Same as CompactSplineNode in compact_spline.cpp.
-struct CompactSplineNodeFb {
-  x:ushort;
-  y:ushort;
-  angle:short;
-}
-
-// Similar to CompactSpline in compact_spline.h.
-table CompactSplineFb {
-  y_range_start:float;
-  y_range_end:float;
-  x_granularity:float;
-  nodes:[CompactSplineNodeFb];
-}
-
 table ConstantOpFb {
   y_const:float;
 }
@@ -57,6 +44,7 @@ union MatrixOpValueFb {
 // One operation performed on the matrix.
 // The input value to the operation can be constant, or driven by a spline.
 table MatrixOpFb {
+  id:byte;
   type:MatrixOperationTypeFb;
   value:MatrixOpValueFb;
 }
@@ -85,6 +73,9 @@ table RigAnimFb {
 
   // True if all the data streams end where they started.
   repeat:bool;
+
+  // Optional name for the overall animation. Used in AnimTable::QueryByName().
+  name:string;
 }
 
 root_type RigAnimFb;

@@ -32,17 +32,18 @@ using mathfu::vec2;
 // The init structure is the only code that should be exposed externally.
 // When you call Motivator::Initialize() with initialization parameters of
 // type LinearInit, the initialization call will be routed to
-// LinearMotiveProcessor::InitializeIndex().
+// LinearMotiveProcessor::InitializeIndices().
 //
 class LinearInit : public MotivatorInit {
  public:
+  LinearInit() : MotivatorInit(kType) {}
+
   // Defines 'kType' and other functions necessary to register this type of
   // motivator.
   MOTIVE_INTERFACE();
 
   // This motivator type is rather boring. It has no configuration parameters
   // at all. We could add some extra parameters here, though, if we like.
-  LinearInit() : MotivatorInit(kType) {}
 };
 //! [Own Processor LinearInit]
 
@@ -80,46 +81,52 @@ class LinearMotiveProcessor : public MotiveProcessorNf {
   virtual const float* Values(MotiveIndex index) const {
     return &values_[index];
   }
-  virtual void Velocities(MotiveIndex index, MotiveIndex count,
+  virtual void Velocities(MotiveIndex index, MotiveDimension dimensions,
                           float* out) const {
     const LinearData* d = &Data(index);
     const float* values = &values_[index];
-    for (MotiveDimension i = 0; i < count; ++i, ++d, ++values) {
+    for (MotiveDimension i = 0; i < dimensions; ++i, ++d, ++values) {
       out[i] = d->target_time <= 0.0f ? 0.0f : (d->target_value - *values) /
                                                    d->target_time;
     }
   }
-  virtual void TargetValues(MotiveIndex index, MotiveIndex count,
+  virtual void TargetValues(MotiveIndex index, MotiveDimension dimensions,
                             float* out) const {
     const LinearData* d = &Data(index);
-    for (MotiveDimension i = 0; i < count; ++i, ++d) {
+    for (MotiveDimension i = 0; i < dimensions; ++i, ++d) {
       out[i] = d->target_value;
     }
   }
-  virtual void TargetVelocities(MotiveIndex /*index*/, MotiveIndex count,
+  virtual void TargetVelocities(MotiveIndex /*index*/, MotiveDimension dimensions,
                                 float* out) const {
-    for (MotiveDimension i = 0; i < count; ++i) {
+    for (MotiveDimension i = 0; i < dimensions; ++i) {
       out[i] = 0.0f;
     }
   }
-  virtual void Differences(MotiveIndex index, MotiveIndex count,
+  virtual void Differences(MotiveIndex index, MotiveDimension dimensions,
                            float* out) const {
     const LinearData* d = &Data(index);
     const float* values = &values_[index];
-    for (MotiveDimension i = 0; i < count; ++i, ++d, ++values) {
+    for (MotiveDimension i = 0; i < dimensions; ++i, ++d, ++values) {
       out[i] = d->target_value - *values;
     }
   }
-  virtual MotiveTime TargetTime(MotiveIndex index) const {
-    return static_cast<MotiveTime>(Data(index).target_time);
+  virtual MotiveTime TargetTime(MotiveIndex index,
+                                MotiveDimension dimensions) const {
+    MotiveTime greatest = std::numeric_limits<MotiveTime>::min();
+    for (MotiveDimension i = 0; i < dimensions; ++i) {
+      greatest = std::max(greatest,
+                          static_cast<MotiveTime>(Data(index).target_time));
+    }
+    return greatest;
   }
 
   // Target values are set in bulk. Please see MotiveTarget1f for a description
   // of the format. It's basically an array of way points. In our case, we're
   // only interested in (at most) two way points: current and target.
-  virtual void SetTargets(MotiveIndex index, MotiveIndex count,
+  virtual void SetTargets(MotiveIndex index, MotiveDimension dimensions,
                           const MotiveTarget1f* ts) {
-    for (int i = 0; i < count; ++i) {
+    for (int i = 0; i < dimensions; ++i) {
       LinearData& d = Data(index + i);
       const MotiveTarget1f& t = ts[i];
 
@@ -158,27 +165,37 @@ class LinearMotiveProcessor : public MotiveProcessorNf {
   };
 
   // When an Motivator is initialized with LinearInit, this function will
-  // be called. We allocate data for the new Motivator.
-  virtual void InitializeIndex(const MotivatorInit& init, MotiveIndex index,
-                               MotiveEngine* /*engine*/) {
+  // be called. We initialize data for the new Motivator.
+  virtual void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
+                                 MotiveDimension dimensions,
+                                 MotiveEngine* /*engine*/) {
     (void)init;
     assert(init.type() == LinearInit::kType);
-    Data(index).Reset();
-    values_[index] = 0;
+    for (MotiveIndex i = index; i < index + dimensions; ++i) {
+      Data(i).Reset();
+      values_[i] = 0;
+    }
   }
 
   // This function is called when an index is removed. We don't have to do
   // anything, but for ease of debugging, we call reset.
-  virtual void RemoveIndex(MotiveIndex index) {
-    Data(index).Reset();
-    values_[index] = 0;
+  virtual void RemoveIndices(MotiveIndex index, MotiveDimension dimensions) {
+    for (MotiveIndex i = index; i < index + dimensions; ++i) {
+      Data(i).Reset();
+      values_[i] = 0;
+    }
   }
 
   // The base class endeavors to keep our data contiguous in memory, so
   // whenever Defragment() is called, we may shuffle some indices around.
-  virtual void MoveIndex(MotiveIndex old_index, MotiveIndex new_index) {
-    data_[new_index] = data_[old_index];
-    values_[new_index] = values_[old_index];
+  virtual void MoveIndices(MotiveIndex old_index, MotiveIndex new_index,
+                           MotiveDimension dimensions) {
+    MotiveIndex old_i = old_index;
+    MotiveIndex new_i = new_index;
+    for (MotiveDimension i = 0; i < dimensions; ++i, ++new_i, ++old_i) {
+      data_[new_i] = data_[old_i];
+      values_[new_i] = values_[old_i];
+    }
   }
 
   // When new Motivators are being added or removed, this function may be

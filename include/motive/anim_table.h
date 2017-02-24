@@ -24,34 +24,71 @@
 namespace motive {
 
 struct AnimTableFb;
+struct AnimListFb;
+struct AnimTableEmbeddedFb;
+struct AnimListEmbeddedFb;
 struct RigAnimFb;
+class TableDescriberInterface;
 
 /// @class AnimTable
 /// @brief Hold animation lists for several object types.
+///
+/// A list of lists of animations.
+///
+/// The outer list is indexed by `object`, the meaning of which is set by
+/// the user, but is most likely an enum for the character being animated
+/// (e.g. turtle, zombie, happy person, tall person, etc.).
+///
+/// The inner list is indexed by `anim_idx`, the meaning of which is also set
+/// by the user, but is most likely an enum for the action being animated
+/// (e.g. idle, walk forward, jump, etc.).
+///
+/// Duplicate animations are only loaded once. This allows different objects
+/// to use the same animations without any memory overhead.
 class AnimTable {
  public:
-  /// Callback that returns a pointer to the `RigAnimFb` FlatBuffer table for
-  /// `anim_name`. Your implementation may vary, but one possibility is to
-  /// load the file with `anim_name` into `scratch_buf`, and then return a
-  /// pointer to `scratch_buf`.
+  // Array of animations corresponding to `anim_idx`.
+  // The meaning of `anim_idx` is set by the user, but is most likely an enum
+  // for the action being animated (e.g. idle, walk forward, jump, etc.).
+  typedef std::vector<std::string> ListFileNames;
+
+  // Array of arrays of animations corresponding to `object`.
+  // The meaning of `object` is set by the user, but is most likely an enum
+  // for the character being animated (e.g. turtle, zombie, happy person,
+  // tall person, etc.).
+  typedef std::vector<ListFileNames> TableFileNames;
+
+  /// Callback that loads `file_name` and returns a pointer to the raw data.
+  /// Optionally, the function can load the file into `scratch_buf`,
+  /// and then return `scratch_buf.c_str()`.
+  /// If the load fails, should return nullptr.
   ///
   /// Note: Motive does not make assumptions on file io, so the caller must
   ///       provide this function.
   ///
-  /// Example:
-  ///   const RigAnimFb* MyLoadRigAnimFn(const char* anim_name,
-  ///                                    std::string* scratch_buf) {
-  ///     const bool load_ok = MyLoadFile(anim_name, scratch_buf);
-  ///     assert(load_ok);
-  ///     return motive::GetRigAnimFb(scratch_buf->c_str());
-  ///   }
-  typedef const RigAnimFb* LoadRigAnimFn(const char* anim_name,
-                                         std::string* scratch_buf);
+  typedef const char* LoadFn(const char* file_name, std::string* scratch_buf);
+
+  ~AnimTable();
 
   /// Load the AnimTable specified in the FlatBuffer `params`.
   /// For each animation in the AnimTable, `load_fn` is called to get the
-  /// `RigAnimFb` associated with the animation.
-  bool InitFromFlatBuffers(const AnimTableFb& params, LoadRigAnimFn* load_fn);
+  /// to load the individual animation files, if they're not embedded in
+  /// table_fb. If they are embedded then `load_fn` can be nullptr.
+  /// `table_fb` can be discarded after this call.
+  bool InitFromFlatBuffers(const AnimTableFb& table_fb, LoadFn* load_fn);
+
+  /// Load the animations specified in the FlatBuffer `list_fb`.
+  /// All of the loaded animations are for object 0.
+  bool InitFromFlatBuffers(const AnimListFb& list_fb, LoadFn* load_fn);
+
+  /// Load the AnimTable specified in the vector of vectors.
+  /// The top level vector represents the `object` index.
+  /// The bottom level vector represents the `anim_idx`.
+  bool InitFromAnimFileNames(const TableFileNames& table_names,
+                             LoadFn* load_fn);
+
+  /// Load the AnimTable for only one `object`.
+  bool InitFromAnimFileNames(const ListFileNames& list_names, LoadFn* load_fn);
 
   /// Get an animation by index. This is fast and is the preferred way to
   /// look up an animation.
@@ -68,7 +105,7 @@ class AnimTable {
   ///                 match between objects.
   const RigAnim* Query(int object, int anim_idx) const {
     const AnimIndex idx = CalculateIndex(object, anim_idx);
-    return idx == kInvalidAnimIndex ? nullptr : &anims_[idx];
+    return idx == kInvalidAnimIndex ? nullptr : anims_[idx];
   }
 
   /// Get an animation by name. This is slow and should be avoided when
@@ -86,24 +123,32 @@ class AnimTable {
   /// of vectors.
   int NumObjects() const { return static_cast<int>(indices_.size()); }
 
+  /// Return size of the bottom-most vector. Recall that AnimTable is a vector
+  /// of vectors.
+  int NumAnims(int object) const {
+    return static_cast<int>(indices_[object].size());
+  }
+
+  /// Return the number of animations for which we've allocated memory.
+  /// Internally, we avoid duplicating animations.
+  int NumUniqueAnims() const { return static_cast<int>(anims_.size()); }
+
  private:
   typedef uint16_t AnimIndex;
   typedef std::vector<AnimIndex> AnimList;
   typedef std::pair<std::string, AnimIndex> NameToIndex;
   static const AnimIndex kInvalidAnimIndex = static_cast<AnimIndex>(-1);
 
-  AnimIndex AddAnimName(const char* anim_name);
-  void InitNameMapFromFlatBuffers(const AnimTableFb& params);
-  bool LoadAnimations(LoadRigAnimFn* load_fn);
+  bool Load(TableDescriberInterface* describer, LoadFn* load_fn);
   void AnimNames(std::vector<const char*>* anim_names) const;
   size_t MaxAnimIndex() const;
   size_t GatherObjectAnims(int object, const RigAnim** anims) const;
-  void CalculateDefinineAnims();
+  void CalculateDefiningAnims();
 
   RigAnim* QueryByName(const char* anim_name) {
     auto map_entry = name_map_.find(anim_name);
     if (map_entry == name_map_.end()) return nullptr;
-    return &anims_[map_entry->second];
+    return anims_[map_entry->second];
   }
 
   AnimIndex CalculateIndex(int object, int anim_idx) const {
@@ -129,7 +174,7 @@ class AnimTable {
   std::unordered_map<std::string, AnimIndex> name_map_;
 
   /// Animation data. Contains no duplicate entries, thanks to name_map_.
-  std::vector<RigAnim> anims_;
+  std::vector<RigAnim*> anims_;
 };
 
 }  // namespace motive

@@ -26,11 +26,16 @@ option(
 
 # Import gtest if it's not already present.
 if(NOT TARGET gtest)
-add_subdirectory(${dependencies_gtest_dir} googletest)
+  set_compiler_flags_for_external_libraries()
+  add_subdirectory(${dependencies_gtest_dir} googletest)
+  restore_compiler_flags()
 endif()
 
 # Set some variables describing file locations.
 set(GUNIT_INCDIR "${dependencies_gtest_dir}/include")
+if(EXISTS "${dependencies_gtest_dir}/../../third_party")
+  set(GUNIT_HACK_INCDIR "${dependencies_gtest_dir}/../..")
+endif()
 set(GTEST_LIBDIR "${dependencies_gtest_dir}")
 
 # Include helper functions and macros used by Google Test.
@@ -44,11 +49,9 @@ string(REPLACE "-Wextra" "" cxx_default "${cxx_default}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../../bin)
 
 include_directories(${GUNIT_INCDIR}
+                    ${GUNIT_HACK_INCDIR}
                     ${CMAKE_CURRENT_SOURCE_DIR}
                     ${dependencies_flatbuffers_dir}/include)
-
-# These are support sources that are used for unit tests.
-set(SUPPORT_SRCS ${dependencies_flatbuffers_dir}/src/idl_parser.cpp)
 
 # Common libraries for tests.
 if(NOT MSVC)
@@ -65,18 +68,21 @@ set(COMMON_LIBS "gtest;motive;${CMAKE_THREAD_LIBS_INIT}")
 # Where <test-name> is the name of the output test executable and the basename
 # of the source file for the test.  For example, test_executable(CallbackTests)
 # generates an executable called CallbackTests which is the result of compiling
-# CallbackTests.cpp along with any files specified by the SUPPORT_SRCS variable.
+# CallbackTests.cpp.
 
 function(test_executable name)
   cxx_executable_with_flags(${name}_test "${cxx_default}" "${COMMON_LIBS}"
-      ${CMAKE_CURRENT_SOURCE_DIR}/${name}_test/${name}_test.cpp ${SUPPORT_SRCS}
-      ${ARGN})
+      ${CMAKE_CURRENT_SOURCE_DIR}/${name}_test/${name}_test.cpp ${ARGN})
   mathfu_configure_flags(${name}_test)
+  target_link_libraries(${name}_test flatbuffers)
 endfunction()
 
 test_executable(angle)
+test_executable(curve)
+test_executable(curve_util)
+test_executable(float)
 test_executable(motive)
 test_executable(range)
-test_executable(curve)
 test_executable(spline)
+test_executable(table)
 

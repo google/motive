@@ -12,14 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+include "anim_list.fbs";
+
 namespace motive;
 
-table AnimListFb {
-  // One animation file per `anim_idx`.
-  // Duplicate names can be specified. Each animation will only be loaded once.
-  anim_files:[string];
-}
-
+// A list of lists of animations.
+// The outer list is indexed by `object`, the meaning of which is set by
+// the user, but is most likely an enum for the character being animated
+// (e.g. turtle, zombie, happy person, tall person, etc.).
+// The inner list is indexed by `anim_idx`, the meaning of which is also set
+// by the user, but is most likely an enum for the action being animated
+// (e.g. idle, walk forward, jump, etc.).
 table AnimTableFb {
   // One list of animations per `object`.
   lists:[AnimListFb];

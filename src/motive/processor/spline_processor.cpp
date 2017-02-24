@@ -26,10 +26,6 @@ using motive::Range;
 // that go above or below the supplied nodes.
 static const float kYRangeBufferPercent = 1.2f;
 
-// An intermediate node might be inserted to make the cubic curve well
-// behaved, so reserve 3 nodes in the spline.
-static const int kMaxNodesInLocalSpline = 2 * MotiveTarget1f::kMaxNodes + 1;
-
 struct SplineData {
   SplineData() : local_spline(nullptr) {}
 
@@ -57,65 +53,96 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
   virtual const float* Values(MotiveIndex index) const {
     return interpolator_.Ys(index);
   }
-  virtual void Velocities(MotiveIndex index, MotiveIndex count,
+  virtual void Velocities(MotiveIndex index, MotiveDimension dimensions,
                           float* out) const {
-    return interpolator_.Derivatives(index, count, out);
+    return interpolator_.Derivatives(index, dimensions, out);
   }
-  virtual void Directions(MotiveIndex index, MotiveIndex count,
+  virtual void Directions(MotiveIndex index, MotiveDimension dimensions,
                           float* out) const {
-    return interpolator_.DerivativesWithoutPlayback(index, count, out);
+    return interpolator_.DerivativesWithoutPlayback(index, dimensions, out);
   }
-  virtual void TargetValues(MotiveIndex index, MotiveIndex count,
+  virtual void TargetValues(MotiveIndex index, MotiveDimension dimensions,
                             float* out) const {
-    return interpolator_.EndYs(index, count, out);
+    return interpolator_.EndYs(index, dimensions, out);
   }
-  virtual void TargetVelocities(MotiveIndex index, MotiveIndex count,
+  virtual void TargetVelocities(MotiveIndex index, MotiveDimension dimensions,
                                 float* out) const {
-    return interpolator_.EndDerivatives(index, count, out);
+    return interpolator_.EndDerivatives(index, dimensions, out);
   }
-  virtual void Differences(MotiveIndex index, MotiveIndex count,
+  virtual void Differences(MotiveIndex index, MotiveDimension dimensions,
                            float* out) const {
-    return interpolator_.YDifferencesToEnd(index, count, out);
+    return interpolator_.YDifferencesToEnd(index, dimensions, out);
   }
-  virtual MotiveTime TargetTime(MotiveIndex index) const {
-    return static_cast<MotiveTime>(interpolator_.EndX(index) -
-                                   interpolator_.X(index));
+  virtual MotiveTime TargetTime(MotiveIndex index,
+                                MotiveDimension dimensions) const {
+    MotiveTime greatest = std::numeric_limits<MotiveTime>::min();
+    for (MotiveDimension i = 0; i < dimensions; ++i) {
+      greatest =
+          std::max(greatest,
+                   static_cast<MotiveTime>(interpolator_.EndX(index + i)
+                                           - interpolator_.X(index + i)));
+    }
+    return greatest;
   }
   virtual MotiveTime SplineTime(MotiveIndex index) const {
     return static_cast<MotiveTime>(interpolator_.X(index));
   }
 
-  virtual void SetTargets(MotiveIndex index, MotiveIndex count,
+  virtual void SetTargets(MotiveIndex index, MotiveDimension dimensions,
                           const MotiveTarget1f* ts) {
-    for (MotiveDimension i = 0; i < count; ++i) {
+    for (MotiveDimension i = 0; i < dimensions; ++i) {
       SetTarget(index + i, ts[i]);
     }
   }
 
-  virtual void SetSplines(MotiveIndex index, MotiveIndex count,
-                          const motive::CompactSpline* splines,
-                          const motive::SplinePlayback& playback) {
-    for (MotiveDimension i = 0; i < count; ++i) {
-      SetSpline(index + i, splines[i], playback);
+  virtual void SetSplines(MotiveIndex index, MotiveDimension dimensions,
+                          const CompactSpline* splines,
+                          const SplinePlayback& playback) {
+    // Return the local splines to the spline pool. We use external splines now.
+    for (MotiveDimension i = index; i < index + dimensions; ++i) {
+      FreeSplineForIndex(i);
+    }
+
+    // Initialize spline to follow way points.
+    // Snaps the current value and velocity to the way point's start value
+    // and velocity.
+    interpolator_.SetSplines(index, dimensions, splines, playback);
+  }
+
+  virtual void SetSplinesAndTargets(MotiveIndex index,
+                                    MotiveDimension dimensions,
+                                    const CompactSpline* const* splines,
+                                    const SplinePlayback& playback,
+                                    const MotiveTarget1f* targets) {
+    // Initialize either with a spline or a target.
+    // We initialize one by one instead of in bulk. Not as efficient.
+    for (MotiveDimension i = 0; i < dimensions; ++i) {
+      if (splines[i] == nullptr) {
+        SetTarget(index + i, targets[i]);
+      } else {
+        FreeSplineForIndex(index + i);
+        interpolator_.SetSplines(index + i, 1, splines[i], playback);
+      }
     }
   }
 
+  virtual void Splines(MotiveIndex index, MotiveDimension dimensions,
+                       const motive::CompactSpline** splines) const {
+    // Get splines at index for dimensions.
+    interpolator_.Splines(index, dimensions, splines);
+  }
+
   // TODO: Push this loop into BulkSplineInterpolator.
-  virtual void SetSplineTime(MotiveIndex index, MotiveIndex count,
+  virtual void SetSplineTime(MotiveIndex index, MotiveDimension dimensions,
                              MotiveTime time) {
-    const MotiveIndex end_index = index + count;
-    for (MotiveIndex i = index; i < end_index; ++i) {
-      interpolator_.SetX(i, static_cast<float>(time));
-    }
+    interpolator_.SetXs(index, dimensions, static_cast<float>(time));
   }
 
   // TODO: Push this loop into BulkSplineInterpolator.
-  virtual void SetSplinePlaybackRate(MotiveIndex index, MotiveIndex count,
+  virtual void SetSplinePlaybackRate(MotiveIndex index,
+                                     MotiveDimension dimensions,
                                      float playback_rate) {
-    const MotiveIndex end_index = index + count;
-    for (MotiveIndex i = index; i < end_index; ++i) {
-      interpolator_.SetPlaybackRate(i, playback_rate);
-    }
+    interpolator_.SetPlaybackRates(index, dimensions, playback_rate);
   }
 
  protected:
@@ -127,8 +154,8 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
     // current values with the values specified in the first node.
     const MotiveNode1f& node0 = t.Node(0);
     const bool override_current = node0.time == 0;
-    const float start_y = override_current ? node0.value
-                                           : interpolator_.NormalizedY(index);
+    const float start_y =
+        override_current ? node0.value : interpolator_.NormalizedY(index);
     const float start_derivative =
         override_current ? node0.velocity : Velocity(index);
     const int start_node_index = override_current ? 1 : 0;
@@ -144,7 +171,7 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
     const float end_x = static_cast<float>(t.EndTime());
     const Range y_range = CalculateYRange(index, t, start_y);
     const float x_granularity = CompactSpline::RecommendXGranularity(end_x);
-    d.local_spline->Init(y_range, x_granularity, kMaxNodesInLocalSpline);
+    d.local_spline->Init(y_range, x_granularity);
     d.local_spline->AddNode(0.0f, start_y, start_derivative);
 
     // Add subsequent nodes, in turn, taking care to respect the 'direction'
@@ -160,44 +187,36 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
 
     // Point the interpolator at the spline we just created. Always start our
     // spline at time 0.
-    interpolator_.SetSpline(index, *d.local_spline, motive::SplinePlayback());
+    interpolator_.SetSplines(index, 1, d.local_spline, SplinePlayback());
   }
 
-  // TODO: Push loop into BulkSplineInterpolator.
-  void SetSpline(MotiveIndex index, const motive::CompactSpline& spline,
-                 const motive::SplinePlayback& playback) {
-    SplineData& d = Data(index);
-
-    // Return the local spline to the spline pool. We use external splines now.
-    FreeSpline(d.local_spline);
-    d.local_spline = nullptr;
-
-    // Initialize spline to follow way points.
-    // Snaps the current value and velocity to the way point's start value
-    // and velocity.
-    interpolator_.SetSpline(index, spline, playback);
-  }
-
-  virtual void InitializeIndex(const MotivatorInit& init, MotiveIndex index,
-                               MotiveEngine* engine) {
-    (void)engine;
+  virtual void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
+                                 MotiveDimension dimensions,
+                                 MotiveEngine* /*engine*/) {
     auto spline_init = static_cast<const SplineInit&>(init);
-    interpolator_.SetYRange(index, spline_init.range(), spline_init.modular());
+    interpolator_.SetYRanges(index, dimensions, spline_init.range());
   }
 
-  virtual void RemoveIndex(MotiveIndex index) {
+  virtual void RemoveIndices(MotiveIndex index, MotiveDimension dimensions) {
     // Clear reference to this spline.
-    interpolator_.ClearSpline(index);
+    interpolator_.ClearSplines(index, dimensions);
 
-    // Return the spline to the pool of splines.
-    SplineData& d = Data(index);
-    FreeSpline(d.local_spline);
-    d.local_spline = nullptr;
+    // Return splines to the pool of splines.
+    for (MotiveIndex i = index; i < index + dimensions; ++i) {
+      SplineData& d = Data(i);
+      FreeSpline(d.local_spline);
+      d.local_spline = nullptr;
+    }
   }
 
-  virtual void MoveIndex(MotiveIndex old_index, MotiveIndex new_index) {
-    data_[new_index] = data_[old_index];
-    interpolator_.MoveIndex(old_index, new_index);
+  virtual void MoveIndices(MotiveIndex old_index, MotiveIndex new_index,
+                           MotiveDimension dimensions) {
+    MotiveIndex old_i = old_index;
+    MotiveIndex new_i = new_index;
+    for (MotiveDimension i = 0; i < dimensions; ++i, ++new_i, ++old_i) {
+      data_[new_i] = data_[old_i];
+    }
+    interpolator_.MoveIndices(old_index, new_index, dimensions);
   }
 
   virtual void SetNumIndices(MotiveIndex num_indices) {
@@ -224,6 +243,12 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
     CompactSpline* spline = spline_pool_.back();
     spline_pool_.pop_back();
     return spline;
+  }
+
+  void FreeSplineForIndex(MotiveIndex index) {
+    SplineData& d = Data(index);
+    FreeSpline(d.local_spline);
+    d.local_spline = nullptr;
   }
 
   void FreeSpline(CompactSpline* spline) {

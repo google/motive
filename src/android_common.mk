@@ -23,15 +23,16 @@ LOCAL_WHOLE_STATIC_LIBRARIES:=android_native_app_glue libfplutil_main \
 LOCAL_LDLIBS:=-llog -landroid
 LOCAL_ARM_MODE:=arm
 LOCAL_C_INCLUDES:= \
-	$(PROJECT_ROOT)/include \
-	$(DEPENDENCIES_FLATBUFFERS_DIR)/include
+  $(PROJECT_ROOT)/include \
+  $(DEPENDENCIES_FLATBUFFERS_DIR)/include
+LOCAL_CFLAGS:=$(FPL_CFLAGS)
 include $(BUILD_SHARED_LIBRARY)
 
 $(call import-add-path,$(PROJECT_ROOT)/..)
-$(call import-add-path,$(DEPENDENCIES_GTEST_DIR)/..)
+$(call import-add-path,$(DEPENDENCIES_GTEST_JNI_DIR)/..)
 $(call import-add-path,$(DEPENDENCIES_FPLUTIL_DIR)/..)
 
 $(call import-module,android/native_app_glue)
-$(call import-module,googletest)
+$(call import-module,fplutil/libfplutil/jni/libs/googletest)
 $(call import-module,fplutil/libfplutil/jni)
 $(call import-module,motive/jni)

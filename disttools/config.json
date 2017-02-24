@@ -9,20 +9,22 @@
   },
   "dependencies": [
     {
+      "name": "fplbase",
+      "url": "http://github.com/google/fplbase.git",
+      "branch": "develop",
+      "is_library": 1,
+      "third_party": 0,
+      "push": 0,
+      "fetch_dependencies": 1
+    },
+    {
       "name": "fplutil",
       "url": "http://github.com/google/fplutil.git",
       "branch": "develop",
       "is_library": 1,
       "third_party": 0,
-      "push": 0
-    },
-    {
-      "name": "googletest",
-      "url": "http://github.com/google/fplutil.git",
-      "branch": "googletest",
-      "is_library": 1,
-      "third_party": 0,
-      "push": 0
+      "push": 0,
+      "fetch_dependencies": 1
     },
     {
       "name": "flatbuffers",

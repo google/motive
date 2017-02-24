@@ -25,6 +25,7 @@
 using motive::CompactSpline;
 using motive::CubicCurve;
 using motive::CubicInit;
+using motive::kAngleRange;
 using motive::kPi;
 using motive::kTwoPi;
 using motive::QuadraticCurve;
@@ -38,8 +39,8 @@ using motive::MatrixOpArray;
 using motive::MatrixMotivator4f;
 using motive::SplineInit;
 
-static const SplineInit kRotateInit(Range(-kPi, kPi), true);
-static const SplineInit kTranslateInit(Range(-1.0f, 1.0f), true);
+static const SplineInit kRotateInit(kAngleRange);
+static const SplineInit kTranslateInit;
 static const int kNumBenchmarkIds = 10;
 
 struct SplineNode {
@@ -111,11 +112,11 @@ class MotiveBenchmarker {
 
     // Create a matrix initializer with a series of basic matrix operations.
     // The final matrix will be created by applying these operations, in turn.
-    matrix_ops_.AddOp(motive::kRotateAboutY, kRotateInit,
+    matrix_ops_.AddOp(0, motive::kRotateAboutY, kRotateInit,
                       splines_[kLinearOrbit]);
-    matrix_ops_.AddOp(motive::kTranslateX, kTranslateInit,
+    matrix_ops_.AddOp(1, motive::kTranslateX, kTranslateInit,
                       splines_[kOscillatingSlowly]);
-    matrix_ops_.AddOp(motive::kTranslateY, kTranslateInit,
+    matrix_ops_.AddOp(2, motive::kTranslateY, kTranslateInit,
                       splines_[kOscillatingQuickly]);
 
     // Initialize the large array of matrix motivators. Note that the

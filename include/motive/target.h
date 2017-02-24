@@ -20,16 +20,54 @@
 
 namespace motive {
 
+/// @class MotiveCurveShape
+/// @brief A target curve shape for the motivator.
+///
+/// The curve shape is defined by the typical distance to travel, the time it
+/// takes to travel it, and the bias. Using these variables, the actual time it
+/// takes to travel the curve will be calculated.
+struct MotiveCurveShape {
+  MotiveCurveShape()
+      : typical_delta_value(0.0f), typical_total_time(0.0f), bias(0.0f) {}
+  MotiveCurveShape(float typical_delta_value, float typical_total_time,
+                   float bias)
+      : typical_delta_value(typical_delta_value),
+        typical_total_time(typical_total_time),
+        bias(bias) {}
+
+  /// The typical difference between the start and end values.
+  float typical_delta_value;
+
+  /// The typical time it takes to go the typical distance.
+  float typical_total_time;
+
+  /// Determines how much the curve should ease-in and how much it should
+  /// ease-out. Should be a value from 0.0 to 1.0.
+  /// Examples of potential bias values and what they would represent:
+  /// 0.0: ease-in but no ease out (a.k.a. "fly-out").
+  /// 0.3: ease-in more slowly and ease-out more quickly (i.e. less responsive).
+  /// 0.5: symmetrical curve: equal ease-in and ease-out.
+  /// 0.7: ease-out more slowly and ease-in more quickly (i.e. more reponsive).
+  /// 1.0: ease-out but no ease in (a.k.a. "fly-in").
+  float bias;
+};
+
 /// @class MotiveNode1f
 /// @brief A waypoint in MotiveTarget1f.
 /// Describes one key point through which a value is animated.
 struct MotiveNode1f {
-  float value;      /// Desired value to animate to at `time`.
-  float velocity;   /// Speed when at `time`.
-  MotiveTime time;  /// Time to achieve this key point.
-  motive::ModularDirection direction;  /// When using modular arithmetic, which
-                                        /// of
-                                        /// two directions to go.
+  /// Desired value to animate to at `time`.
+  float value;
+
+  /// Speed when at `time`.
+  float velocity;
+
+  /// Time to achieve this key point.
+  MotiveTime time;
+
+  /// When using modular arithmetic, which of two directions to go.
+  ModularDirection direction;
+
   MotiveNode1f()
       : value(0.0f),
         velocity(0.0f),
@@ -205,7 +243,7 @@ inline MotiveTarget1f Target1f(float target_value, float target_velocity,
                                MotiveTime target_time,
                                motive::ModularDirection direction =
                                    motive::kDirectionClosest) {
-  assert(target_time > 0);
+  assert(target_time >= 0);
   return MotiveTarget1f(
       MotiveNode1f(target_value, target_velocity, target_time, direction));
 }

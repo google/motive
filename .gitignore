@@ -2,6 +2,7 @@
 libs/
 obj/
 bin/flatc
+bin/Release/flatc
 bin/flathash
 bin/benchmarker
 bin/*_test
@@ -46,8 +47,10 @@ Win32/
 pingme.txt
 
 # XCode files
+motive.build/
 motive.xcodeproj/
-tests/googletest/
+src/tests/googletest/
+src/tests/motive.build/
 src/*/*.xcodeproj
 
 # qt creator

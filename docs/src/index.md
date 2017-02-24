@@ -86,11 +86,11 @@ appreciate if you would leave it in.
   [FplUtil]: https://github.com/google/fplutil
   [Linux]: http://en.m.wikipedia.org/wiki/Linux
   [MathFu]: https://github.com/google/mathfu
-  [Motive Google Group]: http://group.google.com/group/motive-anim
+  [Motive Google Group]: http://groups.google.com/group/motive-anim
   [Motive Issues Tracker]: http://github.com/google/motive/issues
   [Motive]: @ref motive_overview
   [OS X]: http://www.apple.com/osx/
   [SIMD]: http://en.wikipedia.org/wiki/SIMD
   [Windows]: http://windows.microsoft.com/
-  [stackoverflow.com]: http://www.stackoverflow.com
+  [stackoverflow.com]: http://stackoverflow.com/search?q=motive+animation
   [vector]: http://en.wikipedia.org/wiki/Euclidean_vector

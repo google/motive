@@ -1,4 +1,4 @@
-Motive Version 1.1.0    {#motive_readme}
+Motive Version 1.2.0   {#motive_readme}
 ====================
 
 # Overview

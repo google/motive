@@ -18,119 +18,15 @@
 #include "motive/math/bulk_spline_evaluator.h"
 #include "motive/math/dual_cubic.h"
 
-using mathfu::Lerp;
-
 namespace motive {
 
-// A spline is composed of a series of spline nodes (x, y, derivative) that are
-// interpolated to form a smooth curve.
-//
-// This class represents a single spline node in 6-bytes. It quantizes the
-// valid ranges of x, y, and slope into three 16-bit integers = 6 bytes.
-//
-// The x and y values are quantized to the valid range. The valid range is
-// stored externally and passed in to each call. Please see comments on
-// CompactSplineXGrain and CompactSplineYRung for more detail.
-//
-// The derivative is stored as the angle from the x-axis. This is so that we
-// can equally represent derivatives <= 1 (that is, <= 45 degrees) and
-// derivatives >= 1 (that is, >= 45 degrees) with a quantized number.
-//
-class CompactSplineNode {
- public:
-  CompactSplineNode() : x_(0), y_(0), angle_(0) {}
-
-  // Construct with values that have already been converted to quantized values.
-  // This constructor is useful when deserializing pre-converted data.
-  CompactSplineNode(const CompactSplineXGrain x, const CompactSplineYRung y,
-                    const CompactSplineAngle angle)
-      : x_(x), y_(y), angle_(angle) {}
-
-  // Construct with real-world values. Must pass in the valid x and y ranges.
-  CompactSplineNode(const float x, const float y, const float derivative,
-                    const float x_granularity, const Range& y_range) {
-    SetX(x, x_granularity);
-    SetY(y, y_range);
-    SetDerivative(derivative);
-  }
-
-  // Set with real-world values. The valid range of x and y must be passed in.
-  // These values are passed in so that we don't have to store multiple copies
-  // of them. Memory compactness is the purpose of this class.
-  void SetX(const float x, const float x_granularity) {
-    x_ = CompactX(x, x_granularity);
-  }
-  void SetY(const float y, const Range& y_range) { y_ = CompactY(y, y_range); }
-  void SetDerivative(const float derivative) {
-    angle_ = CompactDerivative(derivative);
-  }
-
-  // Get real world values. The valid range of x and y must be passed in.
-  // The valid range must be the same as when x and y values were set.
-  float X(const float x_granularity) const {
-    return static_cast<float>(x_) * x_granularity;
-  }
-  float Y(const Range& y_range) const { return y_range.Lerp(YPercent()); }
-  float Derivative() const { return tan(Angle()); }
-
-  // Get the quantized values. Useful for serializing a series of nodes.
-  CompactSplineXGrain x() const { return x_; }
-  CompactSplineYRung y() const { return y_; }
-  CompactSplineAngle angle() const { return angle_; }
-
-  // Convert from real-world to quantized values.
-  // Please see type definitions for documentation on the quantized format.
-  static int QuantizeX(const float x, const float x_granularity) {
-    return static_cast<int>(x / x_granularity + 0.5f);
-  }
-
-  static CompactSplineXGrain CompactX(const float x,
-                                      const float x_granularity) {
-    const int x_quantized = QuantizeX(x, x_granularity);
-    assert(0 <= x_quantized && x_quantized <= kMaxX);
-    return static_cast<CompactSplineXGrain>(x_quantized);
-  }
-
-  static CompactSplineYRung CompactY(const float y, const Range& y_range) {
-    assert(y_range.Contains(y));
-    const float y_percent = y_range.PercentClamped(y);
-    const CompactSplineYRung compact_y =
-        static_cast<CompactSplineYRung>(kMaxY * y_percent);
-    return compact_y;
-  }
-
-  static CompactSplineAngle CompactDerivative(const float derivative) {
-    const float angle_radians = atan(derivative);
-    const CompactSplineAngle angle =
-        static_cast<CompactSplineAngle>(angle_radians / kAngleScale);
-    return angle;
-  }
-
-  static CompactSplineXGrain MaxX() { return kMaxX; }
-
- private:
-  static const CompactSplineXGrain kMaxX;
-  static const CompactSplineYRung kMaxY;
-  static const CompactSplineAngle kMinAngle;
-  static const float kYScale;
-  static const float kAngleScale;
-
-  float YPercent() const { return static_cast<float>(y_) * kYScale; }
-  float Angle() const { return static_cast<float>(angle_) * kAngleScale; }
-
-  // Position along x-axis. Multiplied by x-granularity to get actual domain.
-  // 0 ==> start. kMaxX ==> end, we should never reach the end. If we do,
-  // the x_granularity should be increased.
-  CompactSplineXGrain x_;
-
-  // Position within y_range. 0 ==> y_range.start. kMaxY ==> y_range.end.
-  CompactSplineYRung y_;
-
-  // Angle from x-axis. tan(angle) = rise / run = derivative.
-  CompactSplineAngle angle_;
-};
+using mathfu::Lerp;
+using detail::CompactSplineNode;
 
 // static constants
+const size_t CompactSpline::kBaseSize =
+    sizeof(CompactSpline) -
+    kDefaultMaxNodes * sizeof(detail::CompactSplineNode);
 const CompactSplineXGrain CompactSplineNode::kMaxX =
     std::numeric_limits<CompactSplineXGrain>::max();
 const CompactSplineYRung CompactSplineNode::kMaxY =
@@ -140,40 +36,87 @@ const CompactSplineAngle CompactSplineNode::kMinAngle =
 const float CompactSplineNode::kYScale = 1.0f / static_cast<float>(kMaxY);
 const float CompactSplineNode::kAngleScale =
     static_cast<float>(-M_PI / static_cast<double>(kMinAngle));
+static const float kYRangeBufferPercent = 1.05f;
 
-CompactSpline::CompactSpline() : x_granularity_(0.0f) {}
+// YsBulkOutput records the evaluated y and derivative values into 2D arrays.
+// Arrays are of length num_points * num_splines.
+class YsBulkOutput : public CompactSpline::BulkOutput {
+ public:
+  YsBulkOutput(float* ys, float* derivatives, size_t num_splines)
+      : ys(ys), derivatives(derivatives), num_splines(num_splines) {}
 
-CompactSpline::CompactSpline(const Range& y_range, const float x_granularity,
-                             const int num_nodes) {
-  Init(y_range, x_granularity, num_nodes);
+  /// Gets the Y and derivative values of the evaluator.
+  virtual void AddPoint(int i, const BulkSplineEvaluator& evaluator) {
+    assert(num_splines == static_cast<size_t>(evaluator.NumIndices()));
+
+    const size_t offset = i * num_splines;
+    float* y = ys + offset;
+    memcpy(y, evaluator.Ys(0), num_splines * sizeof(y[0]));
+
+    if (derivatives) {
+      float* derivatives_for_i = derivatives + offset;
+      for (size_t j = 0; j < num_splines; ++j) {
+        derivatives_for_i[j] =
+            evaluator.Derivative(static_cast<CompactSplineIndex>(j));
+      }
+    }
+  }
+
+ private:
+  float* ys;
+  float* derivatives;
+  size_t num_splines;
+};
+
+// `splines` is an array of length num_splines.
+// AppendToSplineBulkOutput adds the evaluated x, y, and derivative values at
+// index to the the corresponding spline in `splines`.
+class AppendToSplineBulkOutput : public CompactSpline::BulkOutput {
+ public:
+  AppendToSplineBulkOutput(CompactSpline** splines, size_t num_splines)
+      : splines(splines), num_splines(num_splines) {}
+
+  /// Adds the current x, y, and derivative values of the evaluator
+  /// to the spline.
+  virtual void AddPoint(int i, const BulkSplineEvaluator& evaluator) {
+    assert(num_splines == static_cast<size_t>(evaluator.NumIndices()));
+    (void)i;
+
+    for (size_t j = 0; j < num_splines; ++j) {
+      float x = evaluator.X(static_cast<CompactSplineIndex>(j));
+      float y = evaluator.Y(static_cast<CompactSplineIndex>(j));
+      float derivative =
+          evaluator.Derivative(static_cast<CompactSplineIndex>(j));
+      splines[j]->AddNode(x, y, derivative, kAddWithoutModification);
+    }
+  }
+
+ private:
+  CompactSpline** splines;
+  size_t num_splines;
+};
+
+void CompactSpline::InitFromNodes(const UncompressedNode* nodes,
+                                  size_t num_nodes) {
+  const float end_x = nodes[num_nodes - 1].x;
+  const float x_granularity = CompactSpline::RecommendXGranularity(end_x);
+
+  const Range y_range = Range::CoversLambda(
+      nodes, num_nodes, [](const UncompressedNode& n) { return n.y; });
+  Init(y_range, x_granularity);
+
+  AddUncompressedNodes(nodes, num_nodes);
 }
 
-// Default implementation. Explicitly written here because 'nodes_' needs the
-// implementation of CompactSplineNode.
-CompactSpline::CompactSpline(const CompactSpline& rhs)
-    : nodes_(rhs.nodes_),
-      y_range_(rhs.y_range_),
-      x_granularity_(rhs.x_granularity_) {}
-
-// Default implementation. Explicitly written here because 'nodes_' needs the
-// implementation of CompactSplineNode.
-CompactSpline::~CompactSpline() {}
-
-// Default implementation. Explicitly written here because 'nodes_' needs the
-// implementation of CompactSplineNode.
-CompactSpline& CompactSpline::operator=(const CompactSpline& rhs) {
-  new (this) CompactSpline(rhs);  // Placement new.
-  return *this;
-}
-
-void CompactSpline::Clear() { nodes_.clear(); }
-
-void CompactSpline::Init(const Range& y_range, const float x_granularity,
-                         const int num_nodes) {
-  y_range_ = y_range;
-  x_granularity_ = x_granularity;
-  nodes_.reserve(num_nodes);
-  nodes_.resize(0);
+void CompactSpline::InitFromSpline(const CompactSpline& spline) {
+  assert(max_nodes_ > 1);
+  Init(spline.y_range().Lengthen(kYRangeBufferPercent), spline.x_granularity());
+  const float total_x = spline.EndX() - spline.StartX();
+  const float delta_x = total_x / (max_nodes_ - 1);
+  CompactSpline* splines[] = {this};
+  AppendToSplineBulkOutput out(splines, MOTIVE_ARRAY_SIZE(splines));
+  spline.BulkEvaluate(&spline, MOTIVE_ARRAY_SIZE(splines), spline.StartX(),
+                      delta_x, max_nodes_, &out);
 }
 
 void CompactSpline::AddNode(const float x, const float y,
@@ -181,17 +124,30 @@ void CompactSpline::AddNode(const float x, const float y,
                             const CompactSplineAddMethod method) {
   const CompactSplineNode new_node(x, y, derivative, x_granularity_, y_range_);
 
-  // Precondition: Nodes must come *after* the last node.
-  // Due to rounding, it's possible that the we have the *same* x as the last
-  // node. This is valid and we do not assert, but we do return immediately.
-  assert(nodes_.size() == 0 || new_node.x() >= nodes_.back().x());
-  const bool strictly_after_last_node =
-      nodes_.size() == 0 || new_node.x() > nodes_.back().x();
-  if (!strictly_after_last_node) return;
+  // Precondition: Nodes must come *after* or *at* the last node.
+  assert(num_nodes_ == 0 || new_node.x() >= Back().x());
+
+  // Early out when adding the same node.
+  const bool same_as_back = num_nodes_ > 0 && Back() == new_node;
+  if (same_as_back) return;
+
+  // If we're adding a point at the same x, that means there will be a
+  // discontinuity in the curve at x (either in y or derivative).
+  const bool discontinuity = num_nodes_ > 0 && Back().x() == new_node.x();
+  if (discontinuity) {
+    // No point in having three points with the same x, value. Two points makes
+    // a discontinuity, but for any more, the middle points will just take up
+    // space, so remove it.
+    const bool already_ends_in_discontinuity =
+        num_nodes_ >= 2 && Back().x() == nodes_[num_nodes_ - 2].x();
+    if (already_ends_in_discontinuity) num_nodes_--;
+  }
 
   // Add a dual-cubic mid-node, if required, to keep cubic curves well behaved.
-  if (method == kEnsureCubicWellBehaved && nodes_.size() != 0) {
-    const CompactSplineNode& last_node = nodes_.back();
+  const bool add_middle_node =
+      !discontinuity && method == kEnsureCubicWellBehaved && num_nodes_ != 0;
+  if (add_middle_node) {
+    const CompactSplineNode& last_node = Back();
     const CubicInit init = CreateCubicInit(last_node, new_node);
     const CubicCurve curve(init);
 
@@ -211,31 +167,21 @@ void CompactSpline::AddNode(const float x, const float y,
       const bool is_unique_x =
           mid_node.x() != last_node.x() && mid_node.x() != new_node.x();
       if (is_unique_x) {
-        nodes_.push_back(mid_node);
+        AddNodeVerbatim(mid_node);
       }
     }
   }
 
   // Add the new node.
-  nodes_.push_back(new_node);
+  AddNodeVerbatim(new_node);
 }
 
-void CompactSpline::AddNodeVerbatim(const CompactSplineXGrain x,
-                                    const CompactSplineYRung y,
-                                    const CompactSplineAngle angle) {
-  nodes_.push_back(CompactSplineNode(x, y, angle));
-}
-
-float CompactSpline::StartX() const { return nodes_.front().X(x_granularity_); }
-float CompactSpline::StartY() const { return nodes_.front().Y(y_range_); }
-float CompactSpline::StartDerivative() const {
-  return nodes_.front().Derivative();
-}
-
-float CompactSpline::EndX() const { return nodes_.back().X(x_granularity_); }
-float CompactSpline::EndY() const { return nodes_.back().Y(y_range_); }
-float CompactSpline::EndDerivative() const {
-  return nodes_.back().Derivative();
+void CompactSpline::AddUncompressedNodes(const UncompressedNode* nodes,
+                                         size_t num_nodes) {
+  for (size_t i = 0; i < num_nodes; ++i) {
+    AddNode(nodes[i].x, nodes[i].y, nodes[i].derivative,
+            kAddWithoutModification);
+  }
 }
 
 float CompactSpline::NodeX(const CompactSplineIndex index) const {
@@ -243,65 +189,73 @@ float CompactSpline::NodeX(const CompactSplineIndex index) const {
   // x=first node's x. This is because logically the spline always starts at
   // x=0, so anything before the first node is in an implicit segment from
   // x=0..first node's x.
-  return index == kAfterSplineIndex
-             ? EndX()
-             : index == kBeforeSplineIndex ? 0.0f
-                                           : nodes_[index].X(x_granularity_);
-}
-float CompactSpline::NodeY(const CompactSplineIndex index) const {
-  return index == kAfterSplineIndex
-             ? EndY()
-             : index == kBeforeSplineIndex ? StartY()
-                                           : nodes_[index].Y(y_range_);
-}
-float CompactSpline::NodeDerivative(const CompactSplineIndex index) const {
-  return nodes_[index].Derivative();
+  if (index == kAfterSplineIndex) return EndX();
+  if (index == kBeforeSplineIndex) return 0.0f;
+  assert(index < num_nodes_);
+  return nodes_[index].X(x_granularity_);
 }
 
-float CompactSpline::YCalculatedSlowly(const float x) const {
+float CompactSpline::NodeY(const CompactSplineIndex index) const {
+  if (index == kAfterSplineIndex) return EndY();
+  if (index == kBeforeSplineIndex) return StartY();
+  assert(index < num_nodes_);
+  return nodes_[index].Y(y_range_);
+}
+
+float CompactSpline::CalculatedSlowly(const float x,
+                                      const CurveValueType value_type) const {
   const CompactSplineIndex index = IndexForX(x, 0);
 
   // Handle cases where `x` is outside the spline's domain.
-  if (index == kBeforeSplineIndex) return StartY();
-  if (index == kAfterSplineIndex) return EndY();
+  if (index == kBeforeSplineIndex)
+    // The curve is flat outside the bounds, so all derivatives
+    // outside the bounds are 0.
+    return value_type == kCurveValue ? StartY() : 0.0f;
+  if (index == kAfterSplineIndex)
+    return value_type == kCurveValue ? EndY() : 0.0f;
 
   // Create the cubic curve for `index` and evaluate it.
   const CubicCurve cubic(CreateCubicInit(index));
   const float cubic_x = x - NodeX(index);
-  const float y = cubic.Evaluate(cubic_x);
-  return y;
+  return CurveValue<CubicCurve>(cubic, cubic_x, value_type);
 }
 
 void CompactSpline::Ys(const float start_x, const float delta_x,
-                       const int num_ys, float* ys) const {
+                       const size_t num_points, float* ys,
+                       float* derivatives) const {
   // Use the BulkSplineEvaluator even though we're only evaluating one spline.
   // Still faster, since it doesn't have to recreate the cubic for every x.
-  BulkYs(this, 1, start_x, delta_x, num_ys, ys);
+  BulkYs(this, 1, start_x, delta_x, num_points, ys, derivatives);
 }
 
-// static
-void CompactSpline::BulkYs(const CompactSpline* const splines,
-                           const int num_splines, const float start_x,
-                           const float delta_x, const size_t num_ys,
-                           float* ys) {
+void CompactSpline::BulkEvaluate(const CompactSpline* const splines,
+                                 const size_t num_splines, const float start_x,
+                                 const float delta_x, const size_t num_points,
+                                 BulkOutput* out) {
   BulkSplineEvaluator evaluator;
 
   // Initialize the evaluator with the splines.
   // Note that we set `repeat` = false, so that we can accurately get the last
   // value in the spline.
-  evaluator.SetNumIndices(num_splines);
   const SplinePlayback playback(start_x);
-  for (int i = 0; i < num_splines; ++i) {
-    evaluator.SetSpline(i, splines[i], playback);
-  }
+  evaluator.SetNumIndices(static_cast<int>(num_splines));
+  evaluator.SetSplines(0, static_cast<int>(num_splines), splines, playback);
 
   // Grab y values, then advance spline evaluation by delta_x.
-  // Repeat num_ys times.
-  const float* end_y = &ys[num_splines * num_ys];
-  for (float* y = ys; y < end_y; y += num_splines) {
-    memcpy(y, evaluator.Ys(0), num_splines * sizeof(y[0]));
+  // Repeat num_points times.
+  for (CompactSplineIndex i = 0; i < num_points; ++i) {
+    out->AddPoint(i, evaluator);
     evaluator.AdvanceFrame(delta_x);
   }
+}
+
+// static
+void CompactSpline::BulkYs(const CompactSpline* const splines,
+                           const size_t num_splines, const float start_x,
+                           const float delta_x, const size_t num_points,
+                           float* ys, float* derivatives) {
+  YsBulkOutput output(ys, derivatives, num_splines);
+  BulkEvaluate(splines, num_splines, start_x, delta_x, num_points, &output);
 }
 
 Range CompactSpline::RangeX(const CompactSplineIndex index) const {
@@ -318,21 +272,23 @@ Range CompactSpline::RangeX(const CompactSplineIndex index) const {
                nodes_[index + 1].X(x_granularity_));
 }
 
-float CompactSpline::WidthX(const CompactSplineNode& s,
-                            const CompactSplineNode& e) const {
-  return (e.x() - s.x()) * x_granularity_;
-}
-
 CompactSplineIndex CompactSpline::IndexForX(
     const float x, const CompactSplineIndex guess_index) const {
   const int quantized_x = CompactSplineNode::QuantizeX(x, x_granularity_);
 
   // Check bounds first.
   // Return negative if before index 0.
-  if (quantized_x < nodes_.front().x()) return kBeforeSplineIndex;
+  if (quantized_x < Front().x()) return kBeforeSplineIndex;
+
+  // When we are exactly on the last node, we want to return the index of the
+  // last segment (i.e. the second last node). This is so that the derivative
+  // at the end matches the derivative of the last node, and not 0 (since
+  // derivatives beyond the spline are forced to 0).
+  // This only makes sense if there is more than one node in the spline.
+  if (quantized_x == Back().x() && num_nodes_ >= 2) return num_nodes_ - 2;
 
   // Return index of the last index if beyond the last index.
-  if (quantized_x >= nodes_.back().x()) return kAfterSplineIndex;
+  if (quantized_x >= Back().x()) return kAfterSplineIndex;
 
   // Check the guess value first.
   const CompactSplineXGrain compact_x =
@@ -356,7 +312,8 @@ CompactSplineIndex CompactSpline::IndexForXAllowingRepeat(
   }
 
   // Repeats, so wrap `x` back to 0 and find the index again.
-  const float repeat_x = x - EndX();
+  const Range x_range(0.0f, EndX());
+  const float repeat_x = x_range.NormalizeCloseValue(x);
   const CompactSplineIndex repeat_index = IndexForX(repeat_x, 0);
   *final_x = repeat_x;
   return repeat_index;
@@ -370,14 +327,10 @@ CompactSplineIndex CompactSpline::ClampIndex(const CompactSplineIndex index,
   }
   if (index == kAfterSplineIndex) {
     *x = EndX();
-    return NumNodes() - 1;
+    return LastNodeIndex();
   }
-  assert(index < NumNodes());
+  assert(index < num_nodes_);
   return index;
-}
-
-CompactSplineIndex CompactSpline::LastNodeIndex() const {
-  return static_cast<CompactSplineIndex>(nodes_.size() - 1);
 }
 
 bool CompactSpline::IndexContainsX(const CompactSplineXGrain compact_x,
@@ -408,30 +361,25 @@ CompactSplineIndex CompactSpline::BinarySearchIndexForX(
   //         low = mid;
   //       }
   //     }
-  const auto upper_it = std::upper_bound(nodes_.begin(), nodes_.end(),
-                                         compact_x, CompareSplineNodeX);
-  const int low = static_cast<int>(upper_it - nodes_.begin()) - 1;
+  const auto upper_it = std::upper_bound(nodes_, &nodes_[num_nodes_], compact_x,
+                                         CompareSplineNodeX);
+  const int low = static_cast<int>(upper_it - nodes_) - 1;
   assert(0 <= low && low < LastNodeIndex());
 
   // We return the lower index: x is in the segment bt 'index' and 'index' + 1.
   return static_cast<CompactSplineIndex>(low);
 }
 
-/// Returns the number of nodes in this spline.
-CompactSplineIndex CompactSpline::NumNodes() const {
-  return static_cast<CompactSplineIndex>(nodes_.size());
-}
-
 CubicInit CompactSpline::CreateCubicInit(const CompactSplineIndex index) const {
   // Handle case where we are outside of the interpolatable range.
   if (OutsideSpline(index)) {
-    const CompactSplineNode& n =
-        index == kBeforeSplineIndex ? nodes_.front() : nodes_.back();
+    const CompactSplineNode& n = index == kBeforeSplineIndex ? Front() : Back();
     const float constant_y = n.Y(y_range_);
     return CubicInit(constant_y, 0.0f, constant_y, 0.0f, 1.0f);
   }
 
   // Interpolate between the nodes at 'index' and 'index' + 1.
+  assert(index + 1 < num_nodes_);
   return CreateCubicInit(nodes_[index], nodes_[index + 1]);
 }
 
@@ -440,8 +388,6 @@ CubicInit CompactSpline::CreateCubicInit(const CompactSplineNode& s,
   return CubicInit(s.Y(y_range_), s.Derivative(), e.Y(y_range_), e.Derivative(),
                    WidthX(s, e));
 }
-
-const CompactSplineNode* CompactSpline::nodes() const { return &nodes_[0]; }
 
 // static
 float CompactSpline::RecommendXGranularity(const float max_x) {

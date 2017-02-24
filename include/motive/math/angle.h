@@ -174,6 +174,18 @@ class Angle {
   }
 
   /// Returns a point on unit circle corresponding to a sweep of `angle`
+  /// degrees from the x-axis towards the y-axis.
+  ///   0     ==> ( 1,  0 )
+  ///   pi/2  ==> ( 0,  1 )
+  ///   pi    ==> (-1,  0 )
+  ///   3pi/2 ==> ( 0, -1 )
+  mathfu::vec2 ToXYVector2f() const {
+    mathfu::vec2 r;
+    ToVector(&r.x, &r.y);
+    return r;
+  }
+
+  /// Returns a point on unit circle corresponding to a sweep of `angle`
   /// degrees from the x-axis towards the z-axis.
   ///   0     ==> ( 1,  0,  0)
   ///   pi/2  ==> ( 0,  0,  1)
@@ -207,6 +219,18 @@ class Angle {
     float x, y;
     ToVector(&y, &x);
     return mathfu::vec3(x, y, 0.0f);
+  }
+
+  /// Returns a point on unit circle corresponding to a sweep of `angle`
+  /// degrees from the y-axis towards the x-axis.
+  ///   0     ==> ( 0,  1 )
+  ///   pi/2  ==> ( 1,  0 )
+  ///   pi    ==> ( 0, -1 )
+  ///   3pi/2 ==> (-1,  0 )
+  mathfu::vec2 ToYXVector2f() const {
+    mathfu::vec2 r;
+    ToVector(&r.y, &r.x);
+    return r;
   }
 
   /// Returns a point on unit circle corresponding to a sweep of `angle`
@@ -482,6 +506,26 @@ inline Angle Angle::Clamp(const Angle& center, const Angle& max_diff) const {
   // we're left with *this.
   return center + diff_clamped;
 }
+
+/// @brief Returns the axis about which the angles are calculated.
+///
+/// For example, for an XY angle-to-vector system, returns the positive Z-axis.
+/// For the XY system, angle 0 is the X-axis, angle 90 is the Y-axis, so the
+/// "up" vector is the Z-axis, positive since we use a right-hand system.
+const mathfu::vec3& VectorSystemUp(const AngleToVectorSystem system);
+
+/// @brief Convert from a geographic coordinate system to a point on the unit
+///        sphere.
+/// @param latitude angle between -pi/2 to pi/2, where 0 is the equator,
+///                 pi/2 is the north pole, and -pi/2 is the south pole.
+///                 The polar axis is given by `UpVector(system)`
+/// @param longitude angle about the polar axis. Angle zero coresponds to the
+///                  definition of `system`.
+/// @param system Define the polar axis, and the zero and 90 longitudinal
+///               values.
+mathfu::vec3 LatitudeAndLongitudeToUnitSphere(const Angle& latitude,
+                                              const Angle& longitude,
+                                              AngleToVectorSystem system);
 
 }  // namespace motive
 
