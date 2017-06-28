@@ -660,8 +660,8 @@ extern "C" int FPL_main(int argc, char* argv[]) {
     }
 
     renderer.set_model_view_projection(mvp);
-    shader->Set(renderer);
-    mesh->Render(renderer);
+    renderer.SetShader(shader);
+    renderer.Render(mesh);
   }
 
   asset_manager.ClearAllAssets();
