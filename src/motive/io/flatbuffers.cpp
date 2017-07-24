@@ -92,30 +92,34 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
             reinterpret_cast<const CompactSplineFb*>(op->value());
         MatrixAnim::Spline& s = splines[spline_idx++];
 
-        // Ensure the spline will fit into our memory buffer.
-        const CompactSplineIndex num_spline_nodes =
-            static_cast<CompactSplineIndex>(spline_fb->nodes()->size());
-
-        // Create the CompactSpline in the memory buffer.
-        s.spline = CompactSpline::Create(num_spline_nodes);
-
-        // Copy the spline data into s.spline.
-        // TODO: modify CompactSpline so we can just point at spline data
-        //       instead of copying it.
-        const Range y_range(spline_fb->y_range_start(),
-                            spline_fb->y_range_end());
-        s.spline->Init(y_range, spline_fb->x_granularity());
-        for (auto n = spline_fb->nodes()->begin();
-             n != spline_fb->nodes()->end(); ++n) {
-          s.spline->AddNodeVerbatim(n->x(), n->y(), n->angle());
-        }
-        assert(s.spline->num_nodes() == s.spline->max_nodes());
-
         // Hold `init` and `playback` data in structures that won't disappear,
         // since these are referenced by pointer.
         const Range& op_range = RangeOfOp(op_type);
         s.init = SplineInit(op_range);
-        ops.AddOp(op->id(), op_type, s.init, *s.spline);
+
+        if (spline_fb) {
+          // Ensure the spline will fit into our memory buffer.
+          const CompactSplineIndex num_spline_nodes =
+              static_cast<CompactSplineIndex>(spline_fb->nodes()->size());
+
+          // Create the CompactSpline in the memory buffer.
+          s.spline = CompactSpline::Create(num_spline_nodes);
+
+          // Copy the spline data into s.spline.
+          // TODO: modify CompactSpline so we can just point at spline data
+          //       instead of copying it.
+          const Range y_range(spline_fb->y_range_start(),
+                              spline_fb->y_range_end());
+          s.spline->Init(y_range, spline_fb->x_granularity());
+          for (auto n = spline_fb->nodes()->begin();
+               n != spline_fb->nodes()->end(); ++n) {
+            s.spline->AddNodeVerbatim(n->x(), n->y(), n->angle());
+          }
+          assert(s.spline->num_nodes() == s.spline->max_nodes());
+          ops.AddOp(op->id(), op_type, s.init, *s.spline);
+        } else {
+          ops.AddOp(op->id(), op_type, s.init);
+        }
         break;
       }
 
