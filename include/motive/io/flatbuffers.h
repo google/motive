@@ -42,8 +42,7 @@ void Settled1fFromFlatBuffers(const Settled1fParameters& params,
                               Settled1f* settled);
 
 /// Convert from FlatBuffer params to Motive MatrixAnim.
-void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, bool repeat,
-                               MatrixAnim* anim);
+void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim);
 
 /// Convert from FlatBuffer params to Motive MatrixAnim.
 void RigAnimFromFlatBuffers(const RigAnimFb& params, RigAnim* anim);

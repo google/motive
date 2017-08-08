@@ -55,7 +55,8 @@ include_directories(${dependencies_fplutil_dir}/libfplutil/include)
 include_directories(${dependencies_motive_dir}/include)
 
 # Executable target.
-add_executable(anim_pipeline ${CMAKE_CURRENT_SOURCE_DIR}/anim_pipeline.cpp)
+add_executable(anim_pipeline ${CMAKE_CURRENT_SOURCE_DIR}/anim_pipeline.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/anim_pipeline_main.cpp)
 
 # Set further options for FBX programs.
 fbx_configure_target(anim_pipeline)
