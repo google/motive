@@ -150,10 +150,12 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
   void SetTarget(MotiveIndex index, const MotiveTarget1f& t) {
     SplineData& d = Data(index);
 
-    // If the first node specifies time=0, that means we want to override the
-    // current values with the values specified in the first node.
+    // If the first node specifies time=0 or there is no valid data in the
+    // interpolator, we want to override the current values with the values
+    // specified in the first node.
     const MotiveNode1f& node0 = t.Node(0);
-    const bool override_current = node0.time == 0;
+    const bool override_current =
+        node0.time == 0 || !interpolator_.Valid(index);
     const float start_y =
         override_current ? node0.value : interpolator_.NormalizedY(index);
     const float start_derivative =
