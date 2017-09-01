@@ -156,8 +156,16 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
     const MotiveNode1f& node0 = t.Node(0);
     const bool override_current =
         node0.time == 0 || !interpolator_.Valid(index);
+    // TODO(b/65298927):  It seems that the animation pipeline can produce data
+    // that is out of range.  Instead of just using node0.value directly, if
+    // the interpolator is doing modular arithmetic, normalize the y value to
+    // the modulator's range.
     const float start_y =
-        override_current ? node0.value : interpolator_.NormalizedY(index);
+        override_current
+            ? (interpolator_.ModularArithmetic(index)
+                   ? interpolator_.ModularRange(index).Normalize(node0.value)
+                   : node0.value)
+            : interpolator_.NormalizedY(index);
     const float start_derivative =
         override_current ? node0.velocity : Velocity(index);
     const int start_node_index = override_current ? 1 : 0;
