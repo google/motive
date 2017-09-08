@@ -408,6 +408,9 @@ class RigProcessor : public MotiveProcessor {
   /// Return the animation that defines the rig.
   virtual const RigAnim* DefiningAnim(MotiveIndex index) const = 0;
 
+  /// Return the animation that is currently playing.
+  virtual const RigAnim* CurrentAnim(MotiveIndex index) const = 0;
+
   /// Smoothly transition to the animation in `anim`.
   virtual void BlendToAnim(MotiveIndex index, const RigAnim& anim,
                            const motive::SplinePlayback& playback) = 0;

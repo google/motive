@@ -91,6 +91,8 @@ class RigData {
     current_anim_ = &anim;
   }
 
+  const RigAnim* current_anim() const { return current_anim_; }
+
   void SetPlaybackRate(float playback_rate) {
     // Update the motivators to have the new playback rate.
     // TODO: Do this in bulk.
@@ -284,6 +286,10 @@ class MotiveRigProcessor : public RigProcessor {
 
   virtual const RigAnim* DefiningAnim(MotiveIndex index) const {
     return Data(index).defining_anim();
+  }
+
+  const RigAnim* CurrentAnim(MotiveIndex index) const override {
+    return Data(index).current_anim();
   }
 
   virtual std::string CsvHeaderForDebugging(MotiveIndex index) const {
