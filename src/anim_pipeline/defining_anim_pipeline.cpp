@@ -23,7 +23,7 @@
 #include "motive/anim_table.h"
 
 const char* LoadFile(const char* filename, std::string* scratch_buf) {
-  std::ifstream fin(filename);
+  std::ifstream fin(filename, std::ios::in | std::ios::binary);
   std::string data((std::istreambuf_iterator<char>(fin)),
                    std::istreambuf_iterator<char>());
   fin.close();
