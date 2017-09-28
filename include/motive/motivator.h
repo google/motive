@@ -691,6 +691,8 @@ class RigMotivator : public Motivator {
     return Processor().DefiningAnim(index_);
   }
 
+  const RigAnim* CurrentAnim() const { return Processor().CurrentAnim(index_); }
+
   /// Return the time remaining in the current spline animation.
   /// Time units are defined by the user.
   MotiveTime TimeRemaining() const { return Processor().TimeRemaining(index_); }

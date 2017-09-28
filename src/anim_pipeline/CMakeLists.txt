@@ -54,13 +54,18 @@ include_directories(${dependencies_flatbuffers_dir}/include)
 include_directories(${dependencies_fplutil_dir}/libfplutil/include)
 include_directories(${dependencies_motive_dir}/include)
 
-# Executable target.
+# Executable targets.
 add_executable(anim_pipeline ${CMAKE_CURRENT_SOURCE_DIR}/anim_pipeline.cpp
                              ${CMAKE_CURRENT_SOURCE_DIR}/anim_pipeline_main.cpp)
+add_executable(defining_anim_pipeline
+               ${CMAKE_CURRENT_SOURCE_DIR}/defining_anim_pipeline.cpp)
 
 # Set further options for FBX programs.
 fbx_configure_target(anim_pipeline)
+fbx_configure_target(defining_anim_pipeline)
 target_link_libraries(anim_pipeline fplutil motive)
+target_link_libraries(defining_anim_pipeline fplutil motive)
 
 # Additional flags for the target.
 mathfu_configure_flags(anim_pipeline)
+mathfu_configure_flags(defining_anim_pipeline)

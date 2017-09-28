@@ -109,7 +109,9 @@ class MatrixOperation {
             break;
 
           case MatrixOperationInit::kUnionInitialValue:
-            motivator.SetTarget(Current1f(init.initial_value));
+            motivator.SetTarget(
+                Target1f(init.initial_value, 0.0f,
+                         static_cast<MotiveTime>(playback.blend_x)));
             break;
 
           case MatrixOperationInit::kUnionTarget:

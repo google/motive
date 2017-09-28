@@ -521,7 +521,8 @@ class FlatAnim {
     FlatTime max_time = std::numeric_limits<FlatTime>::min();
     for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
       for (auto ch = bone->channels.begin(); ch != bone->channels.end(); ++ch) {
-        if (ch->nodes.size() > 0) {
+        // Only consider channels with more than one keyframe (non-constant).
+        if (ch->nodes.size() > 1) {
           max_time = std::max(max_time, ch->nodes.back().time);
         }
       }
@@ -536,7 +537,8 @@ class FlatAnim {
     FlatTime min_time = std::numeric_limits<FlatTime>::max();
     for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
       for (auto ch = bone->channels.begin(); ch != bone->channels.end(); ++ch) {
-        if (ch->nodes.size() > 0) {
+        // Only consider channels with more than one keyframe (non-constant).
+        if (ch->nodes.size() > 1) {
           min_time = std::min(min_time, ch->nodes[0].time);
         }
       }
@@ -657,7 +659,8 @@ class FlatAnim {
           value_type = motive::MatrixOpValueFb_ConstantOpFb;
 
         } else {
-          // We clamp negative times to 0, but it's going to look strange.
+          // We clamp negative times to 0, but it's going to look strange for
+          // non-constant channels.
           if (n[0].time < 0) {
             log_.Log(kLogWarning, "%s (%s) starts at negative time %d\n",
                      BoneBaseName(bone.name), MatrixOpName(c->op), n[0].time);
@@ -858,36 +861,33 @@ class FlatAnim {
     const Nodes& nodes_b = channels[ch_b].nodes;
     const SplineNode* node_a = nodes_a.data();
     const SplineNode* node_b = nodes_b.data();
-    const SplineNode* last_a = node_a + channels[ch_a].nodes.size() - 1;
-    const SplineNode* last_b = node_b + channels[ch_b].nodes.size() - 1;
+    const SplineNode* last_a = node_a + nodes_a.size() - 1;
+    const SplineNode* last_b = node_b + nodes_b.size() - 1;
     assert(node_a <= last_a && node_b <= last_b);
     Nodes sum;
 
-    for (;;) {
-      // When we reach the end of one of the splines, append other spline
-      // plus the last value of the spline that's ended.
-      if (node_a > last_a || node_b > last_b) {
-        const FlatVal const_val = node_a > last_a ? last_a->val : last_b->val;
-        const SplineNode* node = node_a > last_a ? node_b : node_a;
-        const SplineNode* last = node_a > last_a ? last_b : last_a;
-        for (; node <= last; ++node) {
-          sum.push_back(
-              SplineNode(node->time, node->val + const_val, node->derivative));
-        }
-        break;
-      }
+    // If either input is a constant channel (single keyframe), move the
+    // first constant channel's node pointer past the end.  This will cause its
+    // constant value to be summed with each of the keys in the other channel,
+    // without adding any of its own keys.
+    // TODO(b/66226797): This assumes that the key on constant channels is not
+    // significant to its evaluation. With pre/post infinities, single key
+    // curves might not necessarily be "constant" curves. We should validate if
+    // elsewhere that assumption is also made.
+    if (nodes_a.size() == 1) {
+      node_a = last_a + 1;
+    } else if (nodes_b.size() == 1) {
+      node_b = last_b + 1;
+    }
 
-      // If the times are the same, output thir sum and go to the next node.
-      if (node_a->time == node_b->time) {
-        sum.push_back(SplineNode(node_a->time, node_a->val + node_b->val,
-                                 node_a->derivative + node_b->derivative));
-        ++node_a;
-        ++node_b;
-        continue;
-      }
-
-      // Output a node with the other nodes value interpolated.
-      const bool output_a = node_a->time < node_b->time;
+    // Loops over the keys of both channels.  With each iteration, outputs
+    // the key (node) with the smaller time, summing its value and derivative
+    // with the interpolated value and derivitave of the other channel at
+    // the same time.
+    while (node_a <= last_a || node_b <= last_b) {
+      // Output a node summed with the other node's interpolated value.
+      const bool output_a =
+          node_a <= last_a && (node_b > last_b || node_a->time <= node_b->time);
       const SplineNode* node_to_output = output_a ? node_a : node_b;
       const Nodes& nodes_to_interpolate = output_a ? nodes_b : nodes_a;
       FlatDerivative interpolated_derivative;
@@ -897,13 +897,19 @@ class FlatAnim {
           node_to_output->time, node_to_output->val + interpolated_value,
           node_to_output->derivative + interpolated_derivative));
 
-      // Increment the node pointer that we output.
-      if (output_a) {
+      // Increment the node pointer that we output.  If both nodes are at the
+      // same time, increment both, to avoid duplicating keys.
+      if (node_a <= last_a && node_b <= last_b &&
+          node_a->time == node_b->time) {
+        ++node_a;
+        ++node_b;
+      } else if (output_a) {
         ++node_a;
       } else {
         ++node_b;
       }
     }
+
     channels[ch_a].nodes = sum;
   }
 

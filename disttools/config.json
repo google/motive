@@ -8,9 +8,7 @@
     "push": 1
   },
   "dependencies": [
-    { // fplbase is required for the fplviewer tool only,
-      // not the base Motive library
-      "name": "fplbase",
+    { "name": "fplbase",
       "url": "http://github.com/google/fplbase.git",
       "branch": "develop",
       "is_library": 1,
