@@ -392,6 +392,13 @@ class MatrixProcessor4f : public MotiveProcessor {
 
   /// Instantly change the playback speed of this animation.
   virtual void SetPlaybackRate(MotiveIndex index, float playback_rate) = 0;
+
+  /// Returns the time remaining to reach the end of the animation.  If the
+  /// animation is looping, then returns kMotiveTimeEndless.  This function does
+  /// not take the PlaybackRate into account.  For example, a 1s animation with
+  /// a playback rate of 0.5 will take 2s to finish.  However, TimeRemaining()
+  /// at the start of the animation will return 1s.
+  virtual MotiveTime TimeRemaining(MotiveIndex index) const = 0;
 };
 
 class RigProcessor : public MotiveProcessor {

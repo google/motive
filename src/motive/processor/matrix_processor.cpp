@@ -163,6 +163,16 @@ class MatrixOperation {
     Motivator().SetSplinePlaybackRate(playback_rate);
   }
 
+  MotiveTime TimeRemaining() const {
+    if (animation_type_ == kMotivatorAnimation) {
+      // Return the time time to reach the target for the motivator.
+      return Motivator().TargetTime();
+    } else {
+      // Constant animations are always at the "end" of their animation.
+      return 0;
+    }
+  }
+
  private:
   enum AnimationType {
     kInvalidAnimationType,
@@ -355,6 +365,15 @@ class MatrixData {
     }
   }
 
+  MotiveTime TimeRemaining() const {
+    MotiveTime time = 0;
+    for (int i = 0; i < num_ops_; ++i) {
+      const MatrixOperation& op = ops_[i];
+      time = std::max(time, op.TimeRemaining());
+    }
+    return time;
+  }
+
   const MatrixOperation& Op(int child_index) const {
     assert(0 <= child_index && child_index < num_ops_);
     return ops_[child_index];
@@ -484,6 +503,10 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
 
   virtual void SetPlaybackRate(MotiveIndex index, float playback_rate) {
     Data(index).SetPlaybackRate(playback_rate);
+  }
+
+  virtual MotiveTime TimeRemaining(MotiveIndex index) const {
+    return Data(index).TimeRemaining();
   }
 
  protected:

@@ -102,6 +102,18 @@ class RigData {
     }
   }
 
+  MotiveTime TimeRemaining() const {
+    if (end_time_ == kMotiveTimeEndless) {
+      return kMotiveTimeEndless;
+    }
+    MotiveTime time = 0;
+    const int defining_num_bones = NumBones();
+    for (BoneIndex i = 0; i < defining_num_bones; ++i) {
+      time = std::max(time, motivators_[i].TimeRemaining());
+    }
+    return time;
+  }
+
   void UpdateGlobalTransforms() {
     CalculateGlobalTransforms(global_transforms_);
   }
@@ -279,9 +291,7 @@ class MotiveRigProcessor : public RigProcessor {
   }
 
   virtual MotiveTime TimeRemaining(MotiveIndex index) const {
-    const MotiveTime end_time = Data(index).end_time();
-    return end_time == kMotiveTimeEndless ? kMotiveTimeEndless
-                                          : end_time - time_;
+    return Data(index).TimeRemaining();
   }
 
   virtual const RigAnim* DefiningAnim(MotiveIndex index) const {
