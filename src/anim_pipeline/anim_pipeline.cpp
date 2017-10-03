@@ -1016,11 +1016,16 @@ class FlatAnim {
     CompactSpline* s =
         CompactSpline::Create(static_cast<CompactSplineIndex>(nodes.size()));
     s->Init(y_range, x_granularity);
+    float last_time = -std::numeric_limits<float>::max();
     for (auto n = nodes.begin(); n != nodes.end(); ++n) {
       const float n_time = static_cast<float>(std::max(0, n->time));
-      s->AddNode(n_time, n->val, n->derivative, kAddWithoutModification);
+      // Exclude any non-increasing time values, as these may produce
+      // zero-length spans at evaluation time and lead to division by zero.
+      if (n_time > last_time) {
+        s->AddNode(n_time, n->val, n->derivative, kAddWithoutModification);
+        last_time = n_time;
+      }
     }
-
     return s;
   }
 
