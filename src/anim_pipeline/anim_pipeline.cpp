@@ -855,60 +855,64 @@ class FlatAnim {
     return cubic.Evaluate(cubic_time);
   }
 
+  // Gets the value from the channel either at the exact time specified, or
+  // interpolated from the surrounding nodes. This is intended to be called
+  // with consecutively increasing time values.  Returns true if a node was
+  // sampled directly, so caller can move to next node.
+  bool GetValueAtTime(const Nodes& nodes, const Nodes::const_iterator& node,
+                      FlatTime time, FlatVal* value,
+                      FlatDerivative* derivative) const {
+    if (node != nodes.end() && node->time == time) {
+      *value = node->val;
+      *derivative = node->derivative;
+      return true;
+    } else {
+      *value = EvaluateNodes(nodes, time, derivative);
+      return false;
+    }
+  }
+
   // Sum curves in ch_a and ch_b and put the result in ch_a.
   void SumChannels(Channels& channels, FlatChannelId ch_a,
                    FlatChannelId ch_b) const {
     const Nodes& nodes_a = channels[ch_a].nodes;
     const Nodes& nodes_b = channels[ch_b].nodes;
-    const SplineNode* node_a = nodes_a.data();
-    const SplineNode* node_b = nodes_b.data();
-    const SplineNode* last_a = node_a + nodes_a.size() - 1;
-    const SplineNode* last_b = node_b + nodes_b.size() - 1;
-    assert(node_a <= last_a && node_b <= last_b);
     Nodes sum;
 
-    // If either input is a constant channel (single keyframe), move the
-    // first constant channel's node pointer past the end.  This will cause its
-    // constant value to be summed with each of the keys in the other channel,
-    // without adding any of its own keys.
-    // TODO(b/66226797): This assumes that the key on constant channels is not
-    // significant to its evaluation. With pre/post infinities, single key
-    // curves might not necessarily be "constant" curves. We should validate if
-    // elsewhere that assumption is also made.
-    if (nodes_a.size() == 1) {
-      node_a = last_a + 1;
-    } else if (nodes_b.size() == 1) {
-      node_b = last_b + 1;
+    // TODO(b/66226797): The following assumes that the key on constant channels
+    // is not significant to its evaluation. With pre/post infinities, single
+    // key curves might not necessarily be "constant" curves. We should validate
+    // if elsewhere that assumption is also made.
+    //
+    // If there is only one key, we ignore it because we can sample the curve
+    // at any time, and don't want its key time to affect the resulting curve.
+    auto node_iter_a = (nodes_a.size() == 1) ? nodes_a.end() : nodes_a.begin();
+    auto node_iter_b = (nodes_b.size() == 1) ? nodes_b.end() : nodes_b.begin();
+
+    // If both channels are constant, the curve should just contain a single
+    // key with the sum.  Time and derivative are ignored in constant channels.
+    if (nodes_a.size() == 1 && nodes_b.size() == 1) {
+      sum.push_back(SplineNode(0, nodes_a[0].val + nodes_b[0].val, 0.0f));
     }
 
-    // Loops over the keys of both channels.  With each iteration, outputs
-    // the key (node) with the smaller time, summing its value and derivative
-    // with the interpolated value and derivitave of the other channel at
-    // the same time.
-    while (node_a <= last_a || node_b <= last_b) {
-      // Output a node summed with the other node's interpolated value.
-      const bool output_a =
-          node_a <= last_a && (node_b > last_b || node_a->time <= node_b->time);
-      const SplineNode* node_to_output = output_a ? node_a : node_b;
-      const Nodes& nodes_to_interpolate = output_a ? nodes_b : nodes_a;
-      FlatDerivative interpolated_derivative;
-      const FlatVal interpolated_value = EvaluateNodes(
-          nodes_to_interpolate, node_to_output->time, &interpolated_derivative);
-      sum.push_back(SplineNode(
-          node_to_output->time, node_to_output->val + interpolated_value,
-          node_to_output->derivative + interpolated_derivative));
-
-      // Increment the node pointer that we output.  If both nodes are at the
-      // same time, increment both, to avoid duplicating keys.
-      if (node_a <= last_a && node_b <= last_b &&
-          node_a->time == node_b->time) {
-        ++node_a;
-        ++node_b;
-      } else if (output_a) {
-        ++node_a;
-      } else {
-        ++node_b;
+    while (node_iter_a != nodes_a.end() || node_iter_b != nodes_b.end()) {
+      FlatTime time = std::numeric_limits<FlatTime>::max();
+      if (node_iter_a != nodes_a.end()) {
+        time = node_iter_a->time;
       }
+      if (node_iter_b != nodes_b.end()) {
+        time = std::min(time, node_iter_b->time);
+      }
+
+      FlatVal a, b;
+      FlatDerivative da, db;
+      if (GetValueAtTime(nodes_a, node_iter_a, time, &a, &da)) {
+        ++node_iter_a;
+      }
+      if (GetValueAtTime(nodes_b, node_iter_b, time, &b, &db)) {
+        ++node_iter_b;
+      }
+      sum.push_back(SplineNode(time, a + b, da + db));
     }
 
     channels[ch_a].nodes = sum;
