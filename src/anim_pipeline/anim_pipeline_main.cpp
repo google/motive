@@ -225,6 +225,9 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, fplutil::Logger& log,
         args->repeat_preference = repeat_preference;
       }
 
+    } else if (arg == "--nouniformscale") {
+      args->no_uniform_scale = true;
+
     } else if (arg == "--stagger" || arg == "--stagger_end_times") {
       args->stagger_end_times = true;
 

@@ -298,14 +298,15 @@ class FlatAnim {
   }
 
   /// @brief Collapse multiple channels into one, when possible.
-  void PruneChannels() {
+  void PruneChannels(bool no_uniform_scale) {
     for (auto bone = bones_.begin(); bone != bones_.end(); ++bone) {
       // Iterate from the end to minimize the cost of the erase operations.
       Channels& channels = bone->channels;
       for (FlatChannelId ch = static_cast<FlatChannelId>(channels.size() - 1);
            ch >= 0; ch--) {
         // Collapse kScaleX,Y,Z into kScaleUniformly.
-        const bool uniform_scale = UniformScaleChannels(channels, ch);
+        const bool uniform_scale =
+            (!no_uniform_scale && UniformScaleChannels(channels, ch));
         if (uniform_scale) {
           log_.Log(kLogVerbose,
                    "  Collapsing scale x, y, z channels %d~%d into"
@@ -1242,7 +1243,7 @@ class FbxAnimParser {
     }
   }
 
-  void GatherFlatAnim(FlatAnim* out) const {
+  void GatherFlatAnim(bool no_uniform_scale, FlatAnim* out) const {
     FbxNode* const root_node = scene_->GetRootNode();
     const int child_count = root_node->GetChildCount();
     NodeToBoneMap node_to_bone_map;
@@ -1262,7 +1263,8 @@ class FbxAnimParser {
     }
 
     // Final pass: extract animation data for bones.
-    GatherFlatAnimRecursive(&node_to_bone_map, root_node, out);
+    GatherFlatAnimRecursive(&node_to_bone_map, root_node, no_uniform_scale,
+                            out);
   }
 
   void LogAnimStateAtTime(int time_in_ms) const {
@@ -1308,7 +1310,8 @@ class FbxAnimParser {
   }
 
   void GatherFlatAnimRecursive(const NodeToBoneMap* node_to_bone_map,
-                               FbxNode* node, FlatAnim* out) const {
+                               FbxNode* node, bool no_uniform_scale,
+                               FlatAnim* out) const {
     if (node == nullptr) return;
     log_.Log(kLogVerbose, "Node: %s\n", node->GetName());
 
@@ -1324,14 +1327,15 @@ class FbxAnimParser {
 
       // Gather the animation data that drives the bone.
       out->SetCurBoneIndex(bone_index);
-      GatherFlatAnimForNode(node, out);
+      GatherFlatAnimForNode(node, no_uniform_scale, out);
       out->ResetCurBoneIndex();
     }
 
     // Recursively traverse each node in the scene
     if (bone_index < 0 || out->ShouldRecurse(bone_index)) {
       for (int i = 0; i < node->GetChildCount(); i++) {
-        GatherFlatAnimRecursive(node_to_bone_map, node->GetChild(i), out);
+        GatherFlatAnimRecursive(node_to_bone_map, node->GetChild(i),
+                                no_uniform_scale, out);
       }
     }
   }
@@ -1401,7 +1405,8 @@ class FbxAnimParser {
                      : kRotationOrderToChannelOrder[rotation_order];
   }
 
-  void GatherFlatAnimForNode(FbxNode* node, FlatAnim* out) const {
+  void GatherFlatAnimForNode(FbxNode* node, bool no_uniform_scale,
+                             FlatAnim* out) const {
     // The FBX tranform format is defined as below (see
     // http://help.autodesk.com/view/FBX/2016/ENU/?guid=__files_GUID_10CDD63C_79C1_4F2D_BB28_AD2BE65A02ED_htm):
     //
@@ -1485,7 +1490,7 @@ class FbxAnimParser {
     }
 
     // Collapse unnecesary channels, when possible.
-    out->PruneChannels();
+    out->PruneChannels(no_uniform_scale);
   }
 
   void GatherFlatAnimCurve(const FlatChannelId channel_id, FbxAnimCurve* curve,
@@ -1562,6 +1567,7 @@ AnimPipelineArgs::AnimPipelineArgs()
       stagger_end_times(false),
       preserve_start_time(false),
       root_bones_only(false),
+      no_uniform_scale(false),
       axis_system(fplutil::kUnspecifiedAxisSystem),
       distance_unit_scale(-1.0f),
       debug_time(-1) {}
@@ -1584,7 +1590,7 @@ int RunAnimPipeline(const AnimPipelineArgs& args, fplutil::Logger& log) {
 
   // Gather data into a format conducive to our FlatBuffer format.
   motive::FlatAnim anim(args.tolerances, args.root_bones_only, log);
-  pipe.GatherFlatAnim(&anim);
+  pipe.GatherFlatAnim(args.no_uniform_scale, &anim);
 
   // We want the animation to start from tick 0.
   if (!args.preserve_start_time) {
