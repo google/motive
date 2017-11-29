@@ -17,7 +17,6 @@
 
 #include <string>
 #include "fbx_common/fbx_common.h"
-#include "flatbuffers/flatbuffers.h"
 
 namespace motive {
 

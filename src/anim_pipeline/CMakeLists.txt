@@ -56,6 +56,8 @@ include_directories(${dependencies_motive_dir}/include)
 
 # Executable targets.
 add_executable(anim_pipeline ${CMAKE_CURRENT_SOURCE_DIR}/anim_pipeline.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/anim_data.cpp
+                             ${CMAKE_CURRENT_SOURCE_DIR}/flat_anim.cpp
                              ${CMAKE_CURRENT_SOURCE_DIR}/anim_pipeline_main.cpp)
 add_executable(defining_anim_pipeline
                ${CMAKE_CURRENT_SOURCE_DIR}/defining_anim_pipeline.cpp)
