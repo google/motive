@@ -21,6 +21,10 @@ project(anim_pipeline)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${CMAKE_SYSTEM_NAME})
 set(tmp_dir ${CMAKE_BINARY_DIR}/obj)
 
+if(NOT DEFINED ENV{FBX_SDK} AND UNIX AND NOT APPLE)
+  set(ENV{FBX_SDK} ${CMAKE_CURRENT_SOURCE_DIR}/../../../libfbx/2016.1.2/linux)
+endif()
+
 # Include functions fbx_compile_options() and fbx_configure_target()
 include("../../cmake/find_fplutil.cmake")
 include("${fplutil_dir}/fbx_common/cmake_fbx.txt")
