@@ -259,7 +259,7 @@ class MotiveRigProcessor : public RigProcessor {
     RemoveIndices(0, NumIndices());
   }
 
-  virtual void AdvanceFrame(MotiveTime delta_time) {
+  void AdvanceFrame(MotiveTime delta_time) override {
     Defragment();
 
     // Process the series of matrix operations for each index.
@@ -274,27 +274,27 @@ class MotiveRigProcessor : public RigProcessor {
     time_ += delta_time;
   }
 
-  virtual void BlendToAnim(MotiveIndex index, const RigAnim& anim,
-                           const motive::SplinePlayback& playback) {
+  void BlendToAnim(MotiveIndex index, const RigAnim& anim,
+                   const motive::SplinePlayback& playback) override {
     Data(index).BlendToAnim(anim, playback, time_);
   }
 
-  virtual void SetPlaybackRate(MotiveIndex index, float playback_rate) {
+  void SetPlaybackRate(MotiveIndex index, float playback_rate) override {
     Data(index).SetPlaybackRate(playback_rate);
   }
 
-  virtual MotivatorType Type() const { return RigInit::kType; }
-  virtual int Priority() const { return 3; }
+  MotivatorType Type() const override { return RigInit::kType; }
+  int Priority() const override { return 3; }
 
-  virtual const AffineTransform* GlobalTransforms(MotiveIndex index) const {
+  const AffineTransform* GlobalTransforms(MotiveIndex index) const override {
     return Data(index).GlobalTransforms();
   }
 
-  virtual MotiveTime TimeRemaining(MotiveIndex index) const {
+  MotiveTime TimeRemaining(MotiveIndex index) const override {
     return Data(index).TimeRemaining();
   }
 
-  virtual const RigAnim* DefiningAnim(MotiveIndex index) const {
+  const RigAnim* DefiningAnim(MotiveIndex index) const override {
     return Data(index).defining_anim();
   }
 
@@ -302,16 +302,16 @@ class MotiveRigProcessor : public RigProcessor {
     return Data(index).current_anim();
   }
 
-  virtual std::string CsvHeaderForDebugging(MotiveIndex index) const {
+  std::string CsvHeaderForDebugging(MotiveIndex index) const override {
     return Data(index).CsvHeaderForDebugging();
   }
 
-  virtual std::string CsvValuesForDebugging(MotiveIndex index) const {
+  std::string CsvValuesForDebugging(MotiveIndex index) const override {
     return Data(index).CsvValuesForDebugging(time_);
   }
 
-  virtual std::string LocalTransformsForDebugging(MotiveIndex index,
-                                                  BoneIndex bone) const {
+  std::string LocalTransformsForDebugging(MotiveIndex index,
+                                          BoneIndex bone) const override {
     return Data(index).LocalTransformsForDebugging(bone, time_);
   }
 
@@ -320,9 +320,9 @@ class MotiveRigProcessor : public RigProcessor {
     return static_cast<MotiveIndex>(data_.size());
   }
 
-  virtual void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
-                                 MotiveDimension dimensions,
-                                 MotiveEngine* engine) {
+  void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
+                         MotiveDimension dimensions,
+                         MotiveEngine* engine) override {
     RemoveIndices(index, dimensions);
     auto rig_init = static_cast<const RigInit&>(init);
     for (MotiveIndex i = index; i < index + dimensions; ++i) {
@@ -330,7 +330,7 @@ class MotiveRigProcessor : public RigProcessor {
     }
   }
 
-  virtual void RemoveIndices(MotiveIndex index, MotiveDimension dimensions) {
+  void RemoveIndices(MotiveIndex index, MotiveDimension dimensions) override {
     for (MotiveIndex i = index; i < index + dimensions; ++i) {
       if (data_[i] == nullptr) continue;
       delete data_[i];
@@ -338,8 +338,8 @@ class MotiveRigProcessor : public RigProcessor {
     }
   }
 
-  virtual void MoveIndices(MotiveIndex old_index, MotiveIndex new_index,
-                           MotiveDimension dimensions) {
+  void MoveIndices(MotiveIndex old_index, MotiveIndex new_index,
+                   MotiveDimension dimensions) override {
     MotiveIndex old_i = old_index;
     MotiveIndex new_i = new_index;
     for (MotiveDimension i = 0; i < dimensions; ++i, ++new_i, ++old_i) {
@@ -348,7 +348,7 @@ class MotiveRigProcessor : public RigProcessor {
     }
   }
 
-  virtual void SetNumIndices(MotiveIndex num_indices) {
+  void SetNumIndices(MotiveIndex num_indices) override {
     // Ensure old items are deleted.
     const MotiveIndex old_num_indices = NumIndices();
     if (old_num_indices > num_indices) {
