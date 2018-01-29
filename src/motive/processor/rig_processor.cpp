@@ -37,17 +37,13 @@ class RigData {
  public:
   explicit RigData(const RigInit& init, MotiveTime start_time,
                    MotiveEngine* engine)
-      : motivators_(nullptr),
-        global_transforms_(nullptr),
-        defining_anim_(&init.defining_anim()),
+      : defining_anim_(&init.defining_anim()),
         current_anim_(nullptr),
         end_time_(start_time) {
     const BoneIndex num_bones = defining_anim_->NumBones();
 
-    // Visual Studio 2010 does not like std::vectors of mat4, since they are
-    // a 16-byte aligned type. Use plain old arrays instead.
-    motivators_ = new MatrixMotivator4f[num_bones];
-    global_transforms_ = new AffineTransform[num_bones];
+    motivators_.resize(num_bones);
+    global_transforms_.resize(num_bones);
 
     // Initialize the motivators that drive the local transforms.
     for (BoneIndex i = 0; i < num_bones; ++i) {
@@ -62,11 +58,6 @@ class RigData {
   }
 
   ~RigData() {
-    delete[] motivators_;
-    motivators_ = nullptr;
-
-    delete[] global_transforms_;
-    global_transforms_ = nullptr;
   }
 
   void BlendToAnim(const RigAnim& anim, const motive::SplinePlayback& playback,
@@ -115,10 +106,12 @@ class RigData {
   }
 
   void UpdateGlobalTransforms() {
-    CalculateGlobalTransforms(global_transforms_);
+    CalculateGlobalTransforms(global_transforms_.data());
   }
 
-  const AffineTransform* GlobalTransforms() const { return global_transforms_; }
+  const AffineTransform* GlobalTransforms() const {
+    return global_transforms_.data();
+  }
 
   BoneIndex NumBones() const { return defining_anim_->NumBones(); }
 
@@ -241,8 +234,11 @@ class RigData {
     }
   }
 
-  MatrixMotivator4f* motivators_;
-  AffineTransform* global_transforms_;
+  std::vector<MatrixMotivator4f, mathfu::simd_allocator<MatrixMotivator4f>>
+      motivators_;
+  std::vector<AffineTransform, mathfu::simd_allocator<AffineTransform>>
+      global_transforms_;
+
   const RigAnim* defining_anim_;
   const RigAnim* current_anim_;
 

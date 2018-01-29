@@ -17,6 +17,7 @@
 #include "motive/init.h"
 #include "motive/math/angle.h"
 #include "motive/math/bulk_spline_evaluator.h"
+#include "motive/util.h"
 
 using mathfu::vec4;
 using mathfu::mat4;
@@ -255,8 +256,9 @@ static inline void RotateAboutAxis(const float angle, vec4* column0,
 //
 class MatrixData {
   MatrixData() {}  // Use Create() to create this class.
+  ~MatrixData() {}
+
  public:
-  ~MatrixData() { Destroy(this); }
 
   // Execute the series of basic matrix operations in 'ops_'.
   // We break out the matrix into four column vectors to avoid matrix multiplies
@@ -389,10 +391,12 @@ class MatrixData {
 
   static MatrixData* Create(const MatrixInit& init, MotiveEngine* engine) {
     // Allocate a buffer that is big enough to hold MatrixData.
+    static const int kAlign = 16;
     const MatrixInit::OpVector& ops = init.ops();
     const int num_ops = static_cast<int>(ops.size());
-    const size_t size = SizeOfClass(num_ops);
-    uint8_t* buffer = new uint8_t[size];
+    // Round up size to the next multiple of 16 to match minimum alignment.
+    const size_t size = ((SizeOfClass(num_ops) + kAlign - 1) / kAlign) * kAlign;
+    uint8_t* buffer = (uint8_t*)AlignedAlloc(size, kAlign);
     MatrixData* d = new (buffer) MatrixData();
     d->result_matrix_ = mat4::Identity();
     d->num_ops_ = num_ops;
@@ -404,15 +408,12 @@ class MatrixData {
   }
 
   static void Destroy(MatrixData* d) {
-    // Explicity call destructors.
-    d->result_matrix_.~mat4();
+    // Explicitly delete MatrixData the same way it was allocated.
     for (int i = 0; i < d->num_ops_; ++i) {
       d->ops_[i].~MatrixOperation();
     }
-
-    // Explicitly delete buffer the same way it was allocated.
-    uint8_t* buffer = reinterpret_cast<uint8_t*>(d);
-    delete[] buffer;
+    d->~MatrixData();
+    AlignedFree(d);
   }
 
  private:
