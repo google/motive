@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include "motive/motivator.h"
 #include "motive/target.h"
+#include "motive/vector_motivator.h"
 
 namespace motive {
 

@@ -4,11 +4,10 @@
 #include "anim_generated.h"
 #include "anim_list_generated.h"
 #include "anim_pipeline.h"
-#include "motive/anim.h"
 #include "motive/common.h"
-#include "motive/init.h"
 #include "motive/math/angle.h"
 #include "motive/math/range.h"
+#include "motive/matrix_op.h"
 
 namespace motive {
 

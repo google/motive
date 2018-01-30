@@ -19,6 +19,7 @@
 #include <cstring> // Required for memset, memcpy on Linux
 #include "motive/common.h"
 #include "motive/math/range.h"
+#include "mathfu/glsl_mappings.h"
 
 namespace motive {
 

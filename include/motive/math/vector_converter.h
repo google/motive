@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MOTIVE_MATH_VECTOR_CONVERTER_H
-#define MOTIVE_MATH_VECTOR_CONVERTER_H
+#ifndef MOTIVE_MATH_VECTOR_CONVERTER_H_
+#define MOTIVE_MATH_VECTOR_CONVERTER_H_
 
 #include "mathfu/glsl_mappings.h"
 
@@ -75,4 +75,4 @@ struct VectorT<VectorConverter, 4> {
 
 }  // namespace motive
 
-#endif  // MOTIVE_MATH_VECTOR_CONVERTER_H
+#endif  // MOTIVE_MATH_VECTOR_CONVERTER_H_

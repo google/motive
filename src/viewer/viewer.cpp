@@ -22,12 +22,15 @@
 #include "fplutil/file_utils.h"
 #include "mathfu/matrix.h"
 #include "mathfu/matrix_4x4.h"
-#include "motive/anim.h"
 #include "motive/anim_table.h"
 #include "motive/engine.h"
 #include "motive/io/flatbuffers.h"
 #include "motive/math/angle.h"
+#include "motive/matrix_init.h"
 #include "motive/motivator.h"
+#include "motive/rig_anim.h"
+#include "motive/rig_init.h"
+#include "motive/rig_motivator.h"
 
 using mathfu::mat3;
 using mathfu::mat4;

@@ -19,8 +19,8 @@
 
 #include "anim_generated.h"
 #include "anim_list_generated.h"
-#include "motive/anim.h"
 #include "motive/anim_table.h"
+#include "motive/rig_anim.h"
 
 const char* LoadFile(const char* filename, std::string* scratch_buf) {
   std::ifstream fin(filename, std::ios::in | std::ios::binary);

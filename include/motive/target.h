@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MOTIVE_TARGET_H
-#define MOTIVE_TARGET_H
+#ifndef MOTIVE_TARGET_H_
+#define MOTIVE_TARGET_H_
 
+#include "motive/common.h"
 #include "motive/math/range.h"
 #include "motive/math/vector_converter.h"
 

@@ -12,37 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "motive/init.h"
+#include "motive/spring_init.h"
 #include "motive/math/curve_util.h"
+#include "motive/processor/spring_data.h"
 #include "motive/simple_processor_template.h"
 
 namespace motive {
-
-// TODO(jsanmiya): We probably want to make the number of iterations
-//                 configurable in MotiveCurveShape.
-static const float kNumSpringIterations = 4.0f;
-
-struct SpringData {
-  SpringData() : elapsed_time(0.0f), target_time(0.0f) {}
-
-  SpringData(const SimpleInit& init, MotiveIndex current_dimension)
-      : q(init.start_values[current_dimension]),
-        elapsed_time(0.0f),
-        target_time(q.IterationX(kNumSpringIterations)) {}
-
-  // Currently active curve.
-  QuadraticSpring q;
-
-  // Evaluation helper that holds portion of QuadraticSpring around
-  // `elapsed_time`.
-  QuadraticSpring::Context c;
-
-  // Time since the start of q.
-  float elapsed_time;
-
-  // Time after kNumSpringIterations.
-  float target_time;
-};
 
 // The following functions are called from SimpleProcessorTemplate.
 static inline float SimpleVelocity(const SpringData& d, float /*value*/) {

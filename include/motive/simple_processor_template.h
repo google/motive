@@ -12,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef MOTIVE_SIMPLE_PROCESSOR_TEMPLATE_H_
+#define MOTIVE_SIMPLE_PROCESSOR_TEMPLATE_H_
+
 #include "motive/engine.h"
+#include "motive/simple_init_template.h"
+#include "motive/vector_processor.h"
 
 namespace motive {
 
@@ -123,3 +128,5 @@ class SimpleProcessorTemplate : public MotiveProcessorNf {
 };
 
 }  // namespace motive
+
+#endif  // MOTIVE_SIMPLE_PROCESSOR_TEMPLATE_H_

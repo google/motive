@@ -18,8 +18,6 @@
 #include "motive/anim_table.h"
 #include "motive/io/flatbuffers.h"
 
-using motive::Range;
-
 namespace motive {
 
 // Wrap the source data for an AnimTable.

@@ -15,9 +15,6 @@
 #ifndef MOTIVE_VERSION_H_
 #define MOTIVE_VERSION_H_
 
-#include "motive/motivator.h"
-#include "motive/target.h"
-
 namespace motive {
 
 /// @class MotiveVersion

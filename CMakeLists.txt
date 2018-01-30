@@ -80,9 +80,9 @@ build_flatbuffers("${FLATBUFFERS_SCHEMAS}"
 # Motive source files.
 set(motive_SRCS
     include/motive/common.h
+    include/motive/const_init.h
+    include/motive/ease_in_ease_out_init.h
     include/motive/engine.h
-    include/motive/motivator.h
-    include/motive/init.h
     include/motive/io/flatbuffers.h
     include/motive/math/angle.h
     include/motive/math/bulk_spline_evaluator.h
@@ -92,32 +92,56 @@ set(motive_SRCS
     include/motive/math/dual_cubic.h
     include/motive/math/float.h
     include/motive/math/range.h
+    include/motive/matrix_anim.h
+    include/motive/matrix_init.h
+    include/motive/matrix_motivator.h
+    include/motive/matrix_op.h
+    include/motive/matrix_processor.h
+    include/motive/motivator.h
+    include/motive/overshoot_init.h
     include/motive/processor.h
+    include/motive/rig_anim.h
+    include/motive/rig_init.h
+    include/motive/rig_motivator.h
+    include/motive/rig_processor.h
+    include/motive/simple_init_template.h
     include/motive/simple_processor_template.h
+    include/motive/spline_init.h
+    include/motive/sprint_init.h
     include/motive/target.h
     include/motive/util.h
+    include/motive/vector_motivator.h
+    include/motive/vector_processor.h
     include/motive/version.h
-    src/motive/anim.cpp
     src/motive/anim_table.cpp
     src/motive/engine.cpp
-    src/motive/motivator.cpp
-    src/motive/init.cpp
     src/motive/io/flatbuffers.cpp
     src/motive/math/angle.cpp
     src/motive/math/bulk_spline_evaluator.cpp
     src/motive/math/compact_spline.cpp
     src/motive/math/curve.cpp
     src/motive/math/curve_util.cpp
-    src/motive/math/float.cpp
     src/motive/math/dual_cubic.cpp
+    src/motive/math/float.cpp
+    src/motive/matrix_op.cpp
+    src/motive/motivator.cpp
     src/motive/processor.cpp
+    src/motive/processor/const_data.h
     src/motive/processor/const_processor.cpp
+    src/motive/processor/ease_in_ease_out_data.h
     src/motive/processor/ease_in_ease_out_processor.cpp
+    src/motive/processor/matrix_data.h
     src/motive/processor/matrix_processor.cpp
+    src/motive/processor/overshoot_data.h
     src/motive/processor/overshoot_processor.cpp
+    src/motive/processor/rig_data.h
     src/motive/processor/rig_processor.cpp
+    src/motive/processor/spline_data.h
     src/motive/processor/spline_processor.cpp
+    src/motive/processor/spring_data.h
     src/motive/processor/spring_processor.cpp
+    src/motive/rig_anim.cpp
+    src/motive/rig_init.cpp
     src/motive/util/benchmark.cpp
     src/motive/util/optimizations.cpp
     src/motive/version.cpp)

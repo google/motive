@@ -17,9 +17,16 @@
 #include "mathfu/constants.h"
 #include "motive/common.h"
 #include "motive/engine.h"
-#include "motive/init.h"
+#include "motive/const_init.h"
+#include "motive/overshoot_init.h"
+#include "motive/spline_init.h"
 #include "motive/math/angle.h"
 #include "motive/math/curve_util.h"
+#include "motive/ease_in_ease_out_init.h"
+#include "motive/matrix_init.h"
+#include "motive/matrix_motivator.h"
+#include "motive/matrix_op.h"
+#include "motive/spline_init.h"
 
 #define DEBUG_PRINT_MATRICES 0
 

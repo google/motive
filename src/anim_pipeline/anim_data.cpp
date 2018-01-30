@@ -1,4 +1,6 @@
 #include "anim_data.h"
+#include "motive/matrix_anim.h"
+#include "motive/rig_anim.h"
 
 namespace motive {
 

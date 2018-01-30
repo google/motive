@@ -11,12 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "anim_generated.h"
-#include "motive_generated.h"
-#include "anim_table_generated.h"
-#include "motive/anim.h"
-#include "motive/init.h"
 #include "motive/io/flatbuffers.h"
+#include "anim_generated.h"
+#include "anim_table_generated.h"
+#include "motive/overshoot_init.h"
+#include "motive/matrix_anim.h"
+#include "motive/rig_anim.h"
+#include "motive_generated.h"
 
 namespace motive {
 

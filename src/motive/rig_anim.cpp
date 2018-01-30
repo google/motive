@@ -14,7 +14,7 @@
 
 #include <sstream>
 
-#include "motive/anim.h"
+#include "motive/rig_anim.h"
 
 namespace motive {
 

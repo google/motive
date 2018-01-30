@@ -12,60 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MOTIVE_ANIM_H
-#define MOTIVE_ANIM_H
+#ifndef MOTIVE_RIG_ANIM_H_
+#define MOTIVE_RIG_ANIM_H_
 
 #include <vector>
-#include "motive/init.h"
 #include "motive/math/compact_spline.h"
+#include "motive/matrix_anim.h"
 
 namespace motive {
-
-/// @class MatrixAnim
-/// @brief Animation for a MatrixMotivator. Drives a single bone's transform.
-class MatrixAnim {
- public:
-  struct Spline {
-    Spline() : spline(nullptr) {}
-    ~Spline() {
-      CompactSpline::Destroy(spline);
-      spline = nullptr;
-    }
-    CompactSpline* spline;
-    SplineInit init;
-  };
-
-  explicit MatrixAnim(int expected_num_ops = 0) : ops_(expected_num_ops) {}
-
-  /// For construction. Allocates storage for spline data, and returns it.
-  /// @param num_splines Total number of splines in the animation. Not all ops
-  ///                    use a spline (some are const ops).
-  Spline* Construct(int num_splines) {
-    if (num_splines == 0) return nullptr;
-
-    // Note: It's important that the `splines_` array is not moved, since
-    //       `ops_` points into it.
-    // TODO: Revisit this layout to eliminate the internal pointers, making it
-    //       more robust.
-    splines_.resize(num_splines);
-    return splines_.data();
-  }
-
-  /// Return the op array. Non-const version is for construction.
-  MatrixOpArray& ops() { return ops_; }
-
-  /// Return the op array. Const version is to initialize a MatrixMotivator.
-  const MatrixOpArray& ops() const { return ops_; }
-
- private:
-  /// Initialization structure for a MatrixMotivator.
-  /// When initialized with this struct, the MatrixMotivator will play back
-  /// the animation described in this class.
-  MatrixOpArray ops_;
-
-  /// Hold spline animation data that is referenced by `init_`.
-  std::vector<Spline> splines_;
-};
 
 /// @class RigAnim
 /// @brief Animation for a RigMotivator. Drives a fully rigged model.
@@ -174,4 +128,4 @@ class RigAnim {
 
 }  // namespace motive
 
-#endif  // MOTIVE_ANIM_H
+#endif  // MOTIVE_RIG_ANIM_H_
