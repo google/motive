@@ -84,9 +84,10 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
     }
   }
 
-  virtual void BlendToOps(MotiveIndex index, const MatrixOpArray& ops,
+  virtual void BlendToOps(MotiveIndex index,
+                          const std::vector<MatrixOperationInit>& ops,
                           const motive::SplinePlayback& playback) {
-    Data(index).BlendToOps(ops.ops(), playback);
+    Data(index).BlendToOps(ops, playback);
   }
 
   virtual void SetPlaybackRate(MotiveIndex index, float playback_rate) {

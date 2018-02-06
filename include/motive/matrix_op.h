@@ -144,81 +144,6 @@ struct MatrixOperationInit {
   };
 };
 
-class MatrixOpArray {
- public:
-  typedef std::vector<MatrixOperationInit> OpVector;
-
-  // Guess at the number of operations we'll have. Better to high-ball a little
-  // so that we don't have to reallocate the `ops_` vector.
-  static const int kDefaultExpectedNumOps = 8;
-
-  /// By default expect a relatively high number of ops. Cost for allocating
-  /// a bit too much temporary memory is small compared to cost of reallocating
-  /// that memory.
-  explicit MatrixOpArray(int expected_num_ops = kDefaultExpectedNumOps) {
-    ops_.reserve(expected_num_ops);
-  }
-
-  /// Remove all matrix operations from the sequence.
-  void Clear(int expected_num_ops = kDefaultExpectedNumOps) {
-    ops_.clear();
-    ops_.reserve(expected_num_ops);
-  }
-
-  /// Operation is constant. For example, use to put something flat on the
-  /// ground, with 'type' = kRotateAboutX and 'const_value' = pi/2.
-  void AddOp(MatrixOpId id, MatrixOperationType type, float const_value) {
-    ops_.push_back(MatrixOperationInit(id, type, const_value));
-  }
-
-  /// Operation is driven by a one dimensional motivator. For example, you can
-  /// control the face angle of a standing object with 'type' = kRotateAboutY
-  /// and 'init' a curve specified by SplineInit.
-  void AddOp(MatrixOpId id, MatrixOperationType type,
-             const MotivatorInit& init) {
-    ops_.push_back(MatrixOperationInit(id, type, init));
-  }
-
-  /// Operation is driven by a one dimensional motivator, and initial value
-  /// is specified.
-  void AddOp(MatrixOpId id, MatrixOperationType type, const MotivatorInit& init,
-             float initial_value) {
-    ops_.push_back(MatrixOperationInit(id, type, init, initial_value));
-  }
-
-  /// Operation is driven by a one dimensional motivator, which is initialized
-  /// to traverse the key points specified in `target`.
-  void AddOp(MatrixOpId id, MatrixOperationType type, const MotivatorInit& init,
-             const MotiveTarget1f& target) {
-    ops_.push_back(MatrixOperationInit(id, type, init, target));
-  }
-
-  /// Operation is driven by a one dimensional motivator, which is initialized
-  /// to follow the predefined curve specified in `spline`.
-  void AddOp(MatrixOpId id, MatrixOperationType type, const MotivatorInit& init,
-             const CompactSpline& spline) {
-    ops_.push_back(MatrixOperationInit(id, type, init, spline));
-  }
-
-  // Maximum duration of any of the splines.
-  MotiveTime EndTime() const {
-    MotiveTime end_time = 0;
-    for (size_t i = 0; i < ops_.size(); ++i) {
-      const MatrixOperationInit& op = ops_[i];
-      if (op.union_type == MatrixOperationInit::kUnionSpline) {
-        end_time =
-            std::max(end_time, static_cast<MotiveTime>(op.spline->EndX()));
-      }
-    }
-    return end_time;
-  }
-
-  const OpVector& ops() const { return ops_; }
-
- private:
-  OpVector ops_;
-};
-
 // Runtime structure to hold one operation and the input value of that
 // operation. Kept as small as possible to conserve memory, since every
 // matrix will be constructed by a series of these.
@@ -364,6 +289,84 @@ class MatrixOperation {
     }
   }
 
+  // Execute the series of basic matrix operations in 'ops_'.
+  // We break out the matrix into four column vectors to avoid matrix multiplies
+  // (which are slow) in preference of operation-specific matrix math (which is
+  // fast).
+  static mathfu::mat4 CalculateResultMatrix(const MatrixOperation* ops,
+                                            size_t num_ops) {
+    // Start with the identity matrix.
+    mathfu::vec4 c0 = mathfu::kAxisX4f;
+    mathfu::vec4 c1 = mathfu::kAxisY4f;
+    mathfu::vec4 c2 = mathfu::kAxisZ4f;
+    mathfu::vec4 c3 = mathfu::kAxisW4f;
+
+    for (size_t i = 0; i < num_ops; ++i) {
+      const MatrixOperation& op = ops[i];
+      const float value = op.Value();
+
+      switch (op.Type()) {
+        // ( |  |  |  |)(c -s  0  0)   (c*  c*   |   |)
+        // (c0 c1 c2 c3)(s  c  0  0) = (c0+ c1- c2  c3)
+        // ( |  |  |  |)(0  0  1  0)   (s*  s*   |   |)
+        // ( |  |  |  |)(0  0  0  1)   (c1  c0   |   |)
+        case kRotateAboutX:
+          RotateAboutAxis(value, &c1, &c2);
+          break;
+
+        case kRotateAboutY:
+          RotateAboutAxis(value, &c2, &c0);
+          break;
+
+        case kRotateAboutZ:
+          RotateAboutAxis(value, &c0, &c1);
+          break;
+
+        // ( |  |  |  |)(1  0  0 tx)   ( |  |  | tx*c0+ )
+        // (c0 c1 c2 c3)(0  1  0 ty) = (c0 c1 c2 ty*c1+ )
+        // ( |  |  |  |)(0  0  1 tz)   ( |  |  | tz*c2+ )
+        // ( |  |  |  |)(0  0  0  1)   ( |  |  |    c3  )
+        case kTranslateX:
+          c3 += value * c0;
+          break;
+
+        case kTranslateY:
+          c3 += value * c1;
+          break;
+
+        case kTranslateZ:
+          c3 += value * c2;
+          break;
+
+        // ( |  |  |  |)(sx 0  0  0)   ( |   |   |   |)
+        // (c0 c1 c2 c3)(0  sy 0  0) = (sx* sy* sz*  |)
+        // ( |  |  |  |)(0  0  sz 0)   (c0  c1  c2  c3)
+        // ( |  |  |  |)(0  0  0  1)   ( |   |   |   |)
+        case kScaleX:
+          c0 *= value;
+          break;
+
+        case kScaleY:
+          c1 *= value;
+          break;
+
+        case kScaleZ:
+          c2 *= value;
+          break;
+
+        case kScaleUniformly:
+          c0 *= value;
+          c1 *= value;
+          c2 *= value;
+          break;
+
+        default:
+          assert(false);
+      }
+    }
+    return mathfu::mat4(c0, c1, c2, c3);
+  }
+
  private:
   enum AnimationType {
     kInvalidAnimationType,
@@ -375,6 +378,19 @@ class MatrixOperation {
   // the union.
   MatrixOperation(const MatrixOperation& rhs);
   MatrixOperation& operator=(const MatrixOperation& rhs);
+
+  // Perform a matrix rotation about
+  static inline void RotateAboutAxis(const float angle, mathfu::vec4* column0,
+                                     mathfu::vec4* column1) {
+    // TODO OPT: call platform-specific function to calculate both sin and cos
+    // simultaneously.
+    const float s = sinf(angle);
+    const float c = cosf(angle);
+    const mathfu::vec4 c0 = *column0;
+    const mathfu::vec4 c1 = *column1;
+    *column0 = c * c0 + s * c1;
+    *column1 = c * c1 - s * c0;
+  }
 
   // Motivator1f has non-trivial constructors, destructors, and copy operators,
   // so we don't use it in the union. C++11 supports these kinds of unions,

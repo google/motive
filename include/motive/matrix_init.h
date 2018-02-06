@@ -43,19 +43,18 @@ namespace motive {
 class MatrixInit : public MotivatorInit {
  public:
   MOTIVE_INTERFACE();
-  typedef std::vector<MatrixOperationInit> OpVector;
 
-  explicit MatrixInit(const MatrixOpArray& ops)
+  explicit MatrixInit(const std::vector<MatrixOperationInit>& ops)
       : MotivatorInit(kType), ops_(&ops) {}
 
-  const OpVector& ops() const { return ops_->ops(); }
+  const std::vector<MatrixOperationInit>& ops() const { return *ops_; }
 
  private:
   /// Reference to the union of all operations that this matrix will be able
   /// to execute. Later calls to MotivatorMatrix4f::BlendToOps() must provide
   /// operations that are a subset of those in `ops_`.
   /// In `RigAnim`, these represent operations in the defining anim.
-  const MatrixOpArray* ops_;
+  const std::vector<MatrixOperationInit>* ops_;
 };
 
 }  // namespace motive

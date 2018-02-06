@@ -146,7 +146,8 @@ class MatrixMotivator4fTemplate : public Motivator {
 
   /// Match existing MatrixOps with those in `ops` and smoothly transition
   /// to the new parameters in `ops`.
-  void BlendToOps(const MatrixOpArray& ops, const SplinePlayback& playback) {
+  void BlendToOps(const std::vector<MatrixOperationInit>& ops,
+                  const SplinePlayback& playback) {
     Processor().BlendToOps(index_, ops, playback);
   }
 

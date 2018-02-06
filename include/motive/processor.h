@@ -17,11 +17,11 @@
 
 #include <vector>
 
-#include "fplutil/index_allocator.h"
 #include "motive/common.h"
 #include "motive/math/compact_spline.h"
 #include "motive/math/vector_converter.h"
 #include "motive/target.h"
+#include "motive/util/index_allocator.h"
 
 namespace motive {
 
@@ -202,7 +202,7 @@ class MotiveProcessor {
   void Defragment() { index_allocator_.Defragment(); }
 
  private:
-  typedef fplutil::IndexAllocator<MotiveIndex> MotiveIndexAllocator;
+  typedef IndexAllocator<MotiveIndex> MotiveIndexAllocator;
   typedef MotiveIndexAllocator::IndexRange IndexRange;
 
   /// Don't notify derived class.

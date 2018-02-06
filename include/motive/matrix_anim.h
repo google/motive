@@ -34,7 +34,9 @@ class MatrixAnim {
     SplineInit init;
   };
 
-  explicit MatrixAnim(int expected_num_ops = 0) : ops_(expected_num_ops) {}
+  explicit MatrixAnim(int expected_num_ops = 0) {
+    ops_.reserve(expected_num_ops);
+  }
 
   /// For construction. Allocates storage for spline data, and returns it.
   /// @param num_splines Total number of splines in the animation. Not all ops
@@ -51,16 +53,16 @@ class MatrixAnim {
   }
 
   /// Return the op array. Non-const version is for construction.
-  MatrixOpArray& ops() { return ops_; }
+  std::vector<MatrixOperationInit>& ops() { return ops_; }
 
   /// Return the op array. Const version is to initialize a MatrixMotivator.
-  const MatrixOpArray& ops() const { return ops_; }
+  const std::vector<MatrixOperationInit>& ops() const { return ops_; }
 
  private:
   /// Initialization structure for a MatrixMotivator.
   /// When initialized with this struct, the MatrixMotivator will play back
   /// the animation described in this class.
-  MatrixOpArray ops_;
+  std::vector<MatrixOperationInit> ops_;
 
   /// Hold spline animation data that is referenced by `init_`.
   std::vector<Spline> splines_;

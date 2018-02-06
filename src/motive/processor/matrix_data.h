@@ -25,19 +25,6 @@
 
 namespace motive {
 
-// Perform a matrix rotation about
-static inline void RotateAboutAxis(const float angle, mathfu::vec4* column0,
-                                   mathfu::vec4* column1) {
-  // TODO OPT: call platform-specific function to calculate both sin and cos
-  // simultaneously.
-  const float s = sin(angle);
-  const float c = cos(angle);
-  const mathfu::vec4 c0 = *column0;
-  const mathfu::vec4 c1 = *column1;
-  *column0 = c * c0 + s * c1;
-  *column1 = c * c1 - s * c0;
-}
-
 // Hold a series of matrix operations, and their resultant matrix.
 //
 // This class is of variable size, to keep compact and to avoid cache misses
@@ -50,86 +37,11 @@ class MatrixData {
 
  public:
 
-  // Execute the series of basic matrix operations in 'ops_'.
-  // We break out the matrix into four column vectors to avoid matrix multiplies
-  // (which are slow) in preference of operation-specific matrix math (which is
-  // fast).
-  mathfu::mat4 CalculateResultMatrix() const {
-    // Start with the identity matrix.
-    mathfu::vec4 c0 = mathfu::kAxisX4f;
-    mathfu::vec4 c1 = mathfu::kAxisY4f;
-    mathfu::vec4 c2 = mathfu::kAxisZ4f;
-    mathfu::vec4 c3 = mathfu::kAxisW4f;
-
-    for (int i = 0; i < num_ops_; ++i) {
-      const MatrixOperation& op = ops_[i];
-      const float value = op.Value();
-
-      switch (op.Type()) {
-        // ( |  |  |  |)(c -s  0  0)   (c*  c*   |   |)
-        // (c0 c1 c2 c3)(s  c  0  0) = (c0+ c1- c2  c3)
-        // ( |  |  |  |)(0  0  1  0)   (s*  s*   |   |)
-        // ( |  |  |  |)(0  0  0  1)   (c1  c0   |   |)
-        case kRotateAboutX:
-          RotateAboutAxis(value, &c1, &c2);
-          break;
-
-        case kRotateAboutY:
-          RotateAboutAxis(value, &c2, &c0);
-          break;
-
-        case kRotateAboutZ:
-          RotateAboutAxis(value, &c0, &c1);
-          break;
-
-        // ( |  |  |  |)(1  0  0 tx)   ( |  |  | tx*c0+ )
-        // (c0 c1 c2 c3)(0  1  0 ty) = (c0 c1 c2 ty*c1+ )
-        // ( |  |  |  |)(0  0  1 tz)   ( |  |  | tz*c2+ )
-        // ( |  |  |  |)(0  0  0  1)   ( |  |  |    c3  )
-        case kTranslateX:
-          c3 += value * c0;
-          break;
-
-        case kTranslateY:
-          c3 += value * c1;
-          break;
-
-        case kTranslateZ:
-          c3 += value * c2;
-          break;
-
-        // ( |  |  |  |)(sx 0  0  0)   ( |   |   |   |)
-        // (c0 c1 c2 c3)(0  sy 0  0) = (sx* sy* sz*  |)
-        // ( |  |  |  |)(0  0  sz 0)   (c0  c1  c2  c3)
-        // ( |  |  |  |)(0  0  0  1)   ( |   |   |   |)
-        case kScaleX:
-          c0 *= value;
-          break;
-
-        case kScaleY:
-          c1 *= value;
-          break;
-
-        case kScaleZ:
-          c2 *= value;
-          break;
-
-        case kScaleUniformly:
-          c0 *= value;
-          c1 *= value;
-          c2 *= value;
-          break;
-
-        default:
-          assert(false);
-      }
-    }
-    return mathfu::mat4(c0, c1, c2, c3);
+  void UpdateResultMatrix() {
+    result_matrix_ = MatrixOperation::CalculateResultMatrix(ops_, num_ops_);
   }
 
-  void UpdateResultMatrix() { result_matrix_ = CalculateResultMatrix(); }
-
-  void BlendToOps(const MatrixInit::OpVector& new_ops,
+  void BlendToOps(const std::vector<MatrixOperationInit>& new_ops,
                   const motive::SplinePlayback& playback) {
     const int num_new_ops = static_cast<int>(new_ops.size());
     assert(num_ops_ >= num_new_ops);
@@ -182,7 +94,7 @@ class MatrixData {
   static MatrixData* Create(const MatrixInit& init, MotiveEngine* engine) {
     // Allocate a buffer that is big enough to hold MatrixData.
     static const int kAlign = 16;
-    const MatrixInit::OpVector& ops = init.ops();
+    const std::vector<MatrixOperationInit>& ops = init.ops();
     const int num_ops = static_cast<int>(ops.size());
     // Round up size to the next multiple of 16 to match minimum alignment.
     const size_t size = ((SizeOfClass(num_ops) + kAlign - 1) / kAlign) * kAlign;

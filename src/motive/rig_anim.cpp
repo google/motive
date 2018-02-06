@@ -45,7 +45,7 @@ MatrixAnim& RigAnim::InitMatrixAnim(BoneIndex idx, BoneIndex parent,
 int RigAnim::NumOps() const {
   size_t num_ops = 0;
   for (BoneIndex i = 0; i < NumBones(); ++i) {
-    const MatrixOpArray::OpVector& ops = anims_[i].ops().ops();
+    const std::vector<MatrixOperationInit>& ops = anims_[i].ops();
     num_ops += ops.size();
   }
   return static_cast<int>(num_ops);
@@ -55,7 +55,7 @@ void RigAnim::GetSplinesAndConstants(BoneIndex bone,
                                      const MatrixOperationType* ops,
                                      int num_ops, const CompactSpline** splines,
                                      float* constants) const {
-  const MatrixOpArray::OpVector& matrix_ops = Anim(bone).ops().ops();
+  const std::vector<MatrixOperationInit>& matrix_ops = Anim(bone).ops();
   for (int i = 0; i < num_ops; ++i) {
     const MatrixOperationType op = ops[i];
     const MatrixOperationType alternate_op =
@@ -94,7 +94,7 @@ std::string RigAnim::CsvHeaderForDebugging(int line) const {
 
   // Output the bone names, and gaps for where that bone's ops will go.
   for (BoneIndex i = 0; i < NumBones(); ++i) {
-    const MatrixOpArray::OpVector& ops = anims_[i].ops().ops();
+    const std::vector<MatrixOperationInit>& ops = anims_[i].ops();
     if (ops.size() == 0) continue;
 
     if (line == 0) {

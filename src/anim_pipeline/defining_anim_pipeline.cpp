@@ -63,7 +63,7 @@ bool CreateRigAnimFbFromRigAnim(flatbuffers::FlatBufferBuilder& fbb,
     // equivalent MatrixOpFb objects.
     //
     std::vector<flatbuffers::Offset<motive::MatrixOpFb>> ops;
-    for (auto& op : matrix_anim.ops().ops()) {
+    for (auto& op : matrix_anim.ops()) {
       const motive::MatrixOperationTypeFb type =
           static_cast<motive::MatrixOperationTypeFb>(op.type);
 

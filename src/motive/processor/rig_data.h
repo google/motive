@@ -30,7 +30,7 @@
 namespace motive {
 
 // static
-static const MatrixOpArray kEmptyOps(0);
+static const std::vector<MatrixOperationInit> kEmptyOps;
 
 class RigData {
  public:
@@ -46,7 +46,8 @@ class RigData {
 
     // Initialize the motivators that drive the local transforms.
     for (BoneIndex i = 0; i < num_bones; ++i) {
-      const MatrixOpArray& ops = defining_anim_->Anim(i).ops();
+      const std::vector<MatrixOperationInit>& ops =
+          defining_anim_->Anim(i).ops();
       motivators_[i].Initialize(MatrixInit(ops), engine);
     }
 
@@ -72,7 +73,7 @@ class RigData {
 
     // Update the motivators to blend to our new values.
     for (BoneIndex i = 0; i < defining_num_bones; ++i) {
-      const MatrixOpArray& ops =
+      const std::vector<MatrixOperationInit>& ops =
           i >= anim_num_bones ? kEmptyOps : anim.Anim(i).ops();
       motivators_[i].BlendToOps(ops, playback);
     }
@@ -151,7 +152,8 @@ class RigData {
     int k = 0;
     const int defining_num_bones = NumBones();
     for (BoneIndex i = 0; i < defining_num_bones; ++i) {
-      const MatrixOpArray::OpVector& ops = defining_anim_->Anim(i).ops().ops();
+      const std::vector<MatrixOperationInit>& ops =
+          defining_anim_->Anim(i).ops();
       for (size_t j = 0; j < ops.size(); ++j) {
         const float multiplier = RotateOp(ops[j].type) ? 180.0f / kPi : 1.0f;
         oss << multiplier * values[k] << ',';
@@ -192,7 +194,8 @@ class RigData {
       }
 
       // Output the operations on this bone.
-      const MatrixOpArray::OpVector& ops = current_anim_->Anim(idx).ops().ops();
+      const std::vector<MatrixOperationInit>& ops =
+          current_anim_->Anim(idx).ops();
       oss << "  ";
       for (size_t i = 0; i < ops.size(); ++i) {
         const float multiplier = RotateOp(ops[i].type) ? 180.0f / kPi : 1.0f;

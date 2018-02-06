@@ -20,8 +20,6 @@
 
 namespace motive {
 
-class MatrixOpArray;
-
 /// @class MatrixProcessor4f
 /// @brief Interface for motivator types that drive a 4x4 float matrix.
 /// That is, for MotiveProcessors that interface with MatrixMotivator4f's.
@@ -50,7 +48,8 @@ class MatrixProcessor4f : public MotiveProcessor {
                               MotiveChildIndex count, const float* values) = 0;
 
   /// Smoothly transition to the operations specified in `ops`.
-  virtual void BlendToOps(MotiveIndex /*index*/, const MatrixOpArray& /*ops*/,
+  virtual void BlendToOps(MotiveIndex /*index*/,
+                          const std::vector<MatrixOperationInit>& /*ops*/,
                           const motive::SplinePlayback& /*playback*/) {}
 
   /// Instantly change the playback speed of this animation.

@@ -286,7 +286,7 @@ static void CreateDefiningAnim(const RigAnim** anims, size_t num_anims,
     // Start initializing this bone.
     MatrixAnim& matrix_anim =
         defining_anim->InitMatrixAnim(j, parents[j], complete_rig->BoneName(j));
-    MatrixOpArray& ops = matrix_anim.ops();
+    std::vector<MatrixOperationInit>& ops = matrix_anim.ops();
 
     // Create a sorted map from operation id to the range of values that it
     // takes.
@@ -298,7 +298,7 @@ static void CreateDefiningAnim(const RigAnim** anims, size_t num_anims,
 
     for (size_t i = 0; i < num_anims; ++i) {
       if (j >= anims[i]->NumBones()) continue;
-      const MatrixOpArray::OpVector& opv = anims[i]->Anim(j).ops().ops();
+      const std::vector<MatrixOperationInit>& opv = anims[i]->Anim(j).ops();
       for (auto op_it = opv.begin(); op_it != opv.end(); ++op_it) {
         const MatrixOperationInit& op_init = *op_it;
         auto& range_it = id_to_range[op_init.id];
@@ -336,14 +336,14 @@ static void CreateDefiningAnim(const RigAnim** anims, size_t num_anims,
       if (range.Length() == 0.0f) {
         // If there is only one value for an operation, add it as a const.
         const float const_value = range.start();
-        ops.AddOp(id, op, const_value);
+        ops.emplace_back(id, op, const_value);
       } else {
         // Otherwise, add it as an animated parameter.
         // The range is modular for rotate operations, but not for scale or
         // translate operations.
         const Range& op_range = RangeOfOp(op);
         splines[num_ops_inited].init = SplineInit(op_range);
-        ops.AddOp(id, op, splines[num_ops_inited].init);
+        ops.emplace_back(id, op, splines[num_ops_inited].init);
         num_ops_inited++;
       }
     }
