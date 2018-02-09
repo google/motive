@@ -17,9 +17,16 @@
 #include "mathfu/constants.h"
 #include "motive/common.h"
 #include "motive/engine.h"
-#include "motive/init.h"
+#include "motive/const_init.h"
+#include "motive/overshoot_init.h"
+#include "motive/spline_init.h"
 #include "motive/math/angle.h"
 #include "motive/math/curve_util.h"
+#include "motive/ease_in_ease_out_init.h"
+#include "motive/matrix_init.h"
+#include "motive/matrix_motivator.h"
+#include "motive/matrix_op.h"
+#include "motive/spline_init.h"
 
 #define DEBUG_PRINT_MATRICES 0
 
@@ -50,7 +57,6 @@ using motive::kTranslateZ;
 using motive::MathFuVectorConverter;
 using motive::MatrixInit;
 using motive::MatrixMotivator4f;
-using motive::MatrixOpArray;
 using motive::MatrixOperationInit;
 using motive::MatrixOperationType;
 using motive::Motivator1f;
@@ -784,7 +790,7 @@ static mat4 CreateMatrixFromOp(const MatrixOperationInit& op_init) {
 
 // Return the product of the matrices for each operation in 'matrix_init'.
 static mat4 CreateMatrixFromOps(const MatrixInit& matrix_init) {
-  const MatrixInit::OpVector& ops = matrix_init.ops();
+  const std::vector<MatrixOperationInit>& ops = matrix_init.ops();
 
   mat4 m = mat4::Identity();
   for (size_t i = 0; i < ops.size(); ++i) {
@@ -816,114 +822,123 @@ static void TestMatrixMotivator(const MatrixInit& matrix_init,
 
 // Test the matrix operation kTranslateX.
 TEST_F(MotiveTests, MatrixTranslateX) {
-  MatrixOpArray ops(1);
-  ops.AddOp(0, motive::kTranslateX, spline_scalar_init, 2.0f);
+  std::vector<MatrixOperationInit> ops;
+  ops.emplace_back(0, motive::kTranslateX, spline_scalar_init, 2.0f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Don't use an motivator to drive the animation. Use a constant value.
 TEST_F(MotiveTests, MatrixTranslateXConstValue) {
-  MatrixOpArray ops(1);
-  ops.AddOp(0, motive::kTranslateX, 2.0f);
+  std::vector<MatrixOperationInit> ops;
+  ops.emplace_back(0, motive::kTranslateX, 2.0f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the matrix operation kRotateAboutX.
 TEST_F(MotiveTests, MatrixRotateAboutX) {
-  MatrixOpArray ops(1);
-  ops.AddOp(0, motive::kRotateAboutX, spline_angle_init_, kHalfPi);
+  std::vector<MatrixOperationInit> ops;
+  ops.emplace_back(0, motive::kRotateAboutX, spline_angle_init_, kHalfPi);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the matrix operation kRotateAboutY.
 TEST_F(MotiveTests, MatrixRotateAboutY) {
-  MatrixOpArray ops(1);
-  ops.AddOp(0, motive::kRotateAboutY, spline_angle_init_, kHalfPi / 3.0f);
+  std::vector<MatrixOperationInit> ops;
+  ops.emplace_back(0, motive::kRotateAboutY, spline_angle_init_,
+                   kHalfPi / 3.0f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the matrix operation kRotateAboutZ.
 TEST_F(MotiveTests, MatrixRotateAboutZ) {
-  MatrixOpArray ops(1);
-  ops.AddOp(0, motive::kRotateAboutZ, spline_angle_init_, -kHalfPi / 1.2f);
+  std::vector<MatrixOperationInit> ops;
+  ops.emplace_back(0, motive::kRotateAboutZ, spline_angle_init_,
+                   -kHalfPi / 1.2f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the matrix operation kScaleX.
 TEST_F(MotiveTests, MatrixScaleX) {
-  MatrixOpArray ops(1);
-  ops.AddOp(0, motive::kScaleX, spline_scalar_init, -3.0f);
+  std::vector<MatrixOperationInit> ops;
+  ops.emplace_back(0, motive::kScaleX, spline_scalar_init, -3.0f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the series of matrix operations for translating XYZ.
 TEST_F(MotiveTests, MatrixTranslateXYZ) {
-  MatrixOpArray ops(3);
-  ops.AddOp(0, motive::kTranslateX, spline_scalar_init, 2.0f);
-  ops.AddOp(0, motive::kTranslateY, spline_scalar_init, -3.0f);
-  ops.AddOp(0, motive::kTranslateZ, spline_scalar_init, 0.5f);
+  std::vector<MatrixOperationInit> ops;
+  ops.emplace_back(0, motive::kTranslateX, spline_scalar_init, 2.0f);
+  ops.emplace_back(0, motive::kTranslateY, spline_scalar_init, -3.0f);
+  ops.emplace_back(0, motive::kTranslateZ, spline_scalar_init, 0.5f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the series of matrix operations for rotating about X, Y, and Z,
 // in turn.
 TEST_F(MotiveTests, MatrixRotateAboutXYZ) {
-  MatrixOpArray ops(3);
-  ops.AddOp(0, motive::kRotateAboutX, spline_angle_init_, -kHalfPi / 2.0f);
-  ops.AddOp(0, motive::kRotateAboutY, spline_angle_init_, kHalfPi / 3.0f);
-  ops.AddOp(0, motive::kRotateAboutZ, spline_angle_init_, kHalfPi / 5.0f);
+  std::vector<MatrixOperationInit> ops;
+  ops.emplace_back(0, motive::kRotateAboutX, spline_angle_init_,
+                   -kHalfPi / 2.0f);
+  ops.emplace_back(0, motive::kRotateAboutY, spline_angle_init_,
+                   kHalfPi / 3.0f);
+  ops.emplace_back(0, motive::kRotateAboutZ, spline_angle_init_,
+                   kHalfPi / 5.0f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the series of matrix operations for scaling XYZ non-uniformly.
 TEST_F(MotiveTests, MatrixScaleXYZ) {
-  MatrixOpArray ops(3);
-  ops.AddOp(0, motive::kScaleX, spline_scalar_init, -3.0f);
-  ops.AddOp(0, motive::kScaleY, spline_scalar_init, 2.2f);
-  ops.AddOp(0, motive::kScaleZ, spline_scalar_init, 1.01f);
+  std::vector<MatrixOperationInit> ops;
+  ops.emplace_back(0, motive::kScaleX, spline_scalar_init, -3.0f);
+  ops.emplace_back(0, motive::kScaleY, spline_scalar_init, 2.2f);
+  ops.emplace_back(0, motive::kScaleZ, spline_scalar_init, 1.01f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the matrix operation kScaleUniformly.
 TEST_F(MotiveTests, MatrixScaleUniformly) {
-  MatrixOpArray ops(1);
-  ops.AddOp(0, motive::kScaleUniformly, spline_scalar_init, 10.1f);
+  std::vector<MatrixOperationInit> ops;
+  ops.emplace_back(0, motive::kScaleUniformly, spline_scalar_init, 10.1f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the series of matrix operations for translating and rotating.
 TEST_F(MotiveTests, MatrixTranslateRotateTranslateBack) {
-  MatrixOpArray ops(3);
-  ops.AddOp(0, motive::kTranslateY, spline_scalar_init, 1.0f);
-  ops.AddOp(0, motive::kRotateAboutX, spline_angle_init_, kHalfPi);
-  ops.AddOp(0, motive::kTranslateY, spline_scalar_init, -1.0f);
+  std::vector<MatrixOperationInit> ops;
+  ops.emplace_back(0, motive::kTranslateY, spline_scalar_init, 1.0f);
+  ops.emplace_back(0, motive::kRotateAboutX, spline_angle_init_, kHalfPi);
+  ops.emplace_back(0, motive::kTranslateY, spline_scalar_init, -1.0f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test the series of matrix operations for translating, rotating, and scaling.
 TEST_F(MotiveTests, MatrixTranslateRotateScale) {
-  MatrixOpArray ops(3);
-  ops.AddOp(0, motive::kTranslateY, spline_scalar_init, 1.0f);
-  ops.AddOp(0, motive::kRotateAboutX, spline_angle_init_, kHalfPi);
-  ops.AddOp(0, motive::kScaleZ, spline_scalar_init, -1.4f);
+  std::vector<MatrixOperationInit> ops;
+  ops.emplace_back(0, motive::kTranslateY, spline_scalar_init, 1.0f);
+  ops.emplace_back(0, motive::kRotateAboutX, spline_angle_init_, kHalfPi);
+  ops.emplace_back(0, motive::kScaleZ, spline_scalar_init, -1.4f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 
 // Test a complex the series of matrix operations.
 TEST_F(MotiveTests, MatrixTranslateRotateScaleGoneWild) {
-  MatrixOpArray ops(16);
-  ops.AddOp(0, motive::kTranslateY, spline_scalar_init, 1.0f);
-  ops.AddOp(0, motive::kTranslateX, spline_scalar_init, -1.6f);
-  ops.AddOp(0, motive::kRotateAboutX, spline_angle_init_, kHalfPi * 0.1f);
-  ops.AddOp(0, motive::kRotateAboutY, spline_angle_init_, kHalfPi * 0.33f);
-  ops.AddOp(0, motive::kScaleZ, spline_scalar_init, -1.4f);
-  ops.AddOp(0, motive::kRotateAboutY, spline_angle_init_, -kHalfPi * 0.33f);
-  ops.AddOp(0, motive::kTranslateX, spline_scalar_init, -1.2f);
-  ops.AddOp(0, motive::kTranslateY, spline_scalar_init, -1.5f);
-  ops.AddOp(0, motive::kTranslateZ, spline_scalar_init, -2.2f);
-  ops.AddOp(0, motive::kRotateAboutZ, spline_angle_init_, -kHalfPi * 0.5f);
-  ops.AddOp(0, motive::kScaleX, spline_scalar_init, 2.0f);
-  ops.AddOp(0, motive::kScaleY, spline_scalar_init, 4.1f);
+  std::vector<MatrixOperationInit> ops;
+  ops.emplace_back(0, motive::kTranslateY, spline_scalar_init, 1.0f);
+  ops.emplace_back(0, motive::kTranslateX, spline_scalar_init, -1.6f);
+  ops.emplace_back(0, motive::kRotateAboutX, spline_angle_init_,
+                   kHalfPi * 0.1f);
+  ops.emplace_back(0, motive::kRotateAboutY, spline_angle_init_,
+                   kHalfPi * 0.33f);
+  ops.emplace_back(0, motive::kScaleZ, spline_scalar_init, -1.4f);
+  ops.emplace_back(0, motive::kRotateAboutY, spline_angle_init_,
+                   -kHalfPi * 0.33f);
+  ops.emplace_back(0, motive::kTranslateX, spline_scalar_init, -1.2f);
+  ops.emplace_back(0, motive::kTranslateY, spline_scalar_init, -1.5f);
+  ops.emplace_back(0, motive::kTranslateZ, spline_scalar_init, -2.2f);
+  ops.emplace_back(0, motive::kRotateAboutZ, spline_angle_init_,
+                   -kHalfPi * 0.5f);
+  ops.emplace_back(0, motive::kScaleX, spline_scalar_init, 2.0f);
+  ops.emplace_back(0, motive::kScaleY, spline_scalar_init, 4.1f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
 }
 

@@ -19,15 +19,12 @@
 #include <unordered_map>
 #include <vector>
 
-#include "motive/anim.h"
+#include "motive/rig_anim.h"
 
 namespace motive {
 
 struct AnimTableFb;
 struct AnimListFb;
-struct AnimTableEmbeddedFb;
-struct AnimListEmbeddedFb;
-struct RigAnimFb;
 class TableDescriberInterface;
 
 /// @class AnimTable

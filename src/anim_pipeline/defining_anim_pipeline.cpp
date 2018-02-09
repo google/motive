@@ -19,8 +19,8 @@
 
 #include "anim_generated.h"
 #include "anim_list_generated.h"
-#include "motive/anim.h"
 #include "motive/anim_table.h"
+#include "motive/rig_anim.h"
 
 const char* LoadFile(const char* filename, std::string* scratch_buf) {
   std::ifstream fin(filename, std::ios::in | std::ios::binary);
@@ -63,7 +63,7 @@ bool CreateRigAnimFbFromRigAnim(flatbuffers::FlatBufferBuilder& fbb,
     // equivalent MatrixOpFb objects.
     //
     std::vector<flatbuffers::Offset<motive::MatrixOpFb>> ops;
-    for (auto& op : matrix_anim.ops().ops()) {
+    for (auto& op : matrix_anim.ops()) {
       const motive::MatrixOperationTypeFb type =
           static_cast<motive::MatrixOperationTypeFb>(op.type);
 

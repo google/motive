@@ -15,10 +15,38 @@
 #ifndef MOTIVE_UTIL_H_
 #define MOTIVE_UTIL_H_
 
+#ifdef _MSC_VER
+#include <malloc.h>
+#endif
+#include <stddef.h>
+#include <stdlib.h>
 #include "motive/motivator.h"
 #include "motive/target.h"
+#include "motive/vector_motivator.h"
 
 namespace motive {
+
+// Allocates a block of memory of the given size and alignment.  This memory
+// must be freed by calling AlignedFree.
+inline void* AlignedAlloc(size_t size, size_t align) {
+  const size_t min_align = std::max(align, sizeof(max_align_t));
+#ifdef _MSC_VER
+  return _aligned_malloc(size, min_align);
+#else
+  void* ptr = nullptr;
+  posix_memalign(&ptr, min_align, size);
+  return ptr;
+#endif
+}
+
+// Frees memory allocated using AlignedAlloc.
+inline void AlignedFree(void* ptr) {
+#ifdef _MSC_VER
+  _aligned_free(ptr);
+#else
+  free(ptr);
+#endif
+}
 
 /// Direction to boost the value.
 enum TwitchDirection {

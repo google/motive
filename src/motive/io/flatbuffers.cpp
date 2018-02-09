@@ -11,12 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "anim_generated.h"
-#include "motive_generated.h"
-#include "anim_table_generated.h"
-#include "motive/anim.h"
-#include "motive/init.h"
 #include "motive/io/flatbuffers.h"
+#include "anim_generated.h"
+#include "anim_table_generated.h"
+#include "motive/overshoot_init.h"
+#include "motive/matrix_anim.h"
+#include "motive/rig_anim.h"
+#include "motive_generated.h"
 
 namespace motive {
 
@@ -68,8 +69,9 @@ void Settled1fFromFlatBuffers(const Settled1fParameters& params,
 }
 
 void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
-  MatrixOpArray& ops = anim->ops();
-  ops.Clear(params.ops()->size());
+  std::vector<MatrixOperationInit>& ops = anim->ops();
+  ops.clear();
+  ops.reserve(params.ops()->size());
 
   // Count the number of splines.
   int num_splines = 0;
@@ -116,9 +118,9 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
             s.spline->AddNodeVerbatim(n->x(), n->y(), n->angle());
           }
           assert(s.spline->num_nodes() == s.spline->max_nodes());
-          ops.AddOp(op->id(), op_type, s.init, *s.spline);
+          ops.emplace_back(op->id(), op_type, s.init, *s.spline);
         } else {
-          ops.AddOp(op->id(), op_type, s.init);
+          ops.emplace_back(op->id(), op_type, s.init);
         }
         break;
       }
@@ -126,7 +128,7 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
       case MatrixOpValueFb_ConstantOpFb: {
         const ConstantOpFb* const_fb =
             reinterpret_cast<const ConstantOpFb*>(op->value());
-        ops.AddOp(op->id(), op_type, const_fb->y_const());
+        ops.emplace_back(op->id(), op_type, const_fb->y_const());
         break;
       }
 
@@ -134,6 +136,19 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
         assert(false);  // Invalid FlatBuffer data.
     }
   }
+}
+
+// Maximum duration of any of the splines.
+static MotiveTime EndTime(const std::vector<MatrixOperationInit>& ops) {
+  MotiveTime end_time = 0;
+  for (size_t i = 0; i < ops.size(); ++i) {
+    const MatrixOperationInit& op = ops[i];
+    if (op.union_type == MatrixOperationInit::kUnionSpline) {
+      end_time =
+          std::max(end_time, static_cast<MotiveTime>(op.spline->EndX()));
+    }
+  }
+  return end_time;
 }
 
 void RigAnimFromFlatBuffers(const RigAnimFb& params, RigAnim* anim) {
@@ -154,7 +169,7 @@ void RigAnimFromFlatBuffers(const RigAnimFb& params, RigAnim* anim) {
     const char* name = record_names ? names->Get(i)->c_str() : "";
     MatrixAnim& m = anim->InitMatrixAnim(i, parent, name);
     MatrixAnimFromFlatBuffers(*params.matrix_anims()->Get(i), &m);
-    end_time = std::max(end_time, m.ops().EndTime());
+    end_time = std::max(end_time, EndTime(m.ops()));
   }
 
   // Set animation-wide values.

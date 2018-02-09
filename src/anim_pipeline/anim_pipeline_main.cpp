@@ -126,7 +126,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, fplutil::Logger& log,
 
   // Last parameter is used as file name.
   if (argc > 1) {
-    args->fbx_file = string(argv[argc - 1]);
+    args->fbx_file = std::string(argv[argc - 1]);
     args->output_file = fplutil::RemoveExtensionFromName(args->fbx_file) + "." +
                         motive::RigAnimFbExtension();
   }
@@ -140,7 +140,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, fplutil::Logger& log,
 
   // Parse switches.
   for (int i = 1; i < argc - 1; ++i) {
-    const string arg = argv[i];
+    const std::string arg = argv[i];
 
     if (arg == "-v" || arg == "--verbose") {
       args->log_level = kLogVerbose;
@@ -153,7 +153,7 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, fplutil::Logger& log,
 
     } else if (arg == "-o" || arg == "--out") {
       if (i + 1 < argc - 1) {
-        args->output_file = string(argv[i + 1]);
+        args->output_file = std::string(argv[i + 1]);
         i++;
       } else {
         valid_args = false;
@@ -224,6 +224,9 @@ static bool ParseAnimPipelineArgs(int argc, char** argv, fplutil::Logger& log,
       } else {
         args->repeat_preference = repeat_preference;
       }
+
+    } else if (arg == "--nouniformscale") {
+      args->no_uniform_scale = true;
 
     } else if (arg == "--stagger" || arg == "--stagger_end_times") {
       args->stagger_end_times = true;

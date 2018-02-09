@@ -17,7 +17,6 @@
 
 #include <string>
 #include "fbx_common/fbx_common.h"
-#include "flatbuffers/flatbuffers.h"
 
 namespace motive {
 
@@ -56,6 +55,7 @@ struct AnimPipelineArgs {
   bool stagger_end_times;    /// Allow each channel to end at authored time.
   bool preserve_start_time;  /// Don't shift channels to start at time 0.
   bool root_bones_only;      /// Output bone that has path of animation only.
+  bool no_uniform_scale;     /// If true, never collapse scale channels.
   fplutil::AxisSystem axis_system;  /// Which axes are up, front, left.
   float distance_unit_scale;        /// This number of cm is set to one unit.
   int debug_time;  /// If >0 output animation state at this time.

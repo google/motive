@@ -12,19 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "motive/init.h"
+#include "motive/const_init.h"
 #include "motive/math/curve_util.h"
+#include "motive/processor/const_data.h"
 #include "motive/simple_processor_template.h"
 
 namespace motive {
-
-struct ConstData {
-  ConstData() : velocity(0.0f) {}
-  explicit ConstData(const SimpleInit& init, MotiveIndex index)
-      : velocity(init.start_derivatives[index]) {}
-
-  float velocity;
-};
 
 // The following "Simple" functions are called by the SimpleProcessorTemplate.
 // The current `value` is stored external to ConstData, so it is passed in.

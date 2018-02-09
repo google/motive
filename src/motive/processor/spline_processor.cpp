@@ -13,25 +13,15 @@
 // limitations under the License.
 
 #include "motive/engine.h"
-#include "motive/init.h"
+#include "motive/spline_init.h"
 #include "motive/math/bulk_spline_evaluator.h"
+#include "motive/processor/spline_data.h"
 
 namespace motive {
-
-using motive::CompactSpline;
-using motive::BulkSplineEvaluator;
-using motive::Range;
 
 // Add some buffer to the y-range to allow for intermediate nodes
 // that go above or below the supplied nodes.
 static const float kYRangeBufferPercent = 1.2f;
-
-struct SplineData {
-  SplineData() : local_spline(nullptr) {}
-
-  // If we own the spline, recycle it in the spline pool.
-  CompactSpline* local_spline;
-};
 
 class SplineMotiveProcessor : public MotiveProcessorNf {
  public:

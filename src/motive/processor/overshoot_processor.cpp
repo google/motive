@@ -13,26 +13,10 @@
 // limitations under the License.
 
 #include "motive/engine.h"
-#include "motive/init.h"
+#include "motive/overshoot_init.h"
+#include "motive/processor/overshoot_data.h"
 
 namespace motive {
-
-struct OvershootData {
-  void Initialize(const OvershootInit& init_param) {
-    velocity = 0.0f;
-    target_value = 0.0f;
-    init = init_param;
-  }
-
-  // The rate of change of value. Returned when Motivator::Velocity() called.
-  float velocity;
-
-  // What we are striving to hit. Returned when Motivator::TargetValue() called.
-  float target_value;
-
-  // Keep a local copy of the init params.
-  OvershootInit init;
-};
 
 class OvershootMotiveProcessor : public MotiveProcessorNf {
  public:

@@ -12,45 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "motive/init.h"
+#include "motive/ease_in_ease_out_init.h"
 #include "motive/math/curve_util.h"
+#include "motive/processor/ease_in_ease_out_data.h"
 #include "motive/simple_processor_template.h"
 
 namespace motive {
 
 static const float kDerivativeEpsilon = 0.000001f;
-
-struct EaseInEaseOutData {
-  EaseInEaseOutData()
-      : q_start_time(0.0f), target_time(0.0f), elapsed_time(0.0f) {}
-
-  // Create a straight line with the start value and derivative for q.
-  EaseInEaseOutData(const SimpleInit& init, MotiveIndex current_dimension)
-      : q(QuadraticEaseInEaseOut(
-            QuadraticCurve(QuadraticInitWithOrigin(
-                init.start_values[current_dimension],
-                init.start_derivatives[current_dimension], 0.0f)),
-            0.0f)),
-        q_start_time(0.0f),
-        target_time(0.0f),
-        elapsed_time(0.0f) {}
-
-  // Currently active curve.
-  QuadraticEaseInEaseOut q;
-
-  // Shape that holds the bias, typical y-distance that should be traveled, and
-  // typical time it takes to travel typical delta value.
-  MotiveCurveShape shape;
-
-  // Time at which we started on current curve.
-  float q_start_time;
-
-  // Target time of the first curve generated.
-  float target_time;
-
-  // Time since the last call to SetTarget().
-  float elapsed_time;
-};
 
 // The following "Simple" functions are called by SimpleProcessorTemplate.
 

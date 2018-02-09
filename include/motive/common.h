@@ -16,13 +16,11 @@
 #define MOTIVE_COMMON_H_
 
 #include <cstdint>
-
-#include "mathfu/glsl_mappings.h"
+#include <limits>
 
 namespace motive {
 
 class MotiveProcessor;
-class Motivator;
 
 /// @typedef MotivatorType
 /// MotivatorType is used for run-time type information. It's implemented as a
@@ -69,19 +67,6 @@ static const MotiveTime kMotiveTimeEndless =
 typedef uint8_t BoneIndex;
 static const BoneIndex kMaxNumBones = 254;
 static const BoneIndex kInvalidBoneIdx = 255;
-
-/// @typedef MatrixOpId
-/// Identify an operation in an animation so that it can be blended with the
-/// same operation in another animation. For example, an animation may have
-/// three kTranslateX operations for a single matrix: one for translating to
-/// the scale pivot, one for translating from the scale pivot, and one for the
-/// final SQT translation. If another animation has no scale operations,
-/// however, that other animation may have only the one SQT translation.
-/// We need the MatrixOpId id so that we know how to match the SQT translations
-/// when blending from one animation to the other.
-typedef uint8_t MatrixOpId;
-static const MatrixOpId kMaxMatrixOpId = 254;
-static const MatrixOpId kInvalidMatrixOpId = 255;
 
 /// @class MotivatorInit
 /// Base class for Motivator parameterization. Every motivator type has a
