@@ -20,7 +20,7 @@ void FlatAnim::LogChannel(FlatChannelId channel_id) const {
 void FlatAnim::LogAllChannels() const {
   log_.Log(fplutil::kLogInfo, "  %30s %16s  %9s   %s\n", "bone name",
            "operation", "time range", "values");
-  for (BoneIndex bone_idx = 0; bone_idx < bones_.size(); ++bone_idx) {
+  for (size_t bone_idx = 0; bone_idx < bones_.size(); ++bone_idx) {
     const Bone& bone = bones_[bone_idx];
     const Channels& channels = bone.channels;
     if (channels.size() == 0) continue;
@@ -96,6 +96,12 @@ bool FlatAnim::OutputFlatBuffer(const std::string& suggested_output_file,
 int FlatAnim::CreateFlatBuffer(flatbuffers::FlatBufferBuilder& fbb,
                                RepeatPreference repeat_preference,
                                const std::string& anim_name) const {
+  if (bones_.size() > kMaxNumBones) {
+    log_.Log(fplutil::kLogError, "Too many bones: %d. Limit of %d.\n",
+             bones_.size(), kMaxNumBones);
+    return 0;
+  }
+
   const BoneIndex num_bones = static_cast<BoneIndex>(bones_.size());
 
   // Output entire bone range into one RigAnim.
