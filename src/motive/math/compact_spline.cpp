@@ -290,10 +290,16 @@ CompactSplineIndex CompactSpline::IndexForX(
   // Return index of the last index if beyond the last index.
   if (quantized_x >= Back().x()) return kAfterSplineIndex;
 
-  // Check the guess value first.
+  // Check the guess value first.  Only return the guess index if it has a valid
+  // width.
   const CompactSplineXGrain compact_x =
       static_cast<CompactSplineXGrain>(quantized_x);
-  if (IndexContainsX(compact_x, guess_index)) return guess_index;
+  if (IndexContainsX(compact_x, guess_index) && guess_index < LastNodeIndex()) {
+    const CompactSplineIndex next_index = guess_index + 1;
+    if (WidthX(nodes_[guess_index], nodes_[next_index]) > 0.f) {
+      return guess_index;
+    }
+  }
 
   // Search for it, if the initial guess fails.
   const CompactSplineIndex index = BinarySearchIndexForX(compact_x);
