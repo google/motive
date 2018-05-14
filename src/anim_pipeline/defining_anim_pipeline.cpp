@@ -67,30 +67,17 @@ bool CreateRigAnimFbFromRigAnim(flatbuffers::FlatBufferBuilder& fbb,
       const motive::MatrixOperationTypeFb type =
           static_cast<motive::MatrixOperationTypeFb>(op.type);
 
-      switch (op.union_type) {
-        // "Empty" ops are spline operations without spline data.
-        case motive::MatrixOperationInit::kUnionEmpty: {
-          const motive::MatrixOpValueFb value_type =
-              motive::MatrixOpValueFb_CompactSplineFb;
-          ops.push_back(CreateMatrixOpFb(fbb, op.id, type, value_type));
-          break;
-        }
-        // "InitialValue" ops are constant operations with a single value.
-        case motive::MatrixOperationInit::kUnionInitialValue: {
-          const motive::MatrixOpValueFb value_type =
-              motive::MatrixOpValueFb_ConstantOpFb;
-          const auto value =
-              motive::CreateConstantOpFb(fbb, op.initial_value).Union();
-          ops.push_back(CreateMatrixOpFb(fbb, op.id, type, value_type, value));
-          break;
-        }
+      if (op.union_type == motive::MatrixOperationInit::kUnionEmpty ||
+          op.union_type == motive::MatrixOperationInit::kUnionInitialValue) {
+        const motive::MatrixOpValueFb value_type =
+            motive::MatrixOpValueFb_CompactSplineFb;
+        ops.push_back(CreateMatrixOpFb(fbb, op.id, type, value_type));
+      } else {
         // We assume a "defining animation" operation should be either a
         // constant value operation or an "empty" spline operation as this is
         // how the CreateDefiningAnim in anim_table.cpp is implemented.
-        default: {
-          std::cerr << "Unsupported matrix operation type: " << op.union_type;
-          return false;
-        }
+        std::cerr << "Unsupported matrix operation type: " << op.union_type;
+        return false;
       }
     }
 
