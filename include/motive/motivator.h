@@ -41,8 +41,6 @@ class MotiveEngine;
 /// of its **type**.
 ///
 /// Only one Motivator can reference a specific index in a MotiveProcessor.
-/// Therefore, when you copy a Motivator, the original motivator will become
-/// invalid.
 ///
 class Motivator {
  public:
@@ -52,15 +50,7 @@ class Motivator {
   /// `original` motivator is reset and must be initialized again before being
   /// read. We want to allow moves primarily so that we can have vectors of
   /// Motivators.
-  ///
-  /// Note: This should be a move constructor instead of a copy constructor.
-  ///       However, VS2010~2012 requires move constructors to exist in any
-  ///       class that has a move constructed member. That would be a burden
-  ///       for users of Motivator, so we chose to be practical here instead of
-  ///       pedantically correct. We use the copy constructor and copy operator
-  ///       to do move behavior.
-  ///       See http://en.cppreference.com/w/cpp/language/move_operator
-  Motivator(const Motivator& original) {
+  Motivator(Motivator&& original) noexcept {
     if (original.Valid()) {
       original.processor_->TransferMotivator(original.index_, this);
     } else {
@@ -70,14 +60,19 @@ class Motivator {
   }
 
   /// Allow Motivators to be moved. `original` is reset.
-  /// See the copy constructor for details.
-  Motivator& operator=(const Motivator& original) {
+  /// See the move constructor for details.
+  Motivator& operator=(Motivator&& original) noexcept {
     Invalidate();
     if (original.processor_ != nullptr) {
       original.processor_->TransferMotivator(original.index_, this);
     }
     return *this;
   }
+
+  /// Disallow copying Motivators since only one Motivator can reference a
+  /// specific index in a MotiveProcessor.
+  Motivator(const Motivator& original) = delete;
+  Motivator& operator=(const Motivator& original) = delete;
 
   /// Remove ourselves from the MotiveProcessor when we're deleted.
   ~Motivator() { Invalidate(); }

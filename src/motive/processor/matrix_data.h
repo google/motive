@@ -26,44 +26,73 @@
 namespace motive {
 
 // Hold a series of matrix operations, and their resultant matrix.
-//
-// This class is of variable size, to keep compact and to avoid cache misses
-// caused by pointer chasing. The 'ops_[]' array is actually of length
-// 'num_ops_'. Each item in 'ops_' is one matrix operation.
-//
 class MatrixData {
-  MatrixData() {}  // Use Create() to create this class.
-  ~MatrixData() {}
-
  public:
+  MatrixData(const MatrixInit& init, MotiveEngine* engine)
+      : result_matrix_(mathfu::mat4::Identity()) {
+    const std::vector<MatrixOperationInit>& ops = init.ops();
+    int num_ops = static_cast<int>(ops.size());
+    ops_.reserve(num_ops);
+    for (int i = 0; i < num_ops; ++i) {
+      ops_.emplace_back(ops[i], engine);
+    }
+  }
 
   void UpdateResultMatrix() {
-    result_matrix_ = MatrixOperation::CalculateResultMatrix(ops_, num_ops_);
+    result_matrix_ =
+        MatrixOperation::CalculateResultMatrix(ops_.data(), ops_.size());
   }
 
   void BlendToOps(const std::vector<MatrixOperationInit>& new_ops,
-                  const motive::SplinePlayback& playback) {
+                  const motive::SplinePlayback& playback,
+                  MotiveEngine* engine) {
+    // Ops are always stored in order of ascending IDs. Scan through the old
+    // and new ops trying to match IDs.
+    int old_idx = 0;
+    int new_idx = 0;
     const int num_new_ops = static_cast<int>(new_ops.size());
-    assert(num_ops_ >= num_new_ops);
 
-    // Blend every operation to either the values in `ops` or, if `ops` doesn't
-    // contain the operation, to the default value (0 for rotates and
-    // translates, 1 for scales).
-    int new_op_idx = 0;
-    for (int i = 0; i < num_ops_; ++i) {
-      MatrixOperation& op = ops_[i];
-      if (new_op_idx < num_new_ops && op.Blendable(new_ops[new_op_idx])) {
-        op.BlendToOp(new_ops[new_op_idx], playback);
-        new_op_idx++;
+    while (old_idx < ops_.size() && new_idx < num_new_ops) {
+      MatrixOperation& old_op = ops_[old_idx];
+      const MatrixOperationInit& new_op = new_ops[new_idx];
+
+      // Ops are blendable if they have identical IDs. If not, handle whichever
+      // has the lower ID since it cannot possibly have a Blendable op in the
+      // other list.
+      if (old_op.Blendable(new_op)) {
+        old_op.BlendToOp(new_op, playback, engine);
+        ++old_idx;
+        ++new_idx;
+      } else if (old_op.Id() < new_op.id) {
+        // Old ops blend to default.
+        old_op.BlendToDefault(static_cast<MotiveTime>(playback.blend_x));
+        ++old_idx;
       } else {
-        op.BlendToDefault(static_cast<MotiveTime>(playback.blend_x));
+        // New ops are inserted in order. `old_idx` points to the old op with
+        // the next highest ID compared to `new_op`, meaning it also provides
+        // the correct insertion point.
+        ops_.emplace(ops_.begin() + old_idx, new_op, engine);
+        ++new_idx;
+        // Advance `old_idx` so it still points to the same `old_op` now that
+        // one has been inserted before it.
+        ++old_idx;
       }
     }
-    assert(new_op_idx == num_new_ops);
+
+    // Fill out remaining old ops by blending them to default.
+    int num_ops = ops_.size();
+    while (old_idx < num_ops) {
+      ops_[old_idx++].BlendToDefault(static_cast<MotiveTime>(playback.blend_x));
+    }
+
+    // Fill out remaining new ops by inserting them.
+    while (new_idx < num_new_ops) {
+      ops_.emplace_back(new_ops[new_idx++], engine);
+    }
   }
 
   void SetPlaybackRate(float playback_rate) {
-    for (int i = 0; i < num_ops_; ++i) {
+    for (int i = 0, num_ops = ops_.size(); i < num_ops; ++i) {
       MatrixOperation& op = ops_[i];
       op.SetPlaybackRate(playback_rate);
     }
@@ -71,7 +100,7 @@ class MatrixData {
 
   MotiveTime TimeRemaining() const {
     MotiveTime time = 0;
-    for (int i = 0; i < num_ops_; ++i) {
+    for (int i = 0, num_ops = ops_.size(); i < num_ops; ++i) {
       const MatrixOperation& op = ops_[i];
       time = std::max(time, op.TimeRemaining());
     }
@@ -79,61 +108,24 @@ class MatrixData {
   }
 
   const MatrixOperation& Op(int child_index) const {
-    assert(0 <= child_index && child_index < num_ops_);
+    assert(0 <= child_index && child_index < ops_.size());
     return ops_[child_index];
   }
 
   MatrixOperation& Op(int child_index) {
-    assert(0 <= child_index && child_index < num_ops_);
+    assert(0 <= child_index && child_index < ops_.size());
     return ops_[child_index];
   }
 
   const mathfu::mat4& result_matrix() const { return result_matrix_; }
-  int num_ops() const { return num_ops_; }
-
-  static MatrixData* Create(const MatrixInit& init, MotiveEngine* engine) {
-    // Allocate a buffer that is big enough to hold MatrixData.
-    static const int kAlign = 16;
-    const std::vector<MatrixOperationInit>& ops = init.ops();
-    const int num_ops = static_cast<int>(ops.size());
-    // Round up size to the next multiple of 16 to match minimum alignment.
-    const size_t size = ((SizeOfClass(num_ops) + kAlign - 1) / kAlign) * kAlign;
-    uint8_t* buffer = (uint8_t*)AlignedAlloc(size, kAlign);
-    MatrixData* d = new (buffer) MatrixData();
-    d->result_matrix_ = mathfu::mat4::Identity();
-    d->num_ops_ = num_ops;
-    for (int i = 0; i < num_ops; ++i) {
-      new (&d->ops_[i]) MatrixOperation(ops[i], engine);
-    }
-    return d;
-  }
-
-  static void Destroy(MatrixData* d) {
-    // Explicitly delete MatrixData the same way it was allocated.
-    for (int i = 0; i < d->num_ops_; ++i) {
-      d->ops_[i].~MatrixOperation();
-    }
-    d->~MatrixData();
-    AlignedFree(d);
-  }
+  int num_ops() const { return ops_.size(); }
 
  private:
-  static size_t SizeOfClass(int num_ops) {
-    return sizeof(MatrixData) +
-           sizeof(MatrixOperation) * std::max(0, num_ops - 1);
-  }
-
   /// Result of the most recent matrix update.
   mathfu::mat4 result_matrix_;
 
-  /// Length of the `ops_` array below, which extends past the end of the
-  /// defined class.
-  int num_ops_;
-
-  /// Matrix operations to perform. Of length `num_ops_`. Class is initialized
-  /// in a chunk of memory that is big enough to hold
-  /// ops_[0] .. ops_[num_ops_ - 1]
-  MatrixOperation ops_[1];
+  /// Matrix operations to perform.
+  std::vector<MatrixOperation> ops_;
 };
 
 }  // namespace motive
