@@ -35,6 +35,7 @@ namespace motive {
 typedef uint8_t MatrixOpId;
 static const MatrixOpId kMaxMatrixOpId = 254;
 static const MatrixOpId kInvalidMatrixOpId = 255;
+static const float kEpsilon = 0.001f;
 
 enum MatrixOperationType {
   kInvalidMatrixOperation,
@@ -50,6 +51,12 @@ enum MatrixOperationType {
   kScaleUniformly,
   kNumMatrixOperationTypes
 };
+
+/// Returns true if two values are nearly equal based on a given precision.
+inline bool NearlyEqual(float a, float b, float precision) {
+  const float diff = a - b;
+  return -precision <= diff && diff <= precision;
+}
 
 /// Returns true if the operation is a rotate.
 inline bool RotateOp(MatrixOperationType op) {
@@ -151,31 +158,39 @@ class MatrixOperation {
  public:
   MatrixOperation() {
     SetType(kInvalidMatrixOperation);
-    SetAnimationType(kInvalidAnimationType);
   }
 
   MatrixOperation(const MatrixOperationInit& init, MotiveEngine* engine) {
-    const AnimationType animation_type =
-        init.init == nullptr ? kConstValueAnimation : kMotivatorAnimation;
     SetId(init.id);
     SetType(init.type);
-    SetAnimationType(animation_type);
 
-    // Manually construct the motivator in the union's memory buffer.
-    if (animation_type == kMotivatorAnimation) {
-      new (value_.motivator_memory) Motivator1f(*init.init, engine);
+    // Only create a Motivator if an initializer struct is present.
+    if (init.init != nullptr) {
+      motivator_ = Motivator1f(*init.init, engine);
+      // Initialize the spline so BlendToOp() can safely check Value() and
+      // Velocity() for uninitialized splines.
+      motivator_.SetTarget(Current1f(OperationDefaultValue(Type())));
     }
+    const_value_ = 0.f;
 
     // Initialize the value. For defining animations, init.union_type will
     // be kUnionEmpty, so this will not set up any splines.
-    BlendToOp(init, motive::SplinePlayback());
+    BlendToOp(init, motive::SplinePlayback(), engine);
   }
 
-  ~MatrixOperation() {
-    // Manually call the Motivator destructor, since the union hides it.
-    if (animation_type_ == kMotivatorAnimation) {
-      Motivator().~Motivator1f();
+  MatrixOperation(MatrixOperation&& rhs) noexcept {
+    *this = std::move(rhs);
+    rhs.SetType(kInvalidMatrixOperation);
+  }
+
+  MatrixOperation& operator=(MatrixOperation&& rhs) noexcept {
+    if (this != &rhs) {
+      SetId(rhs.Id());
+      SetType(rhs.Type());
+      motivator_ = std::move(rhs.motivator_);
+      const_value_ = rhs.const_value_;
     }
+    return *this;
   }
 
   // Return the id identifying the operation between animations.
@@ -188,8 +203,7 @@ class MatrixOperation {
 
   // Return the value we are animating.
   float Value() const {
-    return animation_type_ == kMotivatorAnimation ? Motivator().Value()
-                                                  : value_.const_value;
+    return motivator_.Valid() ? motivator_.Value() : const_value_;
   }
 
   // Return true if we can blend to `op`.
@@ -199,59 +213,63 @@ class MatrixOperation {
 
   // Return the child motivator if it is valid. Otherwise, return nullptr.
   Motivator1f* ValueMotivator() {
-    return animation_type_ == kMotivatorAnimation ? &Motivator() : nullptr;
+    return motivator_.Valid() ? &motivator_ : nullptr;
   }
 
   const Motivator1f* ValueMotivator() const {
-    return animation_type_ == kMotivatorAnimation ? &Motivator() : nullptr;
+    return motivator_.Valid() ? &motivator_ : nullptr;
   }
 
-  void SetTarget1f(const MotiveTarget1f& t) { Motivator().SetTarget(t); }
+  void SetTarget1f(const MotiveTarget1f& t) {
+    assert(motivator_.Valid());
+    motivator_.SetTarget(t);
+  }
+
   void SetValue1f(float value) {
-    assert(animation_type_ == kConstValueAnimation &&
+    assert(!motivator_.Valid() &&
            (!RotateOp(Type()) || Angle::IsAngleInRange(value)));
-    value_.const_value = value;
+    const_value_ = value;
   }
 
   void BlendToOp(const MatrixOperationInit& init,
-                 const motive::SplinePlayback& playback) {
-    switch (animation_type_) {
-      case kMotivatorAnimation: {
-        Motivator1f& motivator = Motivator();
+                 const motive::SplinePlayback& playback, MotiveEngine* engine) {
+    switch (init.union_type) {
+      case MatrixOperationInit::kUnionEmpty:
+        break;
 
-        // Initialize the state if required.
-        switch (init.union_type) {
-          case MatrixOperationInit::kUnionEmpty:
-            break;
-
-          case MatrixOperationInit::kUnionInitialValue:
-            motivator.SetTarget(
-                Target1f(init.initial_value, 0.0f,
-                         static_cast<MotiveTime>(playback.blend_x)));
-            break;
-
-          case MatrixOperationInit::kUnionTarget:
-            motivator.SetTarget(*init.target);
-            break;
-
-          case MatrixOperationInit::kUnionSpline:
-            motivator.SetSpline(*init.spline, playback);
-            break;
-
-          default:
-            assert(false);
+      case MatrixOperationInit::kUnionInitialValue:
+        // Blending constant to constant happens immediately. Blending a spline
+        // already at the correct constant and with 0 velocity transforms this
+        // op into a constant. In other cases, set a new target.
+        if (!motivator_.Valid()) {
+          const_value_ = init.initial_value;
+        } else if (NearlyEqual(motivator_.Value(), init.initial_value, kEpsilon)
+                   && NearlyEqual(motivator_.Velocity(), 0.f, kEpsilon)) {
+          motivator_.Invalidate();
+          const_value_ = init.initial_value;
+        } else {
+          motivator_.SetTarget(
+              Target1f(init.initial_value, 0.0f,
+                       static_cast<MotiveTime>(playback.blend_x)));
         }
         break;
-      }
 
-      case kConstValueAnimation:
-        // If this value is not driven by an motivator, it must have a constant
-        // value.
-        assert(init.union_type == MatrixOperationInit::kUnionInitialValue);
+      case MatrixOperationInit::kUnionTarget:
+        // Re-initialize the Motivator at the current constant if necessary.
+        if (!motivator_.Valid()) {
+          motivator_ = Motivator1f(*init.init, engine);
+          motivator_.SetTarget(Current1f(const_value_));
+        }
+        motivator_.SetTarget(*init.target);
+        break;
 
-        // Record the const value into the union. There is no blending for
-        // constant values.
-        value_.const_value = init.initial_value;
+      case MatrixOperationInit::kUnionSpline:
+        // Re-initialize the Motivator at the current constant if necessary.
+        if (!motivator_.Valid()) {
+          motivator_ = Motivator1f(*init.init, engine);
+          motivator_.SetTarget(Current1f(const_value_));
+        }
+        motivator_.SetSpline(*init.spline, playback);
         break;
 
       default:
@@ -260,29 +278,25 @@ class MatrixOperation {
   }
 
   void BlendToDefault(MotiveTime blend_time) {
-    // Don't touch const value ones. Their default value is their const value.
-    if (animation_type_ == kConstValueAnimation) return;
-    assert(animation_type_ == kMotivatorAnimation);
+    if (!motivator_.Valid()) return;
 
     // Create spline that eases out to the default_value.
-    Motivator1f& motivator = Motivator();
     const float default_value = OperationDefaultValue(Type());
     const MotiveTarget1f target =
         blend_time == 0 ? Current1f(default_value)
                         : Target1f(default_value, 0.0f, blend_time);
-    motivator.SetTarget(target);
+    motivator_.SetTarget(target);
   }
 
   void SetPlaybackRate(float playback_rate) {
-    if (animation_type_ == kConstValueAnimation) return;
-    assert(animation_type_ == kMotivatorAnimation);
-    Motivator().SetSplinePlaybackRate(playback_rate);
+    if (!motivator_.Valid()) return;
+    motivator_.SetSplinePlaybackRate(playback_rate);
   }
 
   MotiveTime TimeRemaining() const {
-    if (animation_type_ == kMotivatorAnimation) {
+    if (motivator_.Valid()) {
       // Return the time time to reach the target for the motivator.
-      return Motivator().TargetTime();
+      return motivator_.TargetTime();
     } else {
       // Constant animations are always at the "end" of their animation.
       return 0;
@@ -368,14 +382,7 @@ class MatrixOperation {
   }
 
  private:
-  enum AnimationType {
-    kInvalidAnimationType,
-    kMotivatorAnimation,
-    kConstValueAnimation
-  };
-
-  // Disable copies so we don't have to worry about copying the Motivator1f in
-  // the union.
+  // Disable copies so we don't have to worry about copying the Motivator1f.
   MatrixOperation(const MatrixOperation& rhs);
   MatrixOperation& operator=(const MatrixOperation& rhs);
 
@@ -392,15 +399,6 @@ class MatrixOperation {
     *column1 = c * c1 - s * c0;
   }
 
-  // Motivator1f has non-trivial constructors, destructors, and copy operators,
-  // so we don't use it in the union. C++11 supports these kinds of unions,
-  // but not all compilers (notably, Visual Studio) have complex union support
-  // yet.
-  union AnimatedValue {
-    uint8_t motivator_memory[sizeof(Motivator1f)];
-    float const_value;
-  };
-
   void SetId(MatrixOpId id) {
     assert(id <= kMaxMatrixOpId);
     matrix_operation_id_ = id;
@@ -408,20 +406,6 @@ class MatrixOperation {
 
   void SetType(MatrixOperationType type) {
     matrix_operation_type_ = static_cast<uint8_t>(type);
-  }
-
-  void SetAnimationType(AnimationType animation_type) {
-    animation_type_ = static_cast<uint8_t>(animation_type);
-  }
-
-  Motivator1f& Motivator() {
-    assert(animation_type_ == kMotivatorAnimation);
-    return *reinterpret_cast<Motivator1f*>(value_.motivator_memory);
-  }
-
-  const Motivator1f& Motivator() const {
-    assert(animation_type_ == kMotivatorAnimation);
-    return *reinterpret_cast<const Motivator1f*>(value_.motivator_memory);
   }
 
   // Identify an operation so that it can be matched across different
@@ -432,13 +416,11 @@ class MatrixOperation {
   // The matrix operation that we're performing.
   uint8_t matrix_operation_type_;
 
-  // Enum AnimationType compressed to 8-bits to save memory.
-  // The union parameter in 'value_' that is currently valid.
-  uint8_t animation_type_;
+  // Motivator for the value being animated.
+  Motivator1f motivator_;
 
-  // The value being animated. Union because value can come from several
-  // sources. The currently valid union member is specified by animation_type_.
-  AnimatedValue value_;
+  // Constant value override when `motivator_` is invalid.
+  float const_value_;
 };
 
 }  // namespace motive

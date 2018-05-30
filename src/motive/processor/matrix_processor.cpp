@@ -25,7 +25,7 @@ namespace motive {
 // See comments on MatrixInit for details on this class.
 class MatrixMotiveProcessor : public MatrixProcessor4f {
  public:
-  MatrixMotiveProcessor() : time_(0) {}
+  MatrixMotiveProcessor() : time_(0), engine_(nullptr) {}
 
   virtual ~MatrixMotiveProcessor() {
     RemoveIndices(0, NumIndices());
@@ -87,7 +87,8 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
   virtual void BlendToOps(MotiveIndex index,
                           const std::vector<MatrixOperationInit>& ops,
                           const motive::SplinePlayback& playback) {
-    Data(index).BlendToOps(ops, playback);
+    assert(engine_);
+    Data(index).BlendToOps(ops, playback, engine_);
   }
 
   virtual void SetPlaybackRate(MotiveIndex index, float playback_rate) {
@@ -106,20 +107,21 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
   virtual void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
                                  MotiveDimension dimensions,
                                  MotiveEngine* engine) {
+    // Hold onto the engine for use in BlendToOps().
+    engine_ = engine;
     RemoveIndices(index, dimensions);
 
     // TODO OPT: Create only one MatrixData that holds `dimensions` matrices,
     //           so that we can process in bulk.
     auto init_params = static_cast<const MatrixInit&>(init);
     for (MotiveIndex i = index; i < index + dimensions; ++i) {
-      data_[i] = MatrixData::Create(init_params, engine);
+      data_[i] =
+          std::unique_ptr<MatrixData>(new MatrixData(init_params, engine));
     }
   }
 
   virtual void RemoveIndices(MotiveIndex index, MotiveDimension dimensions) {
     for (MotiveIndex i = index; i < index + dimensions; ++i) {
-      if (data_[i] == nullptr) continue;
-      MatrixData::Destroy(data_[i]);
       data_[i] = nullptr;
     }
   }
@@ -129,8 +131,9 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
     MotiveIndex old_i = old_index;
     MotiveIndex new_i = new_index;
     for (MotiveDimension i = 0; i < dimensions; ++i, ++new_i, ++old_i) {
-      data_[new_i] = data_[old_i];
-      data_[old_i] = nullptr;
+      using std::swap;
+      swap(data_[new_i], data_[old_i]);
+      data_[old_i].reset();
     }
   }
 
@@ -142,7 +145,7 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
     }
 
     // Initialize new items to nullptr.
-    data_.resize(num_indices, nullptr);
+    data_.resize(num_indices);
   }
 
   const MatrixData& Data(MotiveIndex index) const {
@@ -155,8 +158,9 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
     return *data_[index];
   }
 
-  std::vector<MatrixData*> data_;
+  std::vector<std::unique_ptr<MatrixData>> data_;
   MotiveTime time_;
+  MotiveEngine* engine_;
 };
 
 MOTIVE_INSTANCE(MatrixInit, MatrixMotiveProcessor);
