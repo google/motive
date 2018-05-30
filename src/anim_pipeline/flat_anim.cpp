@@ -20,7 +20,7 @@ void FlatAnim::LogChannel(FlatChannelId channel_id) const {
 void FlatAnim::LogAllChannels() const {
   log_.Log(fplutil::kLogInfo, "  %30s %16s  %9s   %s\n", "bone name",
            "operation", "time range", "values");
-  for (BoneIndex bone_idx = 0; bone_idx < bones_.size(); ++bone_idx) {
+  for (size_t bone_idx = 0; bone_idx < bones_.size(); ++bone_idx) {
     const Bone& bone = bones_[bone_idx];
     const Channels& channels = bone.channels;
     if (channels.size() == 0) continue;
@@ -96,6 +96,12 @@ bool FlatAnim::OutputFlatBuffer(const std::string& suggested_output_file,
 int FlatAnim::CreateFlatBuffer(flatbuffers::FlatBufferBuilder& fbb,
                                RepeatPreference repeat_preference,
                                const std::string& anim_name) const {
+  if (bones_.size() > kMaxNumBones) {
+    log_.Log(fplutil::kLogError, "Too many bones: %d. Limit of %d.\n",
+             bones_.size(), kMaxNumBones);
+    return 0;
+  }
+
   const BoneIndex num_bones = static_cast<BoneIndex>(bones_.size());
 
   // Output entire bone range into one RigAnim.
@@ -263,9 +269,9 @@ CompactSpline* FlatAnim::CreateCompactSpline(const Channel& ch) {
   float last_time = -std::numeric_limits<float>::max();
   for (auto n = nodes.begin(); n != nodes.end(); ++n) {
     const float n_time = static_cast<float>(std::max(0, n->time));
-    // Exclude any non-increasing time values, as these may produce
-    // zero-length spans at evaluation time and lead to division by zero.
-    if (n_time > last_time) {
+    // Exclude any decreasing time values, as these may produce inconsistent
+    // spans at evaluation time and lead to errors.
+    if (n_time >= last_time) {
       s->AddNode(n_time, n->val, n->derivative, kAddWithoutModification);
       last_time = n_time;
     }

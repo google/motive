@@ -304,11 +304,11 @@ void CubicCurve::Init(const CubicInit& init) {
   //               dw^3 = -2*y1 + w*s1 + s0*w + 2*y0
   //               dw^3 = 2(y0 - y1) + w*(s1 + s0)
   //                  d = (2/w^3)*(y0 - y1) + (1/w^2)*(s1 + s0)
-  const float one_over_w = 1.0f / init.width_x;
+  const float one_over_w = init.width_x > 0.f ? (1.0f / init.width_x) : 1.f;
   const float one_over_w_sq = one_over_w * one_over_w;
   const float one_over_w_cubed = one_over_w_sq * one_over_w;
   c_[0] = init.start_y;
-  c_[1] = init.start_derivative;
+  c_[1] = init.width_x > 0.f ? init.start_derivative : 0.f;
   c_[2] = 3.0f * one_over_w_sq * (init.end_y - init.start_y) -
           one_over_w * (init.end_derivative + 2.0f * init.start_derivative);
   c_[3] = 2.0f * one_over_w_cubed * (init.start_y - init.end_y) +
