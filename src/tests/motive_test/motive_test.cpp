@@ -589,31 +589,31 @@ void Defragment(MotiveTests& t) {
 }
 TEST_ALL_VECTOR_MOTIVATORS_F(Defragment)
 
-// Move a valid motivator. Ensure original motivator gets invalidated.
+// Copy a valid motivator. Ensure original motivator gets invalidated.
 template <class MotivatorT>
-void MoveConstructor(MotiveTests& t) {
+void CopyConstructor(MotiveTests& t) {
   MotivatorT orig_motivator;
   t.InitOvershootMotivator(&orig_motivator);
   EXPECT_TRUE(orig_motivator.Valid());
   const typename MotivatorT::Vec value = orig_motivator.Value();
 
-  MotivatorT new_motivator(std::move(orig_motivator));
+  MotivatorT new_motivator(orig_motivator);
   EXPECT_FALSE(orig_motivator.Valid());
   EXPECT_TRUE(new_motivator.Valid());
   EXPECT_TRUE(VectorEqual(new_motivator.Value(), value));
 }
-TEST_ALL_VECTOR_MOTIVATORS_F(MoveConstructor)
+TEST_ALL_VECTOR_MOTIVATORS_F(CopyConstructor)
 
-// Move an invalid motivator.
+// Copy an invalid motivator.
 template <class MotivatorT>
-void MoveConstructorInvalid(MotiveTests& /*t*/) {
+void CopyConstructorInvalid(MotiveTests& /*t*/) {
   MotivatorT invalid_motivator;
   EXPECT_FALSE(invalid_motivator.Valid());
 
-  MotivatorT copy_of_invalid(std::move(invalid_motivator));
+  MotivatorT copy_of_invalid(invalid_motivator);
   EXPECT_FALSE(copy_of_invalid.Valid());
 }
-TEST_ALL_VECTOR_MOTIVATORS_F(MoveConstructorInvalid)
+TEST_ALL_VECTOR_MOTIVATORS_F(CopyConstructorInvalid)
 
 // Test operator=() of an invalid motivator to another invalid motivator.
 template <class MotivatorT>
@@ -623,7 +623,7 @@ void AssignmentOperatorInvalidToInvalid(MotiveTests& /*t*/) {
   EXPECT_FALSE(orig_motivator.Valid());
   EXPECT_FALSE(new_motivator.Valid());
 
-  new_motivator = std::move(orig_motivator);
+  new_motivator = orig_motivator;
   EXPECT_FALSE(orig_motivator.Valid());
   EXPECT_FALSE(new_motivator.Valid());
 }
@@ -638,7 +638,7 @@ void AssignmentOperatorValidToInvalid(MotiveTests& t) {
   const typename MotivatorT::Vec value = orig_motivator.Value();
 
   MotivatorT new_motivator;
-  new_motivator = std::move(orig_motivator);
+  new_motivator = orig_motivator;
   EXPECT_FALSE(orig_motivator.Valid());
   EXPECT_TRUE(new_motivator.Valid());
   EXPECT_TRUE(VectorEqual(new_motivator.Value(), value));
@@ -654,7 +654,7 @@ void AssignmentOperatorInvalidToValid(MotiveTests& t) {
   MotivatorT new_motivator;
   t.InitOvershootMotivator(&new_motivator);
 
-  new_motivator = std::move(orig_motivator);
+  new_motivator = orig_motivator;
 
   EXPECT_FALSE(orig_motivator.Valid());
   EXPECT_FALSE(new_motivator.Valid());
@@ -681,7 +681,7 @@ void AssignmentOperatorValidToValid(MotiveTests& t) {
   // Give orig and new different values.
   EXPECT_FALSE(VectorEqual(new_value, orig_value));
 
-  new_motivator = std::move(orig_motivator);
+  new_motivator = orig_motivator;
 
   // After the assignment, new should have the orig value.
   EXPECT_FALSE(orig_motivator.Valid());
