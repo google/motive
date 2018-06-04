@@ -278,14 +278,17 @@ class MatrixOperation {
   }
 
   void BlendToDefault(MotiveTime blend_time) {
-    if (!motivator_.Valid()) return;
-
-    // Create spline that eases out to the default_value.
     const float default_value = OperationDefaultValue(Type());
-    const MotiveTarget1f target =
-        blend_time == 0 ? Current1f(default_value)
-                        : Target1f(default_value, 0.0f, blend_time);
-    motivator_.SetTarget(target);
+    if (!motivator_.Valid()) {
+      // Snap to the default_value.
+      const_value_ = default_value;
+    } else {
+      // Create spline that eases out to the default_value.
+      const MotiveTarget1f target =
+          blend_time == 0 ? Current1f(default_value)
+                          : Target1f(default_value, 0.0f, blend_time);
+      motivator_.SetTarget(target);
+    }
   }
 
   void SetPlaybackRate(float playback_rate) {
