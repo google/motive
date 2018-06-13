@@ -164,14 +164,15 @@ class MatrixOperation {
     SetId(init.id);
     SetType(init.type);
 
+    const_value_ = OperationDefaultValue(Type());
+
     // Only create a Motivator if an initializer struct is present.
     if (init.init != nullptr) {
       motivator_ = Motivator1f(*init.init, engine);
       // Initialize the spline so BlendToOp() can safely check Value() and
       // Velocity() for uninitialized splines.
-      motivator_.SetTarget(Current1f(OperationDefaultValue(Type())));
+      motivator_.SetTarget(Current1f(const_value_));
     }
-    const_value_ = 0.f;
 
     // Initialize the value. For defining animations, init.union_type will
     // be kUnionEmpty, so this will not set up any splines.
