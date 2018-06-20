@@ -371,6 +371,10 @@ class FbxAnimParser {
           fabs(value - first_value) > tolerance)
         return false;
     }
+
+    // Sanity check the output value - some binary FBX files don't give
+    // proper return values from GetChannelValue().
+    *const_value = first_value;
     return true;
   }
 
