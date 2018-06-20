@@ -28,14 +28,22 @@ namespace motive {
 // Hold a series of matrix operations, and their resultant matrix.
 class MatrixData {
  public:
-  MatrixData(const MatrixInit& init, MotiveEngine* engine)
-      : result_matrix_(mathfu::mat4::Identity()) {
+  MatrixData() : result_matrix_(mathfu::mat4::Identity()), ops_(0) {}
+  MatrixData(MatrixData&& rhs) = default;
+  MatrixData& operator=(MatrixData&& rhs) = default;
+
+  void Initialize(const MatrixInit& init, MotiveEngine* engine) {
     const std::vector<MatrixOperationInit>& ops = init.ops();
     int num_ops = static_cast<int>(ops.size());
     ops_.reserve(num_ops);
     for (int i = 0; i < num_ops; ++i) {
       ops_.emplace_back(ops[i], engine);
     }
+  }
+
+  void Reset() {
+    result_matrix_ = mathfu::mat4::Identity();
+    ops_.resize(0);
   }
 
   void UpdateResultMatrix() {

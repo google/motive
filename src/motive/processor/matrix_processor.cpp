@@ -115,14 +115,16 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
     //           so that we can process in bulk.
     auto init_params = static_cast<const MatrixInit&>(init);
     for (MotiveIndex i = index; i < index + dimensions; ++i) {
-      data_[i] =
-          std::unique_ptr<MatrixData>(new MatrixData(init_params, engine));
+      data_[i].Initialize(init_params, engine);
     }
   }
 
   virtual void RemoveIndices(MotiveIndex index, MotiveDimension dimensions) {
+    // Callers depend on indices staying consistent between calls to this
+    // function, so just reset the MatrixData states to empty instead of erasing
+    // them.
     for (MotiveIndex i = index; i < index + dimensions; ++i) {
-      data_[i] = nullptr;
+      data_[i].Reset();
     }
   }
 
@@ -133,7 +135,6 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
     for (MotiveDimension i = 0; i < dimensions; ++i, ++new_i, ++old_i) {
       using std::swap;
       swap(data_[new_i], data_[old_i]);
-      data_[old_i].reset();
     }
   }
 
@@ -144,21 +145,21 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
       RemoveIndices(num_indices, old_num_indices - num_indices);
     }
 
-    // Initialize new items to nullptr.
+    // Default-inserts new empty MatrixDatas.
     data_.resize(num_indices);
   }
 
   const MatrixData& Data(MotiveIndex index) const {
     assert(ValidIndex(index));
-    return *data_[index];
+    return data_[index];
   }
 
   MatrixData& Data(MotiveIndex index) {
     assert(ValidIndex(index));
-    return *data_[index];
+    return data_[index];
   }
 
-  std::vector<std::unique_ptr<MatrixData>> data_;
+  std::vector<MatrixData> data_;
   MotiveTime time_;
   MotiveEngine* engine_;
 };
