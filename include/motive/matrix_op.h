@@ -313,11 +313,22 @@ class MatrixOperation {
   // fast).
   static mathfu::mat4 CalculateResultMatrix(const MatrixOperation* ops,
                                             size_t num_ops) {
+    return CalculateResultMatrix(ops, num_ops, nullptr);
+  }
+
+  // Execute the series of basic matrix operations in 'ops_' and returns the
+  // scale of the matrix in `out_scale`.
+  static mathfu::mat4 CalculateResultMatrix(const MatrixOperation* ops,
+                                            size_t num_ops,
+                                            mathfu::vec3* out_scale) {
     // Start with the identity matrix.
     mathfu::vec4 c0 = mathfu::kAxisX4f;
     mathfu::vec4 c1 = mathfu::kAxisY4f;
     mathfu::vec4 c2 = mathfu::kAxisZ4f;
     mathfu::vec4 c3 = mathfu::kAxisW4f;
+
+    // Normalize the out_scale.
+    if (out_scale) *out_scale = mathfu::kOnes3f;
 
     for (size_t i = 0; i < num_ops; ++i) {
       const MatrixOperation& op = ops[i];
@@ -362,20 +373,24 @@ class MatrixOperation {
         // ( |  |  |  |)(0  0  0  1)   ( |   |   |   |)
         case kScaleX:
           c0 *= value;
+          if (out_scale) out_scale->x *= value;
           break;
 
         case kScaleY:
           c1 *= value;
+          if (out_scale) out_scale->y *= value;
           break;
 
         case kScaleZ:
           c2 *= value;
+          if (out_scale) out_scale->z *= value;
           break;
 
         case kScaleUniformly:
           c0 *= value;
           c1 *= value;
           c2 *= value;
+          if (out_scale) *out_scale *= value;
           break;
 
         default:

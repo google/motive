@@ -53,6 +53,17 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
     return Data(index).result_matrix();
   }
 
+  virtual void Value(MotiveIndex index, mathfu::vec3* translation,
+                     mathfu::vec4* rotation, mathfu::vec3* scale) const {
+    const MatrixData& data = Data(index);
+    *translation = data.result_translation();
+    *scale = data.result_scale();
+
+    // Pack the quaternion into a vec4 to accomadate Motivator's API.
+    const mathfu::quat quat = data.result_rotation();
+    *rotation = mathfu::vec4(quat.vector(), quat.scalar());
+  }
+
   virtual int NumChildren(MotiveIndex index) const {
     return Data(index).num_ops();
   }

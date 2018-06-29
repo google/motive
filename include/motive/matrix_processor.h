@@ -28,6 +28,11 @@ class MatrixProcessor4f : public MotiveProcessor {
   /// Get the current matrix value from the processor.
   virtual const mathfu::mat4& Value(MotiveIndex index) const = 0;
 
+  /// Get the current matrix value from the processor in the form of a
+  /// translation, rotation, and scale.
+  virtual void Value(MotiveIndex index, mathfu::vec3* translation,
+                     mathfu::vec4* rotation, mathfu::vec3* scale) const = 0;
+
   /// Get the number of matrix operations performed by this motivator.
   virtual int NumChildren(MotiveIndex index) const = 0;
 

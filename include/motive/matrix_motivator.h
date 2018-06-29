@@ -39,6 +39,7 @@ class MatrixMotivator4fTemplate : public Motivator {
   typedef VectorConverter C;
   typedef typename VectorConverter::Matrix4 Mat4;
   typedef typename VectorConverter::Vector3 Vec3;
+  typedef typename VectorConverter::Vector4 Vec4;
   typedef MotivatorXfTemplate<C, 1> Mot1f;
 
   MatrixMotivator4fTemplate() {}
@@ -57,6 +58,13 @@ class MatrixMotivator4fTemplate : public Motivator {
     // TODO: Return by value here. Necessary for matrix formats that are not
     //       byte-wise compatible. For example, row-major matrices.
     return reinterpret_cast<const Mat4&>(Processor().Value(index_));
+  }
+
+  /// Return the current value of the Motivator decomposed into a translation,
+  /// rotation quaternion, and scale. The quaternion is packed into a Vec4 with
+  /// the vector component in rotation.xyz and vector component in rotation.w.
+  void Value(Vec3* translation, Vec4* rotation, Vec3* scale) const {
+    Processor().Value(index_, translation, rotation, scale);
   }
 
   /// Return the translation component of the matrix.

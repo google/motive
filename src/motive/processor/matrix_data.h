@@ -47,8 +47,8 @@ class MatrixData {
   }
 
   void UpdateResultMatrix() {
-    result_matrix_ =
-        MatrixOperation::CalculateResultMatrix(ops_.data(), ops_.size());
+    result_matrix_ = MatrixOperation::CalculateResultMatrix(
+        ops_.data(), ops_.size(), &scale_);
   }
 
   void BlendToOps(const std::vector<MatrixOperationInit>& new_ops,
@@ -126,11 +126,35 @@ class MatrixData {
   }
 
   const mathfu::mat4& result_matrix() const { return result_matrix_; }
+
+  mathfu::vec3 result_translation() const {
+    return result_matrix_.TranslationVector3D();
+  }
+
+  mathfu::quat result_rotation() const {
+    // Extract the rotation matrix from the upper-left 3x3 of the result matrix
+    // and remove the pre-computed scale from it.
+    const mathfu::vec3 inv_scale = mathfu::kOnes3f / scale_;
+    const mathfu::mat3 rot(
+        result_matrix_(0, 0) * inv_scale.x, result_matrix_(1, 0) * inv_scale.x,
+        result_matrix_(2, 0) * inv_scale.x, result_matrix_(0, 1) * inv_scale.y,
+        result_matrix_(1, 1) * inv_scale.y, result_matrix_(2, 1) * inv_scale.y,
+        result_matrix_(0, 2) * inv_scale.z, result_matrix_(1, 2) * inv_scale.z,
+        result_matrix_(2, 2) * inv_scale.z);
+    return mathfu::quat::FromMatrix(rot);
+  }
+
+  mathfu::vec3 result_scale() const { return scale_; }
+
   int num_ops() const { return ops_.size(); }
 
  private:
   /// Result of the most recent matrix update.
   mathfu::mat4 result_matrix_;
+
+  // The pre-extracted scale components to make result_rotation() and
+  // result_scale() faster.
+  mathfu::vec3 scale_;
 
   /// Matrix operations to perform.
   std::vector<MatrixOperation> ops_;
