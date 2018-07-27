@@ -55,8 +55,24 @@ class MotiveRigProcessor : public RigProcessor {
     Data(index).BlendToAnim(anim, playback, time_);
   }
 
+  void BlendToAnims(MotiveIndex index, const RigAnim** anims,
+                    const SplinePlayback** playbacks, const float* weights,
+                    int count) override {
+    assert(engine_);
+    Data(index).BlendToAnims(anims, playbacks, weights, count, engine_, time_);
+  }
+
   void SetPlaybackRate(MotiveIndex index, float playback_rate) override {
     Data(index).SetPlaybackRate(playback_rate);
+  }
+
+  void SetPlaybackRates(MotiveIndex index, const float* playback_rates,
+                        int count) {
+    Data(index).SetPlaybackRates(playback_rates, count);
+  }
+
+  void SetWeights(MotiveIndex index, const float* weights, int count) {
+    Data(index).SetWeights(weights, count);
   }
 
   MotivatorType Type() const override { return RigInit::kType; }
@@ -69,6 +85,11 @@ class MotiveRigProcessor : public RigProcessor {
 
   MotiveTime TimeRemaining(MotiveIndex index) const override {
     return Data(index).TimeRemaining();
+  }
+
+  MotiveTime ChildTimeRemaining(MotiveIndex index,
+                                MotiveIndex child_index) const override {
+    return Data(index).ChildTimeRemaining(child_index);
   }
 
   const RigAnim* DefiningAnim(MotiveIndex index) const override {
@@ -100,6 +121,8 @@ class MotiveRigProcessor : public RigProcessor {
   void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
                          MotiveDimension dimensions,
                          MotiveEngine* engine) override {
+    // Hold onto the engine for use in BlendToAnims().
+    engine_ = engine;
     RemoveIndices(index, dimensions);
     auto rig_init = static_cast<const RigInit&>(init);
     for (MotiveIndex i = index; i < index + dimensions; ++i) {
@@ -148,6 +171,7 @@ class MotiveRigProcessor : public RigProcessor {
 
   std::vector<RigData*> data_;
   MotiveTime time_;
+  MotiveEngine* engine_;
 };
 
 MOTIVE_INSTANCE(RigInit, MotiveRigProcessor);

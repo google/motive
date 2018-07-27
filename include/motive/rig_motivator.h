@@ -36,15 +36,40 @@ class RigMotivator : public Motivator {
   }
 
   /// Blend from the current state to the animation specified in `anim`.
-  /// Blend time is specified in `anim` itself.
-  /// If the current state is unspecified because no animation
-  /// has yet been played, snap to `anim`.
+  /// Blend time and playback parameters are specified in `playback`.
+  /// If the current state is unspecified because no animation has yet been
+  /// played, snap to `anim`.
   void BlendToAnim(const RigAnim& anim, const SplinePlayback& playback) {
     Processor().BlendToAnim(index_, anim, playback);
   }
 
+  /// Blend from the current state to the animations specified in `anims`,
+  /// blending them according to `weights`. Blend time and playback parameters
+  /// for each animation are specified in `playbacks`. All arguments must
+  /// contain at least `count` elements.
+  /// If the current state is unspecified because no animation has yet been
+  /// played, snap to `anims`.
+  void BlendToAnims(const RigAnim** anims, const SplinePlayback** playbacks,
+                    const float* weights, int count) {
+    Processor().BlendToAnims(index_, anims, playbacks, weights, count);
+  }
+
+  /// Instantly change the playback speed of this animation. If multiple
+  /// animations are running, changes the playback speed for all of them.
   void SetPlaybackRate(float playback_rate) {
     Processor().SetPlaybackRate(index_, playback_rate);
+  }
+
+  /// Instantly change the playback speed of individual animations. If there
+  /// are more animations than `count`, their playback speeds remain unchanged.
+  void SetPlaybackRates(const float* playback_rates, int count) {
+    Processor().SetPlaybackRates(index_, playback_rates, count);
+  }
+
+  /// Instantly change the weight of individual animations. If there are more
+  /// animations than `count`, their weights are set to 0.
+  void SetWeights(const float* weights, int count) {
+    Processor().SetWeights(index_, weights, count);
   }
 
   /// Returns array of matricies: one for each bone position. The matrices are
@@ -58,8 +83,8 @@ class RigMotivator : public Motivator {
   /// bones and operations-on-those-bones that can be animated.
   ///
   /// Distinction,
-  /// Rig: defines the bone heirarchy.
-  /// Defining animation: defines the bone heirarchy + operations on each bone.
+  /// Rig: defines the bone hierarchy.
+  /// Defining animation: defines the bone hierarchy + operations on each bone.
   /// Operations-on-bone: one of MatrixOperationType, for example, a rotation
   ///     about the x-axis, or a translation along the y-axis. Animations are
   ///     composed of several such operations on each bone. Not every animation
@@ -71,9 +96,18 @@ class RigMotivator : public Motivator {
 
   const RigAnim* CurrentAnim() const { return Processor().CurrentAnim(index_); }
 
-  /// Return the time remaining in the current spline animation.
+  /// Return the time remaining in the current rig animation. If multiple
+  /// animations are playing, returns the maximum time remaining.
   /// Time units are defined by the user.
   MotiveTime TimeRemaining() const { return Processor().TimeRemaining(index_); }
+
+  /// Return the time remaining in the rig animation at `child_index` based on
+  /// the order animations were passed to BlendToAnims(). If `child_index` is
+  /// out of range, returns 0.
+  /// Time units are defined by the user.
+  MotiveTime ChildTimeRemaining(MotiveIndex child_index) const {
+    return Processor().ChildTimeRemaining(index_, child_index);
+  }
 
   std::string CsvHeaderForDebugging() const {
     return Processor().CsvHeaderForDebugging(index_);

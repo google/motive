@@ -57,8 +57,7 @@ class RigData {
     UpdateGlobalTransforms();
   }
 
-  ~RigData() {
-  }
+  ~RigData() {}
 
   void BlendToAnim(const RigAnim& anim, const motive::SplinePlayback& playback,
                    MotiveTime start_time) {
@@ -71,6 +70,14 @@ class RigData {
     assert(defining_num_bones == 1 || anim_num_bones == 1 ||
            RigInit::MatchesHierarchy(anim, *defining_anim_));
 
+    // TODO(b/111071408): instead of resizing back to a single animation, blend
+    // each of the current animations to the new animation and then try to
+    // collapse them when the transition is complete. For example, if A and B
+    // are running with weights of .3 and .7, blend both to C, then when the
+    // transition is complete, collapse .3C + .7C into just C.
+    weights_.resize(1, 1.f);
+    motivators_.resize(defining_num_bones);
+
     // Update the motivators to blend to our new values.
     for (BoneIndex i = 0; i < defining_num_bones; ++i) {
       const std::vector<MatrixOperationInit>& ops =
@@ -82,6 +89,79 @@ class RigData {
     current_anim_ = &anim;
   }
 
+  void BlendToAnims(const RigAnim** anims, const SplinePlayback** playbacks,
+                    const float* weights, int count, MotiveEngine* engine,
+                    MotiveTime start_time) {
+    const int old_count = weights_.size();
+    weights_.resize(count);
+
+    MotiveTime max_time = 0;
+    float total_weight = 0.f;
+    for (int i = 0; i < count; ++i) {
+      // Weights cannot be negative, but can be zero if the animation is
+      // temporarily inactive but may be active in the near future.
+      assert(weights[i] >= 0.f);
+      total_weight += weights[i];
+      max_time = std::max(max_time, anims[i]->end_time());
+    }
+    assert(total_weight > 0.f);
+    end_time_ = start_time + max_time;
+
+    // Allocate a MatrixMotivator per bone per animation.
+    // TODO(b/111071408): We may need to be more careful about which motivators
+    // might be removed when this array is resized in order to correctly handle
+    // complex blending.
+    const int defining_num_bones = NumBones();
+    motivators_.resize(defining_num_bones * count);
+
+    // Go through each of the new animations.
+    for (int i = 0; i < count; ++i) {
+      const RigAnim& anim = *anims[i];
+      const SplinePlayback& playback = *playbacks[i];
+      const int base_index = BaseBoneIndex(i);
+
+      // When the animation has only one bone or the mesh has only one bone, we
+      // simply animate the root node only. Otherwise, the rig hierarchies must
+      // match.
+      const int anim_num_bones = anim.NumBones();
+      assert(defining_num_bones == 1 || anim_num_bones == 1 ||
+             RigInit::MatchesHierarchy(anim, *defining_anim_));
+
+      // Set the weight.
+      weights_[i] = weights[i] / total_weight;
+
+      // Update all Motivators.
+      for (BoneIndex j = 0; j < defining_num_bones; ++j) {
+        const int index = base_index + j;
+
+        // TODO(b/111071408): if there's only 1 old animation, initialize the
+        // new motivators to that instead of the defining animation. Bonus:
+        // if there's more than 1 animation running, collapse them into a single
+        // animation, then initialize the new ones to that.
+
+        // If the Motivator was just created, initialize it to the defining
+        // animation (just like it would be for a single rig).
+        if (i >= old_count) {
+          const std::vector<MatrixOperationInit>& ops =
+              defining_anim_->Anim(j).ops();
+          motivators_[index].Initialize(MatrixInit(ops), engine);
+        }
+
+        // Blend the Motivator to its new animation.
+        const std::vector<MatrixOperationInit>& ops =
+            i >= anim_num_bones ? kEmptyOps : anim.Anim(j).ops();
+        motivators_[index].BlendToOps(ops, playback);
+      }
+    }
+
+    // TODO(b/111080871): decide if it's worth storing all of the animations.
+    // Arbitrarily remember the currently playing animation, for debugging
+    // purposes.
+    if (count > 0) {
+      current_anim_ = anims[0];
+    }
+  }
+
   const RigAnim* current_anim() const { return current_anim_; }
 
   void SetPlaybackRate(float playback_rate) {
@@ -90,6 +170,34 @@ class RigData {
     const int defining_num_bones = NumBones();
     for (BoneIndex i = 0; i < defining_num_bones; ++i) {
       motivators_[i].SetPlaybackRate(playback_rate);
+    }
+  }
+
+  void SetPlaybackRates(const float* playback_rates, int count) {
+    // Update the motivators to have the new playback rate.
+    const int defining_num_bones = NumBones();
+    for (int i = 0; i < count; ++i) {
+      const int base_index = BaseBoneIndex(i);
+      const float playback_rate = playback_rates[i];
+      for (BoneIndex j = 0; j < defining_num_bones; ++j) {
+        motivators_[base_index + j].SetPlaybackRate(playback_rate);
+      }
+    }
+  }
+
+  void SetWeights(const float* weights, int count) {
+    float total_weight = 0.f;
+    for (int i = 0; i < count; ++i) {
+      assert(weights[i] >= 0.f);
+      total_weight += weights[i];
+    }
+    assert(total_weight > 0.f);
+    for (int i = 0; i < weights_.size(); ++i) {
+      if (i < count) {
+        weights_[i] = weights[i] / total_weight;
+      } else {
+        weights_[i] = 0.f;
+      }
     }
   }
 
@@ -105,8 +213,26 @@ class RigData {
     return time;
   }
 
+  MotiveTime ChildTimeRemaining(MotiveIndex index) const {
+    if (index >= weights_.size()) {
+      return 0;
+    }
+    MotiveTime time = 0;
+    const int base_index = BaseBoneIndex(index);
+    const int defining_num_bones = NumBones();
+    for (BoneIndex i = 0; i < defining_num_bones; ++i) {
+      time = std::max(time, motivators_[base_index + i].TimeRemaining());
+    }
+    return time;
+  }
+
   void UpdateGlobalTransforms() {
-    CalculateGlobalTransforms(global_transforms_.data());
+    // Only do a weighted average if there's more than one animation.
+    if (weights_.size() <= 1) {
+      CalculateGlobalTransforms(global_transforms_.data());
+    } else {
+      CalculateBlendedGlobalTransforms(global_transforms_.data());
+    }
   }
 
   const mathfu::AffineTransform* GlobalTransforms() const {
@@ -237,11 +363,100 @@ class RigData {
     }
   }
 
+  void CalculateBlendedGlobalTransforms(mathfu::AffineTransform* out) const {
+    const BoneIndex* parents = defining_anim_->bone_parents();
+    const int num_bones = NumBones();
+    const int num_anims = weights_.size();
+
+    // For each bone...
+    for (int i = 0; i < num_bones; ++i) {
+      // TODO(b/111070174) use a scratchpad instead of a local gather SQT to
+      // make iteration less "jumpy", and just go through all motivators
+      // linearly.
+
+      // Gather the position, rotation, and scale.
+      mathfu::vec3 bone_position(0, 0, 0);
+      mathfu::quat bone_rotation(0, 0, 0, 0);
+      mathfu::vec3 bone_scale(0, 0, 0);
+
+      // The quaternions q and -q represent the same orientation (but not the
+      // same rotation). Since this matrix is simply an orientation, ensure that
+      // all quaternions are in the same 4-dimensional hemisphere, else their
+      // weighted average is incorrect. For example, .5q + .5(-q) should be
+      // either q or -q, not 0.
+      mathfu::quat first_quat;
+
+      // For each animation...
+      for (int j = 0; j < num_anims; ++j) {
+        const MatrixMotivator4f& motivator = motivators_.at(i + j * num_bones);
+        const float weight = weights_[j];
+        float rotation_weight = weight;
+
+        // Get the SQT for the bone.
+        mathfu::vec3 position;
+        mathfu::vec4 rotation_vec;
+        mathfu::vec3 scale;
+        motivator.Value(&position, &rotation_vec, &scale);
+        const mathfu::quat rotation(rotation_vec.w, rotation_vec.xyz());
+
+        // Check if the quaternion needs to be flipped.
+        if (j == 0) {
+          first_quat = rotation;
+        } else if (mathfu::quat::DotProduct(first_quat, rotation) < 0.f) {
+          rotation_weight *= -1.f;
+        }
+
+        // Gather the components.
+        bone_position += position * weight;
+        bone_rotation[0] += rotation[0] * rotation_weight;
+        bone_rotation[1] += rotation[1] * rotation_weight;
+        bone_rotation[2] += rotation[2] * rotation_weight;
+        bone_rotation[3] += rotation[3] * rotation_weight;
+        bone_scale += scale * weight;
+      }
+
+      // Since the weights are normalized to sum to 1 at all times, only the
+      // rotation needs to be normalized.
+      bone_rotation.Normalize();
+
+      // Multiply this bone's transform by the parent transform (if it exists).
+      const mathfu::mat4 mat = mathfu::mat4::Transform(
+          bone_position, bone_rotation.ToMatrix(), bone_scale);
+      const int parent_idx = parents[i];
+      if (parent_idx == kInvalidBoneIdx) {
+        out[i] = mathfu::mat4::ToAffineTransform(mat);
+      } else {
+        assert(i > parent_idx);
+        out[i] = mathfu::mat4::ToAffineTransform(
+            mathfu::mat4::FromAffineTransform(out[parent_idx]) * mat);
+      }
+    }
+  }
+
+  int BaseBoneIndex(int anim_index) const {
+    return anim_index * NumBones();
+  }
+
+  // TODO(b/111070174): decide if array-of-structs is better. It's faster for
+  // calculating transforms but significantly uglier for adding/removing
+  // animations and makes updating playback rates require a stride-based
+  // approach. Alternatively, add a scratchpad of SQTs with the struct-of-arrays
+  // approach to optimize calculating global transforms.
+
+  // Motivators for all the current animations stored struct-of-arrays style.
+  // For a defining animation with N bones an animations A and B, the
+  // motivators are stored in the following order (Bone_X^Y means "bone X's
+  // motivator in animation Y"):
+  //   Bone_1^A, Bone_2^A, ..., Bone_N^A, Bone_1^B, Bone_2^B, ..., Bone_N^B.
   std::vector<MatrixMotivator4f, mathfu::simd_allocator<MatrixMotivator4f>>
       motivators_;
   std::vector<mathfu::AffineTransform,
               mathfu::simd_allocator<mathfu::AffineTransform>>
       global_transforms_;
+
+  // The list of weights per running animation, normalized to sum to 1.
+  std::vector<float> weights_;
+
   const RigAnim* defining_anim_;
   const RigAnim* current_anim_;
 
