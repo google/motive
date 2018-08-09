@@ -98,6 +98,7 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
   virtual void BlendToOps(MotiveIndex index,
                           const std::vector<MatrixOperationInit>& ops,
                           const motive::SplinePlayback& playback) {
+    assert(Engine());
     Data(index).BlendToOps(ops, playback, Engine());
   }
 

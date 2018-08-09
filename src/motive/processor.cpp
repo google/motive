@@ -138,7 +138,7 @@ void MotiveProcessor::TransferMotivator(MotiveIndex index,
 }
 
 void MotiveProcessor::SetEngine(MotiveEngine* engine) {
-  if (engine_ != nullptr) {
+  if (engine_ == nullptr) {
     engine_ = engine;
   }
 }
