@@ -21,7 +21,8 @@ struct CompactSplineNodeFb {
   angle:short;
 }
 
-// Similar to CompactSplineNodeFb, but using float values instead.
+// Similar to CompactSplineNodeFb, but using float values instead. Time values
+// are in seconds.
 struct CompactSplineFloatNodeFb {
   value: float;
   time: float;

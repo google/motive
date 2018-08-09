@@ -39,6 +39,7 @@ table ConstantOpFb {
 union MatrixOpValueFb {
   CompactSplineFb,
   ConstantOpFb,
+  CompactSplineFloatFb,
 }
 
 // One operation performed on the matrix.
