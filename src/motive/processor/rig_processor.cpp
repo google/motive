@@ -58,8 +58,7 @@ class MotiveRigProcessor : public RigProcessor {
   void BlendToAnims(MotiveIndex index, const RigAnim** anims,
                     const SplinePlayback** playbacks, const float* weights,
                     int count) override {
-    assert(engine_);
-    Data(index).BlendToAnims(anims, playbacks, weights, count, engine_, time_);
+    Data(index).BlendToAnims(anims, playbacks, weights, count, Engine(), time_);
   }
 
   void SetPlaybackRate(MotiveIndex index, float playback_rate) override {
@@ -122,7 +121,6 @@ class MotiveRigProcessor : public RigProcessor {
                          MotiveDimension dimensions,
                          MotiveEngine* engine) override {
     // Hold onto the engine for use in BlendToAnims().
-    engine_ = engine;
     RemoveIndices(index, dimensions);
     auto rig_init = static_cast<const RigInit&>(init);
     for (MotiveIndex i = index; i < index + dimensions; ++i) {
@@ -171,7 +169,6 @@ class MotiveRigProcessor : public RigProcessor {
 
   std::vector<RigData*> data_;
   MotiveTime time_;
-  MotiveEngine* engine_;
 };
 
 MOTIVE_INSTANCE(RigInit, MotiveRigProcessor);

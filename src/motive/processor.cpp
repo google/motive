@@ -137,6 +137,12 @@ void MotiveProcessor::TransferMotivator(MotiveIndex index,
   VerifyInternalState();
 }
 
+void MotiveProcessor::SetEngine(MotiveEngine* engine) {
+  if (engine_ != nullptr) {
+    engine_ = engine;
+  }
+}
+
 bool MotiveProcessor::IsMotivatorIndex(MotiveIndex index) const {
   return motivators_[index] != nullptr &&
          (index == 0 || motivators_[index - 1] != motivators_[index]);

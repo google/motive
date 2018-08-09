@@ -25,7 +25,7 @@ namespace motive {
 // See comments on MatrixInit for details on this class.
 class MatrixMotiveProcessor : public MatrixProcessor4f {
  public:
-  MatrixMotiveProcessor() : time_(0), engine_(nullptr) {}
+  MatrixMotiveProcessor() : time_(0) {}
 
   virtual ~MatrixMotiveProcessor() {
     RemoveIndices(0, NumIndices());
@@ -98,8 +98,7 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
   virtual void BlendToOps(MotiveIndex index,
                           const std::vector<MatrixOperationInit>& ops,
                           const motive::SplinePlayback& playback) {
-    assert(engine_);
-    Data(index).BlendToOps(ops, playback, engine_);
+    Data(index).BlendToOps(ops, playback, Engine());
   }
 
   virtual void SetPlaybackRate(MotiveIndex index, float playback_rate) {
@@ -118,8 +117,6 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
   virtual void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
                                  MotiveDimension dimensions,
                                  MotiveEngine* engine) {
-    // Hold onto the engine for use in BlendToOps().
-    engine_ = engine;
     RemoveIndices(index, dimensions);
 
     // TODO OPT: Create only one MatrixData that holds `dimensions` matrices,
@@ -172,7 +169,6 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
 
   std::vector<MatrixData> data_;
   MotiveTime time_;
-  MotiveEngine* engine_;
 };
 
 MOTIVE_INSTANCE(MatrixInit, MatrixMotiveProcessor);

@@ -57,6 +57,7 @@ class MotiveProcessor {
  public:
   MotiveProcessor()
       : index_allocator_(allocator_callbacks_),
+        engine_(nullptr),
         benchmark_id_for_advance_frame_(-1),
         benchmark_id_for_init_(-1) {
     allocator_callbacks_.set_processor(this);
@@ -163,6 +164,11 @@ class MotiveProcessor {
   }
   int benchmark_id_for_init() const { return benchmark_id_for_init_; }
 
+  /// Sets the MotiveEngine instance that owns this processor. This function
+  /// is called by the MotiveEngine at creation time. This function has no
+  /// effect if it has been called before on this processor.
+  void SetEngine(MotiveEngine* engine);
+
  protected:
   /// Initialize data at [index, index + dimensions).
   /// The meaning of `index` is determined by the MotiveProcessor
@@ -200,6 +206,10 @@ class MotiveProcessor {
   /// but normally called at the beginning of your
   /// MotiveProcessor::AdvanceFrame.
   void Defragment() { index_allocator_.Defragment(); }
+
+  /// Return a handle to the MotiveEngine instance that owns this processor.
+  MotiveEngine* Engine() { return engine_; }
+  const MotiveEngine* Engine() const { return engine_; }
 
  private:
   typedef IndexAllocator<MotiveIndex> MotiveIndexAllocator;
@@ -249,6 +259,10 @@ class MotiveProcessor {
   /// unused indices with the highest allocated indices. This reduces the total
   /// size of the data arrays.
   MotiveIndexAllocator index_allocator_;
+
+  /// A handle to the owning MotiveEngine. This is required when new Motivators
+  /// are created outside of typical initialization times.
+  MotiveEngine* engine_;
 
   int benchmark_id_for_advance_frame_;
   int benchmark_id_for_init_;
