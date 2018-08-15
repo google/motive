@@ -79,7 +79,7 @@ class MatrixData {
         // New ops are inserted in order. `old_idx` points to the old op with
         // the next highest ID compared to `new_op`, meaning it also provides
         // the correct insertion point.
-        ops_.emplace(ops_.begin() + old_idx, new_op, engine);
+        ops_.emplace(ops_.begin() + old_idx, new_op, playback, engine);
         ++new_idx;
         // Advance `old_idx` so it still points to the same `old_op` now that
         // one has been inserted before it.
@@ -95,7 +95,7 @@ class MatrixData {
 
     // Fill out remaining new ops by inserting them.
     while (new_idx < num_new_ops) {
-      ops_.emplace_back(new_ops[new_idx++], engine);
+      ops_.emplace_back(new_ops[new_idx++], playback, engine);
     }
   }
 

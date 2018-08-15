@@ -160,7 +160,12 @@ class MatrixOperation {
     SetType(kInvalidMatrixOperation);
   }
 
-  MatrixOperation(const MatrixOperationInit& init, MotiveEngine* engine) {
+  MatrixOperation(const MatrixOperationInit& init, MotiveEngine* engine)
+      : MatrixOperation(init, motive::SplinePlayback(), engine) {}
+
+  MatrixOperation(const MatrixOperationInit& init,
+                  const motive::SplinePlayback& playback,
+                  MotiveEngine* engine) {
     SetId(init.id);
     SetType(init.type);
 
@@ -176,7 +181,7 @@ class MatrixOperation {
 
     // Initialize the value. For defining animations, init.union_type will
     // be kUnionEmpty, so this will not set up any splines.
-    BlendToOp(init, motive::SplinePlayback(), engine);
+    BlendToOp(init, playback, engine);
   }
 
   MatrixOperation(MatrixOperation&& rhs) noexcept {

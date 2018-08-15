@@ -140,7 +140,8 @@ void BulkSplineEvaluator::BlendToSpline(const Index index,
   s.x_index = blend_start_index;
   s.repeat = playback.repeat;
   cubic_xs_[index] = cubic_start_x;
-  cubic_x_ends_[index] = cubic_start_x + playback.blend_x;
+  cubic_x_ends_[index] =
+      cubic_start_x + playback.blend_x * playback.playback_rate;
   cubics_[index].Init(blend_init);
   cubics_[index].ShiftRight(cubic_start_x);
 }
