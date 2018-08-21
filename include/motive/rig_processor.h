@@ -29,6 +29,11 @@ class RigProcessor : public MotiveProcessor {
   virtual const mathfu::AffineTransform* GlobalTransforms(
       MotiveIndex index) const = 0;
 
+  /// Returns the transform in bone-space of the root motion bone if one was set
+  /// at initialization time. Otherwise, returns the identity matrix.
+  virtual const mathfu::AffineTransform& RootMotionTransform(
+      MotiveIndex index) const = 0;
+
   /// Return the time remaining in the current rig animation.
   virtual MotiveTime TimeRemaining(MotiveIndex index) const = 0;
 

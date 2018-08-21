@@ -18,8 +18,10 @@
 namespace motive {
 
 RigInit::RigInit(const RigAnim& defining_anim, const BoneIndex* bone_parents,
-                 BoneIndex num_bones)
-    : MotivatorInit(kType), defining_anim_(&defining_anim) {
+                 BoneIndex num_bones, BoneIndex root_motion_bone)
+    : MotivatorInit(kType),
+      defining_anim_(&defining_anim),
+      root_motion_bone_(root_motion_bone) {
   // Ensure the animation and the mesh have the same hierarchy.
   // We allow the one exception where there are only popsicle stick animations
   // (i.e. animations that affect a single root bone, like popsicle-stick

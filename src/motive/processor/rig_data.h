@@ -38,6 +38,8 @@ class RigData {
                    MotiveEngine* engine)
       : defining_anim_(&init.defining_anim()),
         current_anim_(nullptr),
+        root_motion_bone_(init.root_motion_bone()),
+        root_motion_transform_(mathfu::AffineTransform::Identity()),
         end_time_(start_time) {
     const BoneIndex num_bones = defining_anim_->NumBones();
 
@@ -149,7 +151,7 @@ class RigData {
 
         // Blend the Motivator to its new animation.
         const std::vector<MatrixOperationInit>& ops =
-            i >= anim_num_bones ? kEmptyOps : anim.Anim(j).ops();
+            j >= anim_num_bones ? kEmptyOps : anim.Anim(j).ops();
         motivators_[index].BlendToOps(ops, playback);
       }
     }
@@ -229,14 +231,20 @@ class RigData {
   void UpdateGlobalTransforms() {
     // Only do a weighted average if there's more than one animation.
     if (weights_.size() <= 1) {
-      CalculateGlobalTransforms(global_transforms_.data());
+      CalculateGlobalTransforms(global_transforms_.data(),
+                                &root_motion_transform_);
     } else {
-      CalculateBlendedGlobalTransforms(global_transforms_.data());
+      CalculateBlendedGlobalTransforms(global_transforms_.data(),
+                                       &root_motion_transform_);
     }
   }
 
   const mathfu::AffineTransform* GlobalTransforms() const {
     return global_transforms_.data();
+  }
+
+  const mathfu::AffineTransform& RootMotionTransform() const {
+    return root_motion_transform_;
   }
 
   BoneIndex NumBones() const { return defining_anim_->NumBones(); }
@@ -325,9 +333,8 @@ class RigData {
       oss << "  ";
       for (size_t i = 0; i < ops.size(); ++i) {
         const float multiplier = RotateOp(ops[i].type) ? 180.0f / kPi : 1.0f;
-        const float value =
-            multiplier *
-            motivators_[idx].ChildValue1f(static_cast<MotiveChildIndex>(i));
+        const float value = multiplier * motivators_[idx].ChildValue1f(
+                                             static_cast<MotiveChildIndex>(i));
         oss << MatrixOpName(ops[i].type) << "=" << value;
         if (i < ops.size() - 1) {
           oss << ", ";
@@ -345,14 +352,30 @@ class RigData {
   /// global transforms. The `parents` are layed out such that the parent
   /// always come before the child.
   // TODO OPT: optimize `parents` layout so that we can parallelize this call.
-  void CalculateGlobalTransforms(mathfu::AffineTransform* out) const {
+  void CalculateGlobalTransforms(
+      mathfu::AffineTransform* out,
+      mathfu::AffineTransform* root_motion_transform) const {
     const BoneIndex* parents = defining_anim_->bone_parents();
     const int num_bones = NumBones();
     for (int i = 0; i < num_bones; ++i) {
       // TODO: Return an AffineTransform from the MatrixMotivator.
       const mathfu::mat4& local_transform = motivators_[i].Value();
       const int parent_idx = parents[i];
-      if (parent_idx == kInvalidBoneIdx) {
+
+      // Root motion bone transforms are stored separately and treated as the
+      // identity transform when computing child bone transforms.
+      if (i == root_motion_bone_) {
+        *root_motion_transform =
+            mathfu::mat4::ToAffineTransform(local_transform);
+        // The root motion bone shouldn't have a parent index, but if for some
+        // reason it does, respect the transform of that bone.
+        if (parent_idx == kInvalidBoneIdx) {
+          out[i] = mathfu::AffineTransform::Identity();
+        } else {
+          assert(i > parent_idx);
+          out[i] = out[parent_idx];
+        }
+      } else if (parent_idx == kInvalidBoneIdx) {
         out[i] = mathfu::mat4::ToAffineTransform(local_transform);
       } else {
         assert(i > parent_idx);
@@ -363,7 +386,9 @@ class RigData {
     }
   }
 
-  void CalculateBlendedGlobalTransforms(mathfu::AffineTransform* out) const {
+  void CalculateBlendedGlobalTransforms(
+      mathfu::AffineTransform* out,
+      mathfu::AffineTransform* root_motion_transform) const {
     const BoneIndex* parents = defining_anim_->bone_parents();
     const int num_bones = NumBones();
     const int num_anims = weights_.size();
@@ -420,22 +445,35 @@ class RigData {
       bone_rotation.Normalize();
 
       // Multiply this bone's transform by the parent transform (if it exists).
-      const mathfu::mat4 mat = mathfu::mat4::Transform(
+      const mathfu::mat4 local_transform = mathfu::mat4::Transform(
           bone_position, bone_rotation.ToMatrix(), bone_scale);
       const int parent_idx = parents[i];
-      if (parent_idx == kInvalidBoneIdx) {
-        out[i] = mathfu::mat4::ToAffineTransform(mat);
+
+      // Root motion bone transforms are stored separately and treated as the
+      // identity transform when computing child bone transforms.
+      if (i == root_motion_bone_) {
+        *root_motion_transform =
+            mathfu::mat4::ToAffineTransform(local_transform);
+        if (parent_idx == kInvalidBoneIdx) {
+          out[i] = mathfu::AffineTransform::Identity();
+        } else {
+          assert(i > parent_idx);
+          out[i] = out[parent_idx];
+        }
       } else {
-        assert(i > parent_idx);
-        out[i] = mathfu::mat4::ToAffineTransform(
-            mathfu::mat4::FromAffineTransform(out[parent_idx]) * mat);
+        if (parent_idx == kInvalidBoneIdx) {
+          out[i] = mathfu::mat4::ToAffineTransform(local_transform);
+        } else {
+          assert(i > parent_idx);
+          out[i] = mathfu::mat4::ToAffineTransform(
+              mathfu::mat4::FromAffineTransform(out[parent_idx]) *
+              local_transform);
+        }
       }
     }
   }
 
-  int BaseBoneIndex(int anim_index) const {
-    return anim_index * NumBones();
-  }
+  int BaseBoneIndex(int anim_index) const { return anim_index * NumBones(); }
 
   // TODO(b/111070174): decide if array-of-structs is better. It's faster for
   // calculating transforms but significantly uglier for adding/removing
@@ -459,6 +497,10 @@ class RigData {
 
   const RigAnim* defining_anim_;
   const RigAnim* current_anim_;
+
+  // The root motion bone and it's most recent transform.
+  BoneIndex root_motion_bone_;
+  mathfu::AffineTransform root_motion_transform_;
 
   /// Time that the animation is expected to complete.
   MotiveTime end_time_;

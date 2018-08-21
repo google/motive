@@ -82,6 +82,11 @@ class MotiveRigProcessor : public RigProcessor {
     return Data(index).GlobalTransforms();
   }
 
+  const mathfu::AffineTransform& RootMotionTransform(
+      MotiveIndex index) const override {
+    return Data(index).RootMotionTransform();
+  }
+
   MotiveTime TimeRemaining(MotiveIndex index) const override {
     return Data(index).TimeRemaining();
   }

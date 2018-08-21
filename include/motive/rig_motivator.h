@@ -79,6 +79,13 @@ class RigMotivator : public Motivator {
     return Processor().GlobalTransforms(index_);
   }
 
+  /// Returns the matrix of the root motion bone in bone-space. If an invalid
+  /// root motion bone was specified in the RigInit, returns the identity
+  /// matrix.
+  const mathfu::AffineTransform& RootMotionTransform() const {
+    return Processor().RootMotionTransform(index_);
+  }
+
   /// Returns the shell aniamtion that defines this rig. It contains all the
   /// bones and operations-on-those-bones that can be animated.
   ///
