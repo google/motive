@@ -110,6 +110,21 @@ class Motivator {
   /// value is determined by the MotiveProcessor backing this motivator.
   MotiveDimension Dimensions() const { return processor_->Dimensions(index_); }
 
+  /// Initialize this Motivator to the current state of another Motivator.
+  ///
+  /// This function is explicitly not a copy constructor for multiple reasons:
+  /// - The new Motivator is not a proper "copy" of `other` - it has a different
+  ///   index that references different data that is also a clone.
+  /// - In previous versions of Motive, the copy constructor was implemented as
+  ///   a move constructor because move constructors were not available on
+  ///   certain compilers.
+  void CloneFrom(const Motivator* other) {
+    Invalidate();
+    if (other && other->Valid()) {
+      other->processor_->CloneMotivator(this, other->index_);
+    }
+  }
+
  protected:
   Motivator(const MotivatorInit& init, MotiveEngine* engine,
             MotiveDimension dimensions)

@@ -13,9 +13,10 @@
 // limitations under the License.
 
 #include "motive/engine.h"
-#include "motive/spline_init.h"
 #include "motive/math/bulk_spline_evaluator.h"
+#include "motive/math/compact_spline.h"
 #include "motive/processor/spline_data.h"
+#include "motive/spline_init.h"
 
 namespace motive {
 
@@ -27,7 +28,7 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
  public:
   virtual ~SplineMotiveProcessor() {
     for (auto it = spline_pool_.begin(); it != spline_pool_.end(); ++it) {
-      delete *(it);
+      CompactSpline::Destroy(*it);
     }
   }
 
@@ -163,7 +164,8 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
     // Ensure we have a local spline available, allocated from our pool of
     // splines.
     if (d.local_spline == nullptr) {
-      d.local_spline = AllocateSpline();
+      // The default number of nodes is enough.
+      d.local_spline = AllocateSpline(CompactSpline::kDefaultMaxNodes);
     }
 
     // Initialize the compact spline to hold the sequence of nodes in 't'.
@@ -195,6 +197,21 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
                                  MotiveEngine* /*engine*/) {
     auto spline_init = static_cast<const SplineInit&>(init);
     interpolator_.SetYRanges(index, dimensions, spline_init.range());
+  }
+
+  bool SupportsCloning() override { return true; }
+
+  void CloneIndices(MotiveIndex dst, MotiveIndex src,
+                    MotiveDimension dimensions,
+                    MotiveEngine* /*engine*/) override {
+    interpolator_.CopyIndices(
+        dst, src, dimensions,
+        [this](MotiveIndex index, const CompactSpline* src_spline) {
+          CompactSpline* dest_spline = AllocateSpline(src_spline->max_nodes());
+          *dest_spline = *src_spline;
+          Data(index).local_spline = dest_spline;
+          return dest_spline;
+        });
   }
 
   virtual void RemoveIndices(MotiveIndex index, MotiveDimension dimensions) {
@@ -234,15 +251,21 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
     return data_[index];
   }
 
-  CompactSpline* AllocateSpline() {
-    // Only create a new spline if there are no left in the pool.
-    if (spline_pool_.empty()) return new CompactSpline();
-
+  CompactSpline* AllocateSpline(CompactSplineIndex max_nodes) {
     // Return a spline from the pool. Eventually we'll reach a high water mark
-    // and we will stop allocating new splines.
-    CompactSpline* spline = spline_pool_.back();
-    spline_pool_.pop_back();
-    return spline;
+    // and we will stop allocating new splines. The returned spline must have
+    // enough nodes.
+    for (size_t i = 0; i < spline_pool_.size(); ++i) {
+      CompactSpline* spline = spline_pool_[i];
+      if (spline->max_nodes() >= max_nodes) {
+        spline_pool_[i] = spline_pool_.back();
+        spline_pool_.pop_back();
+        return spline;
+      }
+    }
+
+    // Create a spline with enough nodes otherwise.
+    return CompactSpline::Create(max_nodes);
   }
 
   void FreeSplineForIndex(MotiveIndex index) {

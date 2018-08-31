@@ -68,6 +68,21 @@ class BulkSplineEvaluator {
   void MoveIndices(const Index old_index, const Index new_index,
                    const Index count);
 
+  /// Copy the data at `src` into `dst`, using `alloc` to allocate new
+  /// CompactSplines. Copy `count` indices total.
+  ///
+  /// Because the BulkSplineEvaluator owns no CompactSpline memory, the caller
+  /// must provide a function capable of allocating a CompactSpline that is a
+  /// copy of the provided CompactSpline. The caller can use the provided
+  /// MotiveIndex to delete the CompactSpline when it is no longer in use.
+  template <typename AllocFn>
+  void CopyIndices(Index dst, Index src, Index count, const AllocFn& alloc) {
+    MoveIndices(src, dst, count);
+    for (int i = 0; i < count; ++i) {
+      sources_[dst + i].spline = alloc(dst + i, sources_[src + i].spline);
+    }
+  }
+
   /// Initialize `index` to normalize into the `modular_range` range, whenever
   /// the spline segment is initialized. While travelling along a segment,
   /// note that the value may exit the `modular_range` range. For example, you

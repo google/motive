@@ -68,22 +68,28 @@ void MotiveProcessor::InitializeMotivator(const MotivatorInit& init,
 
   // Assign an 'index' to reference the new Motivator. All interactions between
   // the Motivator and MotiveProcessor use this 'index' to identify the data.
-  const MotiveIndex index = index_allocator_.Alloc(dimensions);
-
-  // Keep a pointer to the Motivator around. We may Defragment() the indices and
-  // move the data around. We also need remove the Motivator when we're
-  // destroyed.
-  for (MotiveDimension i = 0; i < dimensions; ++i) {
-    motivators_[index + i] = motivator;
-  }
-
-  // Initialize the motivator to point at our MotiveProcessor.
-  motivator->Init(this, index);
+  const MotiveIndex index = AllocateMotivatorIndices(motivator, dimensions);
 
   // Call the MotiveProcessor-specific initialization routine.
   InitializeIndices(init, index, dimensions, engine);
+}
 
-  VerifyInternalState();
+void MotiveProcessor::CloneMotivator(Motivator* dst, MotiveIndex src) {
+  // Early out if the Processor doesn't support duplication to avoid allocating
+  // and destroying new indices.
+  if (!SupportsCloning()) {
+    return;
+  }
+
+  const motive::Benchmark b(benchmark_id_for_init());
+
+  // Assign an 'index' to reference the new Motivator. All interactions between
+  // the Motivator and MotiveProcessor use this 'index' to identify the data.
+  const MotiveDimension dimensions = Dimensions(src);
+  const MotiveIndex dst_index = AllocateMotivatorIndices(dst, dimensions);
+
+  // Call the MotiveProcessor-specific cloning routine.
+  CloneIndices(dst_index, src, dimensions, Engine());
 }
 
 // Don't notify derived classes. Useful in the destructor, since derived classes
@@ -156,6 +162,25 @@ bool MotiveProcessor::ValidIndex(MotiveIndex index) const {
 
 bool MotiveProcessor::ValidMotivatorIndex(MotiveIndex index) const {
   return ValidIndex(index) && IsMotivatorIndex(index);
+}
+
+MotiveIndex MotiveProcessor::AllocateMotivatorIndices(
+    Motivator* motivator, MotiveDimension dimensions) {
+  // Assign an 'index' to reference the new Motivator. All interactions between
+  // the Motivator and MotiveProcessor use this 'index' to identify the data.
+  const MotiveIndex index = index_allocator_.Alloc(dimensions);
+
+  // Keep a pointer to the Motivator around. We may Defragment() the indices and
+  // move the data around. We also need to remove the Motivator when we're
+  // destroyed.
+  for (MotiveDimension i = 0; i < dimensions; ++i) {
+    motivators_[index + i] = motivator;
+  }
+
+  // Initialize the motivator to point at our MotiveProcessor.
+  motivator->Init(this, index);
+  VerifyInternalState();
+  return index;
 }
 
 void MotiveProcessor::SetNumIndicesBase(MotiveIndex num_indices) {
