@@ -582,7 +582,7 @@ bool AnimData::IntermediateNodesRedundant(const SplineNode* n, size_t len,
 
 bool AnimData::EqualNodes(const SplineNode& a, const SplineNode& b,
                           float tolerance, float derivative_tolerance) {
-  return a.time == b.time && fabs(a.val - a.val) < tolerance &&
+  return a.time == b.time && fabs(a.val - b.val) < tolerance &&
          fabs(DerivativeAngle(a.derivative - b.derivative)) <
              derivative_tolerance;
 }
