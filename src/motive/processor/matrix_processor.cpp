@@ -128,6 +128,16 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
     }
   }
 
+  bool SupportsCloning() override { return true; }
+
+  void CloneIndices(MotiveIndex dest, MotiveIndex src,
+                    MotiveDimension dimensions,
+                    MotiveEngine* /*engine*/) override {
+    for (MotiveIndex i = 0; i < dimensions; ++i) {
+      Data(dest + i) = Data(src + i);
+    }
+  }
+
   virtual void RemoveIndices(MotiveIndex index, MotiveDimension dimensions) {
     // Callers depend on indices staying consistent between calls to this
     // function, so just reset the MatrixData states to empty instead of erasing

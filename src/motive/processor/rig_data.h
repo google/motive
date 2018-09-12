@@ -136,17 +136,20 @@ class RigData {
       for (BoneIndex j = 0; j < defining_num_bones; ++j) {
         const int index = base_index + j;
 
-        // TODO(b/111071408): if there's only 1 old animation, initialize the
-        // new motivators to that instead of the defining animation. Bonus:
-        // if there's more than 1 animation running, collapse them into a single
-        // animation, then initialize the new ones to that.
+        // TODO(b/111071408): If there's more than 1 animation running, collapse
+        // them into a single animation, then initialize the new ones to that.
 
-        // If the Motivator was just created, initialize it to the defining
-        // animation (just like it would be for a single rig).
+        // If the Motivator was just created, it must be initialized. If there
+        // was previously a single animation, duplicate it. Otherwise, use the
+        // defining animation.
         if (i >= old_count) {
-          const std::vector<MatrixOperationInit>& ops =
-              defining_anim_->Anim(j).ops();
-          motivators_[index].Initialize(MatrixInit(ops), engine);
+          if (old_count == 1) {
+            motivators_[index].CloneFrom(&motivators_[j]);
+          } else {
+            const std::vector<MatrixOperationInit>& ops =
+                defining_anim_->Anim(j).ops();
+            motivators_[index].Initialize(MatrixInit(ops), engine);
+          }
         }
 
         // Blend the Motivator to its new animation.

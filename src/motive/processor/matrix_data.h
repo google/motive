@@ -29,8 +29,6 @@ namespace motive {
 class MatrixData {
  public:
   MatrixData() : result_matrix_(mathfu::mat4::Identity()), ops_(0) {}
-  MatrixData(MatrixData&& rhs) = default;
-  MatrixData& operator=(MatrixData&& rhs) = default;
 
   void Initialize(const MatrixInit& init, MotiveEngine* engine) {
     const std::vector<MatrixOperationInit>& ops = init.ops();

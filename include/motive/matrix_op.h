@@ -186,7 +186,6 @@ class MatrixOperation {
 
   MatrixOperation(MatrixOperation&& rhs) noexcept {
     *this = std::move(rhs);
-    rhs.SetType(kInvalidMatrixOperation);
   }
 
   MatrixOperation& operator=(MatrixOperation&& rhs) noexcept {
@@ -195,7 +194,21 @@ class MatrixOperation {
       SetType(rhs.Type());
       motivator_ = std::move(rhs.motivator_);
       const_value_ = rhs.const_value_;
+      rhs.SetType(kInvalidMatrixOperation);
     }
+    return *this;
+  }
+
+  MatrixOperation(const MatrixOperation& rhs) {
+    *this = rhs;
+  }
+
+  MatrixOperation& operator=(const MatrixOperation& rhs) {
+    SetId(rhs.Id());
+    SetType(rhs.Type());
+    motivator_.CloneFrom(
+        reinterpret_cast<const Motivator*>(rhs.ValueMotivator()));
+    const_value_ = rhs.const_value_;
     return *this;
   }
 
@@ -406,10 +419,6 @@ class MatrixOperation {
   }
 
  private:
-  // Disable copies so we don't have to worry about copying the Motivator1f.
-  MatrixOperation(const MatrixOperation& rhs);
-  MatrixOperation& operator=(const MatrixOperation& rhs);
-
   // Perform a matrix rotation about
   static inline void RotateAboutAxis(const float angle, mathfu::vec4* column0,
                                      mathfu::vec4* column1) {
