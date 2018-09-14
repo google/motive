@@ -154,7 +154,8 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
     const float start_y =
         override_current
             ? (interpolator_.ModularArithmetic(index)
-                   ? interpolator_.ModularRange(index).Normalize(node0.value)
+                   ? interpolator_.ModularRange(index).NormalizeWildValue(
+                         node0.value)
                    : node0.value)
             : interpolator_.NormalizedY(index);
     const float start_derivative =
