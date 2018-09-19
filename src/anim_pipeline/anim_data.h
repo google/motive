@@ -49,6 +49,30 @@ class AnimData {
   void SetCurBoneIndex(unsigned int cur_bone_index);
   void ResetCurBoneIndex();
 
+  struct CurveSegment {
+    FlatTime time_start;
+    FlatTime time_end;
+    const FlatVal* vals;
+    const FlatDerivative* derivatives;
+    size_t count;
+
+    CurveSegment(FlatTime time_start, FlatTime time_end, const FlatVal* vals,
+                 const FlatDerivative* derivatives, size_t count)
+        : time_start(time_start),
+          time_end(time_end),
+          vals(vals),
+          derivatives(derivatives),
+          count(count) {}
+
+    inline bool operator<(const CurveSegment& rhs) const {
+      return time_start < rhs.time_start;
+    }
+
+    inline bool operator>(const CurveSegment& rhs) const {
+      return rhs < *this;
+    }
+  };
+
   FlatChannelId AllocChannel(MatrixOperationType op, MatrixOpId id);
   void AddConstant(FlatChannelId channel_id, FlatVal const_val);
   void AddCurve(FlatChannelId channel_id, FlatTime time_start,
