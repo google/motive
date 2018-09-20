@@ -182,7 +182,11 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
     float prev_y = start_y;
     for (int i = start_node_index; i < t.num_nodes(); ++i) {
       const MotiveNode1f& n = t.Node(i);
-      const float y = interpolator_.NextY(index, prev_y, n.value, n.direction);
+      const float target_y =
+          interpolator_.ModularArithmetic(index)
+              ? interpolator_.ModularRange(index).NormalizeWildValue(n.value)
+              : n.value;
+      const float y = interpolator_.NextY(index, prev_y, target_y, n.direction);
       d.local_spline->AddNode(static_cast<float>(n.time), y, n.velocity,
                               motive::kAddWithoutModification);
       prev_y = y;
