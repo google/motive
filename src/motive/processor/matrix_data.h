@@ -37,6 +37,11 @@ class MatrixData {
     for (int i = 0; i < num_ops; ++i) {
       ops_.emplace_back(ops[i], engine);
     }
+
+    // Initialize the result matrix to the default value. This ensures that
+    // RigMotivators can initialize their transforms to the default pose of the
+    // defining animation.
+    UpdateResultMatrix();
   }
 
   void Reset() {

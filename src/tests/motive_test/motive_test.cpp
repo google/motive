@@ -860,8 +860,12 @@ static void ExpectMatricesEqual(const mat4& a, const mat4& b, float epsilon) {
 static void TestMatrixMotivator(const MatrixInit& matrix_init,
                                 MotiveEngine* engine) {
   MatrixMotivator4f matrix_motivator(matrix_init, engine);
-  engine->AdvanceFrame(kTimePerFrame);
   const mat4 check_matrix = CreateMatrixFromOps(matrix_init);
+
+  const mat4 init_matrix = matrix_motivator.Value();
+  ExpectMatricesEqual(init_matrix, check_matrix, kMatrixEpsilon);
+
+  engine->AdvanceFrame(kTimePerFrame);
   const mat4 motive_matrix = matrix_motivator.Value();
   ExpectMatricesEqual(motive_matrix, check_matrix, kMatrixEpsilon);
 
