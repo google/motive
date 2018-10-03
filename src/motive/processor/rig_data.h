@@ -91,7 +91,7 @@ class RigData {
     current_anim_ = &anim;
   }
 
-  void BlendToAnims(const RigAnim** anims, const SplinePlayback** playbacks,
+  void BlendToAnims(const RigAnim** anims, const SplinePlayback* playbacks,
                     const float* weights, int count, MotiveEngine* engine,
                     MotiveTime start_time) {
     const int old_count = weights_.size();
@@ -119,7 +119,7 @@ class RigData {
     // Go through each of the new animations.
     for (int i = 0; i < count; ++i) {
       const RigAnim& anim = *anims[i];
-      const SplinePlayback& playback = *playbacks[i];
+      const SplinePlayback& playback = playbacks[i];
       const int base_index = BaseBoneIndex(i);
 
       // When the animation has only one bone or the mesh has only one bone, we

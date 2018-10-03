@@ -56,7 +56,7 @@ class MotiveRigProcessor : public RigProcessor {
   }
 
   void BlendToAnims(MotiveIndex index, const RigAnim** anims,
-                    const SplinePlayback** playbacks, const float* weights,
+                    const SplinePlayback* playbacks, const float* weights,
                     int count) override {
     Data(index).BlendToAnims(anims, playbacks, weights, count, Engine(), time_);
   }

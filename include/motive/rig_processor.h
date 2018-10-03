@@ -60,7 +60,7 @@ class RigProcessor : public MotiveProcessor {
   /// to `weights` and using `playbacks` for each transition. All arguments must
   /// contain at least `count` elements.
   virtual void BlendToAnims(MotiveIndex index, const RigAnim** anims,
-                            const SplinePlayback** playbacks,
+                            const SplinePlayback* playbacks,
                             const float* weights, int count) {}
 
   /// Instantly change the playback speed of this animation. If multiple

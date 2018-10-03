@@ -49,7 +49,7 @@ class RigMotivator : public Motivator {
   /// contain at least `count` elements.
   /// If the current state is unspecified because no animation has yet been
   /// played, snap to `anims`.
-  void BlendToAnims(const RigAnim** anims, const SplinePlayback** playbacks,
+  void BlendToAnims(const RigAnim** anims, const SplinePlayback* playbacks,
                     const float* weights, int count) {
     Processor().BlendToAnims(index_, anims, playbacks, weights, count);
   }
