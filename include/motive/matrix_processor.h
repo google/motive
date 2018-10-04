@@ -60,6 +60,10 @@ class MatrixProcessor4f : public MotiveProcessor {
   /// Instantly change the playback speed of this animation.
   virtual void SetPlaybackRate(MotiveIndex index, float playback_rate) = 0;
 
+  /// Instantly set the repeat state of this animation. If no animation is
+  /// playing, has no effect.
+  virtual void SetRepeating(MotiveIndex index, bool repeat) {}
+
   /// Returns the time remaining to reach the end of the animation.  If the
   /// animation is looping, then returns kMotiveTimeEndless.  This function does
   /// not take the PlaybackRate into account.  For example, a 1s animation with

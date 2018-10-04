@@ -136,6 +136,11 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
     interpolator_.SetPlaybackRates(index, dimensions, playback_rate);
   }
 
+  virtual void SetSplineRepeating(MotiveIndex index, MotiveDimension dimensions,
+                                  bool repeat) {
+    interpolator_.SetRepeating(index, dimensions, repeat);
+  }
+
  protected:
   // TODO: Change to CreateSplineToTarget()
   void SetTarget(MotiveIndex index, const MotiveTarget1f& t) {

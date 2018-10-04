@@ -104,8 +104,13 @@ class MatrixData {
 
   void SetPlaybackRate(float playback_rate) {
     for (int i = 0, num_ops = ops_.size(); i < num_ops; ++i) {
-      MatrixOperation& op = ops_[i];
-      op.SetPlaybackRate(playback_rate);
+      ops_[i].SetPlaybackRate(playback_rate);
+    }
+  }
+
+  void SetRepeating(bool repeat) {
+    for (int i = 0, num_ops = ops_.size(); i < num_ops; ++i) {
+      ops_[i].SetRepeating(repeat);
     }
   }
 

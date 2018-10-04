@@ -106,6 +106,10 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
     Data(index).SetPlaybackRate(playback_rate);
   }
 
+  virtual void SetRepeating(MotiveIndex index, bool repeat) {
+    Data(index).SetRepeating(repeat);
+  }
+
   virtual MotiveTime TimeRemaining(MotiveIndex index) const {
     return Data(index).TimeRemaining();
   }

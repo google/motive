@@ -74,6 +74,10 @@ class MotiveRigProcessor : public RigProcessor {
     Data(index).SetWeights(weights, count);
   }
 
+  void SetRepeating(MotiveIndex index, bool repeat) {
+    Data(index).SetRepeating(repeat);
+  }
+
   MotivatorType Type() const override { return RigInit::kType; }
   int Priority() const override { return 3; }
 

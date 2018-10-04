@@ -219,6 +219,13 @@ void BulkSplineEvaluator::SetPlaybackRates(const Index index, const Index count,
   }
 }
 
+void BulkSplineEvaluator::SetRepeating(const Index index, const Index count,
+                                       bool repeat) {
+  for (Index i = index; i < index + count; ++i) {
+    sources_[i].repeat = repeat;
+  }
+}
+
 void BulkSplineEvaluator::UpdateCubicXsAndGetMask_C(const float delta_x,
                                                     uint8_t* masks) {
   const int num_xs = NumIndices();

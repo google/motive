@@ -315,6 +315,11 @@ class MatrixOperation {
     motivator_.SetSplinePlaybackRate(playback_rate);
   }
 
+  void SetRepeating(bool repeat) {
+    if (!motivator_.Valid()) return;
+    motivator_.SetSplineRepeating(repeat);
+  }
+
   MotiveTime TimeRemaining() const {
     if (motivator_.Valid()) {
       // Return the time time to reach the target for the motivator.

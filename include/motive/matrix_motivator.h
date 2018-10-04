@@ -163,6 +163,10 @@ class MatrixMotivator4fTemplate : public Motivator {
     Processor().SetPlaybackRate(index_, playback_rate);
   }
 
+  void SetRepeating(bool repeat) {
+    Processor().SetRepeating(index_, repeat);
+  }
+
  private:
   MatrixProcessor4f& Processor() {
     return *static_cast<MatrixProcessor4f*>(processor_);

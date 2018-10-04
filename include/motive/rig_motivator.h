@@ -72,6 +72,13 @@ class RigMotivator : public Motivator {
     Processor().SetWeights(index_, weights, count);
   }
 
+  /// Instantly change the repeat state of this animation. If multiple
+  /// animations are running changes the repeat state of all of them. If the
+  /// current animation is done playing, has no effect.
+  void SetRepeating(bool repeat) {
+    Processor().SetRepeating(index_, repeat);
+  }
+
   /// Returns array of matricies: one for each bone position. The matrices are
   /// all in the space of the root bones. That is, the bone hierarchy has been
   /// flattened.

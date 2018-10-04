@@ -172,8 +172,7 @@ class RigData {
   void SetPlaybackRate(float playback_rate) {
     // Update the motivators to have the new playback rate.
     // TODO: Do this in bulk.
-    const int defining_num_bones = NumBones();
-    for (BoneIndex i = 0; i < defining_num_bones; ++i) {
+    for (BoneIndex i = 0; i < motivators_.size(); ++i) {
       motivators_[i].SetPlaybackRate(playback_rate);
     }
   }
@@ -203,6 +202,12 @@ class RigData {
       } else {
         weights_[i] = 0.f;
       }
+    }
+  }
+
+  void SetRepeating(bool repeat) {
+    for (BoneIndex i = 0; i < motivators_.size(); ++i) {
+      motivators_[i].SetRepeating(repeat);
     }
   }
 

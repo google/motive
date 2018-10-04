@@ -114,6 +114,9 @@ class BulkSplineEvaluator {
   void SetPlaybackRates(const Index index, const Index count,
                         float playback_rate);
 
+  /// Set repeat state for splines.
+  void SetRepeating(const Index index, const Index count, bool repeat);
+
   /// Increment x and update the Y() and Derivative() values for all indices.
   /// Process all indices in bulk to efficiently traverse memory and allow SIMD
   /// instructions to be effective.

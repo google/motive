@@ -74,6 +74,11 @@ class RigProcessor : public MotiveProcessor {
   /// Instantly change the weights of running animations.
   virtual void SetWeights(MotiveIndex index, const float* weights, int count) {}
 
+  /// Instantly change the repeat state of this animation. If multiple
+  /// animations are running, set the repeat state for all of them. If no
+  /// animations are running, has no effect.
+  virtual void SetRepeating(MotiveIndex index, bool repeat) {}
+
   virtual std::string CsvHeaderForDebugging(MotiveIndex /*index*/) const {
     return std::string();
   }
