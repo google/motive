@@ -64,14 +64,15 @@ size_t AnimData::NumNodes(FlatChannelId channel_id) const {
 void AnimData::AddCurve(FlatChannelId channel_id, FlatTime time_start,
                         FlatTime time_end, const FlatVal* vals,
                         const FlatDerivative* derivatives, size_t count) {
-  std::priority_queue<CurveSegment,
-                      std::vector<CurveSegment>,
-                      std::greater<CurveSegment>> segments;
-  segments.emplace(time_start, time_end, vals, derivatives, count);
+  // Break the curve down into segments and process them depth-first so that the
+  // resulting nodes are in chronological order.
+  std::vector<CurveSegment> segments;
+  segments.emplace_back(time_start, time_end, vals, derivatives, count);
 
   while (!segments.empty()) {
-    CurveSegment s = segments.top();
-    segments.pop();
+    CurveSegment s = segments.back();
+    segments.pop_back();
+
     // Create cubic that covers the entire range from s.time_start ~ s.time_end.
     // The cubic `c` is shifted to the left, to start at 0 instead of
     // s.time_start. This is to maintain floating-point precision.
@@ -107,10 +108,12 @@ void AnimData::AddCurve(FlatChannelId channel_id, FlatTime time_start,
     if (worst_idx > 0 && worst_diff > tolerance) {
       const FlatTime time_mid =
           s.time_start + static_cast<FlatTime>(worst_time);
-      segments.emplace(s.time_start, time_mid, s.vals, s.derivatives,
-                       worst_idx + 1);
-      segments.emplace(time_mid, s.time_end, &s.vals[worst_idx],
-                       &s.derivatives[worst_idx], s.count - worst_idx);
+      // Push the "end" segment on first so that the "start" segment is
+      // processed first, resulting in a depth-first search.
+      segments.emplace_back(time_mid, s.time_end, &s.vals[worst_idx],
+                            &s.derivatives[worst_idx], s.count - worst_idx);
+      segments.emplace_back(s.time_start, time_mid, s.vals, s.derivatives,
+                            worst_idx + 1);
       continue;
     }
 
