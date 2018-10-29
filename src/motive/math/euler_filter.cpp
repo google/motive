@@ -20,6 +20,7 @@
 namespace {
 
 static constexpr float kTwoPi = 2.f * mathfu::kPi;
+static constexpr float kEpsilon = 1e-5;
 
 // Returns the sum of the absolute differences between |a| and |b|.
 float EulerDistance(const mathfu::vec3& a, const mathfu::vec3& b) {
@@ -29,7 +30,8 @@ float EulerDistance(const mathfu::vec3& a, const mathfu::vec3& b) {
 // Returns an equivalent angle to |value| normalized to be within +/- pi of
 // |target|.
 float EulerNormalize(float target, float value) {
-  while (fabs(target - value) > mathfu::kPi) {
+  // Ensure the difference is slightly larger than pi to avoid infinite looping.
+  while (fabs(target - value) > mathfu::kPi + kEpsilon) {
     if (target < value) {
       value -= kTwoPi;
     } else {
