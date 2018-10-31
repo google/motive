@@ -32,40 +32,40 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
     }
   }
 
-  virtual void AdvanceFrame(MotiveTime delta_time) {
+  void AdvanceFrame(MotiveTime delta_time) override {
     Defragment();
     interpolator_.AdvanceFrame(static_cast<float>(delta_time));
   }
 
-  virtual MotivatorType Type() const { return SplineInit::kType; }
-  virtual int Priority() const { return 0; }
+  MotivatorType Type() const override { return SplineInit::kType; }
+  int Priority() const override { return 0; }
 
   // Accessors to allow the user to get and set simluation values.
-  virtual const float* Values(MotiveIndex index) const {
+  const float* Values(MotiveIndex index) const override {
     return interpolator_.Ys(index);
   }
-  virtual void Velocities(MotiveIndex index, MotiveDimension dimensions,
-                          float* out) const {
+  void Velocities(MotiveIndex index, MotiveDimension dimensions,
+                  float* out) const override {
     return interpolator_.Derivatives(index, dimensions, out);
   }
-  virtual void Directions(MotiveIndex index, MotiveDimension dimensions,
-                          float* out) const {
+  void Directions(MotiveIndex index, MotiveDimension dimensions,
+                  float* out) const override {
     return interpolator_.DerivativesWithoutPlayback(index, dimensions, out);
   }
-  virtual void TargetValues(MotiveIndex index, MotiveDimension dimensions,
-                            float* out) const {
+  void TargetValues(MotiveIndex index, MotiveDimension dimensions,
+                    float* out) const override {
     return interpolator_.EndYs(index, dimensions, out);
   }
-  virtual void TargetVelocities(MotiveIndex index, MotiveDimension dimensions,
-                                float* out) const {
+  void TargetVelocities(MotiveIndex index, MotiveDimension dimensions,
+                        float* out) const override {
     return interpolator_.EndDerivatives(index, dimensions, out);
   }
-  virtual void Differences(MotiveIndex index, MotiveDimension dimensions,
-                           float* out) const {
+  void Differences(MotiveIndex index, MotiveDimension dimensions,
+                   float* out) const override {
     return interpolator_.YDifferencesToEnd(index, dimensions, out);
   }
-  virtual MotiveTime TargetTime(MotiveIndex index,
-                                MotiveDimension dimensions) const {
+  MotiveTime TargetTime(MotiveIndex index,
+                        MotiveDimension dimensions) const override {
     MotiveTime greatest = std::numeric_limits<MotiveTime>::min();
     for (MotiveDimension i = 0; i < dimensions; ++i) {
       greatest =
@@ -75,20 +75,20 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
     }
     return greatest;
   }
-  virtual MotiveTime SplineTime(MotiveIndex index) const {
+  MotiveTime SplineTime(MotiveIndex index) const override {
     return static_cast<MotiveTime>(interpolator_.X(index));
   }
 
-  virtual void SetTargets(MotiveIndex index, MotiveDimension dimensions,
-                          const MotiveTarget1f* ts) {
+  void SetTargets(MotiveIndex index, MotiveDimension dimensions,
+                  const MotiveTarget1f* ts) override {
     for (MotiveDimension i = 0; i < dimensions; ++i) {
       SetTarget(index + i, ts[i]);
     }
   }
 
-  virtual void SetSplines(MotiveIndex index, MotiveDimension dimensions,
-                          const CompactSpline* splines,
-                          const SplinePlayback& playback) {
+  void SetSplines(MotiveIndex index, MotiveDimension dimensions,
+                  const CompactSpline* splines,
+                  const SplinePlayback& playback) override {
     // Return the local splines to the spline pool. We use external splines now.
     for (MotiveDimension i = index; i < index + dimensions; ++i) {
       FreeSplineForIndex(i);
@@ -100,11 +100,11 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
     interpolator_.SetSplines(index, dimensions, splines, playback);
   }
 
-  virtual void SetSplinesAndTargets(MotiveIndex index,
-                                    MotiveDimension dimensions,
-                                    const CompactSpline* const* splines,
-                                    const SplinePlayback& playback,
-                                    const MotiveTarget1f* targets) {
+  void SetSplinesAndTargets(MotiveIndex index,
+                            MotiveDimension dimensions,
+                            const CompactSpline* const* splines,
+                            const SplinePlayback& playback,
+                            const MotiveTarget1f* targets) override {
     // Initialize either with a spline or a target.
     // We initialize one by one instead of in bulk. Not as efficient.
     for (MotiveDimension i = 0; i < dimensions; ++i) {
@@ -117,27 +117,27 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
     }
   }
 
-  virtual void Splines(MotiveIndex index, MotiveDimension dimensions,
-                       const motive::CompactSpline** splines) const {
+  void Splines(MotiveIndex index, MotiveDimension dimensions,
+               const motive::CompactSpline** splines) const override {
     // Get splines at index for dimensions.
     interpolator_.Splines(index, dimensions, splines);
   }
 
   // TODO: Push this loop into BulkSplineInterpolator.
-  virtual void SetSplineTime(MotiveIndex index, MotiveDimension dimensions,
-                             MotiveTime time) {
+  void SetSplineTime(MotiveIndex index, MotiveDimension dimensions,
+                     MotiveTime time) override {
     interpolator_.SetXs(index, dimensions, static_cast<float>(time));
   }
 
   // TODO: Push this loop into BulkSplineInterpolator.
-  virtual void SetSplinePlaybackRate(MotiveIndex index,
-                                     MotiveDimension dimensions,
-                                     float playback_rate) {
+  void SetSplinePlaybackRate(MotiveIndex index,
+                             MotiveDimension dimensions,
+                             float playback_rate) override {
     interpolator_.SetPlaybackRates(index, dimensions, playback_rate);
   }
 
-  virtual void SetSplineRepeating(MotiveIndex index, MotiveDimension dimensions,
-                                  bool repeat) {
+  void SetSplineRepeating(MotiveIndex index, MotiveDimension dimensions,
+                          bool repeat) override {
     interpolator_.SetRepeating(index, dimensions, repeat);
   }
 
@@ -202,9 +202,9 @@ class SplineMotiveProcessor : public MotiveProcessorNf {
     interpolator_.SetSplines(index, 1, d.local_spline, SplinePlayback());
   }
 
-  virtual void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
-                                 MotiveDimension dimensions,
-                                 MotiveEngine* /*engine*/) {
+  void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
+                         MotiveDimension dimensions,
+                         MotiveEngine* /*engine*/) override {
     auto spline_init = static_cast<const SplineInit&>(init);
     interpolator_.SetYRanges(index, dimensions, spline_init.range());
   }
