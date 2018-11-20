@@ -172,7 +172,7 @@ class RigData {
   void SetPlaybackRate(float playback_rate) {
     // Update the motivators to have the new playback rate.
     // TODO: Do this in bulk.
-    for (BoneIndex i = 0; i < motivators_.size(); ++i) {
+    for (size_t i = 0; i < motivators_.size(); ++i) {
       motivators_[i].SetPlaybackRate(playback_rate);
     }
   }
@@ -206,7 +206,7 @@ class RigData {
   }
 
   void SetRepeating(bool repeat) {
-    for (BoneIndex i = 0; i < motivators_.size(); ++i) {
+    for (size_t i = 0; i < motivators_.size(); ++i) {
       motivators_[i].SetRepeating(repeat);
     }
   }
@@ -217,7 +217,7 @@ class RigData {
     }
     MotiveTime time = 0;
     const int defining_num_bones = NumBones();
-    for (BoneIndex i = 0; i < defining_num_bones; ++i) {
+    for (size_t i = 0; i < motivators_.size(); ++i) {
       time = std::max(time, motivators_[i].TimeRemaining());
     }
     return time;
