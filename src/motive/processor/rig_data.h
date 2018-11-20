@@ -216,7 +216,6 @@ class RigData {
       return kMotiveTimeEndless;
     }
     MotiveTime time = 0;
-    const int defining_num_bones = NumBones();
     for (size_t i = 0; i < motivators_.size(); ++i) {
       time = std::max(time, motivators_[i].TimeRemaining());
     }
