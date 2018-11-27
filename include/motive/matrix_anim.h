@@ -36,6 +36,7 @@ class MatrixAnim {
 
   explicit MatrixAnim(int expected_num_ops = 0) {
     ops_.reserve(expected_num_ops);
+    is_sqt_anim_ = false;
   }
 
   /// For construction. Allocates storage for spline data, and returns it.
@@ -58,6 +59,14 @@ class MatrixAnim {
   /// Return the op array. Const version is to initialize a MatrixMotivator.
   const std::vector<MatrixOperationInit>& ops() const { return ops_; }
 
+  /// Configures this MatrixAnim to use an SqtInit instead of a MatrixInit,
+  /// indicating that it contains quaternion operations.
+  void SetSqtAnim() { is_sqt_anim_ = true; }
+
+  /// Returns true if this animation should use SqtInit to initialize a
+  /// MatrixMotivator, false if it should use a MatrixInit.
+  bool IsSqtAnim() const { return is_sqt_anim_; }
+
  private:
   /// Initialization structure for a MatrixMotivator.
   /// When initialized with this struct, the MatrixMotivator will play back
@@ -66,6 +75,12 @@ class MatrixAnim {
 
   /// Hold spline animation data that is referenced by `init_`.
   std::vector<Spline> splines_;
+
+  /// True if this animation should use SqtInit to initialize a MatrixMotivator,
+  /// false if it should use a MatrixInit. Must be set to true if `ops_`
+  /// containts quaternion operations and false if it contains rotate-about
+  /// operations.
+  bool is_sqt_anim_;
 };
 
 }  // namespace motive

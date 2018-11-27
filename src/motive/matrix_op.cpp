@@ -16,6 +16,30 @@
 
 namespace motive {
 
+static const mathfu::vec3 kDefaultOpsTranslation = mathfu::vec3(
+    OperationDefaultValue(kTranslateX), OperationDefaultValue(kTranslateY),
+    OperationDefaultValue(kTranslateZ));
+
+mathfu::vec3 DefaultOpsTranslation() {
+  return kDefaultOpsTranslation;
+}
+
+static const mathfu::quat kDefaultOpsQuaternion = mathfu::quat(
+    OperationDefaultValue(kQuaternionW), OperationDefaultValue(kQuaternionX),
+    OperationDefaultValue(kQuaternionY), OperationDefaultValue(kQuaternionZ));
+
+mathfu::quat DefaultOpsQuaternion() {
+  return kDefaultOpsQuaternion;
+}
+
+static const mathfu::vec3 kDefaultOpsScale = mathfu::vec3(
+    OperationDefaultValue(kScaleX), OperationDefaultValue(kScaleY),
+    OperationDefaultValue(kScaleZ));
+
+mathfu::vec3 DefaultOpsScale() {
+  return kDefaultOpsScale;
+}
+
 static const char* kMatrixOpNames[] = {
     "Invalid Matrix Operation",  // kInvalidMatrixOperation
     "Rotate About X",            // kRotateAboutX
@@ -28,6 +52,10 @@ static const char* kMatrixOpNames[] = {
     "Scale Y",                   // kScaleY
     "Scale Z",                   // kScaleZ
     "Scale Uniformly",           // kScaleUniformly
+    "Quaternion W",              // kQuaternionW
+    "Quaternion X",              // kQuaternionX
+    "Quaternion Y",              // kQuaternionY
+    "Quaternion Z",              // kQuaternionZ
 };
 static_assert(MOTIVE_ARRAY_SIZE(kMatrixOpNames) == kNumMatrixOperationTypes,
               "Adjust kMatrixOpNames to match enumeration");

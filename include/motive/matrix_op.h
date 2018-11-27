@@ -37,8 +37,16 @@ static const MatrixOpId kMaxMatrixOpId = 254;
 static const MatrixOpId kInvalidMatrixOpId = 255;
 static const float kEpsilon = 0.001f;
 
+/// Quaternion and RotateAbout ops cannot be present in the same animation.
+/// If quaternion ops are present, there should only be at most one op of each
+/// type and the list of operations should be processor by the
+/// SqtMotiveProcessor instead of the MatrixMotiveProcessor. Quaternion
+/// operations are included here (rather than creating a separate type) so that
+/// RigAnims can easily be represented by either Matrices or Sqts without much
+/// code change.
 enum MatrixOperationType {
   kInvalidMatrixOperation,
+  // RotateAbout ops only function in the MatrixMotiveProcessor.
   kRotateAboutX,
   kRotateAboutY,
   kRotateAboutZ,
@@ -49,6 +57,11 @@ enum MatrixOperationType {
   kScaleY,
   kScaleZ,
   kScaleUniformly,
+  // Quaternion ops only function in the SqtMotiveProcessor.
+  kQuaternionW,
+  kQuaternionX,
+  kQuaternionY,
+  kQuaternionZ,
   kNumMatrixOperationTypes
 };
 
@@ -73,12 +86,28 @@ inline bool ScaleOp(MatrixOperationType op) {
   return kScaleX <= op && op <= kScaleUniformly;
 }
 
+/// Returns true if the operation is a quaternion component.
+inline bool QuaternionOp(MatrixOperationType op) {
+  return kQuaternionW <= op && op <= kQuaternionZ;
+}
+
+/// Returns a vector  containing the default operation values.
+mathfu::vec3 DefaultOpsTranslation();
+
+/// Returns a quaternion containing the default quaternion values.
+mathfu::quat DefaultOpsQuaternion();
+
+/// Returns a vector containing the default scale values.
+mathfu::vec3 DefaultOpsScale();
+
 /// Returns the default value of the operation. That is, the value of the
 /// operation that does nothing to the transformation. Any operation that
 /// constantly returns the default value can be removed.
 inline float OperationDefaultValue(MatrixOperationType op) {
-  return ScaleOp(op) ? 1.0f : 0.0f;
+  return (ScaleOp(op) || op == kQuaternionW) ? 1.0f : 0.0f;
 }
+
+
 
 /// Returns the range of the matrix operation's spline. Most ranges are just
 /// the extents of the splines, but rotations we want to normalize within
@@ -93,6 +122,8 @@ const char* MatrixOpName(const MatrixOperationType op);
 /// @class MatrixOperationInit
 /// @brief Init params for a basic operation on a matrix.
 struct MatrixOperationInit {
+  /// Enum to indicate which value in the union is valid: none, `initial_value`,
+  // `target`, or, `spline`.
   enum UnionType {
     kUnionEmpty,
     kUnionInitialValue,
@@ -140,6 +171,19 @@ struct MatrixOperationInit {
         union_type(kUnionSpline),
         spline(&spline) {}
 
+  float StartValue() const {
+    switch (union_type) {
+      case kUnionEmpty:
+        return OperationDefaultValue(type);
+      case kUnionInitialValue:
+        return initial_value;
+      case kUnionTarget:
+        return target->Node(0).value;
+      case kUnionSpline:
+        return spline->StartY();
+    }
+  }
+
   const MotivatorInit* init;
   MatrixOpId id;
   MatrixOperationType type;
@@ -156,9 +200,7 @@ struct MatrixOperationInit {
 // matrix will be constructed by a series of these.
 class MatrixOperation {
  public:
-  MatrixOperation() {
-    SetType(kInvalidMatrixOperation);
-  }
+  MatrixOperation() { SetType(kInvalidMatrixOperation); }
 
   MatrixOperation(const MatrixOperationInit& init, MotiveEngine* engine)
       : MatrixOperation(init, motive::SplinePlayback(), engine) {}
@@ -184,9 +226,7 @@ class MatrixOperation {
     BlendToOp(init, playback, engine);
   }
 
-  MatrixOperation(MatrixOperation&& rhs) noexcept {
-    *this = std::move(rhs);
-  }
+  MatrixOperation(MatrixOperation&& rhs) noexcept { *this = std::move(rhs); }
 
   MatrixOperation& operator=(MatrixOperation&& rhs) noexcept {
     if (this != &rhs) {
@@ -199,9 +239,7 @@ class MatrixOperation {
     return *this;
   }
 
-  MatrixOperation(const MatrixOperation& rhs) {
-    *this = rhs;
-  }
+  MatrixOperation(const MatrixOperation& rhs) { *this = rhs; }
 
   MatrixOperation& operator=(const MatrixOperation& rhs) {
     SetId(rhs.Id());
@@ -223,6 +261,11 @@ class MatrixOperation {
   // Return the value we are animating.
   float Value() const {
     return motivator_.Valid() ? motivator_.Value() : const_value_;
+  }
+
+  // Return the current velocity of the animated value.
+  float Velocity() const {
+    return motivator_.Valid() ? motivator_.Velocity() : 0.f;
   }
 
   // Return true if we can blend to `op`.
@@ -262,8 +305,9 @@ class MatrixOperation {
         // op into a constant. In other cases, set a new target.
         if (!motivator_.Valid()) {
           const_value_ = init.initial_value;
-        } else if (NearlyEqual(motivator_.Value(), init.initial_value, kEpsilon)
-                   && NearlyEqual(motivator_.Velocity(), 0.f, kEpsilon)) {
+        } else if (NearlyEqual(motivator_.Value(), init.initial_value,
+                               kEpsilon) &&
+                   NearlyEqual(motivator_.Velocity(), 0.f, kEpsilon)) {
           motivator_.Invalidate();
           const_value_ = init.initial_value;
         } else {
@@ -330,7 +374,7 @@ class MatrixOperation {
     }
   }
 
-  // Execute the series of basic matrix operations in 'ops_'.
+  // Execute the series of basic matrix operations in 'ops'.
   // We break out the matrix into four column vectors to avoid matrix multiplies
   // (which are slow) in preference of operation-specific matrix math (which is
   // fast).
@@ -339,7 +383,7 @@ class MatrixOperation {
     return CalculateResultMatrix(ops, num_ops, nullptr);
   }
 
-  // Execute the series of basic matrix operations in 'ops_' and returns the
+  // Execute the series of basic matrix operations in 'ops' and returns the
   // scale of the matrix in `out_scale`.
   static mathfu::mat4 CalculateResultMatrix(const MatrixOperation* ops,
                                             size_t num_ops,
@@ -350,8 +394,8 @@ class MatrixOperation {
     mathfu::vec4 c2 = mathfu::kAxisZ4f;
     mathfu::vec4 c3 = mathfu::kAxisW4f;
 
-    // Normalize the out_scale.
-    if (out_scale) *out_scale = mathfu::kOnes3f;
+    // Separately keep track of the scale.
+    mathfu::vec3 scale = mathfu::kOnes3f;
 
     for (size_t i = 0; i < num_ops; ++i) {
       const MatrixOperation& op = ops[i];
@@ -396,29 +440,33 @@ class MatrixOperation {
         // ( |  |  |  |)(0  0  0  1)   ( |   |   |   |)
         case kScaleX:
           c0 *= value;
-          if (out_scale) out_scale->x *= value;
+          scale.x *= value;
           break;
 
         case kScaleY:
           c1 *= value;
-          if (out_scale) out_scale->y *= value;
+          scale.y *= value;
           break;
 
         case kScaleZ:
           c2 *= value;
-          if (out_scale) out_scale->z *= value;
+          scale.z *= value;
           break;
 
         case kScaleUniformly:
           c0 *= value;
           c1 *= value;
           c2 *= value;
-          if (out_scale) *out_scale *= value;
+          scale *= value;
           break;
 
         default:
+          // All other operations, including quaternions, are not supported.
           assert(false);
       }
+    }
+    if (out_scale) {
+      *out_scale = scale;
     }
     return mathfu::mat4(c0, c1, c2, c3);
   }
