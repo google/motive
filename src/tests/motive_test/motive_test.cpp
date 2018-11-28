@@ -26,7 +26,6 @@
 #include "motive/matrix_op.h"
 #include "motive/overshoot_init.h"
 #include "motive/spline_init.h"
-#include "motive/sqt_init.h"
 
 #define DEBUG_PRINT_MATRICES 0
 
@@ -77,7 +76,6 @@ using motive::Settled1f;
 using motive::SimpleInitTemplate;
 using motive::SplineInit;
 using motive::SplinePlayback;
-using motive::SqtInit;
 
 typedef mathfu::Matrix<float, 3> mat3;
 
@@ -229,7 +227,6 @@ class MotiveTests : public ::testing::Test {
     motive::SplineInit::Register();
     motive::EaseInEaseOutInit::Register();
     motive::MatrixInit::Register();
-    motive::SqtInit::Register();
 
     // Create an OvershootInit with reasonable values.
     overshoot_angle_init_.set_modular(true);
@@ -997,87 +994,6 @@ TEST_F(MotiveTests, MatrixTranslateRotateScaleGoneWild) {
   ops.emplace_back(0, motive::kScaleX, spline_scalar_init, 2.0f);
   ops.emplace_back(0, motive::kScaleY, spline_scalar_init, 4.1f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
-}
-
-// Return the matrix equivalent to the Sqt operations from 'sqt_init'.
-static mat4 CreateMatrixForSqt(const SqtInit& sqt_init) {
-  const std::vector<MatrixOperationInit>& ops = sqt_init.ops();
-
-  mathfu::vec3 translation = motive::DefaultOpsTranslation();
-  mathfu::quat rotation = motive::DefaultOpsQuaternion();
-  mathfu::vec3 scale = motive::DefaultOpsScale();
-
-  for (size_t i = 0; i < ops.size(); ++i) {
-    const MatrixOperationInit& op = ops[i];
-    if (motive::TranslateOp(op.type)) {
-      translation[op.type - motive::kTranslateX] = op.initial_value;
-    } else if (motive::QuaternionOp(op.type)) {
-      rotation[op.type - motive::kQuaternionW] = op.initial_value;
-    } else if (motive::ScaleOp(op.type)) {
-      scale[op.type - motive::kScaleX] = op.initial_value;
-    }
-  }
-  return mathfu::mat4::Transform(translation, rotation.Normalized().ToMatrix(),
-                                 scale);
-}
-
-static void TestSqtMotivator(const SqtInit& sqt_init, MotiveEngine* engine) {
-  MatrixMotivator4f matrix_motivator(sqt_init, engine);
-  const mat4 check_matrix = CreateMatrixForSqt(sqt_init);
-
-  const mat4 init_matrix = matrix_motivator.Value();
-  ExpectMatricesEqual(init_matrix, check_matrix, kMatrixEpsilon);
-
-  engine->AdvanceFrame(kTimePerFrame);
-  const mat4 motive_matrix = matrix_motivator.Value();
-  ExpectMatricesEqual(motive_matrix, check_matrix, kMatrixEpsilon);
-
-  // Output matrices for debugging.
-  PrintMatrix("motivator", motive_matrix);
-  PrintMatrix("check", check_matrix);
-}
-
-// Test the translation portion of the Sqt.
-TEST_F(MotiveTests, SqtTranslate) {
-  std::vector<MatrixOperationInit> ops;
-  ops.emplace_back(0, motive::kTranslateX, spline_scalar_init, 2.0f);
-  ops.emplace_back(0, motive::kTranslateY, spline_scalar_init, -3.0f);
-  ops.emplace_back(0, motive::kTranslateZ, spline_scalar_init, -2.0f);
-  TestSqtMotivator(SqtInit(ops), &engine_);
-}
-
-// Test the quaternion portion of the Sqt.
-TEST_F(MotiveTests, SqtQuaternion) {
-  std::vector<MatrixOperationInit> ops;
-  ops.emplace_back(0, motive::kQuaternionW, spline_scalar_init, 0.2f);
-  ops.emplace_back(0, motive::kQuaternionX, spline_scalar_init, 0.4f);
-  ops.emplace_back(0, motive::kQuaternionY, spline_scalar_init, 0.6f);
-  ops.emplace_back(0, motive::kQuaternionZ, spline_scalar_init, 0.8f);
-  TestSqtMotivator(SqtInit(ops), &engine_);
-}
-
-// Test the scale portion of the Sqt.
-TEST_F(MotiveTests, SqtScale) {
-  std::vector<MatrixOperationInit> ops;
-  ops.emplace_back(0, motive::kScaleX, spline_scalar_init, -3.0f);
-  ops.emplace_back(0, motive::kScaleY, spline_scalar_init, -2.0f);
-  ops.emplace_back(0, motive::kScaleZ, spline_scalar_init, 3.0f);
-  TestSqtMotivator(SqtInit(ops), &engine_);
-}
-// Test the quaternion portion of the Sqt.
-TEST_F(MotiveTests, SqtTranslateQuaternionScale) {
-  std::vector<MatrixOperationInit> ops;
-  ops.emplace_back(0, motive::kTranslateX, spline_scalar_init, 2.0f);
-  ops.emplace_back(0, motive::kTranslateY, spline_scalar_init, -3.0f);
-  ops.emplace_back(0, motive::kTranslateZ, spline_scalar_init, -2.0f);
-  ops.emplace_back(0, motive::kQuaternionW, spline_scalar_init, 0.2f);
-  ops.emplace_back(0, motive::kQuaternionX, spline_scalar_init, 0.4f);
-  ops.emplace_back(0, motive::kQuaternionY, spline_scalar_init, 0.6f);
-  ops.emplace_back(0, motive::kQuaternionZ, spline_scalar_init, 0.8f);
-  ops.emplace_back(0, motive::kScaleX, spline_scalar_init, -3.0f);
-  ops.emplace_back(0, motive::kScaleY, spline_scalar_init, -2.0f);
-  ops.emplace_back(0, motive::kScaleZ, spline_scalar_init, 3.0f);
-  TestSqtMotivator(SqtInit(ops), &engine_);
 }
 
 // Test the MotivatorVector::SplineTime() function.

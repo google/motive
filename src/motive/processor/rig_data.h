@@ -26,7 +26,6 @@
 #include "motive/matrix_motivator.h"
 #include "motive/rig_anim.h"
 #include "motive/rig_init.h"
-#include "motive/sqt_init.h"
 
 namespace motive {
 
@@ -35,7 +34,8 @@ static const std::vector<MatrixOperationInit> kEmptyOps;
 
 class RigData {
  public:
-  explicit RigData(const RigInit& init, MotiveTime start_time)
+  explicit RigData(const RigInit& init, MotiveTime start_time,
+                   MotiveEngine* engine)
       : defining_anim_(&init.defining_anim()),
         current_anim_(nullptr),
         root_motion_bone_(init.root_motion_bone()),
@@ -46,6 +46,13 @@ class RigData {
     motivators_.resize(num_bones);
     global_transforms_.resize(num_bones);
 
+    // Initialize the motivators that drive the local transforms.
+    for (BoneIndex i = 0; i < num_bones; ++i) {
+      const std::vector<MatrixOperationInit>& ops =
+          defining_anim_->Anim(i).ops();
+      motivators_[i].Initialize(MatrixInit(ops), engine);
+    }
+
     // Initialize global transforms to default pose.
     // These will get overridden the first time AdvanceFrame() is called, but
     // we initialize them nicely anyway.
@@ -55,13 +62,14 @@ class RigData {
   ~RigData() {}
 
   void BlendToAnim(const RigAnim& anim, const motive::SplinePlayback& playback,
-                   MotiveEngine* engine, MotiveTime start_time) {
+                   MotiveTime start_time) {
     end_time_ = start_time + anim.end_time();
 
     // When animation has only one bone, or mesh has only one bone,
     // we simply animate the root node only.
+    const int anim_num_bones = anim.NumBones();
     const int defining_num_bones = NumBones();
-    assert(defining_num_bones == 1 || anim.NumBones() == 1 ||
+    assert(defining_num_bones == 1 || anim_num_bones == 1 ||
            RigInit::MatchesHierarchy(anim, *defining_anim_));
 
     // TODO(b/111071408): instead of resizing back to a single animation, blend
@@ -74,13 +82,9 @@ class RigData {
 
     // Update the motivators to blend to our new values.
     for (BoneIndex i = 0; i < defining_num_bones; ++i) {
-      MatrixMotivator4f& motivator = motivators_[i];
-      const MatrixAnim& matrix_anim = anim.Anim(i);
-      if (motivator.Valid()) {
-        motivator.BlendToOps(matrix_anim.ops(), playback);
-      } else {
-        InitializeMotivator(&motivator, matrix_anim, engine);
-      }
+      const std::vector<MatrixOperationInit>& ops =
+          i >= anim_num_bones ? kEmptyOps : anim.Anim(i).ops();
+      motivators_[i].BlendToOps(ops, playback);
     }
 
     // Remember the currently playing animation, for debugging purposes.
@@ -121,7 +125,8 @@ class RigData {
       // When the animation has only one bone or the mesh has only one bone, we
       // simply animate the root node only. Otherwise, the rig hierarchies must
       // match.
-      assert(defining_num_bones == 1 || anim.NumBones() == 1 ||
+      const int anim_num_bones = anim.NumBones();
+      assert(defining_num_bones == 1 || anim_num_bones == 1 ||
              RigInit::MatchesHierarchy(anim, *defining_anim_));
 
       // Set the weight.
@@ -130,8 +135,6 @@ class RigData {
       // Update all Motivators.
       for (BoneIndex j = 0; j < defining_num_bones; ++j) {
         const int index = base_index + j;
-        const MatrixAnim& matrix_anim = anim.Anim(j);
-        MatrixMotivator4f& motivator = motivators_[index];
 
         // TODO(b/111071408): If there's more than 1 animation running, collapse
         // them into a single animation, then initialize the new ones to that.
@@ -141,18 +144,18 @@ class RigData {
         // defining animation.
         if (i >= old_count) {
           if (old_count == 1) {
-            motivator.CloneFrom(&motivators_[j]);
+            motivators_[index].CloneFrom(&motivators_[j]);
           } else {
-            InitializeMotivator(&motivator, matrix_anim, engine);
+            const std::vector<MatrixOperationInit>& ops =
+                defining_anim_->Anim(j).ops();
+            motivators_[index].Initialize(MatrixInit(ops), engine);
           }
         }
 
         // Blend the Motivator to its new animation.
-        if (motivator.Valid()) {
-          motivator.BlendToOps(matrix_anim.ops(), playback);
-        } else {
-          InitializeMotivator(&motivator, matrix_anim, engine);
-        }
+        const std::vector<MatrixOperationInit>& ops =
+            j >= anim_num_bones ? kEmptyOps : anim.Anim(j).ops();
+        motivators_[index].BlendToOps(ops, playback);
       }
     }
 
@@ -363,9 +366,7 @@ class RigData {
     const int num_bones = NumBones();
     for (int i = 0; i < num_bones; ++i) {
       // TODO: Return an AffineTransform from the MatrixMotivator.
-      const MatrixMotivator4f& motivator = motivators_[i];
-      const mathfu::mat4& local_transform =
-          motivator.Valid() ? motivator.Value() : mathfu::mat4::Identity();
+      const mathfu::mat4& local_transform = motivators_[i].Value();
       const int parent_idx = parents[i];
 
       // Root motion bone transforms are stored separately and treated as the
@@ -419,20 +420,15 @@ class RigData {
 
       // For each animation...
       for (int j = 0; j < num_anims; ++j) {
-        const MatrixMotivator4f& motivator = motivators_[i + j * num_bones];
+        const MatrixMotivator4f& motivator = motivators_.at(i + j * num_bones);
         const float weight = weights_[j];
         float rotation_weight = weight;
 
         // Get the SQT for the bone.
-        mathfu::vec3 position = DefaultOpsTranslation();
-        mathfu::vec4 rotation_vec(OperationDefaultValue(kQuaternionX),
-                                  OperationDefaultValue(kQuaternionY),
-                                  OperationDefaultValue(kQuaternionZ),
-                                  OperationDefaultValue(kQuaternionW));
-        mathfu::vec3 scale = DefaultOpsScale();
-        if (motivator.Valid()) {
-          motivator.Value(&position, &rotation_vec, &scale);
-        }
+        mathfu::vec3 position;
+        mathfu::vec4 rotation_vec;
+        mathfu::vec3 scale;
+        motivator.Value(&position, &rotation_vec, &scale);
         const mathfu::quat rotation(rotation_vec.w, rotation_vec.xyz());
 
         // Check if the quaternion needs to be flipped.
@@ -485,20 +481,6 @@ class RigData {
   }
 
   int BaseBoneIndex(int anim_index) const { return anim_index * NumBones(); }
-
-  // Initializes `motivator` to be driven by a list of `ops`. If `ops` contains
-  // quaternion components, the Motivator will be driven by the
-  // SqtMotiveProcessor. Otherwise, it will be driven by the
-  // MatrixMotiveProcessor.
-  static void InitializeMotivator(MatrixMotivator4f* motivator,
-                                  const MatrixAnim& matrix_anim,
-                                  MotiveEngine* engine) {
-    if (matrix_anim.IsSqtAnim()) {
-      motivator->Initialize(SqtInit(matrix_anim.ops()), engine);
-    } else {
-      motivator->Initialize(MatrixInit(matrix_anim.ops()), engine);
-    }
-  }
 
   // TODO(b/111070174): decide if array-of-structs is better. It's faster for
   // calculating transforms but significantly uglier for adding/removing

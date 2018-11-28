@@ -78,9 +78,7 @@ class MatrixMotivator4fTemplate : public Motivator {
 
   /// Return the time remaining in the current spline animation.
   /// Time units are defined by the user.
-  MotiveTime TimeRemaining() const {
-    return Valid() ? Processor().TimeRemaining(index_) : 0;
-  }
+  MotiveTime TimeRemaining() const { return Processor().TimeRemaining(index_); }
 
   /// Query the number of matrix operations. This equals the number of
   /// operations in the `init` initializer.
@@ -162,15 +160,11 @@ class MatrixMotivator4fTemplate : public Motivator {
   }
 
   void SetPlaybackRate(float playback_rate) {
-    if (Valid()) {
-      Processor().SetPlaybackRate(index_, playback_rate);
-    }
+    Processor().SetPlaybackRate(index_, playback_rate);
   }
 
   void SetRepeating(bool repeat) {
-    if (Valid()) {
-      Processor().SetRepeating(index_, repeat);
-    }
+    Processor().SetRepeating(index_, repeat);
   }
 
  private:

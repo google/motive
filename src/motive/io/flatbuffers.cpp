@@ -92,13 +92,6 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
     const MatrixOperationType op_type =
         static_cast<MatrixOperationType>(op->type());
 
-    // Configure the animation to use SqtInit instead of MatrixInit.
-    if (QuaternionOp(op_type)) {
-      anim->SetSqtAnim();
-    } else if (RotateOp(op_type)) {
-      assert(!anim->IsSqtAnim());
-    }
-
     switch (op->value_type()) {
       case MatrixOpValueFb_CompactSplineFb: {
         const CompactSplineFb* spline_fb =
