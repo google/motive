@@ -60,9 +60,8 @@ class RigData {
 
     // When animation has only one bone, or mesh has only one bone,
     // we simply animate the root node only.
-    const int anim_num_bones = anim.NumBones();
     const int defining_num_bones = NumBones();
-    assert(defining_num_bones == 1 || anim_num_bones == 1 ||
+    assert(defining_num_bones == 1 || anim.NumBones() == 1 ||
            RigInit::MatchesHierarchy(anim, *defining_anim_));
 
     // TODO(b/111071408): instead of resizing back to a single animation, blend
@@ -122,8 +121,7 @@ class RigData {
       // When the animation has only one bone or the mesh has only one bone, we
       // simply animate the root node only. Otherwise, the rig hierarchies must
       // match.
-      const int anim_num_bones = anim.NumBones();
-      assert(defining_num_bones == 1 || anim_num_bones == 1 ||
+      assert(defining_num_bones == 1 || anim.NumBones() == 1 ||
              RigInit::MatchesHierarchy(anim, *defining_anim_));
 
       // Set the weight.
