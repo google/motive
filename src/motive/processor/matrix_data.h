@@ -17,11 +17,8 @@
 
 #include "mathfu/constants.h"
 #include "motive/engine.h"
-#include "motive/math/angle.h"
-#include "motive/math/bulk_spline_evaluator.h"
 #include "motive/matrix_init.h"
 #include "motive/matrix_op.h"
-#include "motive/util.h"
 
 namespace motive {
 
@@ -35,6 +32,8 @@ class MatrixData {
     int num_ops = static_cast<int>(ops.size());
     ops_.reserve(num_ops);
     for (int i = 0; i < num_ops; ++i) {
+      // Quaternion ops must use the SqtMotiveProcessor.
+      assert(!QuaternionOp(ops[i].type));
       ops_.emplace_back(ops[i], engine);
     }
 
@@ -66,6 +65,9 @@ class MatrixData {
     while (old_idx < ops_.size() && new_idx < num_new_ops) {
       MatrixOperation& old_op = ops_[old_idx];
       const MatrixOperationInit& new_op = new_ops[new_idx];
+
+      // Quaternion ops must use the SqtMotiveProcessor.
+      assert(!QuaternionOp(new_op.type));
 
       // Ops are blendable if they have identical IDs. If not, handle whichever
       // has the lower ID since it cannot possibly have a Blendable op in the

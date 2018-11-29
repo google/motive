@@ -52,7 +52,7 @@ class MotiveRigProcessor : public RigProcessor {
 
   void BlendToAnim(MotiveIndex index, const RigAnim& anim,
                    const motive::SplinePlayback& playback) override {
-    Data(index).BlendToAnim(anim, playback, time_);
+    Data(index).BlendToAnim(anim, playback, Engine(), time_);
   }
 
   void BlendToAnims(MotiveIndex index, const RigAnim** anims,
@@ -133,7 +133,7 @@ class MotiveRigProcessor : public RigProcessor {
     RemoveIndices(index, dimensions);
     auto rig_init = static_cast<const RigInit&>(init);
     for (MotiveIndex i = index; i < index + dimensions; ++i) {
-      data_[i] = new RigData(rig_init, time_, engine);
+      data_[i] = new RigData(rig_init, time_);
     }
   }
 
