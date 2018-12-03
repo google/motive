@@ -36,12 +36,11 @@ enum MatrixOperationTypeFb : byte {
   kScaleY,
   kScaleZ,
   kScaleUniformly,
-  // RotateAbout ops only function in the SqtMotiveProcessor.
+  // Quaternion ops only function in the SqtMotiveProcessor.
   kQuaternionW,
   kQuaternionX,
   kQuaternionY,
-  kQuaternionZ,
-  kNumMatrixOperationTypes
+  kQuaternionZ
 }
 
 table ConstantOpFb {

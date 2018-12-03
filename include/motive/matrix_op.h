@@ -37,6 +37,7 @@ static const MatrixOpId kMaxMatrixOpId = 254;
 static const MatrixOpId kInvalidMatrixOpId = 255;
 static const float kEpsilon = 0.001f;
 
+// Same as MatrixOperationTypeFb in schemas/anim.fbs.
 /// Quaternion and RotateAbout ops cannot be present in the same animation.
 /// If quaternion ops are present, there should only be at most one op of each
 /// type and the list of operations should be processor by the
@@ -62,6 +63,7 @@ enum MatrixOperationType {
   kQuaternionX,
   kQuaternionY,
   kQuaternionZ,
+  // Not found in anim.fbs, included for convenience.
   kNumMatrixOperationTypes
 };
 
