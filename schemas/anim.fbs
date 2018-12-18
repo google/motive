@@ -65,6 +65,9 @@ table MatrixOpFb {
 // animation.
 table MatrixAnimFb {
   ops:[MatrixOpFb];
+  // True if this animation should be backed by an Sqt-based implementation
+  // instead of a Matrix-based implementation.
+  sqt_anim:bool = false;
 }
 
 // Animate an array of matrices.

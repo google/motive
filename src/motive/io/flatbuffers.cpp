@@ -77,6 +77,11 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
   ops.clear();
   ops.reserve(params.ops()->size());
 
+  // Configure the animation as an Sqt animation if appropriate.
+  if (params.sqt_anim()) {
+    anim->SetSqtAnim();
+  }
+
   // Count the number of splines.
   int num_splines = 0;
   for (auto op = params.ops()->begin(); op != params.ops()->end(); ++op) {
@@ -95,9 +100,9 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
     const MatrixOperationType op_type =
         static_cast<MatrixOperationType>(op->type());
 
-    // Configure the animation to use SqtInit instead of MatrixInit.
+    // Ensure the Sqt flag is appropriately set.
     if (QuaternionOp(op_type)) {
-      anim->SetSqtAnim();
+      assert(anim->IsSqtAnim());
     } else if (RotateOp(op_type)) {
       assert(!anim->IsSqtAnim());
     }
