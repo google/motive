@@ -21,7 +21,6 @@
 #include "fplbase/utilities.h"
 #include "fplutil/file_utils.h"
 #include "mathfu/matrix.h"
-#include "mathfu/matrix_4x4.h"
 #include "motive/anim_table.h"
 #include "motive/engine.h"
 #include "motive/io/flatbuffers.h"
