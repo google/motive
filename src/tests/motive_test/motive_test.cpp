@@ -1012,7 +1012,19 @@ static mat4 CreateMatrixForSqt(const SqtInit& sqt_init) {
     if (motive::TranslateOp(op.type)) {
       translation[op.type - motive::kTranslateX] = op.initial_value;
     } else if (motive::QuaternionOp(op.type)) {
-      rotation[op.type - motive::kQuaternionW] = op.initial_value;
+      if (op.type == motive::kQuaternionW) {
+        rotation.set_scalar(op.initial_value);
+      } else {
+        mathfu::vec3 v = rotation.vector();
+        if (op.type == motive::kQuaternionX) {
+          v.x = op.initial_value;
+        } else if (op.type == motive::kQuaternionY) {
+          v.y = op.initial_value;
+        } else if (op.type == motive::kQuaternionZ) {
+          v.z = op.initial_value;
+        }
+        rotation.set_vector(v);
+      }
     } else if (motive::ScaleOp(op.type)) {
       scale[op.type - motive::kScaleX] = op.initial_value;
     }

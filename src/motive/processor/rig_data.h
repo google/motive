@@ -442,10 +442,7 @@ class RigData {
 
         // Gather the components.
         bone_position += position * weight;
-        bone_rotation[0] += rotation[0] * rotation_weight;
-        bone_rotation[1] += rotation[1] * rotation_weight;
-        bone_rotation[2] += rotation[2] * rotation_weight;
-        bone_rotation[3] += rotation[3] * rotation_weight;
+        bone_rotation += rotation * rotation_weight;
         bone_scale += scale * weight;
       }
 

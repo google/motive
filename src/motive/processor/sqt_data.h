@@ -19,6 +19,7 @@
 #include "motive/engine.h"
 #include "motive/matrix_op.h"
 #include "motive/sqt_init.h"
+#include "third_party/motive/include/motive/matrix_op.h"
 
 namespace motive {
 
@@ -99,20 +100,29 @@ class SqtData {
           break;
 
         case kQuaternionW:
-          rotation_[0] = value;
+          rotation_.set_scalar(value);
           break;
 
-        case kQuaternionX:
-          rotation_[1] = value;
+        case kQuaternionX: {
+          mathfu::vec3 v = rotation_.vector();
+          v.x = value;
+          rotation_.set_vector(v);
           break;
+        }
 
-        case kQuaternionY:
-          rotation_[2] = value;
+        case kQuaternionY: {
+          mathfu::vec3 v = rotation_.vector();
+          v.y = value;
+          rotation_.set_vector(v);
           break;
+        }
 
-        case kQuaternionZ:
-          rotation_[3] = value;
+        case kQuaternionZ: {
+          mathfu::vec3 v = rotation_.vector();
+          v.z = value;
+          rotation_.set_vector(v);
           break;
+        }
 
         default:
           // All other operations, including RotateAbout, are not supported.
@@ -234,7 +244,19 @@ class SqtData {
     for (int i = 0; i < new_ops.size(); ++i) {
       const MatrixOperationInit& op = new_ops[i];
       if (QuaternionOp(op.type)) {
-        next[op.type - kQuaternionW] = op.StartValue();
+        if (op.type == kQuaternionW) {
+          next.set_scalar(op.StartValue());
+        } else {
+          mathfu::vec3 v = next.vector();
+          if (op.type == kQuaternionX) {
+            v.x = op.StartValue();
+          } else if (op.type == kQuaternionY) {
+            v.y = op.StartValue();
+          } else if (op.type == kQuaternionZ) {
+            v.z = op.StartValue();
+          }
+          next.set_vector(v);
+        }
       }
     }
     next.Normalize();
