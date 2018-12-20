@@ -19,7 +19,6 @@
 #include "motive/engine.h"
 #include "motive/matrix_op.h"
 #include "motive/sqt_init.h"
-#include "third_party/motive/include/motive/matrix_op.h"
 
 namespace motive {
 
