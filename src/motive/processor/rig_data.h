@@ -431,18 +431,22 @@ class RigData {
         if (motivator.Valid()) {
           motivator.Value(&position, &rotation_vec, &scale);
         }
-        const mathfu::quat rotation(rotation_vec.w, rotation_vec.xyz());
+        mathfu::quat rotation(rotation_vec.w, rotation_vec.xyz());
 
-        // Check if the quaternion needs to be flipped.
+        // Check if the quaternion needs to be flipped, then scale the
+        // individual components because using the quaternion * operator
+        // re-normalizes the quaternion (which is undesirable).
         if (j == 0) {
           first_quat = rotation;
         } else if (mathfu::quat::DotProduct(first_quat, rotation) < 0.f) {
           rotation_weight *= -1.f;
         }
+        rotation.set_scalar(rotation.scalar() * rotation_weight);
+        rotation.set_vector(rotation.vector() * rotation_weight);
 
         // Gather the components.
         bone_position += position * weight;
-        bone_rotation += rotation * rotation_weight;
+        bone_rotation += rotation;
         bone_scale += scale * weight;
       }
 
