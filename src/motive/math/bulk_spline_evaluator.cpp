@@ -94,6 +94,10 @@ CubicInit BulkSplineEvaluator::CalculateBlendInit(
     end_derivative = curve.Derivative(curve_x);
   }
 
+  // Scale and shift the end value by the playback parameters.
+  end_y *= playback.y_scale;
+  end_y += playback.y_offset;
+
   // Use the current values for the curve start.
   float start_y = ys_[index];
   const float start_derivative = Derivative(index);
