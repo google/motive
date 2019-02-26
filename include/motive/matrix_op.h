@@ -109,7 +109,11 @@ inline float OperationDefaultValue(MatrixOperationType op) {
   return (ScaleOp(op) || op == kQuaternionW) ? 1.0f : 0.0f;
 }
 
-
+/// Returns true if |value| is nearly equal to the default value for a
+/// particular matrix operation |type|.
+inline bool IsOperationDefaultValue(MatrixOperationType type, float value) {
+  return NearlyEqual(OperationDefaultValue(type), value, 1e-5f);
+}
 
 /// Returns the range of the matrix operation's spline. Most ranges are just
 /// the extents of the splines, but rotations we want to normalize within
