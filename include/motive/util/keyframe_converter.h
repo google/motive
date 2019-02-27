@@ -31,6 +31,7 @@ enum QuaternionOrder {
 /// Indicates the interpolation type between keyframes in KeyframeData.
 enum InterpolationType {
   kLinear,
+  kStep,
 };
 
 /// Represents |count| keyframes of animation data, each of which is consists of
@@ -43,7 +44,7 @@ struct KeyframeData {
   const float* times = nullptr;
   const float* values = nullptr;
   size_t count = 0;
-  InterpolationType type = kLinear;
+  InterpolationType interpolation_type = kLinear;
   float ms_per_time_unit = 1000.f;
 };
 

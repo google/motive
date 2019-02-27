@@ -173,7 +173,7 @@ TEST_F(UtilTests, AddVector3CurvesSimple) {
   data.times = times;
   data.values = values;
   data.count = num_times;
-  data.type = motive::kLinear;
+  data.interpolation_type = motive::kLinear;
   data.ms_per_time_unit = 1.f;
 
   motive::AddVector3Curves(&anim, splines, base_type, base_id, data);
@@ -216,7 +216,7 @@ TEST_F(UtilTests, AddQuaternionCurvesSimple) {
   data.times = times;
   data.values = values;
   data.count = num_times;
-  data.type = motive::kLinear;
+  data.interpolation_type = motive::kLinear;
   data.ms_per_time_unit = 1.f;
 
   motive::AddQuaternionCurves(&anim, splines, base_id, motive::kOrderWXYZ,
@@ -239,6 +239,88 @@ TEST_F(UtilTests, AddQuaternionCurvesSimple) {
     op.spline->Ys(times[0], delta, num_times, ys);
     for (int j = 0; j < num_times; ++j) {
       EXPECT_TRUE(motive::NearlyEqual(ys[j], values[j * 4 + i], kEpsilon));
+    }
+  }
+}
+
+// Test that animation curves respect linear interpolation.
+TEST_F(UtilTests, LinearInterpolation) {
+  MatrixAnim anim;
+  MatrixAnim::Spline* splines = anim.Construct(3);
+
+  const size_t num_times = 3;
+  const float times[num_times] = {0.f, 1.f, 2.f};
+  const float values[9] = {
+      0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f,
+  };
+
+  KeyframeData data;
+  data.times = times;
+  data.values = values;
+  data.count = num_times;
+  data.interpolation_type = motive::kLinear;
+  data.ms_per_time_unit = 1.f;
+
+  motive::AddVector3Curves(&anim, splines, motive::kTranslateX, 1, data);
+
+  const std::vector<MatrixOperationInit>& ops = anim.ops();
+  EXPECT_EQ(ops.size(), 3);
+
+  for (int i = 0; i < 3; ++i) {
+    const MatrixOperationInit& op = ops[i];
+
+    // Evaluate the curve at a series of times and ensure the values are
+    // correct. The first 10 times are linear from 0 to 1. The second 10 are
+    // linear from 1 to 0.
+    float ys[20];
+    op.spline->Ys(times[0], 0.1f, 20, ys);
+    for (int j = 0; j < 10; ++j) {
+      EXPECT_TRUE(motive::NearlyEqual(ys[j], 0.1f * j, kEpsilon));
+    }
+    for (int j = 0; j < 10; ++j) {
+      EXPECT_TRUE(motive::NearlyEqual(ys[j + 10], 1.f - 0.1f * j, kEpsilon));
+    }
+  }
+}
+
+// Test that animation curves respect step interpolation.
+TEST_F(UtilTests, StepInterpolation) {
+  MatrixAnim anim;
+  MatrixAnim::Spline* splines = anim.Construct(3);
+
+  const size_t num_times = 3;
+  const float times[num_times] = {0.f, 1.f, 2.f};
+  const float values[9] = {
+      0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 0.f, 0.f, 0.f,
+  };
+
+  KeyframeData data;
+  data.times = times;
+  data.values = values;
+  data.count = num_times;
+  data.interpolation_type = motive::kStep;
+  data.ms_per_time_unit = 1.f;
+
+  motive::AddVector3Curves(&anim, splines, motive::kTranslateX, 1, data);
+
+  const std::vector<MatrixOperationInit>& ops = anim.ops();
+  EXPECT_EQ(ops.size(), 3);
+
+  for (int i = 0; i < 3; ++i) {
+    const MatrixOperationInit& op = ops[i];
+
+    // Evaluate the curve at a series of times and ensure the values are
+    // correct. The first 10 times are 0. The second 10 are 1.
+    float ys[20];
+    // Start just past the beginning of the spline to avoid rounding errors.
+    op.spline->Ys(times[0] + kEpsilon, 0.1f, 20, ys);
+    for (int j = 0; j < 10; ++j) {
+      fprintf(stdout, "%d %f\n", j, ys[j]);
+      EXPECT_TRUE(motive::NearlyEqual(ys[j], 0.f, kEpsilon));
+    }
+    for (int j = 10; j < 20; ++j) {
+      fprintf(stdout, "%d %f\n", j, ys[j]);
+      EXPECT_TRUE(motive::NearlyEqual(ys[j], 1.f, kEpsilon));
     }
   }
 }
