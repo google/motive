@@ -145,6 +145,9 @@ void AddKeyframeData(std::vector<UncompressedNode>* nodes_per_channel,
     case kStep:
       AddStepKeyframeData(nodes_per_channel, channel_count, data);
       break;
+    case kCubicSpline:
+      // TODO(b/124466599): support cubicspline interpolation.
+      break;
   }
 }
 

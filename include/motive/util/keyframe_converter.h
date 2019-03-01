@@ -32,6 +32,8 @@ enum QuaternionOrder {
 enum InterpolationType {
   kLinear,
   kStep,
+  // TODO(b/124466599): support cubicspline interpolation in KeyFrameData.
+  kCubicSpline,
 };
 
 /// Represents |count| keyframes of animation data, each of which is consists of
