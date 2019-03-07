@@ -75,8 +75,9 @@ void AddLinearKeyframeData(std::vector<UncompressedNode>* nodes_per_channel,
         left_node.derivative = 0.f;
       } else {
         auto& prev_right_node = nodes_per_channel[j][left_node_index - 1];
+        const float delta_time = time - prev_right_node.x;
         const float tangent =
-            (value - prev_right_node.y) / (time - prev_right_node.x);
+            delta_time > 0.f ? (value - prev_right_node.y) / delta_time : 0.f;
         prev_right_node.derivative = tangent;
         left_node.derivative = tangent;
 
@@ -90,8 +91,7 @@ void AddLinearKeyframeData(std::vector<UncompressedNode>* nodes_per_channel,
 }
 
 void AddStepKeyframeData(std::vector<UncompressedNode>* nodes_per_channel,
-                         size_t channel_count,
-                         const KeyframeData& data) {
+                         size_t channel_count, const KeyframeData& data) {
   // Resize the lists of nodes to the proper size. We can "fake" step
   // interpolation by having two spline nodes at every keyframe: the first uses
   // the value of the previous keyframe and the second uses the current.
