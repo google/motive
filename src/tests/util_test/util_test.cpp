@@ -243,6 +243,53 @@ TEST_F(UtilTests, AddQuaternionCurvesSimple) {
   }
 }
 
+// Test that four quaternion animation curves are added. Ensure that the middle
+// value (-1,-1,-1,-1) is flipped to (1,1,1,1).
+TEST_F(UtilTests, AddQuaternionCurvesFlip) {
+  MatrixAnim anim;
+  MatrixAnim::Spline* splines = anim.Construct(4);
+  const MatrixOpId base_id = 1;
+
+  const float delta = 1.f;
+  const size_t num_times = 3;
+  const float times[num_times] = {delta, 2.f * delta, 3.f * delta};
+  const float values[12] = {
+      1.f, 1.f, 1.f, 1.f, -1.f, -1.f, -1.f, -1.f, 1.f, 1.f, 1.f, 1.f,
+  };
+
+  KeyframeData data;
+  data.times = times;
+  data.values = values;
+  data.count = num_times;
+  data.interpolation_type = motive::kLinear;
+  data.ms_per_time_unit = 1.f;
+
+  motive::AddQuaternionCurves(&anim, splines, base_id, motive::kOrderWXYZ,
+                              data);
+
+  const std::vector<MatrixOperationInit>& ops = anim.ops();
+  EXPECT_EQ(ops.size(), 4);
+
+  for (int i = 0; i < 4; ++i) {
+    const MatrixOperationInit& op = ops[i];
+    EXPECT_EQ(op.type, motive::kQuaternionW + i);
+    EXPECT_EQ(op.id, base_id + i);
+    EXPECT_NE(op.init, nullptr);
+    EXPECT_EQ(op.union_type, MatrixOperationInit::UnionType::kUnionSpline);
+    EXPECT_NE(op.spline, nullptr);
+
+    // Because the utility may add more than one node per time value, evaluate
+    // the spline at each time to ensure correctness.
+    float ys[num_times];
+    op.spline->Ys(times[0], delta, num_times, ys);
+    for (int j = 0; j < num_times; ++j) {
+      fprintf(stdout, "%f\n", ys[j]);
+      // The -1.f's get flipped to 1.f since q and -q are the same.
+      EXPECT_TRUE(motive::NearlyEqual(ys[j], 1.f, kEpsilon));
+    }
+  }
+}
+
 // Test that animation curves respect linear interpolation.
 TEST_F(UtilTests, LinearInterpolation) {
   MatrixAnim anim;
@@ -315,11 +362,9 @@ TEST_F(UtilTests, StepInterpolation) {
     // Start just past the beginning of the spline to avoid rounding errors.
     op.spline->Ys(times[0] + kEpsilon, 0.1f, 20, ys);
     for (int j = 0; j < 10; ++j) {
-      fprintf(stdout, "%d %f\n", j, ys[j]);
       EXPECT_TRUE(motive::NearlyEqual(ys[j], 0.f, kEpsilon));
     }
     for (int j = 10; j < 20; ++j) {
-      fprintf(stdout, "%d %f\n", j, ys[j]);
       EXPECT_TRUE(motive::NearlyEqual(ys[j], 1.f, kEpsilon));
     }
   }
