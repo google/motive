@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <cmath>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -207,7 +208,7 @@ size_t QuadraticCurve::RootsWithoutNormalizing(float roots[2]) const {
   }
 
   // Positive discriminant means two roots. We use the quadratic formula.
-  const float sqrt_discriminant = sqrt(discriminant);
+  const float sqrt_discriminant = std::sqrt(discriminant);
   const float root_minus = (-c_[1] - sqrt_discriminant) * divisor;
   const float root_plus = (-c_[1] + sqrt_discriminant) * divisor;
   assert(root_minus != root_plus);

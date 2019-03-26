@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <cmath>
 #define FPL_ANGLE_UNIT_TESTS
 
 #include <string>
@@ -281,7 +282,7 @@ void TestToVectorSystem(const AngleToVectorSystem system, const int zero_axis,
 
   // Angle 45 should translate to a unit vector between the 0 and 90 axes.
   const vec3 forty_five = Angle(kQuarterPi).ToVectorSystem(system);
-  const float one_over_root_two = 1.0f / sqrt(2.0f);
+  const float one_over_root_two = 1.0f / std::sqrt(2.0f);
   EXPECT_NEAR(forty_five[zero_axis], one_over_root_two, kUnitVectorPrecision);
   EXPECT_NEAR(forty_five[ninety_axis], one_over_root_two, kUnitVectorPrecision);
   EXPECT_NEAR(forty_five[ignored_axis], 0.0f, kUnitVectorPrecision);
@@ -332,7 +333,7 @@ void TestFromVectorSystem(const AngleToVectorSystem system, const int zero_axis,
 
     // Half way between zero and ninety axes should return 45 degree angle.
     vec3 forty_five = init_vector;
-    const float one_over_root_two = 1.0f / sqrt(2.0f);
+    const float one_over_root_two = 1.0f / std::sqrt(2.0f);
     forty_five[zero_axis] = one_over_root_two;
     forty_five[ninety_axis] = one_over_root_two;
     const Angle forty_five_angle = Angle::FromVectorSystem(forty_five, system);
@@ -388,7 +389,7 @@ void TestToRotationMatrix(const AngleToVectorSystem system, const int zero_axis,
   // Angle 45 should translate to a unit vector between the 0 and 90 axes.
   const mat3 forty_five_mat = Angle(kQuarterPi).ToRotationMatrix(system);
   const vec3 forty_five = forty_five_mat * v;
-  const float one_over_root_two = 1.0f / sqrt(2.0f);
+  const float one_over_root_two = 1.0f / std::sqrt(2.0f);
   EXPECT_NEAR(forty_five[zero_axis], one_over_root_two, kUnitVectorPrecision);
   EXPECT_NEAR(forty_five[ninety_axis], one_over_root_two, kUnitVectorPrecision);
   EXPECT_NEAR(forty_five[ignored_axis], 3.0f, kUnitVectorPrecision);

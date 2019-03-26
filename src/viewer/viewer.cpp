@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <cassert>
+#include <cmath>
 #include <cstdlib>
 #include "anim_generated.h"
 #include "fplbase/asset_manager.h"
@@ -356,7 +357,7 @@ Camera::Camera(AngleToVectorSystem coordinate_system, float aspect_ratio,
   // tan(kOnScreenAngle) = model_width / distance
   //            distance = model_width / tan(kOnScreenAngle)
   const float kWidthToCameraDistance =
-      1.0f / tan(motive::kDegreesToRadians * 30.0f);
+      1.0f / std::tan(motive::kDegreesToRadians * 30.0f);
   const vec3 model_width3 =
       vec3::Max(vec3::Max(vec3::Max(model_min_position, model_max_position),
                           -model_min_position),

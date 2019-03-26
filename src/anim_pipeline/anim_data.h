@@ -1,6 +1,7 @@
 #ifndef MOTIVE_ANIM_DATA_H_
 #define MOTIVE_ANIM_DATA_H_
 
+#include <cmath>
 #include "anim_generated.h"
 #include "anim_list_generated.h"
 #include "anim_pipeline.h"
@@ -33,7 +34,7 @@ typedef RangeT<BoneIndex> BoneRange;
 ///  derivative +inf ==> angle 90 degrees
 ///  derivative -2 ==> angle -63.4 degrees
 /// @returns Angle, in radians, >= -pi and <= pi
-inline float DerivativeAngle(float derivative) { return atan(derivative); }
+inline float DerivativeAngle(float derivative) { return std::atan(derivative); }
 
 /// @class AnimData
 /// @brief Hold animation data to be written to FlatBuffer animation format.
