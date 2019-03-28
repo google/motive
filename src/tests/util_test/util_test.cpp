@@ -16,7 +16,10 @@
 #include "motive/matrix_anim.h"
 #include "motive/matrix_op.h"
 #include "motive/util/keyframe_converter.h"
+#include "third_party/motive/include/motive/util/keyframe_converter.h"
 
+using motive::CompactSpline;
+using motive::CompactSplineIndex;
 using motive::KeyframeData;
 using motive::MatrixAnim;
 using motive::MatrixOperationInit;
@@ -30,6 +33,129 @@ class UtilTests : public ::testing::Test {
   virtual void SetUp() {}
   virtual void TearDown() {}
 };
+
+// Test that callers can determine how many bytes a set of curves needs for each
+// interpolation type.
+TEST_F(UtilTests, GetRequiredBufferSize) {
+  const size_t zero_node_size = CompactSpline::Size(0);
+  EXPECT_EQ(GetRequiredBufferSize(0, 1, motive::kLinear), zero_node_size);
+  EXPECT_EQ(GetRequiredBufferSize(0, 2, motive::kStep), zero_node_size * 2);
+  EXPECT_EQ(GetRequiredBufferSize(0, 3, motive::kCubicSpline),
+            zero_node_size * 3);
+
+  const size_t six_node_size = CompactSpline::Size(6);
+  EXPECT_EQ(GetRequiredBufferSize(3, 1, motive::kLinear), six_node_size);
+  EXPECT_EQ(GetRequiredBufferSize(3, 2, motive::kStep), six_node_size * 2);
+  EXPECT_EQ(GetRequiredBufferSize(3, 3, motive::kCubicSpline),
+            six_node_size * 3);
+
+  // Regardless of interpolation type, kMaxSplineIndex + 1 nodes gives a zero
+  // buffer size.
+  const CompactSplineIndex more_than_max = motive::kMaxSplineIndex + 1;
+  EXPECT_EQ(GetRequiredBufferSize(more_than_max, 1, motive::kLinear), 0);
+  EXPECT_EQ(GetRequiredBufferSize(more_than_max, 2, motive::kStep), 0);
+  EXPECT_EQ(GetRequiredBufferSize(more_than_max, 3, motive::kCubicSpline), 0);
+}
+
+// Test that a pre-allocated buffer can be populated with CompactSplines that
+// represent a set of keyframe data.
+TEST_F(UtilTests, AddArrayCurves) {
+  // Configure the animation data to have 3 channels and 3 keyframes.
+  const float delta = 1.f;
+  const size_t num_channels = 3;
+  const size_t num_times = 3;
+  const float times[num_times] = {delta, 2.f * delta, 3.f * delta};
+  const float values[num_channels * num_times] = {
+      0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 2.f, 2.f, 2.f,
+  };
+
+  KeyframeData data;
+  data.times = times;
+  data.values = values;
+  data.count = num_times;
+  data.interpolation_type = motive::kLinear;
+  data.ms_per_time_unit = 1.f;
+
+  // Allocate a buffer large enough to hold 3 CompactSplines with the required
+  // number of nodes.
+  const size_t required_bytes =
+      motive::GetRequiredBufferSize(num_times, num_channels,
+                                    data.interpolation_type);
+  std::vector<uint8_t> buffer(required_bytes);
+
+  // Populate the buffer with 3 CompactSpline curves.
+  const size_t bytes_used =
+      motive::AddArrayCurves(buffer.data(), data, num_channels);
+  EXPECT_EQ(bytes_used, required_bytes);
+
+  const CompactSpline* splines =
+      reinterpret_cast<const CompactSpline*>(buffer.data());
+
+  for (int i = 0; i < num_channels; ++i) {
+    // Because the utility may add more than one node per time value, evaluate
+    // the spline at each time to ensure correctness.
+    float ys[num_times];
+    splines->NextAtIdx(i)->Ys(times[0], delta, num_times, ys);
+    for (int j = 0; j < num_times; ++j) {
+      EXPECT_TRUE(
+          motive::NearlyEqual(ys[j], values[j * num_channels + i], kEpsilon));
+    }
+  }
+}
+
+// Test that a pre-allocated buffer can be populated with CompactSplines that
+// represent a set of quaternion keyframe data, including re-ordering the
+// quaternion components.
+TEST_F(UtilTests, AddQuaternionCurvesReorder) {
+  // Configure the animation data to have 4 channels and 3 keyframes.
+  const float delta = 1.f;
+  const size_t num_channels = 4;
+  const size_t num_times = 3;
+  const float times[num_times] = {delta, 2.f * delta, 3.f * delta};
+  // Have the W component be different to ensure it is switched.
+  const float values[num_channels * num_times] = {
+      0.f, 0.f, 0.f, 3.f, 1.f, 1.f, 1.f, 4.f, 2.f, 2.f, 2.f, 5.f,
+  };
+
+  KeyframeData data;
+  data.times = times;
+  data.values = values;
+  data.count = num_times;
+  data.interpolation_type = motive::kLinear;
+  data.ms_per_time_unit = 1.f;
+
+  // Allocate a buffer large enough to hold 3 CompactSplines with the required
+  // number of nodes.
+  const size_t required_bytes =
+      motive::GetRequiredBufferSize(num_times, num_channels,
+                                    data.interpolation_type);
+  std::vector<uint8_t> buffer(required_bytes);
+
+  // Populate the buffer with the CompactSpline curves.
+  const size_t bytes_used =
+      motive::AddQuaternionCurves(buffer.data(), data, motive::kOrderXYZW);
+  EXPECT_EQ(bytes_used, required_bytes);
+
+  const CompactSpline* splines =
+      reinterpret_cast<const CompactSpline*>(buffer.data());
+
+  // Since AddQuaternionCurves() always adds in order WXYZ, we expect shifted
+  // values.
+  const float expected[num_channels * num_times] = {
+      3.f, 0.f, 0.f, 0.f, 4.f, 1.f, 1.f, 1.f, 5.f, 2.f, 2.f, 2.f,
+  };
+
+  for (int i = 0; i < num_channels; ++i) {
+    // Because the utility may add more than one node per time value, evaluate
+    // the spline at each time to ensure correctness.
+    float ys[num_times];
+    splines->NextAtIdx(i)->Ys(times[0], delta, num_times, ys);
+    for (int j = 0; j < num_times; ++j) {
+      EXPECT_TRUE(
+          motive::NearlyEqual(ys[j], expected[j * num_channels + i], kEpsilon));
+    }
+  }
+}
 
 // Test that three consecutive constants are added to the animation.
 TEST_F(UtilTests, AddVector3ConstantsSimple) {

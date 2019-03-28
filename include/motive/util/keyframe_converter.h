@@ -50,6 +50,34 @@ struct KeyframeData {
   float ms_per_time_unit = 1000.f;
 };
 
+/// Returns the buffer size required to store |channel_count| CompactSpline
+/// curves each with |keyframe_count| keyframes using a specific interpolation
+/// |type|. Useful for allocating buffers to be used with AddArrayCurves() and
+/// AddQuaternionCurves().
+size_t GetRequiredBufferSize(size_t keyframe_count, size_t channel_count,
+                             InterpolationType type);
+
+/// Creates |channel_count| CompactSplines contiguously in the memory starting
+/// at |buffer| using the provided keyframe |data| and returns the number of
+/// bytes used to create them.
+///
+/// |data.values| is assumed to be in array-of-structs format. Specifically,
+/// |data.values[i + j * channel_count]| is the j'th keyframe of the i'th
+/// channel.
+///
+/// This function performs no bounds checking on |buffer|. Use
+/// GetRequiredBufferSize() to determine how large a buffer is necessary.
+size_t AddArrayCurves(uint8_t* buffer, const KeyframeData& data,
+                      size_t channel_count);
+
+/// Identical to AddArrayCurves(buffer, data, 4), but treats |data| as
+/// containing quaternion curves and filters for quaternion "flips".
+///
+/// Curves are always added in the following order: W, X, Y, Z. |order|
+/// determines which value of |quat| is used for each component.
+size_t AddQuaternionCurves(uint8_t* buffer, const KeyframeData& data,
+                           QuaternionOrder order);
+
 /// Adds 3 constant-value operations to |anim|. For i in [0,3), the i'th new
 /// operation will have type |base_type + i|, id |base_id + i|, and |vector[i]|
 /// as its value. If the value is nearly the default for the given type, no

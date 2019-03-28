@@ -39,15 +39,15 @@ int IndexForQuaternionComponent(MatrixOperationType type,
   }
 }
 
-/// Fetches three values from |data| corresponding to the index |frame| and
-/// places them into |output|. |previous| is ignored and supplied for template
-/// convenience.
-void GetVectorValue(const KeyframeData& data, size_t frame, float* output,
-                    const float* previous) {
-  const size_t frame_start = frame * 3;
-  output[0] = data.values[frame_start];
-  output[1] = data.values[frame_start + 1];
-  output[2] = data.values[frame_start + 2];
+/// Fetches |channel_count| values from |data| corresponding to the index
+/// |frame| and places them into |output|. |previous| is ignored and supplied
+/// for template convenience.
+void GetArrayValue(const KeyframeData& data, size_t frame, float* output,
+                   const float* previous, size_t channel_count) {
+  const size_t frame_start = frame * channel_count;
+  for (size_t i = 0; i < channel_count; ++i) {
+    output[i] = data.values[frame_start + i];
+  }
 }
 
 /// Fetches four values from |data| corresponding to the index |frame| and
@@ -56,8 +56,8 @@ void GetVectorValue(const KeyframeData& data, size_t frame, float* output,
 ///
 /// Quaternion interpolation is often done with SLERP, which ensures that
 /// intermediate values are "sane". However, Motive must do linear quaternion
-/// interpolation with NLERP since it represents each quaternion as a separate
-/// spline. Interpolating between q and -q, which represent the same
+/// interpolation with NLERP since it represents each quaternion component as a
+/// separate spline. Interpolating between q and -q, which represent the same
 /// orientation, can have odd results with NLERP, so we ensure that consecutive
 /// keyframes don't have any of these "quaternion flips".
 ///
@@ -203,7 +203,66 @@ void AddKeyframeData(std::vector<UncompressedNode>* nodes_per_channel,
   }
 }
 
+CompactSplineIndex GetRequiredNodeCount(size_t keyframe_count,
+                                        InterpolationType type) {
+  // Currently, all interpolation types simply use two nodes at every keyframe.
+  const size_t node_count = keyframe_count * 2;
+  if (node_count > static_cast<size_t>(kMaxSplineIndex)) {
+    return kInvalidSplineIndex;
+  }
+  return static_cast<CompactSplineIndex>(node_count);
+}
+
+size_t CreateSplinesInPlace(uint8_t* buffer,
+                            const std::vector<UncompressedNode>* nodes,
+                            size_t channel_count) {
+  size_t bytes_used = 0;
+  uint8_t* iter = buffer;
+  for (size_t i = 0; i < channel_count; ++i) {
+    CompactSpline* spline = CompactSpline::CreateFromNodesInPlace(
+        nodes[i].data(), nodes[i].size(), iter);
+    bytes_used += spline->Size();
+    iter += spline->Size();
+  }
+  return bytes_used;
+}
+
 }  // namespace
+
+size_t GetRequiredBufferSize(size_t keyframe_count, size_t channel_count,
+                             InterpolationType type) {
+  const CompactSplineIndex node_count =
+      GetRequiredNodeCount(keyframe_count, type);
+  if (node_count == kInvalidSplineIndex) {
+    return 0;
+  }
+  return channel_count * CompactSpline::Size(node_count);
+}
+
+size_t AddArrayCurves(uint8_t* buffer, const KeyframeData& data,
+                      size_t channel_count) {
+  std::vector<std::vector<UncompressedNode>> nodes(channel_count);
+  AddKeyframeData(nodes.data(), channel_count, data,
+                  [channel_count](const KeyframeData& data, size_t frame,
+                                  float* output, const float* previous) {
+                    GetArrayValue(data, frame, output, previous, channel_count);
+                  });
+  return CreateSplinesInPlace(buffer, nodes.data(), channel_count);
+}
+
+size_t AddQuaternionCurves(uint8_t* buffer, const KeyframeData& data,
+                           QuaternionOrder order) {
+  std::vector<UncompressedNode> nodes[4];
+  AddKeyframeData(nodes, 4, data, GetQuaternionValue);
+  if (order == kOrderXYZW) {
+    std::vector<UncompressedNode> w_component = std::move(nodes[3]);
+    nodes[3] = std::move(nodes[2]);
+    nodes[2] = std::move(nodes[1]);
+    nodes[1] = std::move(nodes[0]);
+    nodes[0] = std::move(w_component);
+  }
+  return CreateSplinesInPlace(buffer, nodes, 4);
+}
 
 void AddVector3Constants(MatrixAnim* anim, MatrixOperationType base_type,
                          MatrixOpId base_id, const float* vector) {
@@ -237,7 +296,11 @@ void AddVector3Curves(MatrixAnim* anim, MatrixAnim::Spline* splines,
                       const KeyframeData& data) {
   // Create a list of uncompressed nodes per channel and populate them.
   std::vector<UncompressedNode> nodes[3];
-  AddKeyframeData(nodes, 3, data, GetVectorValue);
+  AddKeyframeData(nodes, 3, data,
+                  [](const KeyframeData& data, size_t frame, float* output,
+                     const float* previous) {
+                    GetArrayValue(data, frame, output, previous, 3);
+                  });
 
   // Create splines and operations for each curve.
   std::vector<MatrixOperationInit>& ops = anim->ops();
