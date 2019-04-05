@@ -78,9 +78,8 @@ TEST_F(UtilTests, AddArrayCurves) {
 
   // Allocate a buffer large enough to hold 3 CompactSplines with the required
   // number of nodes.
-  const size_t required_bytes =
-      motive::GetRequiredBufferSize(num_times, num_channels,
-                                    data.interpolation_type);
+  const size_t required_bytes = motive::GetRequiredBufferSize(
+      num_times, num_channels, data.interpolation_type);
   std::vector<uint8_t> buffer(required_bytes);
 
   // Populate the buffer with 3 CompactSpline curves.
@@ -126,9 +125,8 @@ TEST_F(UtilTests, AddQuaternionCurvesReorder) {
 
   // Allocate a buffer large enough to hold 3 CompactSplines with the required
   // number of nodes.
-  const size_t required_bytes =
-      motive::GetRequiredBufferSize(num_times, num_channels,
-                                    data.interpolation_type);
+  const size_t required_bytes = motive::GetRequiredBufferSize(
+      num_times, num_channels, data.interpolation_type);
   std::vector<uint8_t> buffer(required_bytes);
 
   // Populate the buffer with the CompactSpline curves.
@@ -492,6 +490,53 @@ TEST_F(UtilTests, StepInterpolation) {
     }
     for (int j = 10; j < 20; ++j) {
       EXPECT_TRUE(motive::NearlyEqual(ys[j], 1.f, kEpsilon));
+    }
+  }
+}
+
+// Test that animation curves respect cubicspline interpolation.
+TEST_F(UtilTests, CubicSplineInterpolation) {
+  MatrixAnim anim;
+  MatrixAnim::Spline* splines = anim.Construct(3);
+
+  const size_t num_times = 3;
+  const float times[num_times] = {0.f, 1.f, 2.f};
+
+  // Make the cubicsplines effectively linear.
+  const float values[27] = {
+      // (1,1,1) with left-tangent (0,0,0), right-tangent (1,1,1)
+      0.f,  0.f,  0.f,  1.f, 1.f, 1.f, 1.f,  1.f,  1.f,
+      // (2,2,2) with left-tangent (1,1,1), right-tangent (-1,-1,-1)
+      1.f,  1.f,  1.f,  2.f, 2.f, 2.f, -1.f, -1.f, -1.f,
+      // (1,1,1) with left-tangent (-1,-1,-1), right-tangent (0,0,0)
+      -1.f, -1.f, -1.f, 1.f, 1.f, 1.f, 1.f,  1.f,  1.f,
+  };
+
+  KeyframeData data;
+  data.times = times;
+  data.values = values;
+  data.count = num_times;
+  data.interpolation_type = motive::kCubicSpline;
+  data.ms_per_time_unit = 1.f;
+
+  motive::AddVector3Curves(&anim, splines, motive::kTranslateX, 1, data);
+
+  const std::vector<MatrixOperationInit>& ops = anim.ops();
+  EXPECT_EQ(ops.size(), 3);
+
+  for (int i = 0; i < 3; ++i) {
+    const MatrixOperationInit& op = ops[i];
+
+    // Evaluate the curve at a series of times and ensure the values are
+    // correct. The first 10 times are linear from 1 to 2. The second 10 are
+    // linear from 2 to 1.
+    float ys[20];
+    op.spline->Ys(times[0], 0.1f, 20, ys);
+    for (int j = 0; j < 10; ++j) {
+      EXPECT_TRUE(motive::NearlyEqual(ys[j], 1.f + 0.1f * j, kEpsilon));
+    }
+    for (int j = 0; j < 10; ++j) {
+      EXPECT_TRUE(motive::NearlyEqual(ys[j + 10], 2.f - 0.1f * j, kEpsilon));
     }
   }
 }

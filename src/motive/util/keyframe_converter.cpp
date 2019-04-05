@@ -20,14 +20,20 @@ namespace motive {
 
 namespace {
 
-/// Converts |time| to Motive's millisecond time unit using |ms_per_time_unit|
-/// as the conversion factor.
-float ConvertToMilliseconds(float time, float ms_per_time_unit) {
+// Converts |time| to Motive's millisecond time unit using |ms_per_time_unit|
+// as the conversion factor.
+float ConvertTimeToMilliseconds(float time, float ms_per_time_unit) {
   return time * ms_per_time_unit;
 }
 
-/// Determines the index of a float* representing a quaternion to access for
-/// a particular |type| and |order|.
+// Converts |tangent| to Motive's millisecond time unit using
+// |ms_per_time_unit| as the conversion factor.
+float ConvertTangentToMilliseconds(float tangent, float ms_per_time_unit) {
+  return tangent / ms_per_time_unit;
+}
+
+// Determines the index of a float* representing a quaternion to access for
+// a particular |type| and |order|.
 int IndexForQuaternionComponent(MatrixOperationType type,
                                 QuaternionOrder order) {
   if (order == kOrderWXYZ) {
@@ -39,48 +45,69 @@ int IndexForQuaternionComponent(MatrixOperationType type,
   }
 }
 
-/// Fetches |channel_count| values from |data| corresponding to the index
-/// |frame| and places them into |output|. |previous| is ignored and supplied
-/// for template convenience.
-void GetArrayValue(const KeyframeData& data, size_t frame, float* output,
-                   const float* previous, size_t channel_count) {
-  const size_t frame_start = frame * channel_count;
-  for (size_t i = 0; i < channel_count; ++i) {
-    output[i] = data.values[frame_start + i];
+// The values and tangents for an individual keyframe.
+struct Keyframe {
+  std::vector<float> values;
+  std::vector<float> left_tangents;
+  std::vector<float> right_tangents;
+
+  explicit Keyframe(size_t count)
+      : values(count), left_tangents(count), right_tangents(count) {}
+};
+
+// Fetches |channel_count| values and tangents (and present) from |data|
+// corresponding to the index |frame| and places them into |output|. |previous|
+// is ignored and only supplied for template convenience.
+void GetArrayValue(const KeyframeData& data, size_t frame, Keyframe* output,
+                   const Keyframe* previous, size_t channel_count) {
+  if (data.interpolation_type != kCubicSpline) {
+    const size_t frame_start = frame * channel_count;
+    for (size_t i = 0; i < channel_count; ++i) {
+      output->values[i] = data.values[frame_start + i];
+    }
+  } else {
+    // Left tangents come first, followed by values, followed by right tangents.
+    const size_t frame_left_tangent_start = frame * channel_count * 3;
+    for (size_t i = 0; i < channel_count; ++i) {
+      output->left_tangents[i] = data.values[frame_left_tangent_start + i];
+    }
+    const size_t frame_value_start = frame_left_tangent_start + channel_count;
+    for (size_t i = 0; i < channel_count; ++i) {
+      output->values[i] = data.values[frame_value_start + i];
+    }
+    const size_t frame_right_tangent_start = frame_value_start + channel_count;
+    for (size_t i = 0; i < channel_count; ++i) {
+      output->right_tangents[i] = data.values[frame_right_tangent_start + i];
+    }
   }
 }
 
-/// Fetches four values from |data| corresponding to the index |frame| and
-/// places them into |output|. |previous| should contain the previous frame's
-/// values.
-///
-/// Quaternion interpolation is often done with SLERP, which ensures that
-/// intermediate values are "sane". However, Motive must do linear quaternion
-/// interpolation with NLERP since it represents each quaternion component as a
-/// separate spline. Interpolating between q and -q, which represent the same
-/// orientation, can have odd results with NLERP, so we ensure that consecutive
-/// keyframes don't have any of these "quaternion flips".
-///
-/// Step data always has 0 derivatives and CubicSpline data provides its own
-/// derivatives, so such flips are only relevant in Linear interpolation.
-void GetQuaternionValue(const KeyframeData& data, size_t frame, float* output,
-                        const float* previous) {
-  const size_t frame_start = frame * 4;
-  output[0] = data.values[frame_start];
-  output[1] = data.values[frame_start + 1];
-  output[2] = data.values[frame_start + 2];
-  output[3] = data.values[frame_start + 3];
+// Fetches four values (and tangents, if present) from |data| corresponding to
+// the index |frame| and places them into |output|. |previous| should contain
+// the previous frame's values.
+//
+// Quaternion linear interpolation is often done with SLERP, which ensures that
+// intermediate values are "sane". However, Motive must do linear quaternion
+// interpolation with NLERP since it represents each quaternion component as a
+// separate spline. Interpolating between q and -q, which represent the same
+// orientation, can have odd results with NLERP, so we ensure that consecutive
+// keyframes don't have any of these "quaternion flips".
+void GetQuaternionValue(const KeyframeData& data, size_t frame,
+                        Keyframe* output, const Keyframe* previous) {
+  GetArrayValue(data, frame, output, previous, 4);
 
   // Check for quaternion flips between this frame and the last when processing
   // linear interpolation data.
   if (frame > 0 && data.interpolation_type == kLinear) {
-    const float dotprod = output[0] * previous[0] + output[1] * previous[1] +
-                          output[2] * previous[2] + output[3] * previous[3];
+    const float dotprod = output->values[0] * previous->values[0] +
+                          output->values[1] * previous->values[1] +
+                          output->values[2] * previous->values[2] +
+                          output->values[3] * previous->values[3];
     if (dotprod < 0.f) {
-      output[0] *= -1.f;
-      output[1] *= -1.f;
-      output[2] *= -1.f;
-      output[3] *= -1.f;
+      output->values[0] *= -1.f;
+      output->values[1] *= -1.f;
+      output->values[2] *= -1.f;
+      output->values[3] *= -1.f;
     }
   }
 }
@@ -98,15 +125,15 @@ void AddLinearKeyframeData(std::vector<UncompressedNode>* nodes_per_channel,
   }
 
   // Traverse the data in sample order and populate the nodes for each channel.
-  std::vector<float> values(channel_count);
-  std::vector<float> previous_values(channel_count);
+  Keyframe current(channel_count);
+  Keyframe previous(channel_count);
   for (size_t frame = 0; frame < data.count; ++frame) {
     const float time =
-        ConvertToMilliseconds(data.times[frame], data.ms_per_time_unit);
-    value_fn(data, frame, values.data(), previous_values.data());
+        ConvertTimeToMilliseconds(data.times[frame], data.ms_per_time_unit);
+    value_fn(data, frame, &current, &previous);
     for (size_t channel = 0; channel < channel_count; ++channel) {
       const int left_node_index = frame * 2;
-      const float value = values[channel];
+      const float value = current.values[channel];
 
       // Populate the left and right nodes with the same times and values.
       auto& left_node = nodes_per_channel[channel][left_node_index];
@@ -136,7 +163,7 @@ void AddLinearKeyframeData(std::vector<UncompressedNode>* nodes_per_channel,
         }
       }
     }
-    previous_values = values;
+    previous = current;
   }
 }
 
@@ -153,15 +180,15 @@ void AddStepKeyframeData(std::vector<UncompressedNode>* nodes_per_channel,
   }
 
   // Traverse the data in sample order and populate the nodes for each channel.
-  std::vector<float> values(channel_count);
-  std::vector<float> previous_values(channel_count);
+  Keyframe current(channel_count);
+  Keyframe previous(channel_count);
   for (size_t frame = 0; frame < data.count; ++frame) {
     const float time =
-        ConvertToMilliseconds(data.times[frame], data.ms_per_time_unit);
-    value_fn(data, frame, values.data(), previous_values.data());
+        ConvertTimeToMilliseconds(data.times[frame], data.ms_per_time_unit);
+    value_fn(data, frame, &current, &previous);
     for (size_t channel = 0; channel < channel_count; ++channel) {
       const int left_node_index = frame * 2;
-      const float value = values[channel];
+      const float value = current.values[channel];
 
       // Populate the left and right nodes with the same times and derivatives.
       // The right node always takes the current value.
@@ -179,10 +206,51 @@ void AddStepKeyframeData(std::vector<UncompressedNode>* nodes_per_channel,
       if (left_node_index == 0) {
         left_node.y = value;
       } else {
-        left_node.y = previous_values[channel];
+        left_node.y = previous.values[channel];
       }
     }
-    previous_values = values;
+    previous = current;
+  }
+}
+
+template <typename GetValueFn>
+void AddCubicSplineKeyframeData(
+    std::vector<UncompressedNode>* nodes_per_channel, size_t channel_count,
+    const KeyframeData& data, GetValueFn value_fn) {
+  // Resize the lists of nodes to the proper size. We can "fake" cubicspline
+  // interpolation by having two spline nodes at every keyframe: the first uses
+  // the left tangent and the second uses the right tangent.
+  const size_t num_nodes = data.count * 2;
+  for (size_t i = 0; i < channel_count; ++i) {
+    nodes_per_channel[i].resize(num_nodes);
+  }
+
+  // Traverse the data in sample order and populate the nodes for each channel.
+  Keyframe current(channel_count);
+  Keyframe previous(channel_count);
+  for (size_t frame = 0; frame < data.count; ++frame) {
+    const float time =
+        ConvertTimeToMilliseconds(data.times[frame], data.ms_per_time_unit);
+    value_fn(data, frame, &current, &previous);
+    for (size_t channel = 0; channel < channel_count; ++channel) {
+      const int left_node_index = frame * 2;
+      const float value = current.values[channel];
+
+      // Populate the left and right nodes with the same times and values, but
+      // use the appropriate derivative for each.
+      auto& left_node = nodes_per_channel[channel][left_node_index];
+      left_node.x = time;
+      left_node.y = value;
+      left_node.derivative = ConvertTangentToMilliseconds(
+          current.left_tangents[channel], data.ms_per_time_unit);
+
+      auto& right_node = nodes_per_channel[channel][left_node_index + 1];
+      right_node.x = time;
+      right_node.y = value;
+      right_node.derivative = ConvertTangentToMilliseconds(
+          current.right_tangents[channel], data.ms_per_time_unit);
+    }
+    previous = current;
   }
 }
 
@@ -198,7 +266,8 @@ void AddKeyframeData(std::vector<UncompressedNode>* nodes_per_channel,
       AddStepKeyframeData(nodes_per_channel, channel_count, data, value_fn);
       break;
     case kCubicSpline:
-      // TODO(b/124466599): support cubicspline interpolation.
+      AddCubicSplineKeyframeData(nodes_per_channel, channel_count, data,
+                                 value_fn);
       break;
   }
 }
@@ -244,7 +313,7 @@ size_t AddArrayCurves(uint8_t* buffer, const KeyframeData& data,
   std::vector<std::vector<UncompressedNode>> nodes(channel_count);
   AddKeyframeData(nodes.data(), channel_count, data,
                   [channel_count](const KeyframeData& data, size_t frame,
-                                  float* output, const float* previous) {
+                                  Keyframe* output, const Keyframe* previous) {
                     GetArrayValue(data, frame, output, previous, channel_count);
                   });
   return CreateSplinesInPlace(buffer, nodes.data(), channel_count);
@@ -297,8 +366,8 @@ void AddVector3Curves(MatrixAnim* anim, MatrixAnim::Spline* splines,
   // Create a list of uncompressed nodes per channel and populate them.
   std::vector<UncompressedNode> nodes[3];
   AddKeyframeData(nodes, 3, data,
-                  [](const KeyframeData& data, size_t frame, float* output,
-                     const float* previous) {
+                  [](const KeyframeData& data, size_t frame, Keyframe* output,
+                     const Keyframe* previous) {
                     GetArrayValue(data, frame, output, previous, 3);
                   });
 

@@ -32,7 +32,6 @@ enum QuaternionOrder {
 enum InterpolationType {
   kLinear,
   kStep,
-  // TODO(b/124466599): support cubicspline interpolation in KeyFrameData.
   kCubicSpline,
 };
 
@@ -42,6 +41,9 @@ enum InterpolationType {
 /// determines the interpolation type used between keyframes. |ms_per_time_unit|
 /// is a conversion factor indicating how many milliseconds there are per unit
 /// that |times| is stored in. The default, 1000, assumes |times| is in seconds.
+///
+/// If |type| is kCubicSpline, all conversion functions assume keyframes are
+/// tightly packed as [left derivative, value, right derivative].
 struct KeyframeData {
   const float* times = nullptr;
   const float* values = nullptr;
