@@ -530,7 +530,8 @@ class CompactSpline {
   }
 
   /// All other AddNode() functions end up calling this one.
-  void AddNodeVerbatim(const detail::CompactSplineNode& node) {
+  void AddNodeVerbatim(const detail::CompactSplineNode& node)
+      MOTIVE_NO_SANITIZE("bounds") /* nodes_ has variable size */ {
     assert(num_nodes_ < max_nodes_);
     nodes_[num_nodes_++] = node;
   }
@@ -558,7 +559,8 @@ class CompactSpline {
     return nodes_[0];
   }
 
-  const detail::CompactSplineNode& Back() const {
+  const detail::CompactSplineNode& Back() const
+      MOTIVE_NO_SANITIZE("bounds") /* nodes_ has variable size */ {
     assert(num_nodes_ > 0);
     return nodes_[num_nodes_ - 1];
   }
