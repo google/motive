@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "motive/math/dual_cubic.h"
+#include <cmath>
 
 using mathfu::Lerp;
 
@@ -192,7 +193,7 @@ static inline float Log2(const float x) {
   static const float kOneOverLog2 = 3.32192809489f;
   return log(x) * kOneOverLog2;  // log2(x) = log(x) / log(2)
 #else
-  return log2(x);
+  return std::log2(x);
 #endif
 }
 

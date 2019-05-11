@@ -16,9 +16,16 @@ include "compact_spline.fbs";
 
 namespace motive;
 
-// Same as MatrixOperationType in motive/init.h.
+// Same as MatrixOperationType in motive/matrix_op.h.
+// Quaternion and RotateAbout ops cannot be present in the same animation.
+// If quaternion ops are present, there should only be at most one op of each
+// type and the list of operations should be processor by the SqtMotiveProcessor
+// instead of the MatrixMotiveProcessor. Quaternion operations are included here
+// (rather than creating a separate type) so that RigAnims can easily be
+// represented by either Matrices or Sqts without much code change.
 enum MatrixOperationTypeFb : byte {
   kInvalidMatrixOperation,
+  // RotateAbout ops only function in the MatrixMotiveProcessor.
   kRotateAboutX,
   kRotateAboutY,
   kRotateAboutZ,
@@ -29,7 +36,11 @@ enum MatrixOperationTypeFb : byte {
   kScaleY,
   kScaleZ,
   kScaleUniformly,
-  kNumMatrixOperationTypes
+  // Quaternion ops only function in the SqtMotiveProcessor.
+  kQuaternionW,
+  kQuaternionX,
+  kQuaternionY,
+  kQuaternionZ
 }
 
 table ConstantOpFb {
@@ -39,6 +50,7 @@ table ConstantOpFb {
 union MatrixOpValueFb {
   CompactSplineFb,
   ConstantOpFb,
+  CompactSplineFloatFb,
 }
 
 // One operation performed on the matrix.
@@ -53,6 +65,9 @@ table MatrixOpFb {
 // animation.
 table MatrixAnimFb {
   ops:[MatrixOpFb];
+  // True if this animation should be backed by an Sqt-based implementation
+  // instead of a Matrix-based implementation.
+  sqt_anim:bool = false;
 }
 
 // Animate an array of matrices.

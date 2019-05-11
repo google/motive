@@ -1,4 +1,7 @@
 #include "anim_data.h"
+
+#include <queue>
+
 #include "motive/matrix_anim.h"
 #include "motive/rig_anim.h"
 
@@ -61,59 +64,74 @@ size_t AnimData::NumNodes(FlatChannelId channel_id) const {
 void AnimData::AddCurve(FlatChannelId channel_id, FlatTime time_start,
                         FlatTime time_end, const FlatVal* vals,
                         const FlatDerivative* derivatives, size_t count) {
-  // Create cubic that covers the entire range from time_start ~ time_end.
-  // The cubic `c` is shifted to the left, to start at 0 instead of
-  // time_start.
-  // This is to maintain floating-point precision.
-  const float time_width = static_cast<float>(time_end - time_start);
-  const CubicCurve c(CubicInit(vals[0], derivatives[0], vals[count - 1],
-                               derivatives[count - 1], time_width));
+  // Break the curve down into segments and process them depth-first so that the
+  // resulting nodes are in chronological order.
+  std::vector<CurveSegment> segments;
+  segments.emplace_back(time_start, time_end, vals, derivatives, count);
 
-  // Find the worst intermediate val in for this cubic.
-  // That is, the index into `vals` where the cubic evaluation is most
-  // inaccurate.
-  const float time_inc = time_width / (count - 1);
-  float time = time_inc;
-  float worst_diff = 0.0f;
-  float worst_time = 0.0f;
-  size_t worst_idx = 0;
-  for (size_t i = 1; i < count - 1; ++i) {
-    const float cubic_val = c.Evaluate(time);
-    const float curve_val = vals[i];
-    const float diff_val = fabs(cubic_val - curve_val);
-    if (diff_val > worst_diff) {
-      worst_idx = i;
-      worst_diff = diff_val;
-      worst_time = time;
+  while (!segments.empty()) {
+    CurveSegment s = segments.back();
+    segments.pop_back();
+
+    // Create cubic that covers the entire range from s.time_start ~ s.time_end.
+    // The cubic `c` is shifted to the left, to start at 0 instead of
+    // s.time_start. This is to maintain floating-point precision.
+    const float time_width = static_cast<float>(s.time_end - s.time_start);
+    const CubicCurve c(CubicInit(s.vals[0], s.derivatives[0],
+                                 s.vals[s.count - 1],
+                                 s.derivatives[s.count - 1], time_width));
+
+    // Find the worst intermediate val in for this cubic.
+    // That is, the index into `s.vals` where the cubic evaluation is most
+    // inaccurate.
+    const float time_inc = time_width / (s.count - 1);
+    float time = time_inc;
+    float worst_diff = 0.0f;
+    float worst_time = 0.0f;
+    size_t worst_idx = 0;
+    for (size_t i = 1; i < s.count - 1; ++i) {
+      const float cubic_val = c.Evaluate(time);
+      const float curve_val = s.vals[i];
+      const float diff_val = fabs(cubic_val - curve_val);
+      if (diff_val > worst_diff) {
+        worst_idx = i;
+        worst_diff = diff_val;
+        worst_time = time;
+      }
+      time += time_inc;
     }
-    time += time_inc;
-  }
 
-  // If the cubic is off by a lot, divide the curve into two curves at the
-  // worst time. Note that the recursion will end, at worst, when count ==> 2.
-  const float tolerance = Tolerance(channel_id);
-  if (worst_idx > 0 && worst_diff > tolerance) {
-    const FlatTime time_mid = time_start + static_cast<FlatTime>(worst_time);
-    AddCurve(channel_id, time_start, time_mid, vals, derivatives,
-             worst_idx + 1);
-    AddCurve(channel_id, time_mid, time_end, &vals[worst_idx],
-             &derivatives[worst_idx], count - worst_idx);
-    return;
-  }
+    // If the cubic is off by a lot, divide the curve into two curves at the
+    // worst time. Note that the recursion will end, at worst, when
+    // s.count ==> 2.
+    const float tolerance = Tolerance(channel_id);
+    if (worst_idx > 0 && worst_diff > tolerance) {
+      const FlatTime time_mid =
+          s.time_start + static_cast<FlatTime>(worst_time);
+      // Push the "end" segment on first so that the "start" segment is
+      // processed first, resulting in a depth-first search.
+      segments.emplace_back(time_mid, s.time_end, &s.vals[worst_idx],
+                            &s.derivatives[worst_idx], s.count - worst_idx);
+      segments.emplace_back(s.time_start, time_mid, s.vals, s.derivatives,
+                            worst_idx + 1);
+      continue;
+    }
 
-  // Otherwise, the generated cubic is good enough, so record it.
-  const SplineNode start_node(time_start, vals[0], derivatives[0]);
-  const SplineNode end_node(time_end, vals[count - 1], derivatives[count - 1]);
+    // Otherwise, the generated cubic is good enough, so record it.
+    const SplineNode start_node(s.time_start, s.vals[0], s.derivatives[0]);
+    const SplineNode end_node(s.time_end, s.vals[s.count - 1],
+                              s.derivatives[s.count - 1]);
 
-  // Only push the start node if it differs from the previously pushed end
-  // node. Most of the time it will be the same.
-  Channels& channels = CurChannels();
-  Nodes& n = channels[channel_id].nodes;
-  const bool start_matches_prev = n.size() > 0 && n.back() == start_node;
-  if (!start_matches_prev) {
-    n.push_back(start_node);
+    // Only push the start node if it differs from the previously pushed end
+    // node. Most of the time it will be the same.
+    Channels& channels = CurChannels();
+    Nodes& n = channels[channel_id].nodes;
+    const bool start_matches_prev = !n.empty() && n.back() == start_node;
+    if (!start_matches_prev) {
+      n.push_back(start_node);
+    }
+    n.push_back(end_node);
   }
-  n.push_back(end_node);
 }
 
 void AnimData::PruneNodes(FlatChannelId channel_id) {
@@ -582,7 +600,7 @@ bool AnimData::IntermediateNodesRedundant(const SplineNode* n, size_t len,
 
 bool AnimData::EqualNodes(const SplineNode& a, const SplineNode& b,
                           float tolerance, float derivative_tolerance) {
-  return a.time == b.time && fabs(a.val - a.val) < tolerance &&
+  return a.time == b.time && fabs(a.val - b.val) < tolerance &&
          fabs(DerivativeAngle(a.derivative - b.derivative)) <
              derivative_tolerance;
 }

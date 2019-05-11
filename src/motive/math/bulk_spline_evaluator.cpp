@@ -94,6 +94,10 @@ CubicInit BulkSplineEvaluator::CalculateBlendInit(
     end_derivative = curve.Derivative(curve_x);
   }
 
+  // Scale and shift the end value by the playback parameters.
+  end_y *= playback.y_scale;
+  end_y += playback.y_offset;
+
   // Use the current values for the curve start.
   float start_y = ys_[index];
   const float start_derivative = Derivative(index);
@@ -140,7 +144,8 @@ void BulkSplineEvaluator::BlendToSpline(const Index index,
   s.x_index = blend_start_index;
   s.repeat = playback.repeat;
   cubic_xs_[index] = cubic_start_x;
-  cubic_x_ends_[index] = cubic_start_x + playback.blend_x;
+  cubic_x_ends_[index] =
+      cubic_start_x + playback.blend_x * playback.playback_rate;
   cubics_[index].Init(blend_init);
   cubics_[index].ShiftRight(cubic_start_x);
 }
@@ -215,6 +220,13 @@ void BulkSplineEvaluator::SetPlaybackRates(const Index index, const Index count,
                                            float playback_rate) {
   for (Index i = index; i < index + count; ++i) {
     sources_[i].rate = playback_rate;
+  }
+}
+
+void BulkSplineEvaluator::SetRepeating(const Index index, const Index count,
+                                       bool repeat) {
+  for (Index i = index; i < index + count; ++i) {
+    sources_[i].repeat = repeat;
   }
 }
 

@@ -29,8 +29,22 @@ class RigProcessor : public MotiveProcessor {
   virtual const mathfu::AffineTransform* GlobalTransforms(
       MotiveIndex index) const = 0;
 
-  /// Return the time remaining in the current matrix animation.
+  /// Returns the transform in bone-space of the root motion bone if one was set
+  /// at initialization time. Otherwise, returns the identity matrix.
+  virtual const mathfu::AffineTransform& RootMotionTransform(
+      MotiveIndex index) const = 0;
+
+  /// Return the time remaining in the current rig animation.
   virtual MotiveTime TimeRemaining(MotiveIndex index) const = 0;
+
+  /// Return the time remaining in the rig animation at `child_index` based on
+  /// the order animations were passed to BlendToAnims(). If `child_index` is
+  /// out of range, returns 0.
+  /// Time units are defined by the user.
+  virtual MotiveTime ChildTimeRemaining(MotiveIndex index,
+                                        MotiveIndex child_index) const {
+    return 0;
+  }
 
   /// Return the animation that defines the rig.
   virtual const RigAnim* DefiningAnim(MotiveIndex index) const = 0;
@@ -42,8 +56,28 @@ class RigProcessor : public MotiveProcessor {
   virtual void BlendToAnim(MotiveIndex index, const RigAnim& anim,
                            const motive::SplinePlayback& playback) = 0;
 
-  /// Instantly change the playback speed of this animation.
+  /// Smoothly transition to the animations in `anims`, blending them according
+  /// to `weights` and using `playbacks` for each transition. All arguments must
+  /// contain at least `count` elements.
+  virtual void BlendToAnims(MotiveIndex index, const RigAnim** anims,
+                            const SplinePlayback* playbacks,
+                            const float* weights, int count) {}
+
+  /// Instantly change the playback speed of this animation. If multiple
+  /// animations are running, set the playback rate for all of them.
   virtual void SetPlaybackRate(MotiveIndex index, float playback_rate) = 0;
+
+  /// Instantly change the playback speeds of individual running animations.
+  virtual void SetPlaybackRates(MotiveIndex index, const float* playback_rates,
+                                int count) {}
+
+  /// Instantly change the weights of running animations.
+  virtual void SetWeights(MotiveIndex index, const float* weights, int count) {}
+
+  /// Instantly change the repeat state of this animation. If multiple
+  /// animations are running, set the repeat state for all of them. If no
+  /// animations are running, has no effect.
+  virtual void SetRepeating(MotiveIndex index, bool repeat) {}
 
   virtual std::string CsvHeaderForDebugging(MotiveIndex /*index*/) const {
     return std::string();

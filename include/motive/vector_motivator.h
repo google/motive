@@ -171,6 +171,11 @@ class MotivatorNf : public Motivator {
     Processor().SetSplinePlaybackRate(index_, Dimensions(), playback_rate);
   }
 
+  /// Set the repeat state for the spline set in SetSpline().
+  void SetSplineRepeating(bool repeat) {
+    Processor().SetSplineRepeating(index_, Dimensions(), repeat);
+  }
+
   /// Set the target and (optionally the current) motivator values.
   /// Use this call to procedurally drive the Motivator towards a specific
   /// target. The Motivator will transition smoothly to the new target.

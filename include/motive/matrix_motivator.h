@@ -39,6 +39,7 @@ class MatrixMotivator4fTemplate : public Motivator {
   typedef VectorConverter C;
   typedef typename VectorConverter::Matrix4 Mat4;
   typedef typename VectorConverter::Vector3 Vec3;
+  typedef typename VectorConverter::Vector4 Vec4;
   typedef MotivatorXfTemplate<C, 1> Mot1f;
 
   MatrixMotivator4fTemplate() {}
@@ -59,6 +60,13 @@ class MatrixMotivator4fTemplate : public Motivator {
     return reinterpret_cast<const Mat4&>(Processor().Value(index_));
   }
 
+  /// Return the current value of the Motivator decomposed into a translation,
+  /// rotation quaternion, and scale. The quaternion is packed into a Vec4 with
+  /// the vector component in rotation.xyz and vector component in rotation.w.
+  void Value(Vec3* translation, Vec4* rotation, Vec3* scale) const {
+    Processor().Value(index_, translation, rotation, scale);
+  }
+
   /// Return the translation component of the matrix.
   /// The matrix is a 3D affine transform, so the translation component is the
   /// fourth column.
@@ -70,7 +78,9 @@ class MatrixMotivator4fTemplate : public Motivator {
 
   /// Return the time remaining in the current spline animation.
   /// Time units are defined by the user.
-  MotiveTime TimeRemaining() const { return Processor().TimeRemaining(index_); }
+  MotiveTime TimeRemaining() const {
+    return Valid() ? Processor().TimeRemaining(index_) : 0;
+  }
 
   /// Query the number of matrix operations. This equals the number of
   /// operations in the `init` initializer.
@@ -152,7 +162,15 @@ class MatrixMotivator4fTemplate : public Motivator {
   }
 
   void SetPlaybackRate(float playback_rate) {
-    Processor().SetPlaybackRate(index_, playback_rate);
+    if (Valid()) {
+      Processor().SetPlaybackRate(index_, playback_rate);
+    }
+  }
+
+  void SetRepeating(bool repeat) {
+    if (Valid()) {
+      Processor().SetRepeating(index_, repeat);
+    }
   }
 
  private:

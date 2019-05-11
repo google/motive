@@ -1,4 +1,4 @@
-// Copyright 2014 Google Inc. All rights reserved.
+// Copyright 2018 Google Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,29 +15,30 @@
 #include "motive/matrix_processor.h"
 #include "mathfu/constants.h"
 #include "motive/engine.h"
-#include "motive/matrix_init.h"
 #include "motive/math/angle.h"
 #include "motive/math/bulk_spline_evaluator.h"
-#include "motive/processor/matrix_data.h"
+#include "motive/processor/sqt_data.h"
+#include "motive/sqt_init.h"
 
 namespace motive {
 
-// See comments on MatrixInit for details on this class.
-class MatrixMotiveProcessor : public MatrixProcessor4f {
+// See comments on SqtInit for details on this class.
+class SqtMotiveProcessor : public MatrixProcessor4f {
  public:
-  MatrixMotiveProcessor() : time_(0) {}
+  SqtMotiveProcessor() : time_(0) {}
 
-  virtual ~MatrixMotiveProcessor() {
+  virtual ~SqtMotiveProcessor() {
     RemoveIndices(0, NumIndices());
   }
 
   virtual void AdvanceFrame(MotiveTime delta_time) {
     Defragment();
 
-    // Process the series of matrix operations for each index.
+    // Process the translation, quaternion rotation, and scale animations into a
+    // matrix for each index.
     const MotiveIndex num_indices = NumIndices();
     for (MotiveIndex index = 0; index < num_indices; ++index) {
-      MatrixData& d = Data(index);
+      SqtData& d = Data(index);
       d.UpdateResultMatrix();
     }
 
@@ -46,7 +47,7 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
     time_ += delta_time;
   }
 
-  virtual MotivatorType Type() const { return MatrixInit::kType; }
+  virtual MotivatorType Type() const { return SqtInit::kType; }
   virtual int Priority() const { return 2; }
 
   virtual const mathfu::mat4& Value(MotiveIndex index) const {
@@ -55,7 +56,7 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
 
   virtual void Value(MotiveIndex index, mathfu::vec3* translation,
                      mathfu::vec4* rotation, mathfu::vec3* scale) const {
-    const MatrixData& data = Data(index);
+    const SqtData& data = Data(index);
     *translation = data.result_translation();
     *scale = data.result_scale();
 
@@ -70,7 +71,7 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
 
   virtual void ChildValues(MotiveIndex index, MotiveChildIndex child_index,
                            MotiveChildIndex count, float* values) const {
-    const MatrixData& d = Data(index);
+    const SqtData& d = Data(index);
     for (MotiveChildIndex i = 0; i < count; ++i) {
       values[i] = d.Op(child_index + i).Value();
     }
@@ -89,7 +90,7 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
 
   virtual void SetChildValues(MotiveIndex index, MotiveChildIndex child_index,
                               MotiveChildIndex count, const float* values) {
-    MatrixData& d = Data(index);
+    SqtData& d = Data(index);
     for (MotiveChildIndex i = 0; i < count; ++i) {
       d.Op(child_index + i).SetValue1f(values[i]);
     }
@@ -124,9 +125,9 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
                                  MotiveEngine* engine) {
     RemoveIndices(index, dimensions);
 
-    // TODO OPT: Create only one MatrixData that holds `dimensions` matrices,
+    // TODO OPT: Create only one SqtData that holds `dimensions` matrices,
     //           so that we can process in bulk.
-    auto init_params = static_cast<const MatrixInit&>(init);
+    auto init_params = static_cast<const SqtInit&>(init);
     for (MotiveIndex i = index; i < index + dimensions; ++i) {
       data_[i].Initialize(init_params, engine);
     }
@@ -144,7 +145,7 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
 
   virtual void RemoveIndices(MotiveIndex index, MotiveDimension dimensions) {
     // Callers depend on indices staying consistent between calls to this
-    // function, so just reset the MatrixData states to empty instead of erasing
+    // function, so just reset the SqtData states to empty instead of erasing
     // them.
     for (MotiveIndex i = index; i < index + dimensions; ++i) {
       data_[i].Reset();
@@ -168,24 +169,24 @@ class MatrixMotiveProcessor : public MatrixProcessor4f {
       RemoveIndices(num_indices, old_num_indices - num_indices);
     }
 
-    // Default-inserts new empty MatrixDatas.
+    // Default-inserts new empty SqtDatas.
     data_.resize(num_indices);
   }
 
-  const MatrixData& Data(MotiveIndex index) const {
+  const SqtData& Data(MotiveIndex index) const {
     assert(ValidIndex(index));
     return data_[index];
   }
 
-  MatrixData& Data(MotiveIndex index) {
+  SqtData& Data(MotiveIndex index) {
     assert(ValidIndex(index));
     return data_[index];
   }
 
-  std::vector<MatrixData> data_;
+  std::vector<SqtData> data_;
   MotiveTime time_;
 };
 
-MOTIVE_INSTANCE(MatrixInit, MatrixMotiveProcessor);
+MOTIVE_INSTANCE(SqtInit, SqtMotiveProcessor);
 
 }  // namespace motive

@@ -62,6 +62,7 @@ MotiveProcessor* MotiveEngine::Processor(MotivatorType type) {
   // type in an engine
   ProcessorDetails details;
   details.processor = fns.create();
+  details.processor->SetEngine(this);
   details.processor->RegisterBenchmarks();
   mapped_processors_.insert(ProcessorPair(type, details.processor));
   sorted_processors_.insert(details);

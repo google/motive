@@ -15,6 +15,8 @@
 #ifndef MOTIVE_MATH_SPLINE_UTIL_H_
 #define MOTIVE_MATH_SPLINE_UTIL_H_
 
+#include <vector>
+
 #include "mathfu/glsl_mappings.h"
 
 namespace motive {

@@ -84,9 +84,6 @@ class CompactSpline {
       : max_nodes_(kDefaultMaxNodes) {
     Init(y_range, x_granularity);
   }
-  CompactSpline(const CompactSpline& rhs) : max_nodes_(kDefaultMaxNodes) {
-    *this = rhs;
-  }
   CompactSpline& operator=(const CompactSpline& rhs) {
     assert(rhs.num_nodes_ <= max_nodes_);
     y_range_ = rhs.y_range_;
@@ -528,13 +525,18 @@ class CompactSpline {
  private:
   static const size_t kBaseSize;
 
+  CompactSpline(const CompactSpline& rhs) : max_nodes_(rhs.max_nodes_) {
+    *this = rhs;
+  }
+
   /// All other AddNode() functions end up calling this one.
-  void AddNodeVerbatim(const detail::CompactSplineNode& node) {
+  void AddNodeVerbatim(const detail::CompactSplineNode& node)
+      MOTIVE_NO_SANITIZE("bounds") /* nodes_ has variable size */ {
     assert(num_nodes_ < max_nodes_);
     nodes_[num_nodes_++] = node;
   }
 
-  /// Return true iff `x` is between the the nodes at `index` and `index` + 1.
+  /// Return true iff `x` is between the nodes at `index` and `index` + 1.
   bool IndexContainsX(const CompactSplineXGrain compact_x,
                       const CompactSplineIndex index) const;
 
@@ -557,7 +559,8 @@ class CompactSpline {
     return nodes_[0];
   }
 
-  const detail::CompactSplineNode& Back() const {
+  const detail::CompactSplineNode& Back() const
+      MOTIVE_NO_SANITIZE("bounds") /* nodes_ has variable size */ {
     assert(num_nodes_ > 0);
     return nodes_[num_nodes_ - 1];
   }

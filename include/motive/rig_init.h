@@ -27,11 +27,12 @@ class RigInit : public MotivatorInit {
   MOTIVE_INTERFACE();
 
   RigInit(const RigAnim& defining_anim, const BoneIndex* bone_parents,
-          BoneIndex num_bones);
+          BoneIndex num_bones, BoneIndex root_motion_bone = kInvalidBoneIdx);
   const RigAnim& defining_anim() const { return *defining_anim_; }
   const mathfu::AffineTransform* bone_transforms() const {
     return bone_transforms_;
   }
+  const BoneIndex root_motion_bone() const { return root_motion_bone_; }
 
   // Utility functions. Ensure that animations are compatible with rigs.
   static bool MatchesHierarchy(const BoneIndex* parents_a, BoneIndex len_a,
@@ -52,6 +53,13 @@ class RigInit : public MotivatorInit {
   /// `MatrixInit`s. All the matrix operations are applied from the origin of
   /// the bone they're animating.
   const mathfu::AffineTransform* bone_transforms_;
+
+  /// The index of the bone that root motion should be extracted from. This
+  /// bone's transform will be stored separately when updating each bone's
+  /// transform each frame instead of being applied to the hierarchy and can
+  /// be accessed using RigMotivator::RootMotionTransform(). If kInvalidBoneIdx,
+  /// root motion will not be extracted.
+  BoneIndex root_motion_bone_;
 };
 
 }  // namespace motive

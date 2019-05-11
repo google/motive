@@ -119,6 +119,12 @@ class CompactSplineNode {
 
   static CompactSplineYRung CompactY(const float y, const Range& y_range) {
     assert(y_range.Contains(y));
+
+    // Prevent a divide-by-zero if the range has zero length.
+    if (y_range.Length() == 0.0f) {
+      return 0;
+    }
+
     const float y_percent = y_range.PercentClamped(y);
     const CompactSplineYRung compact_y =
         static_cast<CompactSplineYRung>(kMaxY * y_percent);

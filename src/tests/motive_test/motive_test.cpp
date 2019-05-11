@@ -16,17 +16,17 @@
 #include "gtest/gtest.h"
 #include "mathfu/constants.h"
 #include "motive/common.h"
-#include "motive/engine.h"
 #include "motive/const_init.h"
-#include "motive/overshoot_init.h"
-#include "motive/spline_init.h"
+#include "motive/ease_in_ease_out_init.h"
+#include "motive/engine.h"
 #include "motive/math/angle.h"
 #include "motive/math/curve_util.h"
-#include "motive/ease_in_ease_out_init.h"
 #include "motive/matrix_init.h"
 #include "motive/matrix_motivator.h"
 #include "motive/matrix_op.h"
+#include "motive/overshoot_init.h"
 #include "motive/spline_init.h"
+#include "motive/sqt_init.h"
 
 #define DEBUG_PRINT_MATRICES 0
 
@@ -39,7 +39,6 @@ using motive::Angle;
 using motive::CompactSpline;
 using motive::EaseInEaseOutInit;
 using motive::EaseInEaseOutInit1f;
-using motive::SimpleInitTemplate;
 using motive::kAngleRange;
 using motive::kHalfPi;
 using motive::kInvalidRange;
@@ -75,8 +74,10 @@ using motive::MotiveTime;
 using motive::OvershootInit;
 using motive::Range;
 using motive::Settled1f;
+using motive::SimpleInitTemplate;
 using motive::SplineInit;
 using motive::SplinePlayback;
+using motive::SqtInit;
 
 typedef mathfu::Matrix<float, 3> mat3;
 
@@ -176,13 +177,13 @@ class MotiveTests : public ::testing::Test {
   template <class MotivatorT>
   void InitMotivator(const MotivatorInit& init, float start_value,
                      float start_velocity, float target_value,
-                     MotivatorT* motivator) {
+                     MotiveTime target_time, MotivatorT* motivator) {
     typedef typename MotivatorT::TargetBuilder Tar;
     typedef typename MotivatorT::Vec Vec;
     motivator->InitializeWithTarget(
         init, &engine_,
         Tar::CurrentToTarget(Vec(start_value), Vec(start_velocity),
-                             Vec(target_value), Vec(0.0f), 1));
+                             Vec(target_value), Vec(0.0f), target_time));
   }
 
   template <class MotivatorT>
@@ -199,9 +200,9 @@ class MotiveTests : public ::testing::Test {
   template <class MotivatorT>
   void InitOvershootMotivator(MotivatorT* motivator) {
     InitMotivator(overshoot_percent_init_,
-                  overshoot_percent_init_.range().end(),
+                  overshoot_percent_init_.range().start(),
                   overshoot_percent_init_.max_velocity(),
-                  overshoot_percent_init_.range().end(), motivator);
+                  overshoot_percent_init_.range().end(), 1, motivator);
   }
 
   template <class MotivatorT>
@@ -228,6 +229,7 @@ class MotiveTests : public ::testing::Test {
     motive::SplineInit::Register();
     motive::EaseInEaseOutInit::Register();
     motive::MatrixInit::Register();
+    motive::SqtInit::Register();
 
     // Create an OvershootInit with reasonable values.
     overshoot_angle_init_.set_modular(true);
@@ -341,7 +343,8 @@ static void TestEaseInEaseOutInternal(float start_value, float start_velocity,
           Vec(target_value), Vec(target_velocity), 1));
       EXPECT_EQ(target_time, motivator.TargetTime());
     }
-    points.push_back(vec2(points.size() * delta_time_float, motivator.Values()[0]));
+    points.push_back(
+        vec2(points.size() * delta_time_float, motivator.Values()[0]));
   }
 
   // Go another kPointsPastZeroVelocity ticks past reaching 0 velocity.
@@ -350,7 +353,8 @@ static void TestEaseInEaseOutInternal(float start_value, float start_velocity,
     t->engine().AdvanceFrame(delta_time);
     EXPECT_GE(0, motivator.TargetTime());
     EXPECT_TRUE(VectorEqual(motivator.Velocity(), Vec(0.0f)));
-    points.push_back(vec2(points.size() * delta_time_float, motivator.Values()[0]));
+    points.push_back(
+        vec2(points.size() * delta_time_float, motivator.Values()[0]));
   }
   EXPECT_TRUE(
       VectorNear(Vec(target_value), motivator.Value(), Vec(value_epsilon)));
@@ -379,10 +383,10 @@ static void TestEaseInEaseOut(float start_value, float start_velocity,
 
 template <class MotivatorT>
 static void TestMultiMotivators(float start_value, float start_velocity,
-                              float target_value, float target_velocity,
-                              float typical_delta_value,
-                              float typical_total_time, float bias,
-                              MotiveTime delta_x, MotiveTests* t) {
+                                float target_value, float target_velocity,
+                                float typical_delta_value,
+                                float typical_total_time, float bias,
+                                MotiveTime delta_x, MotiveTests* t) {
   typedef typename MotivatorT::Vec Vec;
   typedef SimpleInitTemplate<EaseInEaseOutInit, MathFuVectorConverter,
                              MotivatorT::kDimensions> Init;
@@ -396,12 +400,12 @@ static void TestMultiMotivators(float start_value, float start_velocity,
   for (int i = 0; i < kNumTestMotivators; ++i) {
     test_motivators[i] = MotivatorT();
     t->InitEaseInEaseOutMotivator(ease_in_ease_out_init, target_value,
-                               target_velocity, shape, &test_motivators[i]);
+                                  target_velocity, shape, &test_motivators[i]);
   }
 
   TestEaseInEaseOut<MotivatorT>(start_value, start_velocity, target_value,
-                                 target_velocity, typical_delta_value,
-                                 typical_total_time, bias, delta_x, t);
+                                target_velocity, typical_delta_value,
+                                typical_total_time, bias, delta_x, t);
 }
 // Simple test to create a 1 dimensional motivator, initialize it from 0~50,
 // and advance it past the end.
@@ -494,7 +498,7 @@ void ModularMovement(MotiveTests& t) {
   typedef typename MotivatorT::Vec Vec;
   const OvershootInit& overshoot = t.overshoot_angle_init();
   MotivatorT motivator;
-  t.InitMotivator(overshoot, kPi, 0.001f, -kPi + 1.0f, &motivator);
+  t.InitMotivator(overshoot, kPi, 0.001f, -kPi + 1.0f, 1, &motivator);
   t.engine().AdvanceFrame(1);
 
   // We expect the position to go up from +pi since it has positive velocity.
@@ -508,7 +512,7 @@ template <class MotivatorT>
 void EventuallySettles(MotiveTests& t) {
   const OvershootInit& overshoot = t.overshoot_angle_init();
   MotivatorT motivator;
-  t.InitMotivator(overshoot, 0.0f, overshoot.max_velocity(), -kPi + 1.0f,
+  t.InitMotivator(overshoot, 0.0f, overshoot.max_velocity(), -kPi + 1.0f, 1,
                   &motivator);
   const MotiveTime time_to_settle =
       t.TimeToSettle(motivator, overshoot.at_target());
@@ -526,7 +530,7 @@ template <class MotivatorT>
 void SettlesOnMax(MotiveTests& t) {
   MotivatorT motivator;
   const OvershootInit& overshoot = t.overshoot_angle_init();
-  t.InitMotivator(overshoot, kPi, overshoot.max_velocity(), kPi, &motivator);
+  t.InitMotivator(overshoot, kPi, overshoot.max_velocity(), kPi, 1, &motivator);
   const MotiveTime time_to_settle =
       t.TimeToSettle(motivator, overshoot.at_target());
 
@@ -544,7 +548,7 @@ void StaysWithinBound(MotiveTests& t) {
   typedef typename MotivatorT::Vec Vec;
   MotivatorT motivator;
   t.InitOvershootMotivator(&motivator);
-  t.engine().AdvanceFrame(1);
+  t.engine().AdvanceFrame(1000);
 
   // Even though we're at the bound and trying to travel beyond the bound,
   // the simulation should clamp our position to the bound.
@@ -589,31 +593,31 @@ void Defragment(MotiveTests& t) {
 }
 TEST_ALL_VECTOR_MOTIVATORS_F(Defragment)
 
-// Copy a valid motivator. Ensure original motivator gets invalidated.
+// Move a valid motivator. Ensure original motivator gets invalidated.
 template <class MotivatorT>
-void CopyConstructor(MotiveTests& t) {
+void MoveConstructor(MotiveTests& t) {
   MotivatorT orig_motivator;
   t.InitOvershootMotivator(&orig_motivator);
   EXPECT_TRUE(orig_motivator.Valid());
   const typename MotivatorT::Vec value = orig_motivator.Value();
 
-  MotivatorT new_motivator(orig_motivator);
+  MotivatorT new_motivator(std::move(orig_motivator));
   EXPECT_FALSE(orig_motivator.Valid());
   EXPECT_TRUE(new_motivator.Valid());
   EXPECT_TRUE(VectorEqual(new_motivator.Value(), value));
 }
-TEST_ALL_VECTOR_MOTIVATORS_F(CopyConstructor)
+TEST_ALL_VECTOR_MOTIVATORS_F(MoveConstructor)
 
-// Copy an invalid motivator.
+// Move an invalid motivator.
 template <class MotivatorT>
-void CopyConstructorInvalid(MotiveTests& /*t*/) {
+void MoveConstructorInvalid(MotiveTests& /*t*/) {
   MotivatorT invalid_motivator;
   EXPECT_FALSE(invalid_motivator.Valid());
 
-  MotivatorT copy_of_invalid(invalid_motivator);
+  MotivatorT copy_of_invalid(std::move(invalid_motivator));
   EXPECT_FALSE(copy_of_invalid.Valid());
 }
-TEST_ALL_VECTOR_MOTIVATORS_F(CopyConstructorInvalid)
+TEST_ALL_VECTOR_MOTIVATORS_F(MoveConstructorInvalid)
 
 // Test operator=() of an invalid motivator to another invalid motivator.
 template <class MotivatorT>
@@ -623,7 +627,7 @@ void AssignmentOperatorInvalidToInvalid(MotiveTests& /*t*/) {
   EXPECT_FALSE(orig_motivator.Valid());
   EXPECT_FALSE(new_motivator.Valid());
 
-  new_motivator = orig_motivator;
+  new_motivator = std::move(orig_motivator);
   EXPECT_FALSE(orig_motivator.Valid());
   EXPECT_FALSE(new_motivator.Valid());
 }
@@ -638,7 +642,7 @@ void AssignmentOperatorValidToInvalid(MotiveTests& t) {
   const typename MotivatorT::Vec value = orig_motivator.Value();
 
   MotivatorT new_motivator;
-  new_motivator = orig_motivator;
+  new_motivator = std::move(orig_motivator);
   EXPECT_FALSE(orig_motivator.Valid());
   EXPECT_TRUE(new_motivator.Valid());
   EXPECT_TRUE(VectorEqual(new_motivator.Value(), value));
@@ -654,7 +658,7 @@ void AssignmentOperatorInvalidToValid(MotiveTests& t) {
   MotivatorT new_motivator;
   t.InitOvershootMotivator(&new_motivator);
 
-  new_motivator = orig_motivator;
+  new_motivator = std::move(orig_motivator);
 
   EXPECT_FALSE(orig_motivator.Valid());
   EXPECT_FALSE(new_motivator.Valid());
@@ -681,7 +685,7 @@ void AssignmentOperatorValidToValid(MotiveTests& t) {
   // Give orig and new different values.
   EXPECT_FALSE(VectorEqual(new_value, orig_value));
 
-  new_motivator = orig_motivator;
+  new_motivator = std::move(orig_motivator);
 
   // After the assignment, new should have the orig value.
   EXPECT_FALSE(orig_motivator.Valid());
@@ -689,6 +693,55 @@ void AssignmentOperatorValidToValid(MotiveTests& t) {
   EXPECT_TRUE(VectorEqual(new_motivator.Value(), orig_value));
 }
 TEST_ALL_VECTOR_MOTIVATORS_F(AssignmentOperatorValidToValid)
+
+// Initialize to an invalid motivator.
+template <class MotivatorT>
+void InitializeToInvalid(MotiveTests& t) {
+  MotivatorT orig_motivator;
+  EXPECT_FALSE(orig_motivator.Valid());
+
+  MotivatorT new_motivator;
+  new_motivator.CloneFrom(&orig_motivator);
+  EXPECT_FALSE(orig_motivator.Valid());
+  EXPECT_FALSE(new_motivator.Valid());
+}
+TEST_ALL_VECTOR_MOTIVATORS_F(InitializeToInvalid)
+
+// Initialize to a valid spline motivator. Ensure the original motivator is
+// still valid and that the two have matching values.
+template <class MotivatorT>
+void InitializeToValidSpline(MotiveTests& t) {
+  typedef typename MotivatorT::Vec Vec;
+
+  static const float kEnd = 1.f;
+  static const MotiveTime kTime = 10;
+  MotivatorT orig_motivator;
+  t.InitMotivator(SplineInit(Range(-2.f, 2.f)), 0.f, 0.f, kEnd, kTime,
+                  &orig_motivator);
+  EXPECT_TRUE(orig_motivator.Valid());
+
+  const typename MotivatorT::Vec value = orig_motivator.Value();
+  const typename MotivatorT::Vec velocity = orig_motivator.Velocity();
+
+  MotivatorT new_motivator;
+  new_motivator.CloneFrom(&orig_motivator);
+  EXPECT_TRUE(orig_motivator.Valid());
+  EXPECT_TRUE(new_motivator.Valid());
+  EXPECT_TRUE(VectorEqual(new_motivator.Value(), value));
+  EXPECT_TRUE(VectorEqual(new_motivator.Velocity(), velocity));
+
+  // Ensure that the two are always nearly identical.
+  for (MotiveTime time = 0; time < kTime; ++time) {
+    EXPECT_TRUE(VectorEqual(orig_motivator.Value(), new_motivator.Value()));
+    EXPECT_TRUE(
+        VectorEqual(orig_motivator.Velocity(), new_motivator.Velocity()));
+    t.engine().AdvanceFrame(1);
+  }
+  EXPECT_TRUE(
+      VectorNear(orig_motivator.Value(), Vec(kEnd), Vec(kEpsilonScale)));
+  EXPECT_TRUE(VectorNear(new_motivator.Value(), Vec(kEnd), Vec(kEpsilonScale)));
+}
+TEST_ALL_VECTOR_MOTIVATORS_F(InitializeToValidSpline)
 
 template <class MotivatorT>
 void VectorResize(MotiveTests& t) {
@@ -810,8 +863,12 @@ static void ExpectMatricesEqual(const mat4& a, const mat4& b, float epsilon) {
 static void TestMatrixMotivator(const MatrixInit& matrix_init,
                                 MotiveEngine* engine) {
   MatrixMotivator4f matrix_motivator(matrix_init, engine);
-  engine->AdvanceFrame(kTimePerFrame);
   const mat4 check_matrix = CreateMatrixFromOps(matrix_init);
+
+  const mat4 init_matrix = matrix_motivator.Value();
+  ExpectMatricesEqual(init_matrix, check_matrix, kMatrixEpsilon);
+
+  engine->AdvanceFrame(kTimePerFrame);
   const mat4 motive_matrix = matrix_motivator.Value();
   ExpectMatricesEqual(motive_matrix, check_matrix, kMatrixEpsilon);
 
@@ -940,6 +997,99 @@ TEST_F(MotiveTests, MatrixTranslateRotateScaleGoneWild) {
   ops.emplace_back(0, motive::kScaleX, spline_scalar_init, 2.0f);
   ops.emplace_back(0, motive::kScaleY, spline_scalar_init, 4.1f);
   TestMatrixMotivator(MatrixInit(ops), &engine_);
+}
+
+// Return the matrix equivalent to the Sqt operations from 'sqt_init'.
+static mat4 CreateMatrixForSqt(const SqtInit& sqt_init) {
+  const std::vector<MatrixOperationInit>& ops = sqt_init.ops();
+
+  mathfu::vec3 translation = motive::DefaultOpsTranslation();
+  mathfu::quat rotation = motive::DefaultOpsQuaternion();
+  mathfu::vec3 scale = motive::DefaultOpsScale();
+
+  for (size_t i = 0; i < ops.size(); ++i) {
+    const MatrixOperationInit& op = ops[i];
+    if (motive::TranslateOp(op.type)) {
+      translation[op.type - motive::kTranslateX] = op.initial_value;
+    } else if (motive::QuaternionOp(op.type)) {
+      if (op.type == motive::kQuaternionW) {
+        rotation.set_scalar(op.initial_value);
+      } else {
+        mathfu::vec3 v = rotation.vector();
+        if (op.type == motive::kQuaternionX) {
+          v.x = op.initial_value;
+        } else if (op.type == motive::kQuaternionY) {
+          v.y = op.initial_value;
+        } else if (op.type == motive::kQuaternionZ) {
+          v.z = op.initial_value;
+        }
+        rotation.set_vector(v);
+      }
+    } else if (motive::ScaleOp(op.type)) {
+      scale[op.type - motive::kScaleX] = op.initial_value;
+    }
+  }
+  return mathfu::mat4::Transform(translation, rotation.Normalized().ToMatrix(),
+                                 scale);
+}
+
+static void TestSqtMotivator(const SqtInit& sqt_init, MotiveEngine* engine) {
+  MatrixMotivator4f matrix_motivator(sqt_init, engine);
+  const mat4 check_matrix = CreateMatrixForSqt(sqt_init);
+
+  const mat4 init_matrix = matrix_motivator.Value();
+  ExpectMatricesEqual(init_matrix, check_matrix, kMatrixEpsilon);
+
+  engine->AdvanceFrame(kTimePerFrame);
+  const mat4 motive_matrix = matrix_motivator.Value();
+  ExpectMatricesEqual(motive_matrix, check_matrix, kMatrixEpsilon);
+
+  // Output matrices for debugging.
+  PrintMatrix("motivator", motive_matrix);
+  PrintMatrix("check", check_matrix);
+}
+
+// Test the translation portion of the Sqt.
+TEST_F(MotiveTests, SqtTranslate) {
+  std::vector<MatrixOperationInit> ops;
+  ops.emplace_back(0, motive::kTranslateX, spline_scalar_init, 2.0f);
+  ops.emplace_back(0, motive::kTranslateY, spline_scalar_init, -3.0f);
+  ops.emplace_back(0, motive::kTranslateZ, spline_scalar_init, -2.0f);
+  TestSqtMotivator(SqtInit(ops), &engine_);
+}
+
+// Test the quaternion portion of the Sqt.
+TEST_F(MotiveTests, SqtQuaternion) {
+  std::vector<MatrixOperationInit> ops;
+  ops.emplace_back(0, motive::kQuaternionW, spline_scalar_init, 0.2f);
+  ops.emplace_back(0, motive::kQuaternionX, spline_scalar_init, 0.4f);
+  ops.emplace_back(0, motive::kQuaternionY, spline_scalar_init, 0.6f);
+  ops.emplace_back(0, motive::kQuaternionZ, spline_scalar_init, 0.8f);
+  TestSqtMotivator(SqtInit(ops), &engine_);
+}
+
+// Test the scale portion of the Sqt.
+TEST_F(MotiveTests, SqtScale) {
+  std::vector<MatrixOperationInit> ops;
+  ops.emplace_back(0, motive::kScaleX, spline_scalar_init, -3.0f);
+  ops.emplace_back(0, motive::kScaleY, spline_scalar_init, -2.0f);
+  ops.emplace_back(0, motive::kScaleZ, spline_scalar_init, 3.0f);
+  TestSqtMotivator(SqtInit(ops), &engine_);
+}
+// Test the quaternion portion of the Sqt.
+TEST_F(MotiveTests, SqtTranslateQuaternionScale) {
+  std::vector<MatrixOperationInit> ops;
+  ops.emplace_back(0, motive::kTranslateX, spline_scalar_init, 2.0f);
+  ops.emplace_back(0, motive::kTranslateY, spline_scalar_init, -3.0f);
+  ops.emplace_back(0, motive::kTranslateZ, spline_scalar_init, -2.0f);
+  ops.emplace_back(0, motive::kQuaternionW, spline_scalar_init, 0.2f);
+  ops.emplace_back(0, motive::kQuaternionX, spline_scalar_init, 0.4f);
+  ops.emplace_back(0, motive::kQuaternionY, spline_scalar_init, 0.6f);
+  ops.emplace_back(0, motive::kQuaternionZ, spline_scalar_init, 0.8f);
+  ops.emplace_back(0, motive::kScaleX, spline_scalar_init, -3.0f);
+  ops.emplace_back(0, motive::kScaleY, spline_scalar_init, -2.0f);
+  ops.emplace_back(0, motive::kScaleZ, spline_scalar_init, 3.0f);
+  TestSqtMotivator(SqtInit(ops), &engine_);
 }
 
 // Test the MotivatorVector::SplineTime() function.

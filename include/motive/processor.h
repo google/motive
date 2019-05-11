@@ -57,6 +57,7 @@ class MotiveProcessor {
  public:
   MotiveProcessor()
       : index_allocator_(allocator_callbacks_),
+        engine_(nullptr),
         benchmark_id_for_advance_frame_(-1),
         benchmark_id_for_init_(-1) {
     allocator_callbacks_.set_processor(this);
@@ -85,6 +86,12 @@ class MotiveProcessor {
   void InitializeMotivator(const MotivatorInit& init, MotiveEngine* engine,
                            Motivator* motivator, MotiveDimension dimensions);
 
+  /// Initializes `dst` to be a clone of the Motivator referenced by `src`.
+  ///
+  /// @param dst The Motivator to initialize.
+  /// @param src The index of the Motivator to use to initialize `dst`.
+  void CloneMotivator(Motivator* dst, MotiveIndex src);
+
   /// Remove an motivator and return its index to the pile of allocatable
   /// indices.
   ///
@@ -97,7 +104,7 @@ class MotiveProcessor {
   /// Resets the Motivator that currently owns `index` and initializes
   /// 'new_motivator'.
   ///
-  /// This function should only be called by Motivator's copy operations.
+  /// This function should only be called by Motivator's move operations.
   ///
   /// @param index Reference into the MotiveProcessor's internal arrays.
   /// @param new_motivator The Motivator that is initialized to reference
@@ -163,6 +170,11 @@ class MotiveProcessor {
   }
   int benchmark_id_for_init() const { return benchmark_id_for_init_; }
 
+  /// Sets the MotiveEngine instance that owns this processor. This function
+  /// is called by the MotiveEngine at creation time. This function has no
+  /// effect if it has been called before on this processor.
+  void SetEngine(MotiveEngine* engine);
+
  protected:
   /// Initialize data at [index, index + dimensions).
   /// The meaning of `index` is determined by the MotiveProcessor
@@ -173,6 +185,21 @@ class MotiveProcessor {
   virtual void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
                                  MotiveDimension dimensions,
                                  MotiveEngine* engine) = 0;
+
+  /// Indicates whether or not this Processor supports cloning.
+  /// If overridden to return true, the Processor should also override the
+  /// CloneIndices() signature below to implement the actual duplication.
+  virtual bool SupportsCloning() { return false; }
+
+  /// Initialize data at [dst, dst + dimensions) to a clone of the data at
+  /// [src, src + dimensions). Processors that support initializing new
+  /// Motivators from existing Motivators should override this function.
+  virtual void CloneIndices(MotiveIndex dst, MotiveIndex src,
+                            MotiveDimension dimensions, MotiveEngine* engine) {
+    // Hitting this assertion means SupportsCloning() returned true but the
+    // Processor didn't override this function.
+    assert(false);
+  }
 
   /// Reset data at [index, index + dimensions).
   /// See comment above InitializeIndex for meaning of `index`.
@@ -201,9 +228,18 @@ class MotiveProcessor {
   /// MotiveProcessor::AdvanceFrame.
   void Defragment() { index_allocator_.Defragment(); }
 
+  /// Return a handle to the MotiveEngine instance that owns this processor.
+  MotiveEngine* Engine() { return engine_; }
+  const MotiveEngine* Engine() const { return engine_; }
+
  private:
   typedef IndexAllocator<MotiveIndex> MotiveIndexAllocator;
   typedef MotiveIndexAllocator::IndexRange IndexRange;
+
+  /// Allocate an index for `motivator` and initialize it to that index. Returns
+  /// the newly allocated index.
+  MotiveIndex AllocateMotivatorIndices(Motivator* motivator,
+                                       MotiveDimension dimensions);
 
   /// Don't notify derived class.
   void RemoveMotivatorWithoutNotifying(MotiveIndex index);
@@ -233,8 +269,8 @@ class MotiveProcessor {
   /// so when the index is moved, or when the MotiveProcessor itself is
   /// destroyed, we need to update the Motivator.
   /// Note that we only keep a reference to a single Motivator per index.
-  /// When a copy of an Motivator is made, the old Motivator is Reset and the
-  /// reference here is updated.
+  /// When a Motivator is moved, the old Motivator is Reset and the reference
+  /// here is updated.
   std::vector<Motivator*> motivators_;
 
   /// Proxy calbacks into MotiveProcessor. The other option is to derive
@@ -249,6 +285,10 @@ class MotiveProcessor {
   /// unused indices with the highest allocated indices. This reduces the total
   /// size of the data arrays.
   MotiveIndexAllocator index_allocator_;
+
+  /// A handle to the owning MotiveEngine. This is required when new Motivators
+  /// are created outside of typical initialization times.
+  MotiveEngine* engine_;
 
   int benchmark_id_for_advance_frame_;
   int benchmark_id_for_init_;

@@ -28,6 +28,11 @@ class MatrixProcessor4f : public MotiveProcessor {
   /// Get the current matrix value from the processor.
   virtual const mathfu::mat4& Value(MotiveIndex index) const = 0;
 
+  /// Get the current matrix value from the processor in the form of a
+  /// translation, rotation, and scale.
+  virtual void Value(MotiveIndex index, mathfu::vec3* translation,
+                     mathfu::vec4* rotation, mathfu::vec3* scale) const = 0;
+
   /// Get the number of matrix operations performed by this motivator.
   virtual int NumChildren(MotiveIndex index) const = 0;
 
@@ -54,6 +59,10 @@ class MatrixProcessor4f : public MotiveProcessor {
 
   /// Instantly change the playback speed of this animation.
   virtual void SetPlaybackRate(MotiveIndex index, float playback_rate) = 0;
+
+  /// Instantly set the repeat state of this animation. If no animation is
+  /// playing, has no effect.
+  virtual void SetRepeating(MotiveIndex index, bool repeat) {}
 
   /// Returns the time remaining to reach the end of the animation.  If the
   /// animation is looping, then returns kMotiveTimeEndless.  This function does

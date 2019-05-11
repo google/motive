@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "motive/io/flatbuffers.h"
+
 #include "anim_generated.h"
 #include "anim_table_generated.h"
 #include "motive/overshoot_init.h"
@@ -39,7 +40,10 @@ MOTIVE_VERIFY_MATRIX_OP_ENUM(kScaleX);
 MOTIVE_VERIFY_MATRIX_OP_ENUM(kScaleY);
 MOTIVE_VERIFY_MATRIX_OP_ENUM(kScaleZ);
 MOTIVE_VERIFY_MATRIX_OP_ENUM(kScaleUniformly);
-MOTIVE_VERIFY_MATRIX_OP_ENUM(kNumMatrixOperationTypes);
+MOTIVE_VERIFY_MATRIX_OP_ENUM(kQuaternionW);
+MOTIVE_VERIFY_MATRIX_OP_ENUM(kQuaternionX);
+MOTIVE_VERIFY_MATRIX_OP_ENUM(kQuaternionY);
+MOTIVE_VERIFY_MATRIX_OP_ENUM(kQuaternionZ);
 #undef MOTIVE_VERIFY_OP_ENUM
 
 void OvershootInitFromFlatBuffers(const OvershootParameters& params,
@@ -57,9 +61,9 @@ void OvershootInitFromFlatBuffers(const OvershootParameters& params,
 
 void SplineInitFromFlatBuffers(const SplineParameters& params,
                                SplineInit* init) {
-  init->set_range(
-      params.base()->modular() != 0 ?
-      Range(params.base()->min(), params.base()->max()) : Range());
+  init->set_range(params.base()->modular() != 0
+                      ? Range(params.base()->min(), params.base()->max())
+                      : Range());
 }
 
 void Settled1fFromFlatBuffers(const Settled1fParameters& params,
@@ -73,10 +77,18 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
   ops.clear();
   ops.reserve(params.ops()->size());
 
+  // Configure the animation as an Sqt animation if appropriate.
+  if (params.sqt_anim()) {
+    anim->SetSqtAnim();
+  }
+
   // Count the number of splines.
   int num_splines = 0;
   for (auto op = params.ops()->begin(); op != params.ops()->end(); ++op) {
-    if (op->value_type() == MatrixOpValueFb_CompactSplineFb) num_splines++;
+    if (op->value_type() == MatrixOpValueFb_CompactSplineFb ||
+        op->value_type() == MatrixOpValueFb_CompactSplineFloatFb) {
+      num_splines++;
+    }
   }
 
   // Initialize the output structure with the correct number of splines.
@@ -88,23 +100,27 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
     const MatrixOperationType op_type =
         static_cast<MatrixOperationType>(op->type());
 
+    // Ensure the Sqt flag is appropriately set.
+    if (QuaternionOp(op_type)) {
+      assert(anim->IsSqtAnim());
+    } else if (RotateOp(op_type)) {
+      assert(!anim->IsSqtAnim());
+    }
+
     switch (op->value_type()) {
       case MatrixOpValueFb_CompactSplineFb: {
         const CompactSplineFb* spline_fb =
             reinterpret_cast<const CompactSplineFb*>(op->value());
         MatrixAnim::Spline& s = splines[spline_idx++];
 
-        // Hold `init` and `playback` data in structures that won't disappear,
-        // since these are referenced by pointer.
+        // Hold `init` data in structures that won't disappear, since these are
+        // referenced by pointer.
         const Range& op_range = RangeOfOp(op_type);
         s.init = SplineInit(op_range);
 
         if (spline_fb) {
-          // Ensure the spline will fit into our memory buffer.
           const CompactSplineIndex num_spline_nodes =
               static_cast<CompactSplineIndex>(spline_fb->nodes()->size());
-
-          // Create the CompactSpline in the memory buffer.
           s.spline = CompactSpline::Create(num_spline_nodes);
 
           // Copy the spline data into s.spline.
@@ -116,6 +132,54 @@ void MatrixAnimFromFlatBuffers(const MatrixAnimFb& params, MatrixAnim* anim) {
           for (auto n = spline_fb->nodes()->begin();
                n != spline_fb->nodes()->end(); ++n) {
             s.spline->AddNodeVerbatim(n->x(), n->y(), n->angle());
+          }
+          assert(s.spline->num_nodes() == s.spline->max_nodes());
+          ops.emplace_back(op->id(), op_type, s.init, *s.spline);
+        } else {
+          ops.emplace_back(op->id(), op_type, s.init);
+        }
+        break;
+      }
+
+      case MatrixOpValueFb_CompactSplineFloatFb: {
+        const CompactSplineFloatFb* spline_fb =
+            reinterpret_cast<const CompactSplineFloatFb*>(op->value());
+        MatrixAnim::Spline& s = splines[spline_idx++];
+
+        // Hold `init` data in structures that won't disappear, since these are
+        // referenced by pointer.
+        const Range& op_range = RangeOfOp(op_type);
+        s.init = SplineInit(op_range);
+        if (spline_fb) {
+          const CompactSplineIndex num_spline_nodes =
+              static_cast<CompactSplineIndex>(spline_fb->nodes()->size());
+          s.spline = CompactSpline::Create(num_spline_nodes);
+
+          // n->time() is in seconds, but CompactSplines work in milliseconds.
+          const float end_x = spline_fb->nodes()->end()->time() * 1000.f;
+          const float x_granularity =
+              CompactSpline::RecommendXGranularity(end_x);
+
+          Range y_range = Range::Empty();
+          for (auto n = spline_fb->nodes()->begin();
+               n != spline_fb->nodes()->end(); ++n) {
+            y_range = y_range.Include(n->value());
+          }
+
+          // Initialize the spline before adding nodes.
+          s.spline->Init(y_range, x_granularity);
+
+          // Create the CompactSpline in the memory buffer, then copy the spline
+          // data into s.spline.
+          // TODO: modify CompactSpline so we can just point at spline data
+          //       instead of copying it.
+          for (auto n = spline_fb->nodes()->begin();
+               n != spline_fb->nodes()->end(); ++n) {
+            // n->time() is in seconds, but CompactSplines work in milliseconds.
+            // Derivatives need to be scaled to the milliseconds as well.
+            s.spline->AddNode(n->time() * 1000.f, n->value(),
+                              n->derivative() / 1000.f,
+                              kAddWithoutModification);
           }
           assert(s.spline->num_nodes() == s.spline->max_nodes());
           ops.emplace_back(op->id(), op_type, s.init, *s.spline);
@@ -144,8 +208,7 @@ static MotiveTime EndTime(const std::vector<MatrixOperationInit>& ops) {
   for (size_t i = 0; i < ops.size(); ++i) {
     const MatrixOperationInit& op = ops[i];
     if (op.union_type == MatrixOperationInit::kUnionSpline) {
-      end_time =
-          std::max(end_time, static_cast<MotiveTime>(op.spline->EndX()));
+      end_time = std::max(end_time, static_cast<MotiveTime>(op.spline->EndX()));
     }
   }
   return end_time;

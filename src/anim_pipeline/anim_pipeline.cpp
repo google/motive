@@ -245,9 +245,18 @@ class FbxAnimParser {
       GatherBonesRecursive(&node_to_bone_map, child_node, -1, out);
     }
 
+    // Determine the time span for the animation.
+    FbxTimeSpan span;
+    if (!root_node->GetAnimationInterval(span)) {
+      scene_->GetGlobalSettings().GetTimelineDefaultTimeSpan(span);
+    }
+    log_.Log(kLogInfo, "Time Span: [%lf %lf)\n",
+             span.GetStart().GetSecondDouble(),
+             span.GetStop().GetSecondDouble());
+
     // Final pass: extract animation data for bones.
     GatherFlatAnimRecursive(&node_to_bone_map, root_node, no_uniform_scale,
-                            out);
+                            span, out);
   }
 
   void LogAnimStateAtTime(int time_in_ms) const {
@@ -294,7 +303,7 @@ class FbxAnimParser {
 
   void GatherFlatAnimRecursive(const NodeToBoneMap* node_to_bone_map,
                                FbxNode* node, bool no_uniform_scale,
-                               FlatAnim* out) const {
+                               const FbxTimeSpan& span, FlatAnim* out) const {
     if (node == nullptr) return;
     log_.Log(kLogVerbose, "Node: %s\n", node->GetName());
 
@@ -310,7 +319,7 @@ class FbxAnimParser {
 
       // Gather the animation data that drives the bone.
       out->SetCurBoneIndex(bone_index);
-      GatherFlatAnimForNode(node, no_uniform_scale, out);
+      GatherFlatAnimForNode(node, no_uniform_scale, span, out);
       out->ResetCurBoneIndex();
     }
 
@@ -318,7 +327,7 @@ class FbxAnimParser {
     if (bone_index < 0 || out->ShouldRecurse(bone_index)) {
       for (int i = 0; i < node->GetChildCount(); i++) {
         GatherFlatAnimRecursive(node_to_bone_map, node->GetChild(i),
-                                no_uniform_scale, out);
+                                no_uniform_scale, span, out);
       }
     }
   }
@@ -371,6 +380,10 @@ class FbxAnimParser {
           fabs(value - first_value) > tolerance)
         return false;
     }
+
+    // Sanity check the output value - some binary FBX files don't give
+    // proper return values from GetChannelValue().
+    *const_value = first_value;
     return true;
   }
 
@@ -389,7 +402,7 @@ class FbxAnimParser {
   }
 
   void GatherFlatAnimForNode(FbxNode* node, bool no_uniform_scale,
-                             FlatAnim* out) const {
+                             const FbxTimeSpan& span, FlatAnim* out) const {
     // The FBX tranform format is defined as below (see
     // http://help.autodesk.com/view/FBX/2016/ENU/?guid=__files_GUID_10CDD63C_79C1_4F2D_BB28_AD2BE65A02ED_htm):
     //
@@ -467,7 +480,7 @@ class FbxAnimParser {
         log_.Log(kLogVerbose, "  [channel %d] %s, %s: curve\n", channel_id,
                  p.property->GetNameAsCStr(), MatrixOpName(op));
         FbxAnimCurve* curve = anim_node->GetCurve(channel);
-        GatherFlatAnimCurve(channel_id, curve, p.op, out);
+        GatherFlatAnimCurve(channel_id, curve, p.op, span, out);
         assert(out->NumNodes(channel_id) > 0);
       }
     }
@@ -477,7 +490,8 @@ class FbxAnimParser {
   }
 
   void GatherFlatAnimCurve(const FlatChannelId channel_id, FbxAnimCurve* curve,
-                           const AnimOp& op, FlatAnim* out) const {
+                           const AnimOp& op, const FbxTimeSpan& span,
+                           FlatAnim* out) const {
     log_.Log(kLogVerbose, "    source, key, x, y, slope\n");
     const int num_keys = curve->KeyGetCount();
     assert(num_keys > 1);  // Since we checked for constant values earlier.
@@ -485,8 +499,14 @@ class FbxAnimParser {
     // If there are multiple keys, then add at least one cubic for each
     // key interval.
     for (int k = 0; k < num_keys - 1; ++k) {
-      const FbxTime start_time = curve->KeyGetTime(k);
-      const FbxTime end_time = curve->KeyGetTime(k + 1);
+      FbxTimeSpan interval(curve->KeyGetTime(k), curve->KeyGetTime(k + 1));
+      if (interval.GetStart() > span.GetStop() ||
+          interval.GetStop() < span.GetStart()) {
+        continue;
+      }
+      interval = span.Intersect(interval);
+      const FbxTime start_time = interval.GetStart();
+      const FbxTime end_time = interval.GetStop();
 
       // Gather indermediate values. We use these to check validity of cubic.
       static const int kNumIntermediateValues = 16;

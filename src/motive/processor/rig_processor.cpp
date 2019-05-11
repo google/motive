@@ -52,11 +52,30 @@ class MotiveRigProcessor : public RigProcessor {
 
   void BlendToAnim(MotiveIndex index, const RigAnim& anim,
                    const motive::SplinePlayback& playback) override {
-    Data(index).BlendToAnim(anim, playback, time_);
+    Data(index).BlendToAnim(anim, playback, Engine(), time_);
+  }
+
+  void BlendToAnims(MotiveIndex index, const RigAnim** anims,
+                    const SplinePlayback* playbacks, const float* weights,
+                    int count) override {
+    Data(index).BlendToAnims(anims, playbacks, weights, count, Engine(), time_);
   }
 
   void SetPlaybackRate(MotiveIndex index, float playback_rate) override {
     Data(index).SetPlaybackRate(playback_rate);
+  }
+
+  void SetPlaybackRates(MotiveIndex index, const float* playback_rates,
+                        int count) {
+    Data(index).SetPlaybackRates(playback_rates, count);
+  }
+
+  void SetWeights(MotiveIndex index, const float* weights, int count) {
+    Data(index).SetWeights(weights, count);
+  }
+
+  void SetRepeating(MotiveIndex index, bool repeat) {
+    Data(index).SetRepeating(repeat);
   }
 
   MotivatorType Type() const override { return RigInit::kType; }
@@ -67,8 +86,18 @@ class MotiveRigProcessor : public RigProcessor {
     return Data(index).GlobalTransforms();
   }
 
+  const mathfu::AffineTransform& RootMotionTransform(
+      MotiveIndex index) const override {
+    return Data(index).RootMotionTransform();
+  }
+
   MotiveTime TimeRemaining(MotiveIndex index) const override {
     return Data(index).TimeRemaining();
+  }
+
+  MotiveTime ChildTimeRemaining(MotiveIndex index,
+                                MotiveIndex child_index) const override {
+    return Data(index).ChildTimeRemaining(child_index);
   }
 
   const RigAnim* DefiningAnim(MotiveIndex index) const override {
@@ -100,10 +129,11 @@ class MotiveRigProcessor : public RigProcessor {
   void InitializeIndices(const MotivatorInit& init, MotiveIndex index,
                          MotiveDimension dimensions,
                          MotiveEngine* engine) override {
+    // Hold onto the engine for use in BlendToAnims().
     RemoveIndices(index, dimensions);
     auto rig_init = static_cast<const RigInit&>(init);
     for (MotiveIndex i = index; i < index + dimensions; ++i) {
-      data_[i] = new RigData(rig_init, time_, engine);
+      data_[i] = new RigData(rig_init, time_);
     }
   }
 

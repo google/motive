@@ -127,6 +127,13 @@ class MotivatorInit {
 /// Print ASCII curves in motive tests.
 #define MOTIVE_OUTPUT_DEBUG_CURVES_IN_TESTS
 
+#if defined(__clang__)
+#define MOTIVE_NO_SANITIZE(x) \
+  __attribute__((no_sanitize(x)))
+#else
+#define MOTIVE_NO_SANITIZE(x)
+#endif
+
 }  // namespace motive
 
 #endif  // MOTIVE_COMMON_H_

@@ -120,6 +120,9 @@ class MotiveProcessorNf : public MotiveProcessor {
   virtual void SetSplinePlaybackRate(MotiveIndex /*index*/,
                                      MotiveDimension /*dimensions*/,
                                      float /*playback_rate*/) {}
+  virtual void SetSplineRepeating(MotiveIndex /*index*/,
+                                  MotiveDimension /*dimensions*/,
+                                  bool /*repeat*/) {}
 };
 
 }  // namespace motive
